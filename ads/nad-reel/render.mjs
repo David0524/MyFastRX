@@ -63,7 +63,7 @@ try {
     try {
       save(path.join(frames, `${String(i).padStart(4, '0')}.png`), await page.evaluate(i => window.__frame(i), i));
     } catch (e) {
-      errors.push(`drawn frame ${i} (t=${(i / 12).toFixed(2)} s): ${String(e.message || e).split('\n')[0]}`);
+      errors.push(`drawn frame ${i} (t=${(i / 30).toFixed(2)} s): ${String(e.message || e).split('\n')[0]}`);
       continue;
     }
     done++;
@@ -82,8 +82,8 @@ if (only || grid) process.exit();
 const ff = args => execFileSync('ffmpeg', ['-v', 'error', '-y', ...args], {stdio: 'inherit'});
 const mp4 = path.join(outDir, `${name}.mp4`), sheet = path.join(outDir, `${name}-contact.jpg`);
 // drawn at 12 fps, duplicated to 24 fps: the "on twos" cadence
-ff(['-framerate', '12', '-i', path.join(frames, '%04d.png'), '-r', '24', '-pix_fmt', 'yuv420p', '-crf', '18', mp4]);
+ff(['-framerate', '30', '-i', path.join(frames, '%04d.png'), '-r', '30', '-pix_fmt', 'yuv420p', '-crf', '18', mp4]);
 // two tiles per second of film (every 6th drawn frame = every 12th output frame), 6 across
-const rows = Math.ceil(total / 6 / 6);
-ff(['-i', mp4, '-vf', `select=not(mod(n\\,12)),scale=240:-1,tile=6x${rows}`, '-frames:v', '1', sheet]);
+const rows = Math.ceil(total / 15 / 6);
+ff(['-i', mp4, '-vf', `select=not(mod(n\\,15)),scale=240:-1,tile=6x${rows}`, '-frames:v', '1', sheet]);
 console.log(`mp4: ${mp4}\ncontact sheet: ${sheet}`);

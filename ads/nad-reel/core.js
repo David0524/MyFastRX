@@ -28,7 +28,7 @@ function setFormat({ ar = '1:1', width } = {}) {
   return { W, H, S, OUT_W, OUT_H };
 }
 { const q = new URLSearchParams(location.search); if (q.has('ar') || q.has('w')) setFormat({ ar: q.get('ar') || '1:1', width: +q.get('w') || undefined }); }
-const FPS_DRAW = 12, FPS_OUT = 24;          // drawn on twos, packed to 24 fps
+const FPS_DRAW = 30, FPS_OUT = 30;          // drawn and output at 30 fps for smooth motion
 const TAU = Math.PI * 2;
 const HAND_FONT = '"Bradley Hand", "Segoe Script", "Chalkboard", "Comic Sans MS", cursive';
 

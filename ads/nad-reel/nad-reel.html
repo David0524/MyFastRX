@@ -217,7 +217,7 @@ function drawClock(c, x, y, r, tau, seed) { const f = circPath(x, y, r); part(c,
   c.lineCap = 'round'; c.strokeStyle = C.navy; c.lineWidth = 9; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(hA) * r * .5, y + Math.sin(hA) * r * .5); c.stroke();
   c.strokeStyle = C.blue; c.lineWidth = 6; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(mA) * r * .72, y + Math.sin(mA) * r * .72); c.stroke();
   c.fillStyle = C.navy; c.beginPath(); c.arc(x, y, 8, 0, TAU); c.fill(); }
-function steam(c, x, y, tau, s = 1) { c.save(); c.strokeStyle = alpha(C.mid, .7); c.lineWidth = 4 * s; c.lineCap = 'round'; const k = Math.floor(tau * 6);
+function steam(c, x, y, tau, s = 1) { c.save(); c.strokeStyle = alpha(C.mid, .7); c.lineWidth = 4 * s; c.lineCap = 'round'; const k = tau * 6;
   for (let q = 0; q < 3; q++) { const pts = []; for (let u = 0; u <= 10; u++) pts.push([x + (q - 1) * 16 * s + Math.sin(u * .7 + k * .9 + q * 2) * 6 * s, y - u * 9 * s]); wob(c, pts, 1, 5 + q); } c.restore(); }
 
 // ===================== SCENES =====================
@@ -234,7 +234,7 @@ function sceneSlump(c, tau, i) {
   const cx = 300, hipY = 1142;
   const back = roundRectPath(cx - 150, 900, 70, 270, 30); part(c, back, [cx - 150, 900, 70, 270], C.blue, C.deep, { dx: -30, dens: .06 });
   // person seated (body only; arms on the desk later)
-  const pose = { ...POSES.tired, eyes: pulse(i, 14, 2) ? .05 : POSES.tired.eyes };
+  const pose = { ...POSES.tired, eyes: pulse(i, 42, 4) ? .05 : POSES.tired.eyes };
   const breath = Math.sin(tau * 2.2) * .012;
   c.save(); c.translate(cx, hipY); c.scale(1, 1 + breath); c.translate(-cx, -hipY); drawPerson(c, cx, hipY, 1, pose, 13, 'body'); c.restore();
   // seat + base
@@ -368,7 +368,7 @@ function sceneEnergized(c, tau, i) {
   c.fillStyle = C.navy; c.fill(polyPath([[780, HB_Y], [860, HB_Y], [874, HB_Y - 110], [766, HB_Y - 110]]));
   c.strokeStyle = C.blue; c.lineWidth = 8; c.lineCap = 'round'; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * .32 + Math.sin(tau * 3 + k) * .03; c.beginPath(); c.moveTo(820, HB_Y - 110); c.quadraticCurveTo(820 + Math.cos(a) * 60, HB_Y - 170, 820 + Math.cos(a) * 110, HB_Y - 110 + Math.sin(a) * 150); c.stroke(); }
   // character: neutral pose lifts into the energized pose
-  const t = sm(.25, .95, tau), pose = blendPose(POSES.neutral, POSES.energized, t); const bob = pulse(i, 6, 3) ? -4 : 0;
+  const t = sm(.25, .95, tau), pose = blendPose(POSES.neutral, POSES.energized, t); const bob = Math.sin(tau * TAU * 1.2) * 4;
   groundShadow(c, 300, HB_Y + 4, 150, 14);
   drawPerson(c, 300, HB_Y - 318 + bob, 1.02, pose, 63);
   headline(c, tau, .1, [[[['Support your', C.navy]], 86], [[['energy', C.blue], [' and', C.navy]], 86], [[['focus', C.blue], [' from home', C.navy]], 86]], { y: 296, gap: 1.1 });
