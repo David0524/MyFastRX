@@ -1,0 +1,122 @@
+AUDIO SOURCES - nad-reel (18 s vertical ad)
+Checked 2026-09-23. Every file below is CC0 1.0 (public domain dedication): commercial use allowed, no attribution required.
+I confirmed the license on each source page when downloading (Kenney: asset page, plus License.txt in the zip).
+CC0 legal text: https://creativecommons.org/publicdomain/zero/1.0/
+All files are in audio/. 48 kHz / 16-bit stereo WAV copies of each are in audio/wav/.
+Durations come from ffprobe on the local file.
+
+======================================================================
+MUSIC
+======================================================================
+music.mp3  (320 kbps, 48 kHz stereo)  - duration 155.98 s
+  Title:     Happy Dance  (track 06 of the "Happy Pop Electronic (Collection)")
+  Author:    HoliznaCC0 (opengameart.org user "holizna")
+  Source:    https://opengameart.org/content/happy-pop-electronic-collection
+  Download:  https://opengameart.org/sites/default/files/happy_electronic.zip
+             (inside the zip: "Happy Electronic/06 HoliznaCC0 - Happy Dance.mp3")
+  License:   CC0 (listed on the page: "This music is public domain Cc0, so use it how you want!")
+             https://creativecommons.org/publicdomain/zero/1.0/
+  Notes:     about 120 BPM. Page tags: pop, happy, electronic, fun, dance.
+             wav/music_first20s_fadeout.wav = the first 20 s with a 1.5 s fade-out (my edit, for convenience)
+
+music_alt_love_love_love.mp3  (320 kbps)  - duration 175.27 s
+  Title:     Love Love Love  (track 11 of the same collection)
+  Author:    HoliznaCC0 (opengameart.org user "holizna")
+  Source:    https://opengameart.org/content/happy-pop-electronic-collection
+  Download:  https://opengameart.org/sites/default/files/happy_electronic.zip
+             (inside the zip: "Happy Electronic/11 HoliznaCC0 - Love Love Love.mp3")
+  License:   CC0  https://creativecommons.org/publicdomain/zero/1.0/
+  Notes:     about 115 BPM. Quiet intro, then a hard drop at about 8.25 s.
+
+======================================================================
+SFX - Kenney (kenney.nl, all CC0)
+======================================================================
+sfx_click.ogg  - duration 0.043 s
+  Title:     select_002.ogg, from the "Interface Sounds" pack (1.0)
+  Author:    Kenney (www.kenney.nl)
+  Source:    https://kenney.nl/assets/interface-sounds
+  Download:  https://kenney.nl/media/pages/assets/interface-sounds/fa43c1dd4d-1677589452/kenney_interface-sounds.zip  (Audio/select_002.ogg)
+  License:   CC0  https://creativecommons.org/publicdomain/zero/1.0/  (asset page + License.txt)
+
+sfx_click2.ogg  - duration 0.056 s
+  Title:     click2.ogg, from the "UI Audio" pack
+  Author:    Kenney (Kenney Vleugels, www.kenney.nl)
+  Source:    https://kenney.nl/assets/ui-audio
+  Download:  https://kenney.nl/media/pages/assets/ui-audio/490d233f68-1677590494/kenney_ui-audio.zip  (Audio/click2.ogg)
+  License:   CC0  https://creativecommons.org/publicdomain/zero/1.0/  (asset page + License.txt)
+
+sfx_chime_short.ogg  - duration 0.539 s
+  Title:     confirmation_002.ogg, from the "Interface Sounds" pack (1.0)
+  Author:    Kenney (www.kenney.nl)
+  Source:    https://kenney.nl/assets/interface-sounds
+  Download:  https://kenney.nl/media/pages/assets/interface-sounds/fa43c1dd4d-1677589452/kenney_interface-sounds.zip  (Audio/confirmation_002.ogg)
+  License:   CC0  https://creativecommons.org/publicdomain/zero/1.0/
+
+sfx_thump_soft.ogg  - duration 0.505 s
+  Title:     impactSoft_heavy_000.ogg, from the "Impact Sounds" pack (1.0)
+  Author:    Kenney (www.kenney.nl)
+  Source:    https://kenney.nl/assets/impact-sounds
+  Download:  https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip  (Audio/impactSoft_heavy_000.ogg)
+  License:   CC0  https://creativecommons.org/publicdomain/zero/1.0/  (asset page + License.txt)
+
+======================================================================
+SFX - Freesound (freesound.org, each sound page says "Creative Commons 0")
+These are Freesound's public "HQ" preview files (128-192 kbps MP3). The original WAV needs a login.
+======================================================================
+sfx_whoosh.mp3  - duration 2.352 s  (48 kHz stereo)
+  Title:     Whoosh stereo light (transition)
+  Author:    xkeril
+  Source:    https://freesound.org/people/xkeril/sounds/701104/
+  Download:  https://cdn.freesound.org/previews/701/701104_13504080-hq.mp3
+  License:   Creative Commons 0  https://creativecommons.org/publicdomain/zero/1.0/
+  Notes:     Real stereo air whoosh (pump + reverb), moves left to right. Peaks at about 0.49 s.
+
+sfx_whoosh_short.mp3  - duration 1.541 s (usable sound is only about 0.3 s)
+  Title:     Transition Swoosh
+  Author:    adh.dreaming
+  Source:    https://freesound.org/people/adh.dreaming/sounds/632763/
+  Download:  https://cdn.freesound.org/previews/632/632763_12672694-hq.mp3
+  License:   Creative Commons 0  https://creativecommons.org/publicdomain/zero/1.0/
+
+sfx_chime.mp3  - duration 3.624 s  (48 kHz stereo)
+  Title:     End of task notification
+  Author:    xkeril
+  Source:    https://freesound.org/people/xkeril/sounds/715069/
+  Download:  https://cdn.freesound.org/previews/715/715069_13504080-hq.mp3
+  License:   Creative Commons 0  https://creativecommons.org/publicdomain/zero/1.0/
+  Notes:     "Harmonic and bright pluck sound", tagged bright / happy / notification. Attack at about 0.1 s, long tail.
+
+sfx_chime_alt_glock.mp3  - duration 1.463 s  (mono source)
+  Title:     Chime
+  Author:    schreibsel
+  Source:    https://freesound.org/people/schreibsel/sounds/539915/
+  Download:  https://cdn.freesound.org/previews/539/539915_7898982-hq.mp3
+  License:   Creative Commons 0  https://creativecommons.org/publicdomain/zero/1.0/
+  Notes:     A real glockenspiel chord.
+
+sfx_ding_bell.mp3  - duration 2.560 s
+  Title:     bell ding 1.wav
+  Author:    5ro4
+  Source:    https://freesound.org/people/5ro4/sounds/611113/
+  Download:  https://cdn.freesound.org/previews/611/611113_1629501-hq.mp3
+  License:   Creative Commons 0  https://creativecommons.org/publicdomain/zero/1.0/
+  Notes:     Single desk/service-bell style ding. Use it as the "delivery arrived" cue if you want a ding instead of a thump.
+
+sfx_thump_box.mp3  - duration 0.940 s  (my trim: 0.45 s to 1.35 s of the source, 0.3 s fade-out)
+  Title:     Cardboard Box Drop.wav
+  Author:    VSokorelos
+  Source:    https://freesound.org/people/VSokorelos/sounds/346169/
+  Download:  https://cdn.freesound.org/previews/346/346169_6146418-hq.mp3
+  License:   Creative Commons 0  https://creativecommons.org/publicdomain/zero/1.0/
+  Notes:     A real cardboard box hitting a concrete floor. Impact at about 0.13 s into the trimmed file.
+
+sfx_thump_box_alt.mp3  - duration 1.104 s
+  Title:     Box_Shatter2.wav
+  Author:    PkBiggums
+  Source:    https://freesound.org/people/PkBiggums/sounds/678536/
+  Download:  https://cdn.freesound.org/previews/678/678536_7060780-hq.mp3
+  License:   Creative Commons 0  https://creativecommons.org/publicdomain/zero/1.0/
+  Notes:     Several cardboard-box drops layered together (busier/rattly). Main hit at about 0.18 s.
+
+# Font
+assets/poppins-600.woff2, assets/poppins-800.woff2 | Poppins by Indian Type Foundry | https://github.com/itfoundry/Poppins | via https://cdn.jsdelivr.net/npm/@fontsource/poppins | SIL Open Font License 1.1 (assets/OFL-poppins.txt)
