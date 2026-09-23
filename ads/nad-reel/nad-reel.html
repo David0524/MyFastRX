@@ -1,0 +1,420 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>MyFastRx NAD+ reel</title>
+<style>
+  body{margin:0;background:#111;color:#ccc;font:13px/1.4 ui-monospace,Menlo,monospace;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px}
+  canvas#c{width:min(92vw,405px);height:auto;background:#000;box-shadow:0 0 0 1px #333}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
+  button{background:#222;color:#ddd;border:1px solid #444;padding:4px 10px;cursor:pointer;font:inherit}
+  input[type=range]{width:320px}
+</style>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="core.js"></script>
+<script src="embedded.js"></script>
+<script>
+'use strict';
+// ===================== BRIEF & BEAT SHEET =====================
+// Subject: MyFastRx NAD+ social ad. A tired home-office worker takes the 3-minute online visit,
+// a licensed provider reviews it, the kit ships free, and they feel steady again. Ends on the official logo + CTA.
+// Format: 9:16, 1080x1920, drawn 12 fps, output 24 fps. Look: screen (flat shapes + fine dot grid), brand palette only.
+// Anchor: the logo's heartbeat line is the floor line in every shot (HB_Y); it beats faster as the story lifts.
+// Safe zone: text and key action inside x < 0.85W, 0.15H < y < 0.75H.
+// t      dur   scene      camera                 what changes                                       sound
+// 0.00   2.50  slump      push-in, drift down    3 p.m. clock, slumped at desk, steam; line sweep    muffled groove, whoosh 2.1
+// 2.50   2.00  visit      push-in + tilt         phone form: 3 checks tick, progress, submit tap    groove opens up, 3 taps, tap
+// 4.50   2.00  review     slow rise              provider card, check stamp lands                   stamp 5.4
+// 6.50   2.00  delivery   pan down with the box  box drops to the doorstep, squash, flaps open, dive thump 7.2, whoosh 8.1
+// 8.50   2.00  kit        rise                   vial + nasal spray rise out of the box             pops 8.7 / 8.9
+// 10.50  2.75  energized  push-in, tilt up       sunlit, pose lifts neutral -> energized            -
+// 13.25  2.25  price      float                  $99/mo, kit, CTA pill with tap                     tap 14.6
+// 15.50  3.00  endcard    static logo            logo held still, CTA, url, disclaimer (2.9 s)      chime 15.5
+
+// ===================== PALETTE =====================
+const BLUE = '#1264FF', NAVY = '#07133D', ICE = '#F0F6FF', WHITE = '#FFFFFF';
+usePalette(makePalette({
+  paper: ICE, paperBand: null, ink: NAVY, night: NAVY, chalk: ICE, chalkDim: mix(ICE, NAVY, .45), guide: alpha(BLUE, .35),
+  fills: [BLUE, NAVY, WHITE, '#F2B48A', '#6A3E27', '#C8661F'], shade: mix(NAVY, BLUE, .2), light: WHITE, blush: '#DE9868',
+  accents: [BLUE, tint(BLUE, .45), NAVY, WHITE], inks: [BLUE, NAVY], finish: 'screen',
+}, 'screenSea'));
+// named tones, all derived from PAL
+const C = {
+  blue: PAL.fills[0], navy: PAL.fills[1], white: PAL.fills[2], ice: PAL.paper,
+  skin: PAL.fills[3], skinSh: PAL.blush, hair: PAL.fills[4], hairSh: shade(PAL.fills[4], .28),
+  amber: PAL.fills[5], amberSh: shade(PAL.fills[5], .3), amberHi: tint(PAL.fills[5], .35),
+  sweater: mix(PAL.fills[1], PAL.fills[0], .2), sweaterSh: PAL.fills[1],
+  trouser: mix(PAL.paper, PAL.fills[0], .13), trouserSh: mix(PAL.paper, PAL.fills[0], .26),
+  pale: mix(PAL.paper, PAL.fills[0], .22), mid: mix(PAL.paper, PAL.fills[0], .4), deep: mix(PAL.fills[0], PAL.fills[1], .35),
+  line: alpha(PAL.fills[1], .28),
+};
+const HB_Y = 1400;                                 // the anchor: heartbeat floor line, bottom of the safe zone
+const TX = 84;                                     // text left edge; right edge must stay < 0.85 W
+
+// ===================== HELPERS =====================
+const backOut = t => { const s = 1.7; t -= 1; return 1 + (s + 1) * t * t * t + s * t * t; };
+function capsule(A, B, w) { const p = new Path2D(), a = Math.atan2(B[1] - A[1], B[0] - A[0]), r = w / 2; p.arc(A[0], A[1], r, a + Math.PI / 2, a + Math.PI * 1.5); p.arc(B[0], B[1], r, a - Math.PI / 2, a + Math.PI / 2); p.closePath(); return p; }
+function capsulePts(A, B, w, n = 9) { const a = Math.atan2(B[1] - A[1], B[0] - A[0]), r = w / 2, pts = [];
+  for (let k = 0; k <= n; k++) { const t = a + Math.PI / 2 + k / n * Math.PI; pts.push([A[0] + Math.cos(t) * r, A[1] + Math.sin(t) * r]); }
+  for (let k = 0; k <= n; k++) { const t = a - Math.PI / 2 + k / n * Math.PI; pts.push([B[0] + Math.cos(t) * r, B[1] + Math.sin(t) * r]); } return pts; }
+const boxOf = (A, B, w) => [Math.min(A[0], B[0]) - w, Math.min(A[1], B[1]) - w, Math.abs(A[0] - B[0]) + 2 * w, Math.abs(A[1] - B[1]) + 2 * w];
+function rrPts(x, y, w, h, r, n = 5) { const pts = [], cs = [[x + w - r, y + r, -Math.PI / 2], [x + w - r, y + h - r, 0], [x + r, y + h - r, Math.PI / 2], [x + r, y + r, Math.PI]];
+  for (const [cx, cy, a0] of cs) for (let k = 0; k <= n; k++) { const a = a0 + k / n * Math.PI / 2; pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } return pts; }
+// flat part: fill, a two-tone shade block offset toward the light-away side, fine dot screen, optional thin outline
+function part(c, path, box, fill, sh, o = {}) {
+  c.fillStyle = fill; c.fill(path);
+  if (sh) { c.save(); c.clip(path); c.translate(o.dx ?? -box[2] * .42, o.dy ?? 0); c.fillStyle = sh; c.fill(path); c.restore(); }
+  if (o.dots !== false) surface(c, path, box, { finish: 'screen', color: o.dotCol || (sh || shade(fill, .2)), density: o.dens ?? .09, cell: 7, alpha: .55, seed: o.seed || 3 });
+  if (o.pts) { c.save(); c.strokeStyle = o.lineCol || C.line; c.lineWidth = o.lw || 1.8; c.lineJoin = 'round'; wob(c, o.pts, 1.4, (o.seed || 3) + 9, true); c.restore(); }
+}
+function ik(S, T, L1, L2, bend) { let dx = T[0] - S[0], dy = T[1] - S[1], d = Math.hypot(dx, dy); const dm = L1 + L2 - 1; if (d > dm) { dx *= dm / d; dy *= dm / d; d = dm; }
+  const a = Math.atan2(dy, dx), th = Math.acos(clamp((L1 * L1 + d * d - L2 * L2) / (2 * L1 * d), -1, 1)), e = a + bend * th; const E = [S[0] + Math.cos(e) * L1, S[1] + Math.sin(e) * L1]; return [E, [S[0] + dx, S[1] + dy]]; }
+const seg = (A, a, L) => [A[0] + Math.sin(a) * L, A[1] + Math.cos(a) * L];
+const lerpPt = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t)];
+
+// ---------- text ----------
+function setFont(c, size, w = 800) { c.font = `${w} ${size}px Pop`; }
+function richLine(c, segs, x, y, size, w = 800, align = 'left') { setFont(c, size, w); c.textBaseline = 'alphabetic';
+  const ws = segs.map(s => c.measureText(s[0]).width), tot = ws.reduce((a, b) => a + b, 0); let px = align === 'center' ? x - tot / 2 : x;
+  segs.forEach((s, k) => { c.fillStyle = alpha(C.blue, .22); c.fillText(s[0], px + 4, y + 4); c.fillStyle = s[1]; c.fillText(s[0], px, y); px += ws[k]; }); return tot; }
+// lines: [[segs, size, weight]]; each line pops in 2 drawn frames after the previous
+function headline(c, tau, t0, lines, o = {}) { const { x = TX, y = 360, gap = 1.12, align = 'left', stagger = 1 / 6 } = o; let yy = y;
+  let prev = 0; lines.forEach(([segs, size, w = 800, dy = 0], k) => { yy += (k ? (prev + size) / 2 * gap : size * .8) + dy; prev = size; const p = sm(t0 + k * stagger, t0 + k * stagger + .25, tau, t => t); if (p <= 0) return;
+    const s = lerp(.8, 1, backOut(p)); c.save(); resetT(c); c.globalAlpha = clamp(p * 1.8, 0, 1); c.translate(x, yy); c.scale(s, s); c.translate(-x, -yy); richLine(c, segs, x, yy, size, w, align); c.restore(); }); }
+function pill(c, x, y, w, h, label, p = 1, press = 0) { if (p <= 0) return; const s = lerp(.7, 1, backOut(clamp(p, 0, 1))) * (1 - press * .06);
+  c.save(); c.translate(x, y); c.scale(s, s); c.globalAlpha = clamp(p * 1.8, 0, 1);
+  c.fillStyle = C.navy; c.fill(roundRectPath(-w / 2 + 6, -h / 2 + 10, w, h, h / 2));
+  const body = roundRectPath(-w / 2, -h / 2, w, h, h / 2); c.fillStyle = C.blue; c.fill(body);
+  dotScreen(c, body, [-w / 2, -h / 2, w, h], { cell: 7, color: C.deep, density: .06, alpha: .5, seed: 71 });
+  setFont(c, h * .4, 800); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = C.white; c.fillText(label, 0, 3); c.restore(); }
+
+// ---------- backdrop and anchor ----------
+function backdrop(c, tau, o = {}) { const { speed = 36, seed = 1, drift = 0, shapes = 11 } = o; paper(c, PAL.paper, null, seed);
+  resetT(c); const g = 44, off = (tau * speed) % g; c.fillStyle = alpha(C.blue, .09); c.beginPath();
+  for (let y = -g; y < H + g; y += g) for (let x = 0; x < W + g; x += g) { const yy = y - off, xx = x + ((y / g) % 2 ? g / 2 : 0) - (tau * drift) % g; c.moveTo(xx + 2.4, yy); c.arc(xx, yy, 2.4, 0, TAU); }
+  c.fill();
+  const r = rng(seed * 17); c.lineCap = 'round';
+  for (let k = 0; k < shapes; k++) { const depth = .5 + r() * 1.2, x = r() * W, y0 = r() * (H + 400), y = ((y0 - tau * speed * depth * 2.2) % (H + 400) + H + 400) % (H + 400) - 200, s = 10 + depth * 12;
+    c.strokeStyle = alpha(k % 3 ? C.blue : C.navy, .10 + depth * .05); c.lineWidth = 3 + depth * 2;
+    if (k % 2) { c.beginPath(); c.moveTo(x - s, y); c.lineTo(x + s, y); c.moveTo(x, y - s); c.lineTo(x, y + s); c.stroke(); }
+    else { c.beginPath(); c.arc(x, y, s, 0, TAU); c.stroke(); } } }
+const HB_SHAPE = [[-64, 0], [-48, -.3], [-37, .1], [-27, 0], [-15, -1], [0, .44], [12, 0]];
+function heartbeat(c, tau, o = {}) { const { y = HB_Y, amp = 70, speed = 300, period = 560, color = C.blue, width = 11, x0 = -60, x1 = W + 60, phase = 120, from = x0, to = x1, screen = false } = o;
+  const pts = [[from, y]], shift = tau * speed, n = Math.ceil((x1 - x0) / period) + 1, span = n * period;
+  for (let k = 0; k < n; k++) { const pc = x0 + (((k * period - shift + phase) % span) + span) % span;
+    for (const [du, dv] of HB_SHAPE) { const x = pc + du; if (x > from && x < to) pts.push([x, y + dv * amp]); } }
+  pts.push([to, y]); pts.sort((a, b) => a[0] - b[0]);
+  c.save(); if (screen) resetT(c); c.strokeStyle = color; c.lineWidth = width; c.lineJoin = 'round'; c.lineCap = 'round'; c.beginPath(); pts.forEach((p, k) => k ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.stroke(); c.restore(); }
+function groundShadow(c, x, y, rx, ry = 14) { c.save(); c.fillStyle = alpha(C.blue, .16); c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, TAU); c.fill(); c.restore(); }
+
+// ===================== PUPPET: the customer =====================
+// Local coords: origin at the hip centre, up = -y, ~690 tall at scale 1. Pose: lean, tilt, eyes, smile, hands (IK targets), legs.
+const L = { thigh: 150, shin: 146, upper: 118, fore: 106 };
+const SH_F = [52, -196], SH_B = [-58, -196], NECK = [4, -228];
+function headPoint(pose, p) { const a = pose.tilt || 0, x = p[0], y = p[1]; return [NECK[0] + x * Math.cos(a) - y * Math.sin(a), NECK[1] + x * Math.sin(a) + y * Math.cos(a)]; }
+const POSES = {
+  neutral:   { lean: 0, tilt: 0, eyes: 1, smile: .45, brow: 0, hf: [74, -118], bf: -1, hb: [-74, 6], bb: 1, mug: 'f', legs: [[.03, 0], [-.05, -.02]] },
+  energized: { lean: -.03, tilt: -.06, eyes: 1, smile: 1, brow: -.4, hf: [70, -6], bf: -1, hb: [-128, -372], bb: -1, mug: 'b', legs: [[.05, 0], [-.07, -.02]] },
+  tired:     { lean: .2, tilt: .3, eyes: .22, smile: -.5, brow: .6, hf: null, bf: -1, hb: [190, -112], bb: 1, mug: null, legs: [[1.45, .06], [1.38, .12]], seated: true },
+};
+function blendPose(a, b, t) { const o = { ...(t < .5 ? a : b) }; for (const k of ['lean', 'tilt', 'eyes', 'smile', 'brow']) o[k] = lerp(a[k], b[k], t);
+  o.hf = lerpPt(a.hf, b.hf, t); o.hb = lerpPt(a.hb, b.hb, t); o.legs = a.legs.map((l, k) => [lerp(l[0], b.legs[k][0], t), lerp(l[1], b.legs[k][1], t)]); return o; }
+function drawLeg(c, pose, k, seed) { const hip = [k ? -30 : 34, 0], [a1, a2] = pose.legs[k], knee = seg(hip, a1, L.thigh), ank = seg(knee, a2, L.shin);
+  const col = k ? mix(C.trouser, C.trouserSh, .45) : C.trouser, sh = k ? C.trouserSh : mix(C.trouser, C.trouserSh, .75);
+  part(c, capsule(hip, knee, 64), boxOf(hip, knee, 64), col, sh, { dx: -18, seed: seed + 1 });
+  part(c, capsule(knee, ank, 54), boxOf(knee, ank, 54), col, sh, { dx: -16, seed: seed + 2 });
+  // shoe points forward (+x)
+  const sx = ank[0] - 24, sy = ank[1] + 2, sp = roundRectPath(sx, sy - 14, 84, 34, [18, 22, 14, 12]);
+  part(c, sp, [sx, sy - 14, 84, 34], C.white, null, { dots: false, pts: rrPts(sx, sy - 14, 84, 34, 14), seed: seed + 3 });
+  c.fillStyle = C.pale; c.fillRect(sx + 4, sy + 14, 78, 6);
+  c.strokeStyle = C.mid; c.lineWidth = 2.4; c.lineCap = 'round'; for (let q = 0; q < 3; q++) { c.beginPath(); c.moveTo(sx + 30 + q * 11, sy - 8); c.lineTo(sx + 40 + q * 11, sy - 3); c.stroke(); } }
+function drawMug(c, x, y, s = 1, seed = 1) { c.save(); c.translate(x, y); c.scale(s, s);
+  c.strokeStyle = C.white; c.lineWidth = 9; c.beginPath(); c.arc(-26, 2, 13, Math.PI * .5, Math.PI * 1.5); c.stroke();
+  c.strokeStyle = C.line; c.lineWidth = 1.6; c.beginPath(); c.arc(-26, 2, 18, Math.PI * .5, Math.PI * 1.5); c.stroke();
+  const b = roundRectPath(-24, -28, 50, 58, [4, 4, 10, 10]); part(c, b, [-24, -28, 50, 58], C.white, mix(C.white, C.trouser, .8), { dx: -30, dots: false, pts: rrPts(-24, -28, 50, 58, 5), seed });
+  c.fillStyle = C.trouser; c.beginPath(); c.ellipse(1, -27, 24, 5, 0, 0, TAU); c.fill(); c.restore(); }
+function drawArm(c, pose, which, seed) { const front = which === 'f', S0 = front ? SH_F : SH_B;
+  let T = front ? pose.hf : pose.hb; if (!T) T = headPoint(pose, [36, -18]);   // tired: hand on the cheek
+  const [E, Wr] = ik(S0, T, L.upper, L.fore, front ? pose.bf : pose.bb);
+  const col = front ? C.sweater : mix(C.sweater, C.sweaterSh, .45), sh = C.sweaterSh;
+  const mugHere = pose.mug === which;
+  if (mugHere && which === 'b') drawMug(c, Wr[0] + 8, Wr[1] - 16, 1, seed + 40);
+  part(c, capsule(S0, E, 50), boxOf(S0, E, 50), col, sh, { dx: -16, seed: seed + 5 });
+  const a = Math.atan2(Wr[1] - E[1], Wr[0] - E[0]), cuffA = [Wr[0] - Math.cos(a) * 16, Wr[1] - Math.sin(a) * 16];
+  part(c, capsule(E, cuffA, 44), boxOf(E, cuffA, 44), col, sh, { dx: -14, seed: seed + 6 });
+  c.fillStyle = C.white; c.fill(capsule(cuffA, [Wr[0] - Math.cos(a) * 6, Wr[1] - Math.sin(a) * 6], 40));
+  if (mugHere && which === 'f') drawMug(c, Wr[0] + 18, Wr[1] - 4, 1, seed + 40);
+  const hp = ellPath(Wr[0] + Math.cos(a) * 12, Wr[1] + Math.sin(a) * 12, 21, 18, a); part(c, hp, [Wr[0] - 30, Wr[1] - 30, 60, 60], C.skin, C.skinSh, { dx: -8, dy: 4, dots: false }); }
+function drawHead(c, pose, seed) { c.save(); c.translate(NECK[0], NECK[1]); c.rotate(pose.tilt || 0);
+  const neck = roundRectPath(-17, -30, 34, 44, 8); part(c, neck, [-17, -30, 34, 44], C.skinSh, null, { dots: false });
+  const ear = ellPath(-38, -66, 12, 17); part(c, ear, [-50, -83, 24, 34], C.skin, C.skinSh, { dx: 6, dots: false });
+  const face = ellPath(10, -74, 54, 64); part(c, face, [-44, -138, 108, 128], C.skin, C.skinSh, { dx: -72, dy: 0, dots: false, pts: ellPts(10, -74, 54, 64, 0, 40), lineCol: alpha(C.skinSh, .8), lw: 1.4 });
+  const hairPts = [[-54, -56], [-58, -96], [-44, -130], [-12, -148], [24, -150], [52, -138], [66, -114], [60, -104], [44, -114], [22, -112], [4, -106], [-14, -104], [-22, -94], [-30, -74], [-34, -52]];
+  const hair = polyPath(hairPts); part(c, hair, [-60, -152, 130, 104], C.hair, C.hairSh, { dx: -44, dy: 10, dots: false });
+  c.fillStyle = C.hairSh; c.fill(polyPath([[20, -148], [44, -128], [30, -124], [10, -136]]));
+  // features: eyes are dots, tired eyes get a lid
+  const eo = clamp(pose.eyes, 0, 1);
+  for (const ex of [26, 50]) { c.fillStyle = C.navy; c.beginPath(); c.ellipse(ex, -76, 5.6, 6.4 * lerp(.35, 1, eo), 0, 0, TAU); c.fill();
+    if (eo < .6) { c.strokeStyle = C.navy; c.lineWidth = 2.6; c.lineCap = 'round'; c.beginPath(); c.moveTo(ex - 8, -79); c.lineTo(ex + 7, -78); c.stroke(); } }
+  c.strokeStyle = C.hairSh; c.lineWidth = 4; c.lineCap = 'round'; const b = pose.brow || 0;
+  for (const ex of [26, 50]) { c.beginPath(); c.moveTo(ex - 9, -94 + (ex < 40 ? b * 3 : -b * 3)); c.lineTo(ex + 8, -95 - (ex < 40 ? b * 2 : -b * 2) + b * 2); c.stroke(); }
+  c.strokeStyle = C.skinSh; c.lineWidth = 3; c.beginPath(); c.moveTo(58, -76); c.lineTo(66, -58); c.lineTo(56, -55); c.stroke();
+  const sm_ = pose.smile; c.strokeStyle = shade(C.skinSh, .35); c.lineWidth = 3.4; c.beginPath(); c.moveTo(28, -40 - sm_ * 2); c.quadraticCurveTo(40, -40 + sm_ * 9, 52, -42 - sm_ * 3); c.stroke();
+  c.restore(); }
+function drawTorso(c, pose, seed) {
+  const sw = new Path2D(); sw.moveTo(-40, -230); sw.quadraticCurveTo(-84, -224, -86, -186); sw.lineTo(-76, 8); sw.lineTo(78, 8); sw.lineTo(84, -186); sw.quadraticCurveTo(80, -224, 44, -230); sw.quadraticCurveTo(4, -206, -40, -230); sw.closePath();
+  part(c, sw, [-90, -234, 176, 246], C.sweater, C.sweaterSh, { dx: -120, seed: seed + 20, dens: .1 });
+  c.fillStyle = C.sweaterSh; c.fillRect(-76, -12, 154, 20);
+  const col = polyPath([[-36, -232], [-12, -206], [2, -218], [16, -206], [40, -232], [26, -240], [2, -226], [-22, -240]]); c.fillStyle = C.white; c.fill(col);
+  c.strokeStyle = C.line; c.lineWidth = 1.4; wob(c, [[-36, -232], [-12, -206], [2, -218], [16, -206], [40, -232]], 1, seed + 21); }
+// parts: 'all' | 'body' (legs, torso, head, no arms) | 'arms'
+function drawPerson(c, x, y, s, pose, seed, parts = 'all') { c.save(); c.translate(x, y); c.scale(s, s); c.lineJoin = 'round';
+  if (parts !== 'arms') { drawLeg(c, pose, 1, seed + 100); drawLeg(c, pose, 0, seed + 200); }
+  c.save(); c.rotate(pose.lean);
+  if (parts === 'all') drawArm(c, pose, 'b', seed + 300);
+  if (parts !== 'arms') { drawTorso(c, pose, seed); c.save(); c.translate(0, 0); drawHead(c, pose, seed); c.restore(); }
+  if (parts === 'arms') drawArm(c, pose, 'b', seed + 300);
+  if (parts !== 'body') drawArm(c, pose, 'f', seed + 400);
+  c.restore(); c.restore(); }
+
+// ===================== PROPS =====================
+function drawVial(c, x, y, s = 1, seed = 1) { c.save(); c.translate(x, y); c.scale(s, s);   // origin at bottom centre
+  groundShadow(c, 0, 0, 96, 12);
+  const body = roundRectPath(-82, -210, 164, 210, [26, 26, 22, 22]); part(c, body, [-82, -210, 164, 210], C.amber, C.amberSh, { dx: -120, dots: true, dotCol: C.amberSh, dens: .08, seed });
+  c.fillStyle = alpha(C.amberHi, .9); c.fill(roundRectPath(44, -190, 14, 150, 7));
+  const lab = rectPath(-82, -150, 164, 96); c.fillStyle = C.white; c.fill(lab); c.fillStyle = C.trouser; c.fillRect(-82, -150, 34, 96);
+  setFont(c, 44, 800); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = C.navy; c.fillText('NAD+', 4, -100);
+  const cap = roundRectPath(-90, -270, 180, 66, 10); part(c, cap, [-90, -270, 180, 66], C.navy, shade(C.navy, .4), { dx: -120, dots: false });
+  c.fillStyle = mix(C.navy, C.blue, .3); c.fillRect(-90, -262, 180, 10); c.strokeStyle = alpha(C.blue, .35); c.lineWidth = 3; for (let k = -80; k <= 80; k += 16) { c.beginPath(); c.moveTo(k, -248); c.lineTo(k, -210); c.stroke(); }
+  c.restore(); }
+function drawSpray(c, x, y, s = 1, seed = 1) { c.save(); c.translate(x, y); c.scale(s, s);
+  groundShadow(c, 0, 0, 78, 11);
+  const bottle = new Path2D(); bottle.roundRect(-64, -236, 128, 236, [30, 30, 20, 20]); part(c, bottle, [-64, -236, 128, 236], C.white, mix(C.white, C.trouser, .9), { dx: -90, dots: false, pts: rrPts(-64, -236, 128, 236, 20), seed });
+  setFont(c, 38, 800); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = C.navy; c.fillText('NAD+', 2, -120);
+  const col = roundRectPath(-50, -272, 100, 40, 8); part(c, col, [-50, -272, 100, 40], C.blue, C.deep, { dx: -70, dots: false });
+  const noz = polyPath([[-26, -270], [-12, -372], [12, -372], [26, -270]]); part(c, noz, [-26, -372, 52, 102], C.blue, C.deep, { dx: -36, dots: false });
+  c.fillStyle = C.deep; c.fillRect(-12, -372, 24, 8); c.restore(); }
+// box: origin bottom-centre of the front face; open 0..1 raises the flaps
+function drawBox(c, x, y, s = 1, open = 0, squash = 0, seed = 1) { c.save(); c.translate(x, y); c.scale(s * (1 + squash * .12), s * (1 - squash * .14));
+  const w = 300, h = 250, d = 90, dy = -52;
+  groundShadow(c, 40, 0, 230, 18);
+  const side = polyPath([[w / 2, 0], [w / 2 + d, dy], [w / 2 + d, dy - h], [w / 2, -h]]); part(c, side, [w / 2, dy - h, d, h + 60], C.trouser, null, { dens: .14, dotCol: C.trouserSh, pts: [[w / 2, 0], [w / 2 + d, dy], [w / 2 + d, dy - h], [w / 2, -h]], seed });
+  if (open > 0) { const o = open;   // back flaps behind the front face
+    c.fillStyle = C.trouserSh; c.fill(polyPath([[-w / 2 + d, dy - h], [w / 2 + d, dy - h], [w / 2 + d - 10 * o, dy - h - 120 * o], [-w / 2 + d + 10 * o, dy - h - 120 * o]]));
+    c.fillStyle = C.pale; c.fill(polyPath([[-w / 2, -h], [-w / 2 + d, dy - h], [-w / 2 + d - 60 * o, dy - h - 70 * o], [-w / 2 - 70 * o, -h - 60 * o]]));
+    c.fillStyle = C.trouserSh; c.fill(polyPath([[-w / 2, -h], [w / 2, -h], [w / 2 + d, dy - h], [-w / 2 + d, dy - h]])); }
+  const front = rectPath(-w / 2, -h, w, h); part(c, front, [-w / 2, -h, w, h], C.white, null, { dots: false, pts: [[-w / 2, 0], [w / 2, 0], [w / 2, -h], [-w / 2, -h]], seed: seed + 1 });
+  const strip = rectPath(60, -h, 70, h); c.fillStyle = C.blue; c.fill(strip); dotScreen(c, strip, [60, -h, 70, h], { cell: 7, color: C.deep, density: .07, alpha: .5, seed: seed + 2 });
+  c.strokeStyle = C.white; c.lineWidth = 5; c.lineJoin = 'round'; c.beginPath(); [[72, -125], [86, -125], [92, -140], [100, -106], [108, -125], [120, -125]].forEach((p, k) => k ? c.lineTo(...p) : c.moveTo(...p)); c.stroke();
+  if (open <= 0) { const top = polyPath([[-w / 2, -h], [w / 2, -h], [w / 2 + d, dy - h], [-w / 2 + d, dy - h]]); part(c, top, [-w / 2, dy - h, w + d, -dy], C.pale, null, { dens: .12, dotCol: C.trouserSh, seed: seed + 3 });
+    c.fillStyle = alpha(C.blue, .55); c.fill(polyPath([[40, -h], [100, -h], [100 + d * .9, dy - h], [40 + d * .9, dy - h]])); }
+  else { const o = open;   // front flaps fold outward toward the viewer
+    c.fillStyle = C.white; c.fill(polyPath([[-w / 2, -h], [w / 2, -h], [w / 2 + 20 * o, -h - 70 * o], [-w / 2 - 20 * o, -h - 70 * o]]));
+    c.strokeStyle = C.line; c.lineWidth = 1.6; wob(c, [[-w / 2, -h], [-w / 2 - 20 * o, -h - 70 * o], [w / 2 + 20 * o, -h - 70 * o], [w / 2, -h]], 1.2, seed + 4);
+    c.fillStyle = C.trouser; c.fill(polyPath([[w / 2, -h], [w / 2 + d, dy - h], [w / 2 + d + 60 * o, dy - h - 60 * o], [w / 2 + 50 * o, -h - 60 * o]])); }
+  c.restore(); }
+function drawClock(c, x, y, r, tau, seed) { const f = circPath(x, y, r); part(c, f, [x - r, y - r, 2 * r, 2 * r], C.white, null, { dots: false, pts: ellPts(x, y, r, r, 0, 40), lineCol: C.navy, lw: 6, seed });
+  c.strokeStyle = C.mid; c.lineWidth = 4; for (let k = 0; k < 12; k++) { const a = k / 12 * TAU; c.beginPath(); c.moveTo(x + Math.cos(a) * r * .78, y + Math.sin(a) * r * .78); c.lineTo(x + Math.cos(a) * r * .88, y + Math.sin(a) * r * .88); c.stroke(); }
+  const mA = -Math.PI / 2 + (Math.floor(tau * 2) / 2) * .05, hA = 0;   // 3:00, minute hand ticks
+  c.lineCap = 'round'; c.strokeStyle = C.navy; c.lineWidth = 9; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(hA) * r * .5, y + Math.sin(hA) * r * .5); c.stroke();
+  c.strokeStyle = C.blue; c.lineWidth = 6; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(mA) * r * .72, y + Math.sin(mA) * r * .72); c.stroke();
+  c.fillStyle = C.navy; c.beginPath(); c.arc(x, y, 8, 0, TAU); c.fill(); }
+function steam(c, x, y, tau, s = 1) { c.save(); c.strokeStyle = alpha(C.mid, .7); c.lineWidth = 4 * s; c.lineCap = 'round'; const k = Math.floor(tau * 6);
+  for (let q = 0; q < 3; q++) { const pts = []; for (let u = 0; u <= 10; u++) pts.push([x + (q - 1) * 16 * s + Math.sin(u * .7 + k * .9 + q * 2) * 6 * s, y - u * 9 * s]); wob(c, pts, 1, 5 + q); } c.restore(); }
+
+// ===================== SCENES =====================
+// 1. SLUMP: problem in the first frame
+function sceneSlump(c, tau, i) {
+  backdrop(c, tau, { seed: 11, speed: 18 });
+  cam(c, CX, CY + lerp(-10, 30, sm(0, 2.5, tau)), lerp(1.0, 1.07, sm(0, 2.5, tau)));
+  heartbeat(c, tau, { x0: -500, x1: W + 500, amp: 34, speed: 120, period: 700 });
+  // window and clock on the wall, parallax at the world scale
+  const win = roundRectPath(90, 640, 300, 360, 18); part(c, win, [90, 640, 300, 360], C.pale, null, { dens: .12, dotCol: C.trouserSh, pts: rrPts(90, 640, 300, 360, 18), lineCol: C.mid, lw: 5 });
+  c.strokeStyle = C.mid; c.lineWidth = 6; c.beginPath(); c.moveTo(240, 640); c.lineTo(240, 1000); c.moveTo(90, 820); c.lineTo(390, 820); c.stroke();
+  drawClock(c, 760, 760, 92, tau, 12);
+  // chair back
+  const cx = 300, hipY = 1142;
+  const back = roundRectPath(cx - 150, 900, 70, 270, 30); part(c, back, [cx - 150, 900, 70, 270], C.blue, C.deep, { dx: -30, dens: .06 });
+  // person seated (body only; arms on the desk later)
+  const pose = { ...POSES.tired, eyes: pulse(i, 14, 2) ? .05 : POSES.tired.eyes };
+  const breath = Math.sin(tau * 2.2) * .012;
+  c.save(); c.translate(cx, hipY); c.scale(1, 1 + breath); c.translate(-cx, -hipY); drawPerson(c, cx, hipY, 1, pose, 13, 'body'); c.restore();
+  // seat + base
+  part(c, roundRectPath(cx - 150, hipY + 20, 250, 44, 18), [cx - 150, hipY + 20, 250, 44], C.blue, C.deep, { dy: 16, dx: 0, dens: .06 });
+  c.fillStyle = C.navy; c.fillRect(cx - 42, hipY + 64, 22, 150); c.fillRect(cx - 140, hipY + 214, 220, 14);
+  for (const wx of [cx - 140, cx - 30, cx + 80]) { c.beginPath(); c.arc(wx, hipY + 240, 14, 0, TAU); c.fill(); }
+  // desk
+  const topY = 1040; const top = roundRectPath(340, topY, 620, 34, 6); part(c, top, [340, topY, 620, 34], C.white, null, { dots: false, pts: rrPts(340, topY, 620, 34, 6) });
+  c.fillStyle = C.trouser; c.fillRect(372, topY + 34, 24, HB_Y - topY - 34); c.fillRect(904, topY + 34, 24, HB_Y - topY - 34);
+  c.fillStyle = C.pale; c.fillRect(340, topY + 30, 620, 8);
+  // laptop, back to the viewer, notebook, mug with steam
+  const lid = polyPath([[640, topY - 8], [880, topY - 8], [930, topY - 230], [700, topY - 230]]); part(c, lid, [640, topY - 230, 290, 222], C.mid, C.trouserSh, { dx: -40, dens: .1, pts: [[640, topY - 8], [880, topY - 8], [930, topY - 230], [700, topY - 230]] });
+  c.fillStyle = C.pale; c.beginPath(); c.arc(790, topY - 120, 16, 0, TAU); c.fill();
+  c.fillStyle = C.mid; c.fillRect(620, topY - 10, 280, 10);
+  part(c, roundRectPath(380, topY - 16, 170, 16, 4), [380, topY - 16, 170, 16], C.blue, C.deep, { dy: 8, dx: 0, dots: false });
+  drawMug(c, 590, topY - 30, 1, 14); steam(c, 590, topY - 72, tau, 1);
+  drawPerson(c, cx, hipY, 1, pose, 13, 'arms');
+  headline(c, tau, 0, [[[['That ', C.navy], ['3 p.m.', C.blue]], 108], [[['slump?', C.navy]], 108]], { y: 320 });
+  // exit: heartbeat line sweeps up the frame, the next shot is revealed beneath it
+  if (tau > 2.08) { const p = sm(2.08, 2.5, tau, easeIn), yy = lerp(HB_Y + 40, -140, p); const g = LA.getContext('2d'); sceneVisit(g, 0, i);
+    c.save(); resetT(c); c.beginPath(); c.rect(0, yy, W, H - yy); c.clip(); c.drawImage(LA, 0, 0, W, H); c.restore();
+    heartbeat(c, tau, { y: yy, amp: 120, speed: 900, period: 480, width: 14, screen: true }); }
+}
+const LA = layer();
+// 2. VISIT: the 3-minute online visit
+function sceneVisit(c, tau, i) {
+  backdrop(c, tau + 2.5, { seed: 21, speed: 40 });
+  const z = lerp(1.0, 1.08, sm(0, 2, tau)); cam(c, CX, CY + 40 - sm(0, 2, tau) * 60, z, lerp(-.03, .015, sm(0, 2, tau)));
+  heartbeat(c, tau + 2.5, { x0: -500, x1: W + 500, amp: 52, speed: 200, period: 620 });
+  const px = 430, py = 610, pw = 440, ph = 800;
+  c.fillStyle = alpha(C.navy, .18); c.fill(roundRectPath(px + 18, py + 22, pw, ph, 64));
+  const body = roundRectPath(px, py, pw, ph, 64); part(c, body, [px, py, pw, ph], C.navy, shade(C.navy, .35), { dx: -pw * .9, dots: false });
+  const sx = px + 22, sy = py + 22, sw = pw - 44, sh = ph - 44; const scr = roundRectPath(sx, sy, sw, sh, 46); c.fillStyle = C.white; c.fill(scr);
+  c.save(); c.clip(scr);
+  c.fillStyle = C.blue; c.fillRect(sx, sy, sw, 150); dotScreen(c, rectPath(sx, sy, sw, 150), [sx, sy, sw, 150], { cell: 7, color: C.deep, density: .06, alpha: .5, seed: 22 });
+  setFont(c, 50, 800); c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillStyle = C.white; c.fillText('NAD+ Visit', sx + 40, sy + 92);
+  c.strokeStyle = C.white; c.lineWidth = 5; c.lineJoin = 'round'; c.beginPath(); [[sx + sw - 130, sy + 92], [sx + sw - 104, sy + 92], [sx + sw - 94, sy + 70], [sx + sw - 80, sy + 116], [sx + sw - 68, sy + 92], [sx + sw - 44, sy + 92]].forEach((p, k) => k ? c.lineTo(...p) : c.moveTo(...p)); c.stroke();
+  // three questions tick in sequence
+  for (let k = 0; k < 3; k++) { const ry = sy + 210 + k * 130, t0 = .35 + k * .38, on = tau >= t0;
+    c.fillStyle = C.ice; c.fill(roundRectPath(sx + 30, ry, sw - 60, 104, 22));
+    c.fillStyle = C.trouserSh; c.fill(roundRectPath(sx + 120, ry + 30, 190 - k * 30, 16, 8)); c.fillStyle = C.trouser; c.fill(roundRectPath(sx + 120, ry + 58, 140 + k * 20, 14, 7));
+    const bx = sx + 74, by = ry + 52; c.lineWidth = 4; c.strokeStyle = on ? C.blue : C.trouserSh; c.fillStyle = on ? C.blue : C.white; c.beginPath(); c.arc(bx, by, 26, 0, TAU); c.fill(); c.stroke();
+    if (on) { const p = sm(t0, t0 + .17, tau, t => t); c.strokeStyle = C.white; c.lineWidth = 7; c.lineCap = 'round'; c.lineJoin = 'round'; selfDraw(c, [[bx - 12, by + 1], [bx - 3, by + 11], [bx + 14, by - 10]], p, 3, .5);
+      if (tau < t0 + .25) { c.strokeStyle = alpha(C.blue, .5); c.lineWidth = 3; c.beginPath(); c.arc(bx, by, 26 + (tau - t0) * 160, 0, TAU); c.stroke(); } } }
+  // progress bar and submit button
+  const pr = sm(.3, 1.5, tau); c.fillStyle = C.ice; c.fill(roundRectPath(sx + 30, sy + 612, sw - 60, 18, 9)); c.fillStyle = C.blue; c.fill(roundRectPath(sx + 30, sy + 612, (sw - 60) * Math.max(.05, pr), 18, 9));
+  const press = tau > 1.55 && tau < 1.75 ? 1 : 0; c.save(); c.translate(sx + sw / 2, sy + 696); c.scale(1 - press * .05, 1 - press * .05);
+  c.fillStyle = tau > 1.55 ? C.blue : C.trouserSh; c.fill(roundRectPath(-150, -34, 300, 68, 34)); setFont(c, 30, 800); c.textAlign = 'center'; c.fillStyle = C.white; c.fillText(tau > 1.55 ? 'Sent ✓' : 'Submit', 0, 2); c.restore();
+  if (tau > 1.55) { c.strokeStyle = alpha(C.blue, .45); c.lineWidth = 4; c.beginPath(); c.arc(sx + sw / 2, sy + 696, 40 + (tau - 1.55) * 260, 0, TAU); c.stroke(); }
+  c.restore();
+  c.fillStyle = shade(C.navy, .35); c.fill(roundRectPath(px + pw / 2 - 60, py + 8, 120, 10, 5));
+  headline(c, tau, 0, [[[['3-minute', C.blue]], 104], [[['online visit', C.navy]], 104]], { y: 320 });
+}
+// 3. REVIEW: a licensed U.S. provider reviews it
+function sceneReview(c, tau, i) {
+  backdrop(c, tau + 4.5, { seed: 31, speed: 40 });
+  cam(c, CX, CY + 60 - sm(0, 2, tau) * 50, lerp(1.04, 1.0, sm(0, 2, tau)), lerp(.02, -.01, sm(0, 2, tau)));
+  heartbeat(c, tau + 4.5, { x0: -500, x1: W + 500, amp: 60, speed: 240, period: 600 });
+  const x = 160, y = 720, w = 620, h = 620;
+  c.fillStyle = alpha(C.navy, .14); c.fill(roundRectPath(x + 20, y + 24, w, h, 36));
+  const card = roundRectPath(x, y, w, h, 36); part(c, card, [x, y, w, h], C.white, null, { dots: false, pts: rrPts(x, y, w, h, 36) });
+  c.fillStyle = C.navy; c.fill(roundRectPath(x + w / 2 - 90, y - 26, 180, 60, 16)); c.fillStyle = C.mid; c.beginPath(); c.arc(x + w / 2, y + 4, 12, 0, TAU); c.fill();
+  // provider avatar: simple head and shoulders, no lab coat
+  const ax = x + 150, ay = y + 170; const av = circPath(ax, ay, 82); c.fillStyle = C.pale; c.fill(av);
+  c.save(); c.clip(av); c.fillStyle = C.navy; c.beginPath(); c.ellipse(ax, ay + 104, 76, 60, 0, 0, TAU); c.fill(); c.fillStyle = C.skinSh; c.beginPath(); c.arc(ax, ay - 8, 36, 0, TAU); c.fill();
+  c.fillStyle = C.hairSh; c.beginPath(); c.arc(ax, ay - 20, 38, Math.PI, TAU); c.fill(); c.restore();
+  c.fillStyle = C.navy; c.fill(roundRectPath(x + 262, y + 128, 240, 22, 11)); c.fillStyle = C.trouserSh; c.fill(roundRectPath(x + 262, y + 172, 180, 18, 9));
+  // chart lines fill in
+  for (let k = 0; k < 4; k++) { const p = sm(.1 + k * .12, .35 + k * .12, tau); c.fillStyle = k % 2 ? C.trouser : C.trouserSh; c.fill(roundRectPath(x + 70, y + 310 + k * 58, (w - 140) * (k === 3 ? .55 : .9) * Math.max(.02, p), 18, 9)); }
+  // the check stamp lands
+  const t0 = .8, p = sm(t0, t0 + .22, tau, t => t);
+  if (p > 0) { const s = lerp(1.7, 1, easeOut(p)), bx = x + w - 150, by = y + h - 130; c.save(); c.translate(bx, by); c.rotate(lerp(-.4, -.12, p)); c.scale(s, s); c.globalAlpha = clamp(p * 2, 0, 1);
+    const st = circPath(0, 0, 104); c.fillStyle = C.blue; c.fill(st); dotScreen(c, st, [-104, -104, 208, 208], { cell: 7, color: C.deep, density: .08, alpha: .5, seed: 33 });
+    c.strokeStyle = C.white; c.lineWidth = 6; c.beginPath(); c.arc(0, 0, 84, 0, TAU); c.stroke();
+    c.lineWidth = 20; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(-42, 2); c.lineTo(-10, 34); c.lineTo(46, -30); c.stroke(); c.restore();
+    if (tau > t0 + .2 && tau < t0 + .7) dotBurst(c, bx, by, lerp(120, 200, sm(t0 + .2, t0 + .7, tau)), 14, C.blue, 34, 1); }
+  headline(c, tau, 0, [[[['Reviewed by a', C.navy]], 90], [[['licensed U.S.', C.blue]], 90], [[['provider', C.blue]], 90]], { y: 300, gap: 1.08 });
+}
+// 4. DELIVERY: the box drops onto the doorstep, then opens and the camera dives in
+function sceneDelivery(c, tau, i) {
+  backdrop(c, tau + 6.5, { seed: 41, speed: 30 });
+  const land = .62, dive = sm(1.55, 2.0, tau, easeIn);
+  const bx = 470, by = HB_Y;
+  const fall = sm(0, land, tau, easeIn), boxY = lerp(-400, by, fall);
+  const camY = lerp(CY - 140, CY + 40, sm(0, land + .2, tau));
+  cam(c, lerp(CX, bx + 45, dive), lerp(camY, HB_Y - 300, dive), lerp(1, 3.6, dive));
+  heartbeat(c, tau + 6.5, { x0: -500, x1: W + 500, amp: 66, speed: 260, period: 600 });
+  // door, frame and mat
+  c.fillStyle = C.pale; c.fill(roundRectPath(560, 640, 360, HB_Y - 640, [170, 170, 0, 0]));
+  const door = roundRectPath(590, 670, 300, HB_Y - 670, [150, 150, 0, 0]); part(c, door, [590, 670, 300, HB_Y - 670], C.navy, shade(C.navy, .3), { dx: -250, dots: false });
+  c.strokeStyle = mix(C.navy, C.blue, .35); c.lineWidth = 6; c.stroke(roundRectPath(630, 800, 220, 220, 16)); c.stroke(roundRectPath(630, 1060, 220, 270, 16));
+  c.fillStyle = C.blue; c.beginPath(); c.arc(850, 1040, 16, 0, TAU); c.fill();
+  c.fillStyle = C.trouserSh; c.fill(roundRectPath(120, 720, 150, 190, 12)); c.fillStyle = C.white; c.fill(roundRectPath(140, 740, 110, 150, 8));
+  c.strokeStyle = C.trouserSh; c.lineWidth = 6; c.beginPath(); c.moveTo(195, 740); c.lineTo(195, 890); c.moveTo(140, 815); c.lineTo(250, 815); c.stroke();
+  const mat = roundRectPath(300, HB_Y - 18, 600, 30, 12); c.fillStyle = C.blue; c.fill(mat); dotScreen(c, mat, [300, HB_Y - 18, 600, 30], { cell: 7, color: C.deep, density: .1, alpha: .6, seed: 42 });
+  // box: speed lines while falling, squash on landing, dust, then flaps open
+  const sq = tau >= land && tau < land + .17 ? 1 : 0;
+  if (tau < land) speedLines(c, bx + 40, boxY - 300, Math.PI / 2, 43 + Math.floor(tau * 12), 7, .5, C.blue);
+  drawBox(c, bx, boxY, 1, sm(1.2, 1.6, tau, easeOut), sq, 44);
+  if (tau >= land && tau < land + .5) { const q = sm(land, land + .5, tau, easeOut); c.fillStyle = alpha(C.mid, .7 * (1 - q)); for (let k = 0; k < 7; k++) { const s = k < 3.5 ? -1 : 1, dx = s * (170 + q * 120 + (k % 3) * 30); c.beginPath(); c.arc(bx + 40 + dx, by - 16 - q * 30 - (k % 2) * 14, 14 + q * 10, 0, TAU); c.fill(); } }
+  if (dive < .5) headline(c, tau, .15, [[[['Free', C.blue]], 118], [[['shipping', C.navy]], 118]], { y: 310 });
+}
+// 5. KIT: injection or nasal spray rise out of the box
+function sceneKit(c, tau, i) {
+  backdrop(c, tau + 8.5, { seed: 51, speed: 44 });
+  cam(c, CX, CY + 60 - sm(0, 2, tau) * 70, lerp(1.1, 1.0, sm(0, 1.2, tau, easeOut)));
+  heartbeat(c, tau + 8.5, { x0: -500, x1: W + 500, amp: 76, speed: 300, period: 580 });
+  // open box on the floor line; the vial and the spray rise out of it and hover
+  const bx = 450, rise = k => sm(.12 + k * .22, .55 + k * .22, tau, t => backOut(t)), bob = k => Math.sin((tau - k * .3) * 3.2) * 8;
+  const r0 = rise(0), r1 = rise(1), topY = HB_Y - 262;
+  drawBox(c, bx, HB_Y, 1.05, 1, 0, 54);
+  c.save(); c.beginPath(); c.rect(0, 0, W, HB_Y - 250 * 1.05); c.clip();
+  drawVial(c, bx - 70, lerp(HB_Y + 40, topY - 150, r0) + bob(0), 1.15, 52);
+  drawSpray(c, bx + 150, lerp(HB_Y + 40, topY - 170, r1) + bob(1), 1.12, 53);
+  c.restore();
+  // little sparkle pluses when they land
+  for (const [k, sx, sy] of [[0, 160, 780], [1, 800, 700]]) { const t0 = .5 + k * .2; if (tau > t0 && tau < t0 + .6) { const q = sm(t0, t0 + .6, tau); c.strokeStyle = alpha(C.blue, 1 - q); c.lineWidth = 7; c.lineCap = 'round'; const s = 16 + q * 18; c.beginPath(); c.moveTo(sx - s, sy); c.lineTo(sx + s, sy); c.moveTo(sx, sy - s); c.lineTo(sx, sy + s); c.stroke(); } }
+  headline(c, tau, .15, [[[['Injection', C.navy]], 108], [[['or ', C.navy], ['nasal spray', C.blue]], 90]], { y: 310 });
+}
+// 6. ENERGIZED: the result, gentle and believable
+function sceneEnergized(c, tau, i) {
+  backdrop(c, tau + 10.5, { seed: 61, speed: 50 });
+  cam(c, CX, CY + 80 - sm(0, 2.75, tau) * 70, lerp(1.0, 1.06, sm(0, 2.75, tau)));
+  heartbeat(c, tau + 10.5, { x0: -500, x1: W + 500, amp: 110, speed: 380, period: 520, width: 12 });
+  // big window with the sun and slowly turning dotted rays
+  const win = roundRectPath(470, 600, 440, 560, 26); part(c, win, [470, 600, 440, 560], C.pale, null, { dens: .1, dotCol: C.trouserSh, pts: rrPts(470, 600, 440, 560, 26), lineCol: C.mid, lw: 6 });
+  c.save(); c.clip(win); const sx = 720, sy = 820; for (let k = 0; k < 4; k++) dottedArc(c, sx, sy, 110 + k * 46 + (tau * 30) % 46, alpha(C.blue, .5), 60 + k, 14, 3.2);
+  const sun = circPath(sx, sy, 86); c.fillStyle = C.blue; c.fill(sun); dotScreen(c, sun, [sx - 86, sy - 86, 172, 172], { cell: 7, color: C.white, density: (x, y) => .5 - Math.hypot(x - sx + 30, y - sy + 30) / 260, alpha: .5, seed: 62 }); c.restore();
+  c.strokeStyle = C.mid; c.lineWidth = 7; c.beginPath(); c.moveTo(690, 600); c.lineTo(690, 1160); c.moveTo(470, 880); c.lineTo(910, 880); c.stroke();
+  // plant pot
+  c.fillStyle = C.navy; c.fill(polyPath([[780, HB_Y], [860, HB_Y], [874, HB_Y - 110], [766, HB_Y - 110]]));
+  c.strokeStyle = C.blue; c.lineWidth = 8; c.lineCap = 'round'; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * .32 + Math.sin(tau * 3 + k) * .03; c.beginPath(); c.moveTo(820, HB_Y - 110); c.quadraticCurveTo(820 + Math.cos(a) * 60, HB_Y - 170, 820 + Math.cos(a) * 110, HB_Y - 110 + Math.sin(a) * 150); c.stroke(); }
+  // character: neutral pose lifts into the energized pose
+  const t = sm(.25, .95, tau), pose = blendPose(POSES.neutral, POSES.energized, t); const bob = pulse(i, 6, 3) ? -4 : 0;
+  groundShadow(c, 300, HB_Y + 4, 150, 14);
+  drawPerson(c, 300, HB_Y - 318 + bob, 1.02, pose, 63);
+  headline(c, tau, .1, [[[['Support your', C.navy]], 86], [[['energy', C.blue], [' and', C.navy]], 86], [[['focus', C.blue], [' from home', C.navy]], 86]], { y: 296, gap: 1.1 });
+}
+// 7. PRICE + CTA
+function scenePrice(c, tau, i) {
+  backdrop(c, tau + 13.25, { seed: 71, speed: 46 });
+  cam(c, CX, CY - sm(0, 2.25, tau) * 40, 1 + Math.sin(tau * 1.6) * .01);
+  heartbeat(c, tau + 13.25, { x0: -500, x1: W + 500, amp: 100, speed: 380, period: 540 });
+  drawVial(c, 330, HB_Y - 8, .72, 72); drawSpray(c, 560, HB_Y - 8, .7, 73);
+  resetT(c);
+  headline(c, tau, 0, [[[['From', C.navy]], 70], [[['$99/mo', C.blue]], 196, 800, 40], [[['with a 3-month plan', C.navy]], 60, 800, -44]], { y: 290, gap: 1.12 });
+  const press = tau > 1.55 && tau < 1.72 ? 1 : 0; pill(c, 459, 900, 640, 118, 'Start My NAD+ Visit', sm(.75, 1.0, tau, t => t), press);
+  if (tau > 1.55) { c.strokeStyle = alpha(C.blue, .45 * (1 - sm(1.55, 2.2, tau))); c.lineWidth = 4; c.beginPath(); c.ellipse(459, 900, 330 + (tau - 1.55) * 120, 64 + (tau - 1.55) * 60, 0, 0, TAU); c.stroke(); }
+}
+// 8. END CARD: official logo held still, CTA, URL, disclaimer
+let LOGO = null;
+function sceneEnd(c, tau, i) {
+  backdrop(c, tau + 15.5, { seed: 81, speed: 20, shapes: 0 });
+  heartbeat(c, tau + 15.5, { x0: -500, x1: W + 500, amp: 60, speed: 160, period: 700 });
+  resetT(c);
+  const lw = 660, lh = lw * LOGO.height / LOGO.width; c.drawImage(LOGO, CX - lw / 2, 560, lw, lh);
+  pill(c, CX, 910, 600, 112, 'Start My NAD+ Visit', sm(.08, .33, tau, t => t));
+  const pu = sm(.2, .45, tau, t => t); if (pu > 0) { c.globalAlpha = pu; setFont(c, 52, 800); c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillStyle = C.navy; c.fillText('myfastrx.com', CX, 1060); c.globalAlpha = 1; }
+  c.fillStyle = alpha(C.navy, .85); setFont(c, 30, 600); c.textAlign = 'center';
+  ['Rx only if prescribed by a licensed provider.', 'Compounded medications are not FDA-approved.', 'Results may vary.'].forEach((s, k) => c.fillText(s, CX, 1180 + k * 44));
+}
+
+// ===================== SCORE =====================
+// Audio is real, licensed samples mixed by mix.sh (no synthesized audio); see audio_sources.txt.
+const score = null;
+
+// ===================== FILM =====================
+const TIMELINE = [
+  { name: 'slump',     dur: 2.5,  fn: sceneSlump },
+  { name: 'visit',     dur: 2.0,  fn: sceneVisit },
+  { name: 'review',    dur: 2.0,  fn: sceneReview },
+  { name: 'delivery',  dur: 2.0,  fn: sceneDelivery },
+  { name: 'kit',       dur: 2.0,  fn: sceneKit },
+  { name: 'energized', dur: 2.75, fn: sceneEnergized },
+  { name: 'price',     dur: 2.25, fn: scenePrice },
+  { name: 'endcard',   dur: 3.0,  fn: sceneEnd },
+];
+(async () => {
+  for (const [w, src] of [['600', FONT_600], ['800', FONT_800]]) { const f = new FontFace('Pop', `url(${src})`, { weight: w }); await f.load(); document.fonts.add(f); }
+  LOGO = new Image(); LOGO.src = LOGO_URI; await LOGO.decode();
+  defineFilm({ timeline: TIMELINE, format: { ar: '9:16' } });
+})();
+</script>
