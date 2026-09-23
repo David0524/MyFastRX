@@ -1,0 +1,201 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>MyFastRx NAD+ line reel</title>
+<style>
+  body{margin:0;background:#111;color:#ccc;font:13px/1.4 ui-monospace,Menlo,monospace;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px}
+  canvas#c{width:min(92vw,405px);height:auto;background:#000;box-shadow:0 0 0 1px #333}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
+  button{background:#222;color:#ddd;border:1px solid #444;padding:4px 10px;cursor:pointer;font:inherit}
+  input[type=range]{width:320px}
+</style>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="core.js"></script>
+<script src="embedded.js"></script>
+<script>
+'use strict';
+// ===================== BRIEF & BEAT SHEET =====================
+// Concept: the logo's heartbeat line is the only character. One continuous blue line, never cut, bends into
+// each idea and finally collapses into the pulse of the official logo.
+// Format 9:16, 1080x1920, 30 fps. Palette = the official logo's own colours: blue #0072FD, navy #001E46, on ice.
+// Rhythm: music "Happy Dance" (CC0) from 6.014 s, 120 BPM, beat 0.5 s, bar 2 s. Every scene is one bar.
+// Shape morphs run 0.3 s and arrive on the downbeat; landings start ~0.14 s early and arrive on their beat.
+// Safe zone: content centred on CX, half-width <= 378 (clear of the right 15%), y 288..1440. Logo is full-frame.
+// bar  t      scene     the line becomes                         lands on the beat                    sfx
+// 0    0-2    slump     a sagging line, weak half-time beats      -                                    (music low-passed)
+// 1    2-4    visit     a phone                                   checks 2.5 / 3.0 / 3.5              whoosh in, 3 taps
+// 2    4-6    review    a circle around the provider              opaque check stamp 5.0              thump 5.0
+// 3    6-8    shipping  a box that drops                          box lands 7.0                        box drop 7.0
+// 4    8-10   kit       vial + nasal spray outlines               labels 8.5 / 9.0                     taps
+// 5    10-12  home      a house with a strong pulse inside        pulse on every beat                  -
+// 6    12-14  price     one big pulse under the price             pulse on every beat                  -
+// 7    14-16  logo      collapses into the logo's own pulse       logo 14.0, CTA 15.0                  chime 14.0, tap 15.0
+// 8    16-18  hold      still                                     final second completely still        -
+
+// ===================== PALETTE =====================
+const BLUE = '#0072FD', NAVY = '#001E46';
+usePalette(makePalette({
+  paper: mix('#ffffff', BLUE, .055), paperBand: null, ink: NAVY, night: NAVY, chalk: '#ffffff', chalkDim: mix('#ffffff', NAVY, .4), guide: alpha(BLUE, .3),
+  fills: [BLUE, NAVY, '#ffffff'], shade: NAVY, light: '#ffffff', blush: BLUE, accents: [BLUE, NAVY, BLUE, NAVY], inks: [BLUE, NAVY], finish: 'flat',
+}, 'screenSea'));
+const C = { blue: PAL.fills[0], navy: PAL.fills[1], white: PAL.fills[2], ice: PAL.paper,
+  tint: mix(PAL.paper, PAL.fills[0], .12), tint2: mix(PAL.paper, PAL.fills[0], .24), dot: mix(PAL.paper, PAL.fills[0], .2) };
+
+// ===================== RHYTHM & LAYOUT =====================
+const BEAT = .5, BAR = 2, NBAR = 9, MORPH = .3, EARLY = .14;
+const BY = 1250;                 // the line's baseline
+const LW = 13;                   // line width = the logo's stroke at the logo's scale
+const LOGO_W = 826.5, LOGO_X = CX - LOGO_W / 2, LOGO_Y = 640;   // 13 / 26 px stroke -> scale .5
+const LS = LOGO_W / 1653;
+// the logo's pulse centreline, measured from the file (source px); blips reuse its exact shape
+const LOGO_PULSE = [[13, 133], [82, 133], [108, 89], [152, 202], [200, 13], [238, 133], [305, 133]];
+const BLIP = [[-118, 0], [-92, -.37], [-48, .575], [0, -1], [38, 0]];
+const backOut = t => { const s = 1.7; t -= 1; return 1 + (s + 1) * t * t * t + s * t * t; };
+// beat envelope: rises in the 0.06 s before each beat, peaks on it, decays
+function env(t, every = BEAT, decay = .16, offset = 0) { const ph = (((t - offset + .06) % every) + every) % every; return ph < .06 ? ph / .06 : Math.exp(-(ph - .06) / decay); }
+// landing: 0 before (tb - EARLY), 1 on the beat tb, with a small overshoot after
+const land = (t, tb, dur = EARLY) => t < tb - dur ? 0 : t >= tb + .2 ? 1 : t < tb ? easeIn((t - tb + dur) / dur) : 1 + Math.sin((t - tb) / .2 * Math.PI) * .06 * (1 - (t - tb) / .2);
+
+// ===================== LINE GEOMETRY =====================
+// wave: a line from x0 to x1 following yfn(x), with logo-shaped blips {x, a (px), sx}
+function wave(yfn, blips = [], x0 = -60, x1 = W + 60, step = 18) {
+  const pts = [], bl = blips.filter(b => b.x + 38 * (b.sx || 1) > x0 && b.x - 118 * (b.sx || 1) < x1).sort((a, b) => a.x - b.x); let k = 0;
+  for (let x = x0; x <= x1 + 1e-6;) { const b = bl[k];
+    if (b && x >= b.x - 118 * (b.sx || 1)) { const sx = b.sx || 1; for (const [du, dv] of BLIP) { const xx = b.x + du * sx; pts.push([xx, yfn(xx) + dv * b.a]); } x = b.x + 38 * sx + step; k++; continue; }
+    pts.push([x, yfn(x)]); x += step; }
+  if (pts[pts.length - 1][0] < x1) pts.push([x1, yfn(x1)]); return pts; }
+const flat = y => () => y;
+function arcPts(cx, cy, r, a0, a1, n = 14) { const p = []; for (let k = 0; k <= n; k++) { const a = lerp(a0, a1, k / n); p.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } return p; }
+function resample(pts, n) { const d = [0]; for (let k = 1; k < pts.length; k++) d.push(d[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+  const L = d[d.length - 1], out = []; let j = 1; for (let k = 0; k < n; k++) { const s = L * k / (n - 1); while (j < d.length - 1 && d[j] < s) j++; const u = (s - d[j - 1]) / Math.max(1e-6, d[j] - d[j - 1]); out.push([lerp(pts[j - 1][0], pts[j][0], u), lerp(pts[j - 1][1], pts[j][1], u)]); } return out; }
+const edgeBlips = (t, a) => [{ x: 130, a: a * env(t) }, { x: 1000, a: a * env(t, BEAT, .16) }];
+
+// scene shapes: each returns the whole line at global time t, left edge to right edge
+const PH = { L: CX - 170, R: CX + 170, T: 690, r: 46 };
+const RV = { x: CX, y: 1000, r: 175 };
+const KIT = { vx: CX - 135, sx: CX + 150 };
+const HOUSE = { L: CX - 210, R: CX + 210, eave: 990, peak: 810 };
+function boxDrop(t) { const u = t - 6; if (u < .55) return -300; if (u >= 1) return 0; return lerp(-300, 0, easeIn((u - .55) / .45)); }
+function boxSquash(t) { const u = t - 7; return u >= 0 && u < .12 ? 1 : 0; }
+function boxVerts(t) { const dy = boxDrop(t), sq = boxSquash(t), w = 300 * (1 + sq * .08), h = 260 * (1 - sq * .1), bx = CX - 20;
+  const FL = [bx - w / 2, BY + dy], FR = [bx + w / 2, BY + dy], FTL = [FL[0], BY + dy - h], FTR = [FR[0], BY + dy - h], o = [70, -50];
+  const add = p => [p[0] + o[0], p[1] + o[1]]; return { FL, FR, FTL, FTR, BTL: add(FTL), BTR: add(FTR), BBR: add(FR), dy }; }
+const SHAPES = [
+  // 0 slump: sagging, weak half-time beats
+  t => wave(x => BY + 70 * Math.sin(Math.PI * clamp((x + 60) / (W + 120), 0, 1)), [{ x: 330, a: 42 * env(t, 1, .2) }, { x: 780, a: 36 * env(t, 1, .2, .5) }]),
+  // 1 phone
+  t => { const { L, R, T, r } = PH; return [...wave(flat(BY), [{ x: 130, a: 70 * env(t) }], -60, L), [L, BY], [L, T + r], ...arcPts(L + r, T + r, r, Math.PI, Math.PI * 1.5), [R - r, T], ...arcPts(R - r, T + r, r, -Math.PI / 2, 0), [R, BY], [L, BY], [R, BY], ...wave(flat(BY), [{ x: 1000, a: 70 * env(t) }], R + 18, W + 60)]; },
+  // 2 review circle
+  t => { const { x, y, r } = RV; return [...wave(flat(BY), [{ x: 130, a: 80 * env(t) }], -60, x - 60), [x - 30, BY - 20], ...arcPts(x, y, r, Math.PI / 2, Math.PI / 2 + TAU, 60), [x + 30, BY - 20], ...wave(flat(BY), [{ x: 1000, a: 80 * env(t) }], x + 60, W + 60)]; },
+  // 3 box: edges traced as one path (retraced edges are invisible)
+  t => { const v = boxVerts(t); return [...wave(flat(BY), [{ x: 130, a: 80 * env(t) }], -60, v.FL[0] - 40), v.FL, v.FTL, v.FTR, v.FR, v.FL, v.FR, v.BBR, v.BTR, v.BTL, v.FTL, v.FTR, v.BTR, v.BBR, v.FR, ...wave(flat(BY), [{ x: 1000, a: 80 * env(t) }], v.BBR[0] + 50, W + 60)]; },
+  // 4 kit: vial and spray silhouettes on the baseline
+  t => { const v = KIT.vx, s = KIT.sx;
+    const vial = [[v - 85, BY], [v - 85, BY - 205], [v - 94, BY - 212], [v - 94, BY - 276], [v + 94, BY - 276], [v + 94, BY - 212], [v + 85, BY - 205], [v + 85, BY]];
+    const spray = [[s - 64, BY], [s - 64, BY - 200], ...arcPts(s - 34, BY - 200, 30, Math.PI, Math.PI * 1.5, 6), [s - 50, BY - 230], [s - 50, BY - 268], [s - 24, BY - 268], [s - 12, BY - 370], [s + 12, BY - 370], [s + 24, BY - 268], [s + 50, BY - 268], [s + 50, BY - 230], ...arcPts(s + 34, BY - 200, 30, -Math.PI / 2, 0, 6), [s + 64, BY - 200], [s + 64, BY]];
+    return [...wave(flat(BY), [{ x: 110, a: 80 * env(t) }], -60, v - 85), ...vial, ...wave(flat(BY), [], v + 85, s - 64), ...spray, ...wave(flat(BY), [{ x: 1000, a: 80 * env(t) }], s + 64, W + 60)]; },
+  // 5 home: a house with a strong pulse inside, every beat
+  t => { const { L, R, eave, peak } = HOUSE; const a = 150 * env(t, BEAT, .2);
+    return [...wave(flat(BY), [{ x: 110, a: 90 * env(t) }], -60, L), [L, eave], [CX, peak], [R, eave], [R, BY], [L, BY], ...wave(flat(BY), [{ x: CX - 50, a, sx: 1.1 }, { x: CX + 150, a: a * .6, sx: .8 }], L, R), ...wave(flat(BY), [{ x: 1000, a: 90 * env(t) }], R + 18, W + 60)]; },
+  // 6 price: one big pulse on every beat
+  t => wave(flat(BY), [{ x: 170, a: 70 * env(t) }, { x: CX + 40, a: 230 * env(t, BEAT, .2), sx: 1.5 }, { x: 1010, a: 70 * env(t) }]),
+  // 7 the logo's own pulse
+  t => LOGO_PULSE.map(([x, y]) => [LOGO_X + x * LS, LOGO_Y + y * LS]),
+];
+const N = 900;
+function lineAt(t) { const b = Math.min(NBAR - 1, Math.floor(t / BAR)); const k = Math.min(b, 7), nextStart = (b + 1) * BAR;
+  const cur = resample(SHAPES[k](t), N);
+  if (b < 7 && t > nextStart - MORPH) { const p = easeIO((t - (nextStart - MORPH)) / MORPH), nxt = resample(SHAPES[b + 1](Math.max(t, nextStart)), N); return cur.map((q, j) => [lerp(q[0], nxt[j][0], p), lerp(q[1], nxt[j][1], p)]); }
+  return cur; }
+function strokeLine(c, pts, w = LW, col = C.blue) { c.save(); resetT(c); c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); pts.forEach((p, k) => k ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.stroke(); c.restore(); }
+
+// ===================== TEXT =====================
+function setFont(c, size, w = 800) { c.font = `${w} ${size}px Pop`; }
+const MAXW = 756;
+function fitLine(c, segs, size, w) { setFont(c, size, w); const tot = segs.reduce((a, s) => a + c.measureText(s[0]).width, 0); return tot > MAXW ? size * MAXW / tot : size; }
+function richLine(c, segs, x, y, size, w = 800) { setFont(c, size, w); c.textBaseline = 'alphabetic'; c.textAlign = 'left';
+  const ws = segs.map(s => c.measureText(s[0]).width), tot = ws.reduce((a, b) => a + b, 0); let px = x - tot / 2; segs.forEach((s, k) => { c.fillStyle = s[1]; c.fillText(s[0], px, y); px += ws[k]; }); }
+const HEADS = [
+  [[[['That ', C.navy], ['3 p.m.', C.blue]], 112], [[['slump?', C.navy]], 112]],
+  [[[['3-minute', C.blue]], 104], [[['online visit', C.navy]], 104]],
+  [[[['Reviewed by a', C.navy]], 90], [[['licensed U.S.', C.blue]], 90], [[['provider', C.blue]], 90]],
+  [[[['Free', C.blue]], 120], [[['shipping', C.navy]], 120]],
+  [[[['Injection', C.navy]], 100], [[['or ', C.navy], ['nasal spray', C.blue]], 100]],
+  [[[['Support your', C.navy]], 84], [[['energy', C.blue], [' and ', C.navy], ['focus', C.blue]], 84], [[['from home', C.navy]], 84]],
+  [[[['From', C.navy]], 66], [[['$99/mo', C.blue]], 204, 800, 36], [[['with a 3-month plan', C.navy]], 60, 800, -40]],
+];
+function headline(c, t, k) { const start = k * BAR, end = start + BAR, lines = HEADS[k]; if (!lines) return;
+  const outA = k === 6 ? end - .45 : end - .3, outB = outA + .14;          // price clears before the line rises into the logo
+  if (t > outB) return; const pin = k === 0 ? 1 : sm(start - EARLY, start + .12, t, x => x); if (pin <= 0) return;
+  const s = k === 0 ? 1 : lerp(.84, 1, backOut(pin)), a = clamp(pin * 2, 0, 1) * (1 - sm(outA, outB, t, x => x));
+  c.save(); resetT(c); c.globalAlpha = a; let yy = 300, prev = 0; const cy = 430;
+  c.translate(CX, cy); c.scale(s, s); c.translate(-CX, -cy);
+  lines.forEach(([segs, size0, w = 800, dy = 0], j) => { const size = fitLine(c, segs, size0, w); yy += (j ? (prev + size) / 2 * 1.1 : size * .8) + dy; prev = size; richLine(c, segs, CX, yy, size, w); });
+  c.restore(); }
+
+// ===================== DECOR (opaque, drawn under the line) =====================
+// alpha for a scene's decor: in after its shape arrives, out as the next morph starts
+const decA = (t, k) => { const s = k * BAR, e = s + BAR; return sm(s, s + .12, t, x => x) * (1 - sm(e - MORPH, e - MORPH + .1, t, x => x)); };
+function checkMark(c, x, y, s, col, w) { c.save(); c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(x - .45 * s, y + .02 * s); c.lineTo(x - .12 * s, y + .34 * s); c.lineTo(x + .48 * s, y - .3 * s); c.stroke(); c.restore(); }
+function decor(c, t) { const b = Math.floor(t / BAR); resetT(c);
+  if (b === 1) { const a = decA(t, 1); if (a <= 0) return; c.globalAlpha = a; const { L, R, T } = PH;
+    c.fillStyle = C.white; c.fill(roundRectPath(L, T, R - L, BY - T, [46, 46, 0, 0]));
+    c.fillStyle = C.blue; c.fill(roundRectPath(L, T, R - L, 110, [46, 46, 0, 0])); setFont(c, 40, 800); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = C.white; c.fillText('NAD+ Visit', CX, T + 60);
+    [2.5, 3, 3.5].forEach((tb, j) => { const ry = T + 170 + j * 125; c.fillStyle = C.tint; c.fill(roundRectPath(L + 30, ry, R - L - 60, 96, 20)); c.fillStyle = C.tint2; c.fill(roundRectPath(L + 120, ry + 30, 150 - j * 20, 14, 7)); c.fill(roundRectPath(L + 120, ry + 54, 110 + j * 15, 12, 6));
+      const bx = L + 74, by = ry + 48, p = land(t, tb); c.fillStyle = C.white; c.strokeStyle = C.tint2; c.lineWidth = 4; c.beginPath(); c.arc(bx, by, 25, 0, TAU); c.fill(); c.stroke();
+      if (p > 0) { c.save(); c.translate(bx, by); c.scale(lerp(1.6, 1, Math.min(p, 1)) * (p > 1 ? p : 1), lerp(1.6, 1, Math.min(p, 1)) * (p > 1 ? p : 1)); c.fillStyle = C.blue; c.beginPath(); c.arc(0, 0, 26, 0, TAU); c.fill(); checkMark(c, 0, 0, 30, C.white, 7); c.restore(); } });
+    c.globalAlpha = 1; }
+  if (b === 2) { const a = decA(t, 2); if (a <= 0) return; c.globalAlpha = a; const { x, y, r } = RV, p = land(t, 5);
+    c.fillStyle = C.white; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill();
+    if (p < 1) { c.save(); c.beginPath(); c.arc(x, y, r - 8, 0, TAU); c.clip(); c.fillStyle = C.tint; c.fillRect(x - r, y - r, 2 * r, 2 * r); c.fillStyle = C.navy; c.beginPath(); c.ellipse(x, y + 140, 120, 95, 0, 0, TAU); c.fill(); c.beginPath(); c.arc(x, y - 30, 58, 0, TAU); c.fill(); c.restore(); }
+    if (p > 0) { const s = p <= 1 ? lerp(1.45, 1, p) : p; c.save(); c.translate(x, y); c.scale(s, s); c.fillStyle = C.blue; c.beginPath(); c.arc(0, 0, r - 2, 0, TAU); c.fill(); checkMark(c, 0, 4, 190, C.white, 30); c.restore(); }
+    c.globalAlpha = 1; }
+  if (b === 3) { const a = decA(t, 3); if (a <= 0) return; c.globalAlpha = a; const v = boxVerts(t);
+    c.fillStyle = C.tint2; c.fill(polyPath([v.FR, v.BBR, v.BTR, v.FTR])); c.fillStyle = C.tint; c.fill(polyPath([v.FTL, v.BTL, v.BTR, v.FTR])); c.fillStyle = C.white; c.fill(polyPath([v.FL, v.FR, v.FTR, v.FTL]));
+    const sx = (v.FL[0] + v.FR[0]) / 2 + 70, top = v.FTL[1]; c.fillStyle = C.blue; c.fillRect(sx - 30, top, 60, v.FL[1] - top);
+    c.strokeStyle = C.white; c.lineWidth = 6; c.lineJoin = 'round'; c.lineCap = 'round'; c.beginPath(); const my = (top + v.FL[1]) / 2; [[-22, 0], [-10, 0], [-4, -16], [6, 18], [12, 0], [22, 0]].forEach(([dx, dy], j) => j ? c.lineTo(sx + dx, my + dy) : c.moveTo(sx + dx, my + dy)); c.stroke();
+    if (t - 6 > .55 && t < 7) { c.strokeStyle = C.tint2; c.lineWidth = 6; for (let j = -1; j <= 1; j++) { const x = (v.FL[0] + v.BBR[0]) / 2 + j * 90, y0 = v.BTL[1] - 30; c.beginPath(); c.moveTo(x, y0 - 90); c.lineTo(x, y0 - 20); c.stroke(); } }
+    if (t >= 7 && t < 7.4) { const q = sm(7, 7.4, t, easeOut); c.fillStyle = alpha(C.tint2, 1); for (let j = 0; j < 6; j++) { const s = j < 3 ? -1 : 1, dx = s * (190 + q * 90 + (j % 3) * 26); c.globalAlpha = a * (1 - q); c.beginPath(); c.arc(CX - 20 + dx + (s > 0 ? 70 : 0), BY - 14 - q * 26 - (j % 2) * 12, 12 + q * 6, 0, TAU); c.fill(); } }
+    c.globalAlpha = 1; }
+  if (b === 4) { const a = decA(t, 4); if (a <= 0) return; c.globalAlpha = a; const v = KIT.vx, s = KIT.sx;
+    c.fillStyle = C.white; c.fillRect(v - 85, BY - 205, 170, 205); c.fillStyle = C.navy; c.fillRect(v - 94, BY - 276, 188, 64);
+    c.fillStyle = C.white; c.fill(roundRectPath(s - 64, BY - 230, 128, 230, [30, 30, 0, 0])); c.fillStyle = C.blue; c.fillRect(s - 50, BY - 268, 100, 38); c.fill(polyPath([[s - 24, BY - 268], [s - 12, BY - 370], [s + 12, BY - 370], [s + 24, BY - 268]]));
+    [[v, BY - 110, 8.5, 150, 40], [s, BY - 120, 9, 110, 34]].forEach(([x, y, tb, w, fs]) => { const p = land(t, tb); if (p <= 0) return; const sc = p <= 1 ? lerp(1.5, 1, p) : p; c.save(); c.translate(x, y); c.scale(sc, sc);
+      c.fillStyle = C.blue; c.fill(roundRectPath(-w / 2, -32, w, 64, 12)); setFont(c, fs, 800); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = C.white; c.fillText('NAD+', 0, 3); c.restore(); });
+    c.globalAlpha = 1; }
+  if (b === 5) { const a = decA(t, 5); if (a <= 0) return; c.globalAlpha = a; const { L, R, eave, peak } = HOUSE;
+    c.fillStyle = C.white; c.fill(polyPath([[L, BY], [L, eave], [CX, peak], [R, eave], [R, BY]])); c.globalAlpha = 1; }
+}
+
+// ===================== END CARD =====================
+let LOGO = null;
+function pill(c, x, y, w, h, label, p) { if (p <= 0) return; const s = p <= 1 ? lerp(.6, 1, p) : p; c.save(); resetT(c); c.translate(x, y); c.scale(s, s);
+  c.fillStyle = C.navy; c.fill(roundRectPath(-w / 2 + 6, -h / 2 + 10, w, h, h / 2)); c.fillStyle = C.blue; c.fill(roundRectPath(-w / 2, -h / 2, w, h, h / 2));
+  setFont(c, h * .4, 800); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = C.white; c.fillText(label, 0, 3); c.restore(); }
+function endCard(c, t) {
+  resetT(c); c.drawImage(LOGO, LOGO_X, LOGO_Y, LOGO_W, LOGO_W * LOGO.height / LOGO.width);   // straight from the file, uniform scale, still
+  pill(c, CX, 905, 600, 112, 'Start My NAD+ Visit', land(t, 15));
+  const pu = sm(15 - EARLY, 15, t, x => x); if (pu > 0) { c.globalAlpha = pu; setFont(c, 50, 800); c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillStyle = C.navy; c.fillText('myfastrx.com', CX, 1052); c.globalAlpha = 1; }
+  const pd = sm(14.5 - EARLY, 14.5, t, x => x); if (pd > 0) { c.globalAlpha = pd; c.fillStyle = C.navy; setFont(c, 30, 600); c.textAlign = 'center';
+    ['Rx only if prescribed by a licensed provider.', 'Compounded medications are not FDA-approved.', 'Results may vary.'].forEach((s, k) => c.fillText(s, CX, 1160 + k * 44)); c.globalAlpha = 1; }
+}
+
+// ===================== FRAME =====================
+function backdrop(c, t) { paper(c, PAL.paper, null, 7); resetT(c); const g = 44, tt = Math.min(t, 14), off = (tt * 24) % g;   // frozen from the logo on
+  c.fillStyle = C.dot; c.beginPath(); for (let y = -g; y < H + g; y += g) for (let x = 0; x < W + g; x += g) { const yy = y - off, xx = x + ((Math.round(y / g) % 2) ? g / 2 : 0); c.moveTo(xx + 2.2, yy); c.arc(xx, yy, 2.2, 0, TAU); } c.fill(); }
+function drawAt(c, t) { backdrop(c, t);
+  if (t < 14) { decor(c, t); strokeLine(c, lineAt(t)); headline(c, t, Math.floor(t / BAR)); const nb = Math.floor(t / BAR) + 1; if (nb < 7) headline(c, t, nb); }
+  else endCard(c, t);
+  if (SAFE) safeOverlay(c); }
+const SAFE = new URLSearchParams(location.search).has('safe');
+function safeOverlay(c) { resetT(c); c.fillStyle = 'rgba(255,0,80,.18)'; c.fillRect(0, 0, W, H * .15); c.fillRect(0, H * .75, W, H * .25); c.fillRect(W * .85, 0, W * .15, H);
+  c.strokeStyle = 'rgba(255,0,80,.8)'; c.lineWidth = 2; c.setLineDash([10, 8]); c.beginPath(); c.moveTo(CX, 0); c.lineTo(CX, H); c.stroke(); c.setLineDash([]); }
+
+// ===================== FILM =====================
+const NAMES = ['slump', 'visit', 'review', 'shipping', 'kit', 'home', 'price', 'logo', 'hold'];
+const TIMELINE = NAMES.map((name, k) => ({ name, dur: BAR, fn: (c, tau, i) => drawAt(c, i / FPS_DRAW) }));
+(async () => {
+  for (const [w, src] of [['600', FONT_600], ['800', FONT_800]]) { const f = new FontFace('Pop', `url(${src})`, { weight: w }); await f.load(); document.fonts.add(f); }
+  LOGO = new Image(); LOGO.src = LOGO_URI; await LOGO.decode();
+  defineFilm({ timeline: TIMELINE, format: { ar: '9:16' } });
+})();
+</script>

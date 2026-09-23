@@ -15,13 +15,13 @@ Reply with these parts, in this order:
 2. **Images to make:** a one-line list of each image and what it's for, then one code block per image prompt. Include only images the video actually needs.
 3. **Paste order:** the order to attach images in Claude Code, so `[Image #N]` references line up.
 4. **Video prompt:** one code block, ready to paste into Claude Code.
-5. **Before posting:** 3–5 checks specific to this video.
+5. **Before posting:** 3–5 checks specific to this video. Always include pacing and sync, since those draw the most notes.
 
 No other sections. Keep prose between blocks to a sentence or two.
 
 ## Step 1: Get the inputs
 
-You need: brand, task type, platform/format, length, the message, and any content (script, facts, offer). Pull everything you can from the conversation. If brand or task is missing, ask one question. Otherwise, pick sensible defaults, state them in one line, and proceed.
+You need: brand, task type, platform/format, length, the message, any content (script, facts, offer), and whether a voiceover will be added. Pull everything you can from the conversation. If brand or task is missing, ask one question. Otherwise, pick sensible defaults, state them in one line, and proceed.
 
 Defaults when unstated: intro 10–15s; ad 15–30s; explainer 30–60s; TikTok/Reels/Shorts → 9:16 at 1080x1920; YouTube/website → 16:9 at 1920x1080.
 
@@ -33,6 +33,7 @@ Search the web. Build the brief from what you find, not from the brand's name al
 - **Tone:** Take it from the brand's real content (their site, posts, video titles), not the category. A funeral home and a candy shop both get "warm," but they mean different things.
 - **Visual world:** List 5–10 props, settings, and symbols that instantly read as this brand's world.
 - **Claims:** If the video states facts, statistics, prices, or offers, verify each against a source and flag anything unconfirmed. Keep time-sensitive claims ("new," "this week") out unless they're current.
+- **Logo check:** Compare the researched colors with the logo itself. If the brief or the user's instructions name a color the logo doesn't contain, flag it and ask which wins before writing prompts.
 - **Watch-outs:** Third-party trademarks, competitors, regulated topics (health, finance, legal, kids), and anything the brand clearly avoids.
 
 ## Step 3: Choose the style and cast
@@ -63,7 +64,13 @@ Use the video template in `references/templates.md` and task guidance in `refere
 - **Reference images are references.** Say that character images show the look, not frames to copy, and that style references show rendering, not composition.
 - **Attached images by number.** List each `[Image #N]` in paste order with its role. Don't reference files on disk.
 - **Motion.** A moving camera, moving background, and transitions built from the brand's own props.
-- **Format rules.** For vertical video, add the safe zone and the two-second hook.
+- **Asset check first.** Claude Code checks the brief against the attached images and the logo's real colors, and asks on conflict.
+- **Rhythm.** A tempo chosen for the audience, scenes in whole bars, landings timed to arrive on the beat, sound effects aligned by their audible start, and even pacing throughout. Rhythm drives more revision notes than anything else.
+- **Legibility.** Opaque stamps and labels, nothing crossing text, no off-palette color from shared helpers.
+- **Puppet rules,** when characters are cut into parts.
+- **Format rules.** For vertical video, add the safe zone, the off-center fix, and the two-second hook.
+- **Voiceover bed,** when a voiceover will be added.
+- **Verification on the final file.** Sync, stillness, logo color, and safe zone are measured, not assumed.
 - **Audio from the web.** No synthesized audio. Only commercially licensed sources (such as CC0 or the Pixabay license), logged in `audio_sources.txt` with URLs and licenses.
 - **Logo rule.** Official logo used exactly as-is for the sign-off. If the brand has no logo, sign off on the brand name in clean type in the brand colors. Stop if any attached image is missing; never substitute.
 - **Third-party IP.** Other brands' names as plain text only, never their logos; no real URLs.

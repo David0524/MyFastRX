@@ -21,6 +21,11 @@ Paste the matching goal into WHAT IT NEEDS TO DO, then fill its slots.
 Replace only the lines causing the issue.
 
 - **Doesn't feel like its task type** (for example, an intro that plays like a story): the prompt is too specific. Cut beats and restate the goal paragraph, with creative freedom.
+- **Pacing feels off or "there's an extra beat":** scene lengths have drifted off the bar grid. Restate the RHYTHM block and ask for every scene to be snapped to whole bars.
+- **Feels rushed:** lower the tempo and keep one idea per bar, rather than cutting content.
+- **Hits sound late:** landings must start about 0.14 s early, and sound effects must be aligned by their audible start. Ask for sync measured on the final file.
+- **See-through stamps or stray colors:** restate the LEGIBILITY block, and ask for the fix everywhere that element appears, not just where it was noticed.
+- **Vertical looks off-center:** add the safe-zone centering fix from the VERTICAL block.
 - **Too chaotic:** add "Pick one visual idea and commit to it."
 - **Too static:** strengthen the motion lines: camera always moving, background always moving, prop-driven transitions.
 - **Copied a reference image's layout:** add the "reference only, not a frame" line for that image.
