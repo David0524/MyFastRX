@@ -43,8 +43,10 @@ Slots and in-points are in that script; `FOOTAGE` in `src/scene.mjs` says when e
 
 ## Fine print
 
-The disclaimer is 22 px Geist Medium on a navy panel spanning the safe area (x 100-920), bottom edge at y 1236, so it sits
-above the Reels caption/controls zone and left of the right-hand button rail on every frame.
+The disclaimer appears on the end card only (client direction, 2026-09-30): it rises in at 19.6 s and holds, byte-identical,
+to the last frame (~5.3 s). 22 px Geist Medium on a navy panel spanning the safe area (x 100-920), bottom edge at y 1236,
+above the Reels caption/controls zone and left of the right-hand button rail. The price qualification is separate and
+stays with $69 whenever it is on screen.
 
 ## How the glass works (`src/glass.mjs`)
 

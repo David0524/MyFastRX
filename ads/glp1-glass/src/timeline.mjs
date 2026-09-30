@@ -66,6 +66,7 @@ export const CUES = {
   feesIn:     [{t0: 15.30, land: b(25)}, {t0: 15.42, land: b(25) + 0.12}],   // with 'No membership fees'
   feesOut:    {t0: 18.45, t1: 18.62},
   flood:      {t0: 18.62, full: 18.98, t1: 19.62}, // navy floods from the knob after the line ends, then contracts into the CTA
+  discIn:     {t0: 19.62, land: 19.90},            // fine print rises in with the end card, then holds still to the last frame
   logoIn:     {t0: 19.55, land: b(32)},            // 20.000
   ctaText:    {t0: 19.65, land: b(32)},
   urlIn:      {t0: 20.45, land: 20.79},            // with 'MyFastRx.com'

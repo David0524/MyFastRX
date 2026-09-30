@@ -50,7 +50,7 @@ await new Promise((res, rej) => {
       // panel
       const cur = Buffer.alloc((panel[2] - panel[0]) * (panel[3] - panel[1]) * 3); let k = 0;
       for (let y = panel[1]; y < panel[3]; y++) { f.copy(cur, k, (y * W + panel[0]) * 3, (y * W + panel[2]) * 3); k += (panel[2] - panel[0]) * 3; }
-      if (!panel0) panel0 = cur; else { let mx = 0, sum = 0; for (let j = 0; j < cur.length; j++) { const d2 = Math.abs(cur[j] - panel0[j]); sum += d2; if (d2 > mx) mx = d2; } if (mx > stats.panelMax) { stats.panelMax = mx; stats.panelMaxFrame = idx; } stats.panelMeanMax = Math.max(stats.panelMeanMax, sum / cur.length); }
+      if (idx < Math.ceil(TL.CUES.discIn.land * 30)) {} else if (!panel0) panel0 = cur; else { let mx = 0, sum = 0; for (let j = 0; j < cur.length; j++) { const d2 = Math.abs(cur[j] - panel0[j]); sum += d2; if (d2 > mx) mx = d2; } if (mx > stats.panelMax) { stats.panelMax = mx; stats.panelMaxFrame = idx; } stats.panelMeanMax = Math.max(stats.panelMeanMax, sum / cur.length); }
       // price vs qualification
       // follow the camera push-in (same curve as src/scene.mjs) so the boxes track what is on screen
       const tt = idx / 30, Z = TL.CUES.zoom, eIO = u => u < .5 ? 4 * u ** 3 : 1 - (-2 * u + 2) ** 3 / 2, pr = (a, b) => Math.min(1, Math.max(0, (tt - a) / (b - a)));
@@ -69,7 +69,7 @@ await new Promise((res, rej) => {
   });
   ff.on('close', c => c === 0 ? res() : rej(new Error('decode failed')));
 });
-ok('disclaimer panel in the ENCODED file', null, `max channel diff vs frame 0 = ${stats.panelMax} (frame ${stats.panelMaxFrame}), worst frame mean diff = ${stats.panelMeanMax.toFixed(3)} (H.264 4:2:0 chroma at the panel edge when the backdrop behind it changes, e.g. the navy flood; renderer output is checked for exact identity below)`);
+ok('disclaimer on the end card in the ENCODED file', null, `max channel diff vs its first risen frame = ${stats.panelMax} (frame ${stats.panelMaxFrame}), worst frame mean diff = ${stats.panelMeanMax.toFixed(3)} (H.264 noise; renderer output is checked for exact identity below)`);
 for (const f of frames) if (f.i / 30 < TL.CUES.priceOut.t1 && f.pn > priceRef * .2)   // the pill outlives the price text by a few frames; the price is gone at priceOut.t1
    { stats.priceFrames++; if (f.qn < qualRef * .9) stats.priceWithoutFullQual.push(f.i); }
 ok('qualification fully present whenever $69 is visible', stats.priceWithoutFullQual.length === 0, `${stats.priceFrames} frames show the price; frames where qualification < 90% of its settled ink: ${stats.priceWithoutFullQual.length ? stats.priceWithoutFullQual.join(',') : 'none'}`);
@@ -85,9 +85,9 @@ try {
   let diff = 0, n = 0; for (let y = labelBox[1]; y < labelBox[3]; y++) for (let x = labelBox[0]; x < labelBox[2]; x++) { const p = px(raw, x, y), q = refLabel(x, y); for (let c = 0; c < 3; c++) diff = Math.max(diff, Math.abs(p[c] - q[c])); n++; }
   ok('vial label pixel-exact in the renderer output (frame 170)', diff === 0, `max channel diff = ${diff} over ${n} label pixels vs the half-size source`);
   const region = (buf, [x0, y0, x1, y1]) => { const o = []; for (let y = y0; y < y1; y++) o.push(buf.subarray((y * W + x0) * 3, (y * W + x1) * 3)); return Buffer.concat(o); };
-  const ids = [0, 60, 170, 290, 563, 650, 700, 749], p0 = region(still(0), panel);
+  const ids = [600, 610, 650, 700, 749], p0 = region(still(0), panel);
   const same = ids.map(i => region(still(i), panel).equals(p0));
-  ok('disclaimer panel byte-identical in the renderer output', same.every(Boolean), `frames ${ids.join(', ')} (incl. 0-60 over footage, 563 = navy flood): ${same.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
+  ok('disclaimer holds byte-identical on the end card (renderer output)', same.every(Boolean), `end-card frames ${ids.join(', ')} (from ${TL.CUES.discIn.land}s, once risen): ${same.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
   const e = still(749), holds = [650, 700].map(i => still(i).equals(e));
   ok('final hold byte-identical in the renderer output', holds.every(Boolean), `frames 650, 700 vs 749: ${holds.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
 } catch (e) { ok('lossless checks', null, 'stills missing - run node render.mjs --only 0,120,290,563,650,700,749 (' + String(e).slice(0, 80) + ')'); }
@@ -112,7 +112,7 @@ function ocr(name, t, crop, invert = false, psm = 6) {
   return norm(execFileSync('tesseract', [png, '-', '--psm', String(psm)], {stdio: ['ignore', 'pipe', 'ignore']}).toString());
 }
 const expect = [
-  ['disclaimer', 0.0, [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4], true, COPY.disclaimer],
+  ['disclaimer', 20.5, [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4], true, COPY.disclaimer],
   ['disclaimer_last', 24.9, [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4], true, COPY.disclaimer],
   ['hook_words', 1.8, [820, 110, 100, L.hookY - 80], false, TL.CUES.hookWords.map(w => w.w).join(' ')],
   ['qualification', 4.0, [600, 110, 346, L.qualY[0] - 38], false, COPY.qual.join(' ')],

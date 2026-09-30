@@ -386,7 +386,7 @@ export async function render(t) {
 
   // ===== hud: captions + disclaimer (screen space, static) =====
   captions(hud, t);
-  drawDisclaimer(hud);
+  drawDisclaimer(hud, t);
 
   // ===== composite =====
   G.begin(cv.bg, cv.content);
@@ -414,9 +414,14 @@ function captions(ctx, t) {
   const lh = 56, yB = disc.y - 30;
   c.lines.forEach((s, i) => line(ctx, s, CX, yB - (c.lines.length - 1 - i) * lh, 44, 500, COLORS.navy, {enter, exit, exitDir: 1}));
 }
-function drawDisclaimer(ctx) {
-  // static: identical pixels every frame, drawn last, on the screen-space layer nothing else is drawn over
+function drawDisclaimer(ctx, t) {
+  // End card only: rises out of its mask line once, then identical pixels on every frame to the end.
+  // Drawn last, on the screen-space layer nothing else is drawn over.
+  if (t < C.discIn.t0) return;
+  const u = eOut(prog(t, C.discIn.t0, C.discIn.land));
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.beginPath(); ctx.rect(disc.x - 4, disc.y - 4, DISC.w + 8, disc.h + 8); ctx.clip();
+  ctx.translate(0, Math.round((1 - u) * (disc.h + 12)));
   ctx.fillStyle = COLORS.navy; ctx.beginPath(); ctx.roundRect(disc.x, disc.y, DISC.w, disc.h, DISC.r); ctx.fill();
   setFont(ctx, DISC.size, 500); ctx.fillStyle = COLORS.white; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   disc.lines.forEach((s, i) => ctx.fillText(s, disc.x + DISC.pad, disc.y + DISC.pad + 2 + DISC.size * .92 + i * disc.lh));

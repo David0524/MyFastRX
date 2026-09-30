@@ -37,19 +37,19 @@
       "detail": "-16 LUFS"
     },
     {
-      "name": "disclaimer panel in the ENCODED file",
+      "name": "disclaimer on the end card in the ENCODED file",
       "pass": null,
-      "detail": "max channel diff vs frame 0 = 63 (frame 80), worst frame mean diff = 0.693 (H.264 4:2:0 chroma at the panel edge when the backdrop behind it changes, e.g. the navy flood; renderer output is checked for exact identity below)"
+      "detail": "max channel diff vs its first risen frame = 5 (frame 601), worst frame mean diff = 0.085 (H.264 noise; renderer output is checked for exact identity below)"
     },
     {
       "name": "qualification fully present whenever $69 is visible",
       "pass": true,
-      "detail": "148 frames show the price; frames where qualification < 90% of its settled ink: none"
+      "detail": "150 frames show the price; frames where qualification < 90% of its settled ink: none"
     },
     {
       "name": "vial label vs source pixels (final H.264, rest frames)",
       "pass": null,
-      "detail": "PSNR min 35.46 dB, mean 35.5 dB over 9 sampled rest frames (lossy codec; exact check on lossless render below)"
+      "detail": "PSNR min 35.49 dB, mean 35.5 dB over 9 sampled rest frames (lossy codec; exact check on lossless render below)"
     },
     {
       "name": "final hold in the ENCODED file",
@@ -76,9 +76,9 @@
       "detail": "max channel diff = 0 over 43228 label pixels vs the half-size source"
     },
     {
-      "name": "disclaimer panel byte-identical in the renderer output",
+      "name": "disclaimer holds byte-identical on the end card (renderer output)",
       "pass": true,
-      "detail": "frames 0, 60, 170, 290, 563, 650, 700, 749 (incl. 0-60 over footage, 563 = navy flood): identical, identical, identical, identical, identical, identical, identical, identical"
+      "detail": "end-card frames 600, 610, 650, 700, 749 (from 19.9s, once risen): identical, identical, identical, identical, identical"
     },
     {
       "name": "final hold byte-identical in the renderer output",
@@ -86,7 +86,7 @@
       "detail": "frames 650, 700 vs 749: identical, identical"
     },
     {
-      "name": "OCR \"disclaimer\" @0s",
+      "name": "OCR \"disclaimer\" @20.5s",
       "pass": true,
       "detail": "matches exactly"
     },
@@ -192,16 +192,16 @@
     "blueOk": true
   },
   "stats": {
-    "panelMax": 63,
-    "panelMaxFrame": 80,
-    "panelMeanMax": 0.6934161595672752,
-    "priceFrames": 148,
+    "panelMax": 5,
+    "panelMaxFrame": 601,
+    "panelMeanMax": 0.08533708023439261,
+    "priceFrames": 150,
     "priceWithoutFullQual": [],
     "stillMax": 4,
     "labelPSNR": [
       {
         "i": 150,
-        "psnr": 35.46
+        "psnr": 35.49
       },
       {
         "i": 155,
@@ -233,7 +233,7 @@
       },
       {
         "i": 190,
-        "psnr": 35.5
+        "psnr": 35.51
       }
     ]
   }

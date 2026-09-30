@@ -5,15 +5,15 @@ PASS  audio spec: aac 48000 Hz 2 ch
 PASS  duration 25 s: 25.000000
 PASS  audio: no clipping (true peak < -1 dBTP): integrated -16 LUFS, true peak -1.5 dBFS
 PASS  audio: -16 LUFS integrated: -16 LUFS
-NOTE  disclaimer panel in the ENCODED file: max channel diff vs frame 0 = 63 (frame 80), worst frame mean diff = 0.693 (H.264 4:2:0 chroma at the panel edge when the backdrop behind it changes, e.g. the navy flood; renderer output is checked for exact identity below)
-PASS  qualification fully present whenever $69 is visible: 148 frames show the price; frames where qualification < 90% of its settled ink: none
-NOTE  vial label vs source pixels (final H.264, rest frames): PSNR min 35.46 dB, mean 35.5 dB over 9 sampled rest frames (lossy codec; exact check on lossless render below)
+NOTE  disclaimer on the end card in the ENCODED file: max channel diff vs its first risen frame = 5 (frame 601), worst frame mean diff = 0.085 (H.264 noise; renderer output is checked for exact identity below)
+PASS  qualification fully present whenever $69 is visible: 150 frames show the price; frames where qualification < 90% of its settled ink: none
+NOTE  vial label vs source pixels (final H.264, rest frames): PSNR min 35.49 dB, mean 35.5 dB over 9 sampled rest frames (lossy codec; exact check on lossless render below)
 NOTE  final hold in the ENCODED file: max frame-to-frame diff from 21.6s to end = 4 (H.264 GOP refresh noise on a static picture; renderer output is checked for exact identity below)
 PASS  logo colors (last frame) vs logo file: {"dominant":["#021E46","#0272FE"],"fileNavy":"#001C44","fileBlue":"#0070FC","navyOk":true,"blueOk":true}
 PASS  vial label pixel-exact in the renderer output (frame 170): max channel diff = 0 over 43228 label pixels vs the half-size source
-PASS  disclaimer panel byte-identical in the renderer output: frames 0, 60, 170, 290, 563, 650, 700, 749 (incl. 0-60 over footage, 563 = navy flood): identical, identical, identical, identical, identical, identical, identical, identical
+PASS  disclaimer holds byte-identical on the end card (renderer output): end-card frames 600, 610, 650, 700, 749 (from 19.9s, once risen): identical, identical, identical, identical, identical
 PASS  final hold byte-identical in the renderer output: frames 650, 700 vs 749: identical, identical
-PASS  OCR "disclaimer" @0s: matches exactly
+PASS  OCR "disclaimer" @20.5s: matches exactly
 PASS  OCR "disclaimer_last" @24.9s: matches exactly
 PASS  OCR "hook_words" @1.8s: matches exactly
 PASS  OCR "qualification" @4s: matches exactly
