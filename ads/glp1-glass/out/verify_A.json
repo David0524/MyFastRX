@@ -9,7 +9,7 @@
     {
       "name": "video bitrate 10-15 Mbps",
       "pass": true,
-      "detail": "12.49 Mbps"
+      "detail": "12.47 Mbps"
     },
     {
       "name": "progressive",
@@ -44,7 +44,7 @@
     {
       "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 7 (H.264 noise; exact identity checked on renderer output below)"
+      "detail": "max channel diff vs its first risen frame = 6 (H.264 noise; exact identity checked on renderer output below)"
     },
     {
       "name": "overhead: qualification fully present whenever $69 is fully visible",
@@ -60,7 +60,7 @@
       "name": "no visible box around the logo / badge files (mean edge step, levels)",
       "pass": true,
       "detail": {
-        "logo": 0.11,
+        "logo": 0.12,
         "badge": 0
       }
     },
@@ -101,7 +101,7 @@
     {
       "name": "OCR \"o3d_price\" @3.7s",
       "pass": null,
-      "detail": "read: \"Starting at $09\" | expected: \"Starting at $69\""
+      "detail": "read: \"c ) Introductory offer. Regular pricing Lariam Anais rl an\" | expected: \"Starting at $69\""
     },
     {
       "name": "OCR \"head1\" @6.5s",
@@ -240,7 +240,7 @@
     "blueOk": true
   },
   "boxEdges": {
-    "logo": 0.11,
+    "logo": 0.12,
     "badge": 0
   },
   "stats": {
@@ -249,6 +249,6 @@
     "partialPrice": 6,
     "panelEarly": [],
     "stillMax": 4,
-    "panelMax": 7
+    "panelMax": 6
   }
 }

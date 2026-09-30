@@ -172,7 +172,7 @@ const dc = [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.ro
 const capBox = n => [820, 60 + 56 * (n - 1) + 14, 100, L.capY - 50 - 56 * (n - 1)];
 const P1 = L.pill1.c, P2 = L.pill.c, F = L.frame;
 const expect = [
-  ['o3d_price', 3.7, [760, 560, 160, 620], false, `${COPY.startingAt} ${COPY.price}`],
+  ['o3d_price', 3.7, [760, 300, 160, 420], false, `${COPY.startingAt} ${COPY.price}`],
   ['head1', 6.5, [860, 200, 80, 280], false, COPY.head1.join(' ')],
   ['strings_starting', 6.5, box([P1[0] - 160, P1[1] - 110, P1[0] + 160, P1[1] - 54]), false, COPY.startingAt, 7],
   ['strings_69', 6.5, box(priceBox(P1), 12), false, COPY.price, 7],
