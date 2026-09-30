@@ -1,24 +1,21 @@
 #!/usr/bin/env bash
 # Mix + final encode for Version A.
 #   ./mix.sh            -> out/MyFastRx_LiquidGlass_A.mp4 and out/stems/*.wav
-# VO: when vo/hook_A.wav and vo/body.wav exist they are placed at HOOK_AT / BODY_AT seconds, the music is side-chain ducked
-# from the VO itself, and the full mix is loudness-normalized to -16 LUFS integrated, -1.5 dBTP.
+# VO: when vo/hook_A.wav and vo/body.wav exist, each line is placed per src/timeline.mjs VO_EDIT (tools/build-vo.mjs) and
+# the full mix is loudness-normalized to -16 LUFS integrated, -1.5 dBTP.
 # Without VO (current state) the output carries music + SFX at their under-VO bed level (NOT raised to -16 LUFS, because
 # that would push the bed up ~12 dB and it would then fight the voice).
 set -euo pipefail
 cd "$(dirname "$0")"
-HOOK_AT=${HOOK_AT:-0.35}; BODY_AT=${BODY_AT:-4.55}
 V=out/A_video_only.mp4; M=audio/stems/A_music.wav; S=audio/stems/A_sfx.wav
 OUT=out/MyFastRx_LiquidGlass_A.mp4
 mkdir -p out/stems
 cp "$M" out/stems/A_music.wav; cp "$S" out/stems/A_sfx.wav
 if [[ -f vo/hook_A.wav && -f vo/body.wav ]]; then
-  ffmpeg -v error -y -i vo/hook_A.wav -i vo/body.wav -filter_complex \
-    "[0]aresample=48000,aformat=channel_layouts=stereo,adelay=$(awk "BEGIN{print $HOOK_AT*1000}"):all=1[h];[1]aresample=48000,aformat=channel_layouts=stereo,adelay=$(awk "BEGIN{print $BODY_AT*1000}"):all=1[b];[h][b]amix=inputs=2:normalize=0,apad,atrim=0:25[v]" \
-    -map "[v]" -c:a pcm_s24le out/stems/A_vo.wav
-  GRAPH="[0][2]sidechaincompress=threshold=0.03:ratio=4:attack=20:release=300[md];[md][1][2]amix=inputs=3:normalize=0,atrim=0:25"
-  ffmpeg -v error -y -i out/stems/A_music.wav -i out/stems/A_sfx.wav -i out/stems/A_vo.wav -filter_complex "$GRAPH" -c:a pcm_s24le out/A_premix.wav
-  # two-pass loudnorm to -16 LUFS
+  # VO lines placed per src/timeline.mjs VO_EDIT; the music bed is already ducked under the measured VO windows
+  node tools/build-vo.mjs
+  ffmpeg -v error -y -i out/stems/A_music.wav -i out/stems/A_sfx.wav -i out/stems/A_vo.wav -filter_complex "[0][1][2]amix=inputs=3:normalize=0,atrim=0:25" -c:a pcm_s24le out/A_premix.wav
+  # two-pass loudnorm to -16 LUFS integrated, -1.5 dBTP
   J=$(ffmpeg -hide_banner -nostats -i out/A_premix.wav -af loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json -f null - 2>&1 | sed -n '/^{/,/^}/p')
   g(){ echo "$J" | sed -n "s/.*\"$1\" : \"\(.*\)\".*/\1/p"; }
   ffmpeg -v error -y -i out/A_premix.wav -af "loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=$(g input_i):measured_TP=$(g input_tp):measured_LRA=$(g input_lra):measured_thresh=$(g input_thresh):offset=$(g target_offset):linear=true,aresample=48000" -c:a pcm_s24le out/A_mix.wav

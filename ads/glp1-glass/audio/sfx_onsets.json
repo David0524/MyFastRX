@@ -72,27 +72,27 @@
     },
     {
       "id": "press",
-      "at": 10.625,
+      "at": 10.26,
       "gain": -14,
-      "file_start": 10.6249
+      "file_start": 10.2599
     },
     {
       "id": "press",
-      "at": 11.875,
+      "at": 11.27,
       "gain": -14,
-      "file_start": 11.8749
+      "file_start": 11.2699
     },
     {
       "id": "press",
-      "at": 13.125,
+      "at": 12.22,
       "gain": -14,
-      "file_start": 13.1249
+      "file_start": 12.2199
     },
     {
       "id": "slide_soft",
-      "at": 12.3,
+      "at": 11.62,
       "gain": -25,
-      "file_start": 12.2773
+      "file_start": 11.5973
     },
     {
       "id": "slide_air",
@@ -126,9 +126,9 @@
     },
     {
       "id": "slide_air",
-      "at": 18.42,
+      "at": 18.62,
       "gain": -20,
-      "file_start": 18.3809
+      "file_start": 18.5809
     },
     {
       "id": "tap_low",

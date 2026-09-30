@@ -111,12 +111,11 @@ const expect = [
   ['price_69', 4.0, [440, 150, 426, 725], false, COPY.price, 7],
   ['headline_hook', 3.0, [820, 110, 100, 370], false, COPY.hookHead],
   ['headline_visit', 7.0, [820, 190, 100, 310], false, COPY.visitHead.join(' ')],
-  ['caption_1', 5.8, [820, 90, 100, Math.round(disc.y) - 100], false, TL.CAPTIONS[0].lines.join(' ')],
+  ['caption_1', 5.4, [820, 90, 100, Math.round(disc.y) - 100], false, TL.CAPTIONS[0].lines.join(' ')],
   ['caption_2', 7.8, [820, 150, 100, Math.round(disc.y) - 160], false, TL.CAPTIONS[1].lines.join(' ')],
   ['checks', 14.2, [640, 330, L.rowX0 + 2 * L.btnR + 20, 870], false, COPY.checks.join(' ')],
   ['fees', 17.4, [820, 200, 100, 760], false, COPY.fees.join(' ')],
-  ['caption_3', 15.9, [820, 90, 100, Math.round(disc.y) - 100], false, TL.CAPTIONS[2].lines.join(' ')],
-  ['caption_4', 17.9, [820, 150, 100, Math.round(disc.y) - 160], false, TL.CAPTIONS[3].lines.join(' ')],
+  ['caption_3', 17.6, [820, 150, 100, Math.round(disc.y) - 160], false, TL.CAPTIONS[2].lines.join(' ')],
   ['cta', 23.0, [520, 80, 250, 650], true, COPY.cta, 7],
   ['url', 23.0, [820, 80, 100, 790], false, COPY.url],
 ];
@@ -132,4 +131,19 @@ const banned = ['trial', '/month', 'first month', '1st month', 'tirzepatide', '$
 ok('banned wording absent from all on-screen copy', !banned.some(w => allCopy.toLowerCase().includes(w)), banned.join(', '));
 const prices = allCopy.match(/\$\d+/g) || [];
 ok('only price shown is $69', prices.every(p => p === '$69'), prices.join(' '));
+// ---------- 5. VO: transcript of the FINAL file's audio vs the script, and captions vs measured speech ----------
+try {
+  execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', FILE, '-vn', '-ac', '1', '-ar', '16000', 'out/ocr/final_audio.wav']);
+  const tr = execFileSync('python3', ['tools/transcribe.py', 'out/ocr/final_audio.wav'], {stdio: ['ignore', 'pipe', 'ignore']}).toString().split('\n')[0].replace('out/ocr/final_audio.wav ', '');
+  const want = TL.VO.map(v => v.text).join(' ');
+  const w = x => x.toLowerCase().replace(/myfastrx\s*\.com|myfastrx \.com/g, 'myfastrx.com').replace(/glp\s*-?\s*1/g, 'glp-1').replace(/provider\s*-guided/g, 'provider-guided').replace(/[^a-z0-9$.\- ]/g, ' ').replace(/\.(\s|$)/g, ' ').split(/\s+/).filter(Boolean);
+  const a1 = w(tr), a2 = w(want);
+  const same = a1.join(' ') === a2.join(' ');
+  ok('VO in the final file says the script (speech-to-text)', same, same ? `"${tr}"` : `heard: "${tr}" | script: "${want}"`);
+} catch (e) { ok('VO transcript', null, 'transcription unavailable: ' + String(e).slice(0, 100)); }
+const capBad = TL.CAPTIONS.filter(c => !TL.VO.some(v => c.t0 >= v.t0 - .25 && c.t1 <= v.t1 + .3));
+ok('captions sit inside their VO line windows', capBad.length === 0, TL.CAPTIONS.map(c => `${c.t0}-${c.t1} "${c.lines.join(' ')}"`).join(' | '));
+const capText = TL.CAPTIONS.map(c => c.lines.join(' ')).join(' ').toLowerCase().replace(/[^a-z ]/g, '');
+const voText = TL.VO.map(v => v.text).join(' ').toLowerCase().replace(/[^a-z ]/g, '');
+ok('caption wording is verbatim VO', TL.CAPTIONS.every(c => voText.replace(/\s+/g, ' ').includes(c.lines.join(' ').toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' '))), 'each caption string found word-for-word in the VO lines');
 writeFileSync('out/verify_A.json', JSON.stringify({...R, stats: {...stats, labelPSNR: stats.labelPSNR}}, null, 2));

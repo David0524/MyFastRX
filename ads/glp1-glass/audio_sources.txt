@@ -34,9 +34,13 @@ Placement: each effect's audible onset (first sample within 30 dB of its peak) i
 not the file start (see sfx_onsets.json: file_start = at - onset).
 
 ======================================================================
-NOT INCLUDED
+VOICEOVER (client-supplied)
 ======================================================================
-Voiceover: vo/hook_A.wav and vo/body.wav have not been delivered yet. No VO stem exists; see README.md.
+vo/source_hook_A_elevenlabs.mp3, vo/source_body_elevenlabs.mp3  (as delivered 2026-09-30: ElevenLabs, voice "Susan Kathleen",
+  44.1 kHz mono MP3 128 kbps). Converted to vo/hook_A.wav and vo/body.wav (48 kHz / 24-bit). Supplied by the client;
+  usage rights follow the client's ElevenLabs plan.
+Edit: lines cut at the breaths between them and placed per src/timeline.mjs VO_EDIT (no time-stretch, no speed change);
+  high-pass 70 Hz; stem set to -16.5 LUFS with a transparent -2 dBFS peak limiter (tools/build-vo.mjs).
 
 Fonts (on-screen, not audio): Geist Medium/SemiBold/Bold, SIL Open Font License 1.1,
 https://github.com/vercel/geist-font  (license copy: assets/fonts/OFL-Geist.txt)

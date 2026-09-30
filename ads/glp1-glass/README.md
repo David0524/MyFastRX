@@ -10,9 +10,9 @@ contracts into the CTA button. A cursor drives the clicks and the drag. Geist ty
 |---|---|
 | Version A video | `out/MyFastRx_LiquidGlass_A.mp4` |
 | Version B | not built (asked for A only) |
-| Voiceover | **not delivered**. Timing, captions and ducking use planned VO windows in `src/timeline.mjs` |
+| Voiceover | ElevenLabs reads (voice "Susan Kathleen"), lines placed per `VO_EDIT` in `src/timeline.mjs`; mix at -16 LUFS / -1.5 dBTP |
 | Footage | **placeholders** (labeled slates inside the photo frame). No person is generated |
-| Stems | `out/stems/A_music.wav`, `out/stems/A_sfx.wav` (no VO stem until VO exists) |
+| Stems | `out/stems/A_vo.wav`, `out/stems/A_music.wav`, `out/stems/A_sfx.wav` |
 | Safe-zone previews | `previews/A_reels_safezones.png`, `previews/A_stories_safezones.png` |
 | Refraction proof | `previews/A_refraction_proof.png` |
 | Verification | `node verify.mjs` -> `out/verify_A.json` |
@@ -23,18 +23,17 @@ contracts into the CTA button. A cursor drives the clicks and the drag. Geist ty
 node tools/prep-vial.mjs        # vial color (2x2 box-averaged crop of the supplied PNG) + mask/normal map
 node audio/compose.mjs          # music + SFX stems (all composed in code)
 ./render-parallel.sh            # 750 frames, deterministic, headless Chromium + WebGL2 -> out/A_video_only.mp4
-./mix.sh                        # mix + final H.264/AAC encode -> out/MyFastRx_LiquidGlass_A.mp4
+./mix.sh                        # VO stem + mix (-16 LUFS) + final H.264/AAC encode -> out/MyFastRx_LiquidGlass_A.mp4
 node render.mjs --only 120 && node verify.mjs
 tools/preview.sh out/MyFastRx_LiquidGlass_A.mp4 A && tools/proof.sh
 ```
 
-## When the VO arrives
+## Re-timing the VO
 
-1. Put `hook_A.wav` and `body.wav` in `vo/`.
-2. Measure each phrase's start and end, then update `VO[]`, `CAPTIONS[]` and, if needed, `CUES` in `src/timeline.mjs`.
-   Scene boundaries are on a 96 BPM grid (0.625 s), so shift them by whole beats.
-3. Run `node audio/compose.mjs`, render, then `HOOK_AT=<s> BODY_AT=<s> ./mix.sh`. That script side-chain ducks the music
-   from the VO and normalizes the mix to -16 LUFS integrated, -1.5 dBTP.
+`python3 tools/transcribe.py vo/body.wav` gives word timestamps and `node tools/vo-env.mjs vo/body.wav` the exact
+speech/silence edges. Lines are placed with `VO_EDIT` (source range + landing time) in `src/timeline.mjs`; picture cues
+that follow words (check clicks, toggle snap, URL rise) and `CAPTIONS` sit next to it. After an edit: `node audio/compose.mjs`
+(re-ducks the music under the new VO windows), render, `./mix.sh`, `node verify.mjs`.
 
 ## When footage arrives
 

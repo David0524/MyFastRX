@@ -29,17 +29,17 @@
     {
       "name": "audio: no clipping (true peak < -1 dBTP)",
       "pass": true,
-      "detail": "integrated -29.6 LUFS, true peak -12.6 dBFS"
+      "detail": "integrated -16 LUFS, true peak -1.5 dBFS"
     },
     {
       "name": "audio: -16 LUFS integrated",
-      "pass": null,
-      "detail": "-29.6 LUFS - no VO yet, so the mix is music+SFX at bed level; mix.sh normalizes to -16 once vo/ exists"
+      "pass": true,
+      "detail": "-16 LUFS"
     },
     {
       "name": "disclaimer panel in the ENCODED file",
       "pass": null,
-      "detail": "max channel diff vs frame 0 = 18 (frame 563), worst frame mean diff = 0.129 (H.264 4:2:0 chroma at the panel edge when the backdrop behind it changes, e.g. the navy flood; renderer output is checked for exact identity below)"
+      "detail": "max channel diff vs frame 0 = 18 (frame 568), worst frame mean diff = 0.131 (H.264 4:2:0 chroma at the panel edge when the backdrop behind it changes, e.g. the navy flood; renderer output is checked for exact identity below)"
     },
     {
       "name": "qualification fully present whenever $69 is visible",
@@ -49,7 +49,7 @@
     {
       "name": "vial label vs source pixels (final H.264, rest frames)",
       "pass": null,
-      "detail": "PSNR min 35.51 dB, mean 35.5 dB over 35 sampled rest frames (lossy codec; exact check on lossless render below)"
+      "detail": "PSNR min 35.5 dB, mean 35.5 dB over 35 sampled rest frames (lossy codec; exact check on lossless render below)"
     },
     {
       "name": "final hold in the ENCODED file",
@@ -121,7 +121,7 @@
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"caption_1\" @5.8s",
+      "name": "OCR \"caption_1\" @5.4s",
       "pass": true,
       "detail": "matches exactly"
     },
@@ -141,12 +141,7 @@
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"caption_3\" @15.9s",
-      "pass": true,
-      "detail": "matches exactly"
-    },
-    {
-      "name": "OCR \"caption_4\" @17.9s",
+      "name": "OCR \"caption_3\" @17.6s",
       "pass": true,
       "detail": "matches exactly"
     },
@@ -169,6 +164,21 @@
       "name": "only price shown is $69",
       "pass": true,
       "detail": "$69"
+    },
+    {
+      "name": "VO in the final file says the script (speech-to-text)",
+      "pass": true,
+      "detail": "\"GLP -1 care, starting at $69. Start with an online visit and provider -guided care from MyFastRx. Provider review, medication and shipping are all included. No membership fees and you choose when to request your next refill. See if you qualify at MyFastRx .com.\""
+    },
+    {
+      "name": "captions sit inside their VO line windows",
+      "pass": true,
+      "detail": "4.62-5.94 \"Start with an online visit\" | 5.94-8.85 \"and provider-guided care from MyFastRx.\" | 16.06-18.62 \"and you choose when to request your next refill.\""
+    },
+    {
+      "name": "caption wording is verbatim VO",
+      "pass": true,
+      "detail": "each caption string found word-for-word in the VO lines"
     }
   ],
   "lastFrameLogo": {
@@ -183,8 +193,8 @@
   },
   "stats": {
     "panelMax": 18,
-    "panelMaxFrame": 563,
-    "panelMeanMax": 0.12933587928464976,
+    "panelMaxFrame": 568,
+    "panelMeanMax": 0.13110252111276702,
     "priceFrames": 221,
     "priceWithoutFullQual": [],
     "stillMax": 3,
@@ -251,83 +261,83 @@
       },
       {
         "i": 95,
-        "psnr": 35.51
+        "psnr": 35.53
       },
       {
         "i": 100,
-        "psnr": 35.51
+        "psnr": 35.53
       },
       {
         "i": 105,
-        "psnr": 35.51
+        "psnr": 35.53
       },
       {
         "i": 110,
-        "psnr": 35.51
+        "psnr": 35.53
       },
       {
         "i": 115,
-        "psnr": 35.51
+        "psnr": 35.53
       },
       {
         "i": 120,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 125,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 130,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 135,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 140,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 145,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 150,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 155,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 160,
-        "psnr": 35.51
+        "psnr": 35.53
       },
       {
         "i": 165,
-        "psnr": 35.51
+        "psnr": 35.52
       },
       {
         "i": 170,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 175,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 180,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 185,
-        "psnr": 35.52
+        "psnr": 35.53
       },
       {
         "i": 190,
-        "psnr": 35.51
+        "psnr": 35.5
       }
     ]
   }

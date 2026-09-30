@@ -14,21 +14,31 @@ export const SCENES = [
   {id: 'end',    t0: b(30), t1: DURATION},           // 18.750 - 25.000 end card
 ];
 
-// Planned VO phrase windows (music ducking until the real VO exists; mix.sh then ducks from the VO stem itself).
-export const VO = [
-  {file: 'vo/hook_A.wav', t0: 0.35, t1: 2.9,  text: 'GLP-1 care, starting at $69.'},
-  {file: 'vo/body.wav',   t0: 4.55, t1: 8.6,  text: 'Start with an online visit and provider-guided care from MyFastRx.'},
-  {file: 'vo/body.wav',   t0: 9.6,  t1: 13.9, text: 'Provider review, medication, and shipping are all included.'},
-  {file: 'vo/body.wav',   t0: 15.1, t1: 18.5, text: 'No membership fees, and you choose when to request your next refill.'},
-  {file: 'vo/body.wav',   t0: 19.3, t1: 21.4, text: 'See if you qualify at MyFastRx.com.'},
+// VO: ElevenLabs reads delivered 2026-09-30 (vo/hook_A.wav, vo/body.wav; transcribed with faster-whisper = script, word for word).
+// body.wav is one take; each line is placed on its scene by cutting in the breaths between lines (no time-stretch, no speed change).
+// src = [from, to] seconds in the file, at = where `from` lands in the ad. Speech windows below are measured (10 ms RMS envelope).
+export const VO_EDIT = [
+  {file: 'vo/hook_A.wav', src: [0.00, 3.92],  at: 0.30},   // "GLP-1 care, starting at $69."           speech 0.32 - 4.07
+  {file: 'vo/body.wav',   src: [0.00, 4.42],  at: 4.60},   // "Start with an online visit ..."         speech 4.62 - 8.78
+  {file: 'vo/body.wav',   src: [4.42, 8.50],  at: 9.99},   // "Provider review, medication, ..."       speech 10.25 - 13.92
+  {file: 'vo/body.wav',   src: [8.50, 12.35], at: 14.94},  // "No membership fees, and you choose ..." speech 15.10 - 18.63
+  {file: 'vo/body.wav',   src: [12.35, 15.84], at: 19.30}, // "See if you qualify at MyFastRx.com."   speech 19.40 - 22.65
 ];
+export const VO = [
+  {t0: 0.32,  t1: 4.07,  text: 'GLP-1 care, starting at $69.'},
+  {t0: 4.62,  t1: 8.78,  text: 'Start with an online visit and provider-guided care from MyFastRx.'},
+  {t0: 10.25, t1: 13.92, text: 'Provider review, medication, and shipping are all included.'},
+  {t0: 15.10, t1: 18.63, text: 'No membership fees, and you choose when to request your next refill.'},
+  {t0: 19.40, t1: 22.65, text: 'See if you qualify at MyFastRx.com.'},
+];
+// Word onsets used to sync picture (ad time): "and provider" 5.94 | Provider 10.26, medication 11.27, shipping 12.22 |
+// "and you choose" 16.06 | "MyFastRx.com" 20.79
 
-// Burned-in captions, only where the on-screen card does not already say the VO line. Max two lines each.
+// Burned-in captions only where the on-screen card does not already say the line. Max two lines each.
 export const CAPTIONS = [
-  {t0: 4.55,  t1: 6.5,   lines: ['Start with an online visit']},
-  {t0: 6.5,   t1: 8.65,  lines: ['and provider-guided care', 'from MyFastRx.']},
-  {t0: 15.1,  t1: 16.45, lines: ['No membership fees,']},
-  {t0: 16.45, t1: 18.5,  lines: ['and you choose when to', 'request your next refill.']},
+  {t0: 4.62,  t1: 5.94,  lines: ['Start with an online visit']},
+  {t0: 5.94,  t1: 8.85,  lines: ['and provider-guided care', 'from MyFastRx.']},
+  {t0: 16.06, t1: 18.62, lines: ['and you choose when to', 'request your next refill.']},   // "No membership fees" is the card itself
 ];
 
 export const CUES = {
@@ -47,30 +57,31 @@ export const CUES = {
   pushOut:    {t0: 8.90, t1: 9.35},                // headline, vial, tube push out left
   zoom:       {t0: 8.30, peak: b(14), t1: 9.65, s: 1.14},
   morphFrame: {t0: 8.92, land: b(15)},             // 9.375  pill becomes the photo frame
-  checks:     [b(17), b(19), b(21)],               // 10.625 / 11.875 / 13.125 clicks
-  footPush:   {t0: 12.30, t1: b(20) + 0.1},        // photo A pushes out, photo B pushes in
+  checks:     [10.26, 11.27, 12.22],               // clicks land on 'Provider' / 'medication' / 'shipping'
+  footPush:   {t0: 11.62, t1: 11.98},              // photo A pushes out, photo B (package) in, before 'shipping'
   checksOut:  {t0: 14.50, t1: 14.78},
   morphTrack: {t0: 14.72, land: b(25)},            // 15.625 photo frame contracts into the toggle track
   knobPop:    b(25),
   drag:       {t0: 15.86, t1: b(26)},              // 16.250 snap on
-  feesIn:     [{t0: 16.0, land: b(26)}, {t0: 16.1, land: b(26) + 0.12}],
-  feesOut:    {t0: 18.30, t1: 18.48},
-  flood:      {t0: 18.42, full: 18.84, t1: 19.62}, // navy floods from the knob, then contracts into the CTA button
+  feesIn:     [{t0: 15.30, land: b(25)}, {t0: 15.42, land: b(25) + 0.12}],   // with 'No membership fees'
+  feesOut:    {t0: 18.45, t1: 18.62},
+  flood:      {t0: 18.62, full: 18.98, t1: 19.62}, // navy floods from the knob after the line ends, then contracts into the CTA
   logoIn:     {t0: 19.55, land: b(32)},            // 20.000
   ctaText:    {t0: 19.65, land: b(32)},
-  urlIn:      {t0: 20.28, land: b(33)},            // 20.625
+  urlIn:      {t0: 20.45, land: 20.79},            // with 'MyFastRx.com'
   ctaClick:   b(33.5),                             // 20.938
   badgePop:   b(34),                               // 21.250 ; everything is still from finalStill to the last frame
   finalStill: 21.60,
 };
 
 // Cursor path: [t, x, y, pressed]. World coordinates (the camera applies to it, and it scales with the zoom).
+const CK = CUES.checks;
 export const CURSOR = [
   [7.20, 1160, 1060, 0], [8.35, 700, 820, 0], [8.62, 700, 820, 1], [8.78, 700, 820, 0],
-  [9.40, 470, 1040, 0], [10.30, 0, 0, 0, 'c0'], [10.55, 0, 0, 1, 'c0'], [10.66, 0, 0, 0, 'c0'],
-  [11.55, 0, 0, 0, 'c1'], [11.80, 0, 0, 1, 'c1'], [11.91, 0, 0, 0, 'c1'],
-  [12.80, 0, 0, 0, 'c2'], [13.05, 0, 0, 1, 'c2'], [13.16, 0, 0, 0, 'c2'],
-  [14.85, 0, 0, 0, 'c2'], [15.70, 0, 0, 0, 'knob0'], [15.80, 0, 0, 1, 'knob0'], [16.25, 0, 0, 1, 'knob1'], [16.34, 0, 0, 0, 'knob1'],
+  [9.40, 470, 1040, 0],
+  ...CK.flatMap((t, i) => [[t - .32, 0, 0, 0, 'c' + i], [t - .07, 0, 0, 1, 'c' + i], [t + .05, 0, 0, 0, 'c' + i]]),
+  [14.85, 0, 0, 0, 'c2'], [15.25, 70, 760, 0],                     // around the left margin, never across the text
+  [15.70, 0, 0, 0, 'knob0'], [15.80, 0, 0, 1, 'knob0'], [16.25, 0, 0, 1, 'knob1'], [16.34, 0, 0, 0, 'knob1'],
   [17.20, 1160, 660, 0],
   [20.20, 1160, 760, 0], [20.78, 640, 718, 0], [20.86, 640, 718, 1], [20.95, 640, 718, 0], [21.58, 1160, 790, 0],
 ];
