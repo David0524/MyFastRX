@@ -25,30 +25,31 @@ export const COPY = {
   cta: 'See if you qualify', url: 'MyFastRx.com',
 };
 
-// Footage slots. Licensed clips go here; until then a labeled placeholder renders (no person is ever generated).
-// frames: folder of graded JPGs (tools/extract-footage.sh). protect: [x0,y0,x1,y1] around the person;
-// glass never refracts inside it.
+// Footage: licensed Mixkit clips (Mixkit Stock Video Free License), graded frames from tools/extract-footage.sh.
+// start = ad time of frame 1. hasPerson: glass never refracts that footage (hands and bodies are never bent).
 export const FOOTAGE = {
-  laptop:  {frames: null, label: 'Woman at the kitchen table, laptop open', protect: null},
-  package: {frames: null, label: 'Package at the front door', protect: null},
+  latte:   {frames: 'footage/frames/latte',   n: 155, start: 0,    hasPerson: false, label: 'Latte pour'},
+  laptop:  {frames: 'footage/frames/laptop',  n: 108, start: null, hasPerson: true,  label: 'Hands on a laptop'},
+  package: {frames: 'footage/frames/package', n: 117, start: null, hasPerson: true,  label: 'Package at the door'},
 };
 
 const CX = 510;                                   // visual center of the safe area (x 100..920)
-const DISC = {w: 880, pad: 24, size: 32, lh: 1.2, bottom: H - 400};
+// Fine print: 22 px, sitting above the Reels caption/controls zone (bottom 35%) so no platform UI covers it.
+const DISC = {w: 820, pad: 14, size: 22, lh: 1.25, bottom: 1236, r: 12};   // spans the safe area x 100-920, clear of the Reels right rail
 export const L = {
-  vial: {x: 100, y: 520},                          // half-size vial 230x467, integer top-left at rest
-  headY: 450, head2Y: [392, 478],
-  startY: 704, priceY: 858, priceX: 646,
-  pill: {c: [646, 770], half: [250, 140], r: 140},
-  qualY: [956, 998],
-  tubeY: 705,
-  frame: {c: [510, 550], half: [410, 280], r: 44},
-  rows: [925, 1045, 1165], btnR: 40,
-  track: {c: [510, 600], half: [230, 110], r: 110}, knobR: 84,
-  feesY: [836, 922],
-  logo: {c: [510, 452], scale: .5},
-  cta: {c: [510, 690], half: [330, 72], r: 72},
-  urlY: 842, badge: {cx: 510, y: 892, w: 380},
+  vial: {x: 100, y: 460},                          // half-size vial 230x509, integer top-left at rest
+  hookY: 420, head2Y: [340, 424],
+  startY: 646, priceY: 800, priceX: 646,
+  pill: {c: [646, 712], half: [250, 140], r: 140},
+  qualY: [898, 940],
+  tubeY: 645,
+  frame: {c: [510, 510], half: [410, 240], r: 44},
+  rows: [850, 950, 1050], btnR: 40,
+  track: {c: [510, 560], half: [230, 110], r: 110}, knobR: 84,
+  feesY: [800, 886],
+  logo: {c: [510, 430], scale: .5},
+  cta: {c: [510, 650], half: [330, 72], r: 72},
+  urlY: 800, badge: {cx: 510, y: 850, w: 380},
 };
 
 // ---------- math ----------
@@ -87,6 +88,14 @@ function wrap(s, px, wt, maxW) {
   if (cur) out.push(cur); return out;
 }
 
+const footCache = {};
+async function footFrame(id, t) {
+  const f = FOOTAGE[id]; if (!f.frames || f.start == null) return null;
+  const i = clamp(Math.floor((t - f.start) * TL.FPS + 1e-6) + 1, 1, f.n);
+  if (footCache[id]?.i === i) return footCache[id].img;
+  const im = await new Promise((res, rej) => { const m = new Image(); m.onload = () => res(m); m.onerror = rej; m.src = `../${f.frames}/${String(i).padStart(4, '0')}.jpg`; });
+  footCache[id] = {i, img: im}; return im;
+}
 export async function init() {
   for (const [wt, f] of [[500, 'Medium'], [600, 'SemiBold'], [700, 'Bold']]) {
     const ff = new FontFace('G' + wt, `url(../assets/fonts/Geist-${f}.ttf)`, {weight: String(wt)}); await ff.load(); document.fonts.add(ff);
@@ -103,8 +112,8 @@ export async function init() {
   G.setVial(await raw('../assets/vial/vial_color_half.rgba'), await raw('../assets/vial/vial_mask_half.rgba'), meta.half.w, meta.half.h);
   img.vialW = meta.half.w; img.vialH = meta.half.h;
   const lines = wrap(COPY.disclaimer, DISC.size, 500, DISC.w - 2 * DISC.pad);
-  const lh = Math.round(DISC.size * DISC.lh), h = lines.length * lh + 2 * DISC.pad + 6;
-  disc = {lines, lh, h, x: (W - DISC.w) / 2, y: DISC.bottom - h};
+  const lh = Math.round(DISC.size * DISC.lh), h = lines.length * lh + 2 * DISC.pad + 4;
+  disc = {lines, lh, h, w: DISC.w, x: CX - DISC.w / 2, y: DISC.bottom - h};
   const labW = Math.max(...COPY.checks.map(s => measure(s, 50, 600)));
   L.rowX0 = Math.round(CX - (2 * L.btnR + 28 + labW) / 2);
   L.knobX = [L.track.c[0] - L.track.half[0] + 26 + L.knobR, L.track.c[0] + L.track.half[0] - 26 - L.knobR];
@@ -134,12 +143,12 @@ function mainShape(t) {
   const P = L.pill, F = L.frame, K = L.track;
   if (t < C.pillSlide.t0) return null;
   if (t < C.morphFrame.t0) {
-    const u = eOut(prog(t, C.pillSlide.t0, C.pillSlide.land));
-    const c = [P.c[0] + (1 - u) * 780, P.c[1]];
-    const sq = squish(t, C.pillSlide.land, .05);
+    const u = prog(t, C.pillSlide.t0, C.pillSlide.land);            // falls onto the screen: accelerates, stops dead, squishes
+    const c = [P.c[0], lerp(-P.half[1] - 60, P.c[1], u * u)];
+    const sq = squish(t, C.pillSlide.land, .08);
     let press = 0;
     if (t > 8.6) press = t < C.pillClick ? .035 * eOut(prog(t, 8.62, 8.7)) : .035 * (1 - spring(t, C.pillClick, .3, .06));
-    return {kind: 'pill', c, half: P.half, r: P.r, bevel: 32, scale: [1 + sq - press, 1 - sq - press], anchor: press ? c : [c[0], c[1] + P.half[1]], mat: TEAL};
+    return {kind: 'pill', c, half: P.half, r: P.r, bevel: 32, scale: [1 + sq - press, 1 - sq - press], anchor: press ? c : [c[0], c[1] + P.half[1]], mat: TEAL, content: t < C.pillCrisp};
   }
   if (t < C.morphTrack.t0) {
     const m = eIO(prog(t, C.morphFrame.t0, C.morphFrame.land)), sq = squish(t, C.morphFrame.land, .012);
@@ -180,9 +189,7 @@ function footage(ctx, id, box, dx, dy) {
   const f = FOOTAGE[id]; const [x0, y0, x1, y1] = box;
   ctx.save(); ctx.translate(dx, dy);
   if (f.frames && img['foot_' + id]) {
-    ctx.filter = 'brightness(1.05) contrast(0.95) saturate(0.93)';     // the footage grade: bright, soft, slightly cool
-    ctx.drawImage(img['foot_' + id], x0, y0, x1 - x0, y1 - y0); ctx.filter = 'none';
-    ctx.fillStyle = 'rgba(214,232,255,0.06)'; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ctx.drawImage(img['foot_' + id], x0, y0, x1 - x0, y1 - y0);          // already graded at ingest
   } else {
     const g = ctx.createLinearGradient(x0, y0, x1, y1);
     g.addColorStop(0, id === 'laptop' ? '#E6E1DA' : '#DFE3E6'); g.addColorStop(1, id === 'laptop' ? '#CDD5DE' : '#C9D1D8');
@@ -217,9 +224,35 @@ export async function render(t) {
   worldXf(bg); worldXf(fg); worldXf(top);
   const ops = [];
   const push = eIn(prog(t, C.pushOut.t0, C.pushOut.t1)) * -1150;
+  FOOTAGE.laptop.start = C.morphFrame.t0; FOOTAGE.package.start = C.footPush.t0;
+  for (const id of Object.keys(FOOTAGE)) img['foot_' + id] = await footFrame(id, t);
+
+  // ===== opening: full-frame footage card, native word stickers; pushes up at footOut to reveal the glass world =====
+  if (t < C.footOut.t1) {
+    const off = -eIO(prog(t, C.footOut.t0, C.footOut.t1)) * (H + 80);
+    bg.save(); bg.beginPath(); bg.roundRect(-10, -80 + off, W + 20, H + 80, off < 0 ? 64 : 0); bg.clip();
+    footage(bg, 'latte', [0, 0, W, H], 0, off);
+    // word stickers (the VO words as they are spoken): white label pops on a spring, the word rises inside it
+    const ws = C.hookWords, px = 64, pad = 22, gap = 16;
+    const wd = ws.map(w => measure(w.w, px, 700) + 2 * pad), tot = wd.reduce((a, b) => a + b, 0) + gap * (ws.length - 1);
+    let x = CX - tot / 2;
+    ws.forEach((w, i) => {
+      const s = spring(t, w.t, .3, .07);
+      if (s > 0) {
+        const cx = x + wd[i] / 2, cy = L.hookY - px * .36 + off;
+        bg.save(); bg.translate(cx, cy); bg.scale(s, s);
+        bg.shadowColor = 'rgba(0,29,69,0.18)'; bg.shadowBlur = 18; bg.shadowOffsetY = 6;
+        bg.fillStyle = COLORS.white; bg.beginPath(); bg.roundRect(-wd[i] / 2, -px * .72, wd[i], px * 1.44, 18); bg.fill(); bg.restore();
+        line(bg, w.w, cx, L.hookY + off, px, 700, COLORS.navy, {enter: eOut(prog(t, w.t + .03, w.t + .25))});
+      }
+      x += wd[i] + gap;
+    });
+    bg.restore();
+    if (off < 0) ops.push(() => G.glass(cg({type: 'rect', ...CLEAR, c: [W / 2, H / 2 - 40 + off], half: [W / 2 + 60, H / 2 + 40], r: 64, bevel: 40, refr: 16, lift: .01})));
+  }
 
   // ===== vial + tube =====
-  if (t < C.pushOut.t1) {
+  if (t >= C.vialRise.t0 && t < C.pushOut.t1) {
     const u = eOut(prog(t, C.vialRise.t0, C.vialRise.land));
     const floor = L.vial.y + img.vialH;
     let vx = L.vial.x + push, vy = L.vial.y + (1 - u) * (img.vialH + 12), rot = 0;
@@ -238,19 +271,27 @@ export async function render(t) {
   }
 
   // ===== headline =====
-  if (t < C.headSwap.t0 + .3)
-    line(fg, COPY.hookHead, CX, L.headY, 88, 700, COLORS.navy, {enter: eOut(prog(t, C.headIn.t0, C.headIn.land)), exit: eIO(prog(t, C.headSwap.t0, C.headSwap.t0 + .25))});
-  if (t >= C.headSwap.t0 + .12 && t < C.pushOut.t1)
-    COPY.visitHead.forEach((s, i) => line(fg, s, CX + push, L.head2Y[i], 80, 700, COLORS.navy, {enter: eOut(prog(t, C.headSwap.t0 + .12 + i * .08, C.headSwap.land + i * .08))}));
+  if (t >= C.headSwap.t0 && t < C.pushOut.t1)
+    COPY.visitHead.forEach((s, i) => line(fg, s, CX + push, L.head2Y[i], 80, 700, COLORS.navy, {enter: eOut(prog(t, C.headSwap.t0 + i * .08, C.headSwap.land + i * .08))}));
 
   // ===== price + qualification =====
   if (t < C.qualOut.t1) {
-    const pe = eOut(prog(t, C.priceIn.t0, C.priceIn.land)), px = eIn(prog(t, C.priceOut.t0, C.priceOut.t1));
-    const pc = t < pillSettleT() ? bg : fg;       // while the pill slides over it, the price sits behind the glass and bends
-    line(pc, COPY.startingAt, L.priceX, L.startY, 44, 500, COLORS.navy, {enter: pe, exit: px, exitDir: 1});
-    line(pc, COPY.price, L.priceX, L.priceY, 172, 700, COLORS.navy, {enter: pe, exit: px, exitDir: 1});
+    const px = eIn(prog(t, C.priceOut.t0, C.priceOut.t1));
+    // while the pill falls, the price lives on the pill's top face (content layer): seen only through the glass
+    const pc = t < C.pillCrisp ? cv.content.getContext('2d') : fg;
+    if (t >= C.pillSlide.t0) {
+      line(pc, COPY.startingAt, L.priceX, L.startY, 44, 500, COLORS.navy, {exit: px, exitDir: 1});
+      line(pc, COPY.price, L.priceX, L.priceY, 172, 700, COLORS.navy, {exit: px, exitDir: 1});
+    }
     const qe = eOut(prog(t, C.qualIn.t0, C.qualIn.land)), qx = eIn(prog(t, C.qualOut.t0, C.qualOut.t1));
-    COPY.qual.forEach((s, i) => line(fg, s, L.priceX, L.qualY[i], 34, 500, COLORS.navy, {enter: qe, exit: qx, exitDir: 1}));
+    if (qe > 0 && qx < 1) {
+      // white label (native text-sticker style) keeps it legible over footage and canvas alike
+      const qw = Math.max(...COPY.qual.map(q => measure(q, 34, 500))) + 44, qs = spring(t, C.qualIn.t0, .3, .07) * (1 - qx);
+      fg.save(); fg.translate(L.priceX, (L.qualY[0] + L.qualY[1]) / 2 - 12); fg.scale(qs, qs);
+      fg.shadowColor = 'rgba(0,29,69,0.14)'; fg.shadowBlur = 16; fg.shadowOffsetY = 4;
+      fg.fillStyle = COLORS.white; fg.beginPath(); fg.roundRect(-qw / 2, -54, qw, 108, 18); fg.fill(); fg.restore();
+      if (qs > .98 || t > C.qualIn.land) COPY.qual.forEach((q, i) => line(fg, q, L.priceX, L.qualY[i], 34, 500, COLORS.navy, {enter: qe, exit: qx, exitDir: 1}));
+    }
   }
 
   // ===== the main glass shape (pill / frame / track) and what lives inside it =====
@@ -273,8 +314,8 @@ export async function render(t) {
       }
       bg.restore();
     }
-    const prot = shape.kind === 'frame' ? [L.frame.c[0] - L.frame.half[0] + 34, L.frame.c[1] - L.frame.half[1] + 34, L.frame.c[0] + L.frame.half[0] - 34, L.frame.c[1] + L.frame.half[1] - 34] : null;
-    ops.push(() => G.glass(cg({type: 'rect', ...shape.mat, c: shape.c, half: shape.half, r: shape.r, bevel: shape.bevel, scale: shape.scale, anchor: shape.anchor, protect: prot})));
+    const prot = shape.kind === 'frame' ? [L.frame.c[0] - L.frame.half[0] - 60, L.frame.c[1] - L.frame.half[1] - 60, L.frame.c[0] + L.frame.half[0] + 60, L.frame.c[1] + L.frame.half[1] + 60] : null;   // hands/bodies: no bending
+    ops.push(() => G.glass(cg({type: 'rect', ...shape.mat, c: shape.c, half: shape.half, r: shape.r, bevel: shape.bevel, scale: shape.scale, anchor: shape.anchor, protect: prot, content: shape.content})));
   }
 
   // ===== check rows =====
@@ -356,8 +397,6 @@ export async function render(t) {
   return cv.out;
 }
 
-// the moment the sliding pill is within 3 px of rest: from then on the price is drawn sharp, on top of the glass
-function pillSettleT() { const d = C.pillSlide.land - C.pillSlide.t0, u = 1 - 3 / 780; return C.pillSlide.t0 + d * (-Math.log2(1 - u * (1 - 2 ** -10)) / 10); }
 function knobX(t) {
   if (t < C.drag.t0) return L.knobX[0];
   if (t >= C.drag.t1) return L.knobX[1];
@@ -372,15 +411,15 @@ function drawCheck(ctx, c, s) {
 function captions(ctx, t) {
   const c = CAPTIONS.find(c => t >= c.t0 && t < c.t1); if (!c) return;
   const enter = eOut(prog(t, c.t0, c.t0 + .28)), exit = eIn(prog(t, c.t1 - .16, c.t1));
-  const lh = 58, yB = disc.y - 40;
-  c.lines.forEach((s, i) => line(ctx, s, CX, yB - (c.lines.length - 1 - i) * lh, 46, 500, COLORS.navy, {enter, exit, exitDir: 1}));
+  const lh = 56, yB = disc.y - 30;
+  c.lines.forEach((s, i) => line(ctx, s, CX, yB - (c.lines.length - 1 - i) * lh, 44, 500, COLORS.navy, {enter, exit, exitDir: 1}));
 }
 function drawDisclaimer(ctx) {
   // static: identical pixels every frame, drawn last, on the screen-space layer nothing else is drawn over
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.fillStyle = COLORS.navy; ctx.fillRect(disc.x, disc.y, DISC.w, disc.h);
+  ctx.fillStyle = COLORS.navy; ctx.beginPath(); ctx.roundRect(disc.x, disc.y, DISC.w, disc.h, DISC.r); ctx.fill();
   setFont(ctx, DISC.size, 500); ctx.fillStyle = COLORS.white; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  disc.lines.forEach((s, i) => ctx.fillText(s, disc.x + DISC.pad, disc.y + DISC.pad + 3 + DISC.size * .96 + i * disc.lh));
+  disc.lines.forEach((s, i) => ctx.fillText(s, disc.x + DISC.pad, disc.y + DISC.pad + 2 + DISC.size * .92 + i * disc.lh));
   ctx.restore();
 }
 export const layers = () => ({bg: cv.bg, fg: cv.fg, top: cv.top, hud: cv.hud, out: cv.out});

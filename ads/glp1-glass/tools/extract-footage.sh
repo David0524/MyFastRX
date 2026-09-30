@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
-# Ingest a licensed clip for a footage slot: trims, crops to the photo frame's aspect (820x560), writes 30 fps JPG frames.
-#   tools/extract-footage.sh footage/laptop.mov laptop 3.2      (clip, slot id, start second in the source)
-# Then set FOOTAGE[<slot>].frames = 'footage/frames/<slot>' and the person's box in FOOTAGE[<slot>].protect (src/scene.mjs),
-# and add per-frame loading in scene.render (see the TODO there). The grade itself is applied in the renderer.
+# Ingest the licensed clips into per-frame JPGs at 30 fps, cropped to the shape they fill on screen, with one shared grade.
+#   tools/extract-footage.sh      -> footage/frames/<slot>/0001.jpg ...
+# Grade (all clips): bright, soft, slightly cool, natural skin: lift + gentle contrast cut + slight desaturation +
+# a small cool shift in shadows/mids. Per clip only the exposure (brightness) differs, to match them to each other.
 set -euo pipefail
-IN=$1; ID=$2; SS=${3:-0}; OUT=footage/frames/$ID
-mkdir -p "$OUT"
-ffmpeg -v error -y -ss "$SS" -i "$IN" -t 6 -vf "fps=30,scale=1640:1120:force_original_aspect_ratio=increase,crop=1640:1120" -q:v 2 "$OUT/%04d.jpg"
-ls "$OUT" | wc -l
+cd "$(dirname "$0")/.."
+GRADE="eq=contrast=0.93:saturation=0.9:gamma=1.04,colorbalance=rs=-0.02:bs=0.03:rm=-0.015:bm=0.02"
+one(){ local src=$1 slot=$2 ss=$3 dur=$4 crop=$5 size=$6 bright=$7
+  rm -rf footage/frames/$slot; mkdir -p footage/frames/$slot
+  ffmpeg -v error -y -ss "$ss" -i "$src" -t "$dur" -vf "fps=30,crop=$crop,scale=$size:flags=lanczos,eq=brightness=$bright,$GRADE" -q:v 2 "footage/frames/$slot/%04d.jpg"
+  echo "$slot: $(ls footage/frames/$slot | wc -l) frames"; }
+#    source                                          slot     in    dur  crop (w:h:x:y)      out size   exposure
+one footage/src/mixkit-5072_latte-pour.mp4           latte    0.30  5.2  1080:1920:0:0       1080:1920  0.03
+one footage/src/mixkit-4939_hands-typing-laptop.mp4  laptop   5.50  3.6  1080:632:0:534      820:480    0.09
+one footage/src/mixkit-31155_package-to-door.mp4     package  3.20  3.9  1400:820:120:260    820:480    0.04

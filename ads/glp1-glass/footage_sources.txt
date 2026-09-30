@@ -1,0 +1,31 @@
+FOOTAGE SOURCES - MyFastRx "Liquid Glass" Version A
+Checked 2026-09-30. All three clips: Mixkit, "Mixkit Stock Video Free License"
+(each clip page's metadata reads copyrightNotice "Free"; license text: https://mixkit.co/license/#videoFree).
+The license text says Free-license videos may be used in "Online marketing ads" and "Commercial projects", with no
+attribution required; it defers further limits to the Mixkit User Terms (https://mixkit.co/terms/), which prohibit
+uses that breach Envato's Acceptable Use Policy. That policy page
+(https://help.elements.envato.com/hc/en-us/articles/31035788503321-Acceptable-Use-Policy) returned 403 from this
+environment, so its wording on people in sensitive/medical contexts could NOT be checked. Mitigation: no clip shows
+an identifiable face; people appear only as hands or a back view. Have counsel confirm before paid media.
+Two candidates were rejected because their pages are "Mixkit Restricted License" (personal, non-commercial only):
+drinking-tea-on-a-cool-morning-25377, person-using-a-mobile-phone-while-drinking-tea-35423.
+
+latte    footage/src/mixkit-5072_latte-pour.mp4  (1080x1920, 23.976 fps, 11.47 s)
+         https://mixkit.co/free-stock-video/mug-with-sparkling-cappuccino-5072/
+         https://assets.mixkit.co/videos/5072/5072-1080.mp4
+         Used 0.30-5.50 s of the source, full frame, 0.00-4.85 s of the ad (opening). No person.
+laptop   footage/src/mixkit-4939_hands-typing-laptop.mp4  (1080x1920, 23.976 fps, 10.22 s)
+         https://mixkit.co/free-stock-video/hands-of-a-woman-typing-on-a-laptop-4939/
+         https://assets.mixkit.co/videos/4939/4939-1080.mp4
+         Used 5.50-9.10 s, crop 1080x632 @ y534 -> 820x480, in the photo frame 8.92-11.98 s. Hands only.
+package  footage/src/mixkit-31155_package-to-door.mp4  (1920x1080, 24 fps, 9.50 s)
+         https://mixkit.co/free-stock-video/delivering-a-package-to-the-door-of-a-house-31155/
+         https://assets.mixkit.co/videos/31155/31155-1080.mp4
+         Used 3.20-7.10 s, crop 1400x820 @ (120,260) -> 820x480 (courier's back, shoulders down; the box at the door),
+         in the photo frame 11.62-15.3 s.
+
+Grade (tools/extract-footage.sh): one shared grade on all clips - gentle contrast cut, -10% saturation, slight gamma lift,
+small cool shift - plus a per-clip exposure match. Glass never refracts the laptop or package footage (people present);
+the latte shot has no person, and the price pill refracts it.
+Screened out: 49935 (keyboard shows the command-key symbol, a brand mark), 49938 (identifiable face),
+42136 (third-party shopping site on screen), 43033 (brand-name stand mixer), 99910 (logo on notebook).

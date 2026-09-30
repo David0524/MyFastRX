@@ -1,6 +1,6 @@
 # MyFastRx "Liquid Glass" - Version A (25 s, 1080x1920)
 
-One continuous take in a bright glass world: nothing crossfades or cuts. Text rises out of mask lines, objects pop on
+Opens like native content (a latte pour with word stickers; a glass price pill drops onto the screen), then one continuous take in a bright glass world: nothing crossfades or cuts. Text rises out of mask lines, objects pop on
 springs, the teal price pill morphs into the photo frame, the frame contracts into the toggle track, and a navy flood
 contracts into the CTA button. A cursor drives the clicks and the drag. Geist type, #F7F7F7 canvas, navy #001D45.
 
@@ -11,7 +11,7 @@ contracts into the CTA button. A cursor drives the clicks and the drag. Geist ty
 | Version A video | `out/MyFastRx_LiquidGlass_A.mp4` |
 | Version B | not built (asked for A only) |
 | Voiceover | ElevenLabs reads (voice "Susan Kathleen"), lines placed per `VO_EDIT` in `src/timeline.mjs`; mix at -16 LUFS / -1.5 dBTP |
-| Footage | **placeholders** (labeled slates inside the photo frame). No person is generated |
+| Footage | Mixkit Free License clips (latte pour, hands on a laptop, package at the door); see `footage_sources.txt`. No face shown, no person generated |
 | Stems | `out/stems/A_vo.wav`, `out/stems/A_music.wav`, `out/stems/A_sfx.wav` |
 | Safe-zone previews | `previews/A_reels_safezones.png`, `previews/A_stories_safezones.png` |
 | Refraction proof | `previews/A_refraction_proof.png` |
@@ -35,11 +35,16 @@ speech/silence edges. Lines are placed with `VO_EDIT` (source range + landing ti
 that follow words (check clicks, toggle snap, URL rise) and `CAPTIONS` sit next to it. After an edit: `node audio/compose.mjs`
 (re-ducks the music under the new VO windows), render, `./mix.sh`, `node verify.mjs`.
 
-## When footage arrives
+## Footage
 
-`tools/extract-footage.sh <clip> laptop|package <start-s>` writes graded-ready frames. Then set `FOOTAGE[id].frames` and
-`FOOTAGE[id].protect` (the person's box) in `src/scene.mjs`. Glass never refracts inside `protect`. The frame's rim is the
-only glass that touches footage.
+`tools/extract-footage.sh` trims, crops and grades `footage/src/*` into `footage/frames/<slot>/` (regenerated, not committed).
+Slots and in-points are in that script; `FOOTAGE` in `src/scene.mjs` says when each plays and whether it shows a person
+(glass never refracts footage with a person in it). Licenses and screening notes: `footage_sources.txt`.
+
+## Fine print
+
+The disclaimer is 22 px Geist Medium on a navy panel spanning the safe area (x 100-920), bottom edge at y 1236, so it sits
+above the Reels caption/controls zone and left of the right-hand button rail on every frame.
 
 ## How the glass works (`src/glass.mjs`)
 

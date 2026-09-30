@@ -1,34 +1,34 @@
 {
   "disc": {
     "lines": [
-      "Compounded medication. Not FDA-approved. Results",
-      "may vary. Not all patients qualify. Prescription issued",
-      "only if medically appropriate following provider review.",
-      "MyFastRx does not manufacture medications; product",
+      "Compounded medication. Not FDA-approved. Results may vary. Not all",
+      "patients qualify. Prescription issued only if medically appropriate following",
+      "provider review. MyFastRx does not manufacture medications; product",
       "appearance and labeling may vary. Actor portrayal."
     ],
-    "lh": 38,
-    "h": 244,
+    "lh": 28,
+    "h": 144,
+    "w": 820,
     "x": 100,
-    "y": 1276
+    "y": 1092
   },
   "L": {
     "vial": {
       "x": 100,
-      "y": 520
+      "y": 460
     },
-    "headY": 450,
+    "hookY": 420,
     "head2Y": [
-      392,
-      478
+      340,
+      424
     ],
-    "startY": 704,
-    "priceY": 858,
+    "startY": 646,
+    "priceY": 800,
     "priceX": 646,
     "pill": {
       "c": [
         646,
-        770
+        712
       ],
       "half": [
         250,
@@ -37,31 +37,31 @@
       "r": 140
     },
     "qualY": [
-      956,
-      998
+      898,
+      940
     ],
-    "tubeY": 705,
+    "tubeY": 645,
     "frame": {
       "c": [
         510,
-        550
+        510
       ],
       "half": [
         410,
-        280
+        240
       ],
       "r": 44
     },
     "rows": [
-      925,
-      1045,
-      1165
+      850,
+      950,
+      1050
     ],
     "btnR": 40,
     "track": {
       "c": [
         510,
-        600
+        560
       ],
       "half": [
         230,
@@ -71,20 +71,20 @@
     },
     "knobR": 84,
     "feesY": [
-      836,
-      922
+      800,
+      886
     ],
     "logo": {
       "c": [
         510,
-        452
+        430
       ],
       "scale": 0.5
     },
     "cta": {
       "c": [
         510,
-        690
+        650
       ],
       "half": [
         330,
@@ -92,10 +92,10 @@
       ],
       "r": 72
     },
-    "urlY": 842,
+    "urlY": 800,
     "badge": {
       "cx": 510,
-      "y": 892,
+      "y": 850,
       "w": 380
     },
     "rowX0": 241,
@@ -106,23 +106,23 @@
     "targets": {
       "c0": [
         287,
-        933
+        858
       ],
       "c1": [
         287,
-        1053
+        958
       ],
       "c2": [
         287,
-        1173
+        1058
       ],
       "knob0": [
         400,
-        612
+        572
       ],
       "knob1": [
         640,
-        612
+        572
       ]
     }
   },

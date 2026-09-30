@@ -42,13 +42,13 @@ export const CAPTIONS = [
 ];
 
 export const CUES = {
-  vialRise:   {t0: 0.0,  land: b(1)},              // 0.625  vial rises out of the surface line
-  headIn:     {t0: 0.85, land: b(2)},              // 1.250  "GLP-1 care" rises out of its mask line
-  qualIn:     {t0: 1.18, land: 1.50},              // qualification is fully up BEFORE any part of $69 shows
-  priceIn:    {t0: 1.50, land: b(3)},              // 1.875  "Starting at $69" rises
-  pillSlide:  {t0: 1.60, land: b(4)},              // 2.500  teal glass pill slides over the price, lenses it, lands
-  pillCrisp:  b(4),                                // sharp the moment it lands: rim bending only while it moves
-  headSwap:   {t0: b(7), land: b(8)},              // 4.375 -> 5.000 old headline leaves up, new one rises
+  hookWords:  [{w: 'GLP-1', t: 0.32}, {w: 'care,', t: 1.40}],   // native word stickers, on the measured VO words
+  qualIn:     {t0: 1.72, land: 2.00},              // qualification is up BEFORE any part of $69 can show
+  pillSlide:  {t0: 1.95, land: b(4)},              // 2.500  teal glass pill drops onto the screen, on 'at $69'
+  pillCrisp:  b(4),
+  footOut:    {t0: b(7), t1: 4.85},                // latte card pushes up, revealing the glass world
+  vialRise:   {t0: 4.62, land: b(8)},              // 5.000  rises once the card's edge has cleared it
+  headSwap:   {t0: 4.74, land: b(8)},              // 5.000 'GLP-1 weight-loss care' rises
   tubeSlide:  {t0: 5.10, land: b(10)},             // 6.250  glass pulse tube slides in behind the vial
   vialSway:   {t0: 6.40, t1: 8.20},                // gentle tilt, back to exact rest
   pillClick:  b(14),                               // 8.750  cursor clicks the price pill
@@ -88,11 +88,13 @@ export const CURSOR = [
 
 // Sound effects: `at` is where the sound should be HEARD (its measured onset is aligned there, not its file start).
 export const SFX = [
-  {id: 'slide_soft', at: 0.02, gain: -22},
+  {id: 'click',      at: CUES.hookWords[0].t, gain: -24},
+  {id: 'click',      at: CUES.hookWords[1].t, gain: -24},
+  {id: 'slide_air',  at: CUES.pillSlide.t0 + .1, gain: -21},
+  {id: 'tap_glass',  at: CUES.pillSlide.land, gain: -12},
+  {id: 'slide_air',  at: CUES.footOut.t0, gain: -21},
+  {id: 'slide_soft', at: CUES.vialRise.t0, gain: -23},
   {id: 'tap_glass',  at: CUES.vialRise.land, gain: -18},
-  {id: 'slide_soft', at: CUES.pillSlide.t0, gain: -19},
-  {id: 'tap_glass',  at: CUES.pillSlide.land, gain: -14},
-  {id: 'slide_air',  at: CUES.headSwap.t0, gain: -25},
   {id: 'slide_soft', at: CUES.tubeSlide.t0, gain: -21},
   {id: 'tap_low',    at: CUES.tubeSlide.land, gain: -18},
   {id: 'click',      at: CUES.pillClick, gain: -13},

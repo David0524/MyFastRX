@@ -28,8 +28,11 @@ ok('audio: -16 LUFS integrated', Math.abs(I + 16) <= 1 ? true : null, Math.abs(I
 // ---------- 2. per-frame measurements on decoded RGB ----------
 const px = (buf, x, y) => { const i = (y * W + x) * 3; return [buf[i], buf[i + 1], buf[i + 2]]; };
 const navyCount = (buf, [x0, y0, x1, y1]) => { let n = 0; for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { const [r, g, b] = px(buf, x, y); if (r < 70 && g < 90 && b < 140) n++; } return n; };
-const panel = [Math.round(disc.x), Math.round(disc.y), Math.round(disc.x + 880), Math.round(disc.y + disc.h)];
-const priceBox = [440, 660, 860, 880], qualBox = [330, 915, 965, 1044];
+const panel = [Math.round(disc.x) + 2, Math.round(disc.y) + 14, Math.round(disc.x + disc.w) - 2, Math.round(disc.y + disc.h) - 14];   // inside the rounded panel (12 px corners excluded)
+// the price only ever exists on the teal pill, so 'price visible' = teal pill pixels inside the pill's rest box
+const pillBox = [L.pill.c[0] - L.pill.half[0], L.pill.c[1] - L.pill.half[1], L.pill.c[0] + L.pill.half[0], L.pill.c[1] + L.pill.half[1]];
+const qualBox = [L.priceX - 250, L.qualY[0] - 42, L.priceX + 250, L.qualY[1] + 18];   // inside the white label: only the text is navy
+const tealCount = (buf, [x0, y0, x1, y1]) => { let n = 0; for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) { const [r, g, b] = px(buf, x, y); if (g - r > 55 && b - r > 55 && g > 120) n++; } return n; };
 const labelBox = [L.vial.x + 8, L.vial.y + 216, L.vial.x + 222, L.vial.y + 418];   // label rows only (cap, glass excluded)   // vial label (half-res rows 216..418)
 let panel0 = null, last = null; const stats = {panelMax: 0, panelMaxFrame: -1, panelMeanMax: 0, priceFrames: 0, priceWithoutFullQual: [], stillMax: 0, labelPSNR: []};
 const frames = [];
@@ -49,7 +52,11 @@ await new Promise((res, rej) => {
       for (let y = panel[1]; y < panel[3]; y++) { f.copy(cur, k, (y * W + panel[0]) * 3, (y * W + panel[2]) * 3); k += (panel[2] - panel[0]) * 3; }
       if (!panel0) panel0 = cur; else { let mx = 0, sum = 0; for (let j = 0; j < cur.length; j++) { const d2 = Math.abs(cur[j] - panel0[j]); sum += d2; if (d2 > mx) mx = d2; } if (mx > stats.panelMax) { stats.panelMax = mx; stats.panelMaxFrame = idx; } stats.panelMeanMax = Math.max(stats.panelMeanMax, sum / cur.length); }
       // price vs qualification
-      const pn = navyCount(f, priceBox), qn = navyCount(f, qualBox);
+      // follow the camera push-in (same curve as src/scene.mjs) so the boxes track what is on screen
+      const tt = idx / 30, Z = TL.CUES.zoom, eIO = u => u < .5 ? 4 * u ** 3 : 1 - (-2 * u + 2) ** 3 / 2, pr = (a, b) => Math.min(1, Math.max(0, (tt - a) / (b - a)));
+      const zs = 1 + (Z.s - 1) * (tt < Z.peak ? eIO(pr(Z.t0, Z.peak)) : 1 - eIO(pr(Z.peak + .2, Z.t1)));
+      const cam = b => [0, 1, 2, 3].map(k => Math.round((b[k] - L.pill.c[k % 2]) * zs + L.pill.c[k % 2]));
+      const pn = tealCount(f, cam(pillBox)), qn = navyCount(f, cam(qualBox)) / (zs * zs);
       frames.push({i: idx, pn, qn});
       if (idx === qualRefFrame) { qualRef = qn; priceRef = pn; }
       // vial label at rest
@@ -63,7 +70,8 @@ await new Promise((res, rej) => {
   ff.on('close', c => c === 0 ? res() : rej(new Error('decode failed')));
 });
 ok('disclaimer panel in the ENCODED file', null, `max channel diff vs frame 0 = ${stats.panelMax} (frame ${stats.panelMaxFrame}), worst frame mean diff = ${stats.panelMeanMax.toFixed(3)} (H.264 4:2:0 chroma at the panel edge when the backdrop behind it changes, e.g. the navy flood; renderer output is checked for exact identity below)`);
-for (const f of frames) if (f.i < Math.ceil(TL.CUES.qualOut.t1 * 30) && f.pn > priceRef * .05) { stats.priceFrames++; if (f.qn < qualRef * .9) stats.priceWithoutFullQual.push(f.i); }
+for (const f of frames) if (f.i / 30 < TL.CUES.priceOut.t1 && f.pn > priceRef * .2)   // the pill outlives the price text by a few frames; the price is gone at priceOut.t1
+   { stats.priceFrames++; if (f.qn < qualRef * .9) stats.priceWithoutFullQual.push(f.i); }
 ok('qualification fully present whenever $69 is visible', stats.priceWithoutFullQual.length === 0, `${stats.priceFrames} frames show the price; frames where qualification < 90% of its settled ink: ${stats.priceWithoutFullQual.length ? stats.priceWithoutFullQual.join(',') : 'none'}`);
 const psn = stats.labelPSNR.map(s => s.psnr);
 ok('vial label vs source pixels (final H.264, rest frames)', null, `PSNR min ${Math.min(...psn)} dB, mean ${(psn.reduce((a, b) => a + b, 0) / psn.length).toFixed(1)} dB over ${psn.length} sampled rest frames (lossy codec; exact check on lossless render below)`);
@@ -73,13 +81,13 @@ ok('logo colors (last frame) vs logo file', R.lastFrameLogo.navyOk && R.lastFram
 // ---------- 3. lossless checks on the renderer output (before encoding): node render.mjs --only 0,120,290,563,650,700,749 ----------
 const still = i => execFileSync('ffmpeg', ['-v', 'error', '-i', `out/stills/f${String(i).padStart(4, '0')}.png`, '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], {maxBuffer: 1 << 28});
 try {
-  const raw = still(120);
+  const raw = still(170);
   let diff = 0, n = 0; for (let y = labelBox[1]; y < labelBox[3]; y++) for (let x = labelBox[0]; x < labelBox[2]; x++) { const p = px(raw, x, y), q = refLabel(x, y); for (let c = 0; c < 3; c++) diff = Math.max(diff, Math.abs(p[c] - q[c])); n++; }
-  ok('vial label pixel-exact in the renderer output (frame 120)', diff === 0, `max channel diff = ${diff} over ${n} label pixels vs the half-size source`);
+  ok('vial label pixel-exact in the renderer output (frame 170)', diff === 0, `max channel diff = ${diff} over ${n} label pixels vs the half-size source`);
   const region = (buf, [x0, y0, x1, y1]) => { const o = []; for (let y = y0; y < y1; y++) o.push(buf.subarray((y * W + x0) * 3, (y * W + x1) * 3)); return Buffer.concat(o); };
-  const ids = [0, 120, 290, 563, 650, 700, 749], p0 = region(still(0), panel);
+  const ids = [0, 60, 170, 290, 563, 650, 700, 749], p0 = region(still(0), panel);
   const same = ids.map(i => region(still(i), panel).equals(p0));
-  ok('disclaimer panel byte-identical in the renderer output', same.every(Boolean), `frames ${ids.join(', ')} (incl. 563 = navy flood): ${same.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
+  ok('disclaimer panel byte-identical in the renderer output', same.every(Boolean), `frames ${ids.join(', ')} (incl. 0-60 over footage, 563 = navy flood): ${same.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
   const e = still(749), holds = [650, 700].map(i => still(i).equals(e));
   ok('final hold byte-identical in the renderer output', holds.every(Boolean), `frames 650, 700 vs 749: ${holds.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
 } catch (e) { ok('lossless checks', null, 'stills missing - run node render.mjs --only 0,120,290,563,650,700,749 (' + String(e).slice(0, 80) + ')'); }
@@ -104,22 +112,22 @@ function ocr(name, t, crop, invert = false, psm = 6) {
   return norm(execFileSync('tesseract', [png, '-', '--psm', String(psm)], {stdio: ['ignore', 'pipe', 'ignore']}).toString());
 }
 const expect = [
-  ['disclaimer', 0.0, [880, Math.round(disc.h), Math.round(disc.x), Math.round(disc.y)], true, COPY.disclaimer],
-  ['disclaimer_last', 24.9, [880, Math.round(disc.h), Math.round(disc.x), Math.round(disc.y)], true, COPY.disclaimer],
-  ['qualification', 4.0, [600, 110, 346, 920], false, COPY.qual.join(' ')],
-  ['starting_at', 4.0, [520, 70, 386, 652], false, COPY.startingAt],
-  ['price_69', 4.0, [440, 150, 426, 725], false, COPY.price, 7],
-  ['headline_hook', 3.0, [820, 110, 100, 370], false, COPY.hookHead],
-  ['headline_visit', 7.0, [820, 190, 100, 310], false, COPY.visitHead.join(' ')],
-  ['caption_1', 5.4, [820, 90, 100, Math.round(disc.y) - 100], false, TL.CAPTIONS[0].lines.join(' ')],
-  ['caption_2', 7.8, [820, 150, 100, Math.round(disc.y) - 160], false, TL.CAPTIONS[1].lines.join(' ')],
-  ['checks', 14.2, [640, 330, L.rowX0 + 2 * L.btnR + 20, 870], false, COPY.checks.join(' ')],
-  ['fees', 17.4, [820, 200, 100, 760], false, COPY.fees.join(' ')],
-  ['caption_3', 17.6, [820, 150, 100, Math.round(disc.y) - 160], false, TL.CAPTIONS[2].lines.join(' ')],
-  ['cta', 23.0, [520, 80, 250, 650], true, COPY.cta, 7],
-  ['url', 23.0, [820, 80, 100, 790], false, COPY.url],
+  ['disclaimer', 0.0, [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4], true, COPY.disclaimer],
+  ['disclaimer_last', 24.9, [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4], true, COPY.disclaimer],
+  ['hook_words', 1.8, [820, 110, 100, L.hookY - 80], false, TL.CUES.hookWords.map(w => w.w).join(' ')],
+  ['qualification', 4.0, [600, 110, 346, L.qualY[0] - 38], false, COPY.qual.join(' ')],
+  ['starting_at', 4.0, [520, 64, 386, L.startY - 46], false, COPY.startingAt],
+  ['price_69', 4.0, [440, 150, 426, L.priceY - 140], false, COPY.price, 7],
+  ['headline_visit', 7.0, [820, 190, 100, L.head2Y[0] - 70], false, COPY.visitHead.join(' ')],
+  ['caption_1', 5.4, [820, 66, 100, Math.round(disc.y) - 80], false, TL.CAPTIONS[0].lines.join(' ')],
+  ['caption_2', 7.8, [820, 124, 100, Math.round(disc.y) - 136], false, TL.CAPTIONS[1].lines.join(' ')],
+  ['checks', 14.2, [640, 300, L.rowX0 + 2 * L.btnR + 20, L.rows[0] - 50], false, COPY.checks.join(' ')],
+  ['fees', 17.4, [820, 200, 100, L.feesY[0] - 70], false, COPY.fees.join(' ')],
+  ['caption_3', 17.6, [820, 124, 100, Math.round(disc.y) - 136], false, TL.CAPTIONS[2].lines.join(' ')],
+  ['cta', 23.0, [520, 80, 250, L.cta.c[1] - 40], true, COPY.cta, 7],
+  ['url', 23.0, [820, 80, 100, L.urlY - 52], false, COPY.url],
 ];
-const strip = s => s.toLowerCase().replace(/[^a-z0-9$\-;.,' ]/g, '').replace(/\s+/g, ' ').trim();
+const strip = s => s.toLowerCase().replace(/[^a-z0-9$\-;., ]/g, '').replace(/\s+/g, ' ').trim();
 for (const [name, t, crop, inv, want, psm] of expect) {
   const got = ocr(name, t, crop, inv, psm);
   const exact = strip(got) === strip(want);

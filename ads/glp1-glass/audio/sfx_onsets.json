@@ -11,34 +11,46 @@
   },
   "placements": [
     {
-      "id": "slide_soft",
-      "at": 0.02,
-      "gain": -22,
-      "file_start": -0.0027
+      "id": "click",
+      "at": 0.32,
+      "gain": -24,
+      "file_start": 0.32
     },
     {
-      "id": "tap_glass",
-      "at": 0.625,
-      "gain": -18,
-      "file_start": 0.625
+      "id": "click",
+      "at": 1.4,
+      "gain": -24,
+      "file_start": 1.4
     },
     {
-      "id": "slide_soft",
-      "at": 1.6,
-      "gain": -19,
-      "file_start": 1.5773
+      "id": "slide_air",
+      "at": 2.05,
+      "gain": -21,
+      "file_start": 2.0109
     },
     {
       "id": "tap_glass",
       "at": 2.5,
-      "gain": -14,
+      "gain": -12,
       "file_start": 2.5
     },
     {
       "id": "slide_air",
       "at": 4.375,
-      "gain": -25,
+      "gain": -21,
       "file_start": 4.3359
+    },
+    {
+      "id": "slide_soft",
+      "at": 4.62,
+      "gain": -23,
+      "file_start": 4.5973
+    },
+    {
+      "id": "tap_glass",
+      "at": 5,
+      "gain": -18,
+      "file_start": 5
     },
     {
       "id": "slide_soft",
