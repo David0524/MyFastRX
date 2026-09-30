@@ -17,7 +17,7 @@ const only = flag('--only')?.split(',').map(Number);
 const N = Math.round(TL.DURATION * TL.FPS);
 const from = +(flag('--from') ?? 0), to = +(flag('--to') ?? N);
 const outDir = path.join(ROOT, 'out'); mkdirSync(path.join(outDir, 'stills'), {recursive: true});
-const MIME = {'.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.ttf': 'font/ttf', '.jpeg': 'image/jpeg'};
+const MIME = {'.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.ttf': 'font/ttf', '.jpeg': 'image/jpeg', '.woff2': 'font/woff2'};
 let onFrame = null;
 const server = http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x');
