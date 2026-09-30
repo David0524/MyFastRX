@@ -65,13 +65,13 @@ export function oakCanvases({W = 4096, H = 8192, sx = 2.8, sz = 5.6, planks = 2}
   x2.putImageData(img, 0, 0); cr.getContext('2d').putImageData(rimg, 0, 0);
   return {color: c, rough: cr};
 }
-export async function oak({sx = 2.8, sz = 5.6} = {}) {   // the pre-generated oak (tools/gen-wood.mjs)
+export async function oak() {   // CC0 scan: Poly Haven "Silver Oak Veneer 01" (assets/table/LICENSE.txt); grain turned to run along z
   const load = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
-  const [ci, ri] = await Promise.all([load('../../assets/table/oak_color.jpg'), load('../../assets/table/oak_rough.jpg')]);
-  const map = new THREE.Texture(ci), rough = new THREE.Texture(ri);
-  for (const t of [map, rough]) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 16; t.needsUpdate = true; }
+  const [ci, ri, ni] = await Promise.all(['Diffuse_cool', 'Rough', 'nor_gl'].map(k => load(`../../assets/table/silver_oak_${k}.jpg`)));
+  const map = new THREE.Texture(ci), rough = new THREE.Texture(ri), normal = new THREE.Texture(ni);
+  for (const t of [map, rough, normal]) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 16; t.center.set(.5, .5); t.rotation = Math.PI / 2; t.needsUpdate = true; }
   map.colorSpace = THREE.SRGBColorSpace;
-  return {map, rough, size: [sx, sz]};
+  return {map, rough, normal, size: [5.2, 5.2]};   // one tile = 5.2 world units (the pill is 1.0 long)
 }
 
 // ---------- paper ----------

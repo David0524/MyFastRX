@@ -51,19 +51,21 @@ const deg = Math.PI / 180;
 const wp = (st, sx, sy) => [ST[st][0] + (sx - 540) * PX, ST[st][1] + (sy - 960) * PX];
 const pxm = p => p * PX;
 
-let renderer, scene, camera, key, glCanvas, out, octx, img = {}, disc;
+let renderer, scene, camera, key, glCanvas, out, octx, img = {}, disc, ENV = null;
+const ENV_ROT = new THREE.Euler(0, Math.PI / 2, 0);
 const M = {};   // meshes and state
 
 // ---------- materials ----------
-const glassMat = (o = {}) => new THREE.MeshPhysicalMaterial({color: '#ffffff', transmission: 1, thickness: .05, roughness: .04, ior: 1.42, dispersion: .12,
+// (the env map is set on each material: in three r16x+ envMapIntensity only scales a material's own envMap)
+const glassMat = (o = {}) => new THREE.MeshPhysicalMaterial({envMap: ENV, envMapRotation: ENV_ROT, color: '#ffffff', transmission: 1, thickness: .05, roughness: .04, ior: 1.42, dispersion: .12,
   clearcoat: .4, clearcoatRoughness: .05, specularIntensity: .7, envMapIntensity: .8, ...o});
-const tealGlass = () => glassMat({thickness: .07, ior: 1.38, dispersion: .14, attenuationColor: new THREE.Color('#14A3B8'), attenuationDistance: .42, specularIntensity: .55, envMapIntensity: .55, clearcoat: .35, roughness: .03});
-const blueGlass = () => glassMat({attenuationColor: new THREE.Color('#5AA2FF'), attenuationDistance: .5});
+const tealGlass = () => glassMat({thickness: .07, ior: 1.38, dispersion: .14, attenuationColor: new THREE.Color('#18A9C6'), attenuationDistance: .55, specularIntensity: .3, envMapIntensity: .12, clearcoat: 0, roughness: .03});
+const readGlass = (o = {}) => glassMat({thickness: .03, envMapIntensity: .12, specularIntensity: .3, clearcoat: 0, dispersion: .06, ...o});   // glass you read print through: low reflections
+const blueGlass = () => glassMat({attenuationColor: new THREE.Color('#6FA8FF'), attenuationDistance: .3, thickness: .06, roughness: .02, envMapIntensity: 1.0, specularIntensity: 1.0});
 
 // ---------- the pill (heightfield slab: capsule footprint, quarter-round bevel, gently domed top) ----------
 const PILL = {L: 1.0, D: 0.56, R: 0.28, H: 0.16, B: 0.09};
-function pillGeometry() {
-  const {L, D, R, H: Hm, B} = PILL, nx = 200, nz = 112;
+function pillGeometry({L, D, R, H: Hm, B} = PILL, nx = 200, nz = 112) {   // also any glass capsule/rounded slab (R = corner radius in plan)
   const sd = (x, z) => Math.hypot(Math.max(Math.abs(x) - (L / 2 - R), 0), z) - R;
   const pos = [], idx = [], ti = (i, j) => j * (nx + 1) + i;
   for (const side of [0, 1]) for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
@@ -76,6 +78,8 @@ function pillGeometry() {
   for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { const a = ti(i, j), b = ti(i + 1, j), c = ti(i, j + 1), e = ti(i + 1, j + 1); idx.push(a, c, b, b, c, e, off + a, off + b, off + c, off + b, off + e, off + c); }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g;
 }
+
+const slab = (wPx, hPx, rPx, h) => pillGeometry({L: pxm(wPx), D: pxm(hPx), R: pxm(rPx), H: h, B: Math.min(h * .75, pxm(rPx))}, 140, 60);
 
 // ---------- a paper card lying on the table: printed top (canvas texture) + thin body that casts a shadow ----------
 function card(wPx, hPx, {color = '#FBFAF7', ruled = null, thick = .006, k = 2, fibers = true, rough = .9, radius = 10} = {}) {
@@ -93,7 +97,7 @@ function card(wPx, hPx, {color = '#FBFAF7', ruled = null, thick = .006, k = 2, f
   const topG = new THREE.ShapeGeometry(shape); const uv = topG.attributes.uv, p = topG.attributes.position;
   for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) / w + .5, p.getY(i) / h + .5);
   const top = new THREE.Mesh(topG, new THREE.MeshStandardMaterial({map: tex, roughness: rough}));
-  top.rotation.x = -Math.PI / 2; top.position.y = thick + .0004; top.receiveShadow = true; grp.add(top);
+  top.rotation.x = -Math.PI / 2; top.position.y = thick + .0012; top.receiveShadow = true; grp.add(top);
   const o = {grp, ctx, tex, cw, ch, k, w, h, base, key: null, thick, top, body};
   // redraw with fn(ctx) in layout px (origin = card top-left) when the key changes
   o.paint = (keyStr, fn) => { if (keyStr === o.key) return; o.key = keyStr; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(base, 0, 0); ctx.setTransform(k, 0, 0, k, 0, 0); fn(ctx); tex.needsUpdate = true; };
@@ -183,7 +187,7 @@ export async function init() {
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   scene = new THREE.Scene();
   const pm = new THREE.PMREMGenerator(renderer);
-  scene.environment = pm.fromScene(new RoomEnvironment(), .04).texture; scene.environmentIntensity = .75;
+  ENV = pm.fromScene(new RoomEnvironment(), .04).texture; scene.environment = ENV; scene.environmentIntensity = .6;
   scene.environmentRotation = new THREE.Euler(0, Math.PI / 2, 0);
   // the room: a soft studio sphere in the ad's palette (off-white to pale blue with teal/blue light)
   { const c = document.createElement('canvas'); c.width = 1024; c.height = 512; const x = c.getContext('2d');
@@ -193,23 +197,24 @@ export async function init() {
     const sky = new THREE.Mesh(new THREE.SphereGeometry(60, 48, 24), new THREE.MeshBasicMaterial({map: t, side: THREE.BackSide, toneMapped: false})); scene.add(sky); }
   // the table: whitewashed oak, satin lacquer
   { const o = await oak(), TW = 12, TD = 30;
-    for (const t of [o.map, o.rough]) t.repeat.set(TW / o.size[0], TD / o.size[1]);
-    const mat = new THREE.MeshPhysicalMaterial({map: o.map, roughnessMap: o.rough, roughness: .62, clearcoat: .45, clearcoatRoughness: .22, envMapIntensity: .6});
+    for (const t of [o.map, o.rough, o.normal]) t.repeat.set(TW / o.size[0], TD / o.size[1]);
+    const mat = new THREE.MeshPhysicalMaterial({envMap: ENV, envMapRotation: ENV_ROT, map: o.map, color: '#F2F3F4', roughnessMap: o.rough, roughness: .9, normalMap: o.normal, normalScale: new THREE.Vector2(.6, .6),
+      clearcoat: .35, clearcoatRoughness: .28, envMapIntensity: .55});
     const top = new THREE.Mesh(new THREE.PlaneGeometry(TW, TD), mat); top.rotation.x = -Math.PI / 2; top.position.set(0, 0, 5); top.receiveShadow = true; scene.add(top);
     const slab = new THREE.Mesh(new THREE.BoxGeometry(TW, .14, TD), new THREE.MeshStandardMaterial({color: '#D8CDBB', roughness: .7})); slab.position.set(0, -.0705, 5); scene.add(slab); }
   // light: a soft window key from the upper left of frame (shadows fall down-right), sky fill
-  key = new THREE.DirectionalLight('#FFF9F1', 2.1); key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
+  key = new THREE.DirectionalLight('#FFF7EC', 2.8); key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
   Object.assign(key.shadow.camera, {left: -3.2, right: 3.2, top: 3.2, bottom: -3.2, near: .5, far: 20}); key.shadow.bias = -.0004; key.shadow.normalBias = .01; key.shadow.radius = 5;
   scene.add(key); scene.add(key.target);
-  scene.add(new THREE.HemisphereLight('#FFFFFF', '#E6DDCF', .55));
+  scene.add(new THREE.HemisphereLight('#EEF3FA', '#E6DDCF', .35));
 
   buildA(); buildB(); buildC(); buildD(); buildE();
   // the pill + its tinted soft shadow and caustic (glass casts light, not a hard shadow)
   M.pill = new THREE.Mesh(pillGeometry(), tealGlass()); scene.add(M.pill);
   M.pillShadow = decal(1.45, .95, softDisc([[0, 'rgba(24,64,74,0.30)'], [.6, 'rgba(30,80,90,0.10)'], [1, 'rgba(30,80,90,0)']]));
-  M.pillCaustic = decal(.8, .46, softDisc([[0, 'rgba(120,235,245,0.55)'], [.5, 'rgba(60,200,220,0.16)'], [1, 'rgba(60,200,220,0)']]), THREE.AdditiveBlending);
+  M.pillCaustic = decal(.62, .30, softDisc([[0, 'rgba(60,200,225,0.20)'], [.5, 'rgba(40,180,210,0.07)'], [1, 'rgba(40,180,210,0)']]), THREE.AdditiveBlending);
 
-  camera = new THREE.PerspectiveCamera(40, W / H, .01, 120);
+  camera = new THREE.PerspectiveCamera(40, W / H, .05, 90);
   out = document.createElement('canvas'); out.width = W; out.height = H; octx = out.getContext('2d', {willReadFrequently: true});
   { const c = octx; setFont(c, DISC.size, 500); const words = COPY.disclaimer.split(' '), lines = []; let cur = '';
     for (const w of words) { const tt = cur ? cur + ' ' + w : w; if (c.measureText(tt).width <= DISC.w - 2 * DISC.pad) cur = tt; else { lines.push(cur); cur = w; } } lines.push(cur);
@@ -242,8 +247,8 @@ function buildA() {
   const tp = [[290, 725], [262, 716], [236, 722], [214, 748], [196, 790], [150, 842], [70, 876], [-40, 900], [-170, 950], [-320, 1040], [-520, 1120], [-760, 1160]].map(([sx, sy]) => wp('A', sx, sy));
   M.rope = makeRope(tp); scene.add(M.rope.mesh);
   // the glass heartbeat lying across the table between the notepad and the tag
-  const hp = pulsePts(CX, 650, 560).map(([sx, sy]) => { const [x, z] = wp('A', sx, sy); return new THREE.Vector3(x, .026, z); });
-  M.pulse = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hp, false, 'catmullrom', .08), 260, .026, 20, false), blueGlass()); scene.add(M.pulse);
+  const hp = pulsePts(CX, 650, 560).map(([sx, sy]) => { const [x, z] = wp('A', sx, sy); return new THREE.Vector3(x, .02, z); });
+  M.pulse = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hp, false, 'catmullrom', .08), 260, .02, 20, false), blueGlass()); scene.add(M.pulse);
   M.pulseCaustic = decal(pxm(640), pxm(150), softDisc([[0, 'rgba(90,150,255,0.30)'], [.6, 'rgba(90,150,255,0.08)'], [1, 'rgba(90,150,255,0)']]), THREE.AdditiveBlending);
   { const [x, z] = wp('A', CX + 18, 668); M.pulseCaustic.position.set(x, .0015, z); }
 }
@@ -267,11 +272,11 @@ function buildB() {
     M.member = grp; scene.add(grp); }
   // auto-refill toggle on its card
   M.togCard = card(300, 230, {rough: .9}); place(M.togCard.grp, 'B', 300, 700, -1.5); scene.add(M.togCard.grp);
-  M.togTrack = new THREE.Mesh(new RoundedBoxGeometry(pxm(220), .05, pxm(110), 6, pxm(54)), glassMat({thickness: .03})); scene.add(M.togTrack);
+  M.togTrack = new THREE.Mesh(slab(220, 110, 55, .05), readGlass()); scene.add(M.togTrack);
   M.togKnob = new THREE.Mesh(new THREE.SphereGeometry(pxm(44), 48, 24), new THREE.MeshPhysicalMaterial({color: '#FFFFFF', roughness: .15, clearcoat: 1})); M.togKnob.scale.y = .55; M.togKnob.castShadow = true; scene.add(M.togKnob);
   // Request refill: printed card + a glass key over it
   M.btnCard = card(700, 190, {rough: .9}); scene.add(M.btnCard.grp);
-  M.btnGlass = new THREE.Mesh(new RoundedBoxGeometry(pxm(560), .07, pxm(150), 6, pxm(60)), glassMat({thickness: .05})); scene.add(M.btnGlass);
+  M.btnGlass = new THREE.Mesh(slab(560, 150, 60, .07), readGlass()); scene.add(M.btnGlass);
   M.btnCheck = new THREE.Mesh(new THREE.CylinderGeometry(pxm(34), pxm(34), .03, 48), blueGlass()); scene.add(M.btnCheck);
 }
 
@@ -280,7 +285,7 @@ function buildC() {
   M.coverCard = card(700, 150, {rough: .9}); place(M.coverCard.grp, 'C', CX, 300, -.6); scene.add(M.coverCard.grp);
   M.rx = card(300, 230, {ruled: {top: 92, step: 34}, rough: .92}); place(M.rx.grp, 'C', 285, 520, -3); scene.add(M.rx.grp);
   M.rx.paint('static', x => { x.font = '600 58px Georgia, serif'; x.fillStyle = 'rgba(0,29,69,0.75)'; x.textAlign = 'left'; x.fillText('℞', 22, 70); x.fillStyle = 'rgba(0,29,69,0.35)'; x.fillRect(96, 54, 180, 3); });
-  M.list = card(470, 790, {rough: .9}); place(M.list.grp, 'C', 700, 805, .5); scene.add(M.list.grp);
+  M.list = card(470, 700, {rough: .9}); place(M.list.grp, 'C', 700, 760, .5); scene.add(M.list.grp);
   // the morph overlay: a transparent ink plane over the pad and the list's first row (scrawl on the pad -> label on the list)
   { const wpx = 860, hpx = 260, k = 2, c = document.createElement('canvas'); c.width = wpx * k; c.height = hpx * k;
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16;
@@ -301,7 +306,7 @@ function buildC() {
     for (let i = 0; i < 34; i++) x.fillRect(334 + i * 5, 122, (i * 7) % 3 + 1, 20);
     const t = new THREE.CanvasTexture(kc); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
     const kraft = new THREE.MeshStandardMaterial({color: '#C9A274', roughness: .9}), topM = new THREE.MeshStandardMaterial({map: t, roughness: .88});
-    M.box = new THREE.Mesh(new THREE.BoxGeometry(pxm(280), .25, pxm(190)), [kraft, kraft, topM, kraft, kraft, kraft]); M.box.castShadow = true; M.box.receiveShadow = true; scene.add(M.box); }
+    M.box = new THREE.Mesh(new THREE.BoxGeometry(pxm(250), .22, pxm(168)), [kraft, kraft, topM, kraft, kraft, kraft]); M.box.castShadow = true; M.box.receiveShadow = true; scene.add(M.box); }
   M.checks = [0, 1, 2].map(() => { const m = new THREE.Mesh(new THREE.CylinderGeometry(pxm(28), pxm(28), .026, 48), blueGlass()); scene.add(m); return m; });
   M.noIns = card(660, 76, {rough: .9}); scene.add(M.noIns.grp);
 }
@@ -309,7 +314,7 @@ function buildC() {
 // ===== D: the dose slider card =====
 function buildD() {
   M.slider = card(720, 360, {rough: .9}); scene.add(M.slider.grp);
-  M.rail = new THREE.Mesh(new RoundedBoxGeometry(pxm(620), .04, pxm(46), 6, pxm(22)), glassMat({thickness: .03})); scene.add(M.rail);
+  M.rail = new THREE.Mesh(slab(620, 46, 23, .04), readGlass()); scene.add(M.rail);
   M.knob = new THREE.Mesh(new THREE.SphereGeometry(pxm(40), 48, 24), glassMat({thickness: .08, attenuationColor: new THREE.Color('#9fd8ff'), attenuationDistance: .3})); M.knob.scale.y = .75; scene.add(M.knob);
 }
 
@@ -320,9 +325,9 @@ function buildE() {
   const y = .004, d = TOP.h - y, vh = 2 * d * Math.tan(TOP.fov / 2 * deg), vw = vh * W / H;
   const m = new THREE.Mesh(new THREE.PlaneGeometry(vw, vh), new THREE.MeshBasicMaterial({map: t, toneMapped: false}));
   m.rotation.x = -Math.PI / 2; m.position.set(ST.E[0], y, ST.E[1]); scene.add(m);
-  const edge = new THREE.Mesh(new THREE.BoxGeometry(vw, y, vh), new THREE.MeshStandardMaterial({color: '#F7F7F7', roughness: .9})); edge.position.set(ST.E[0], y / 2 - .0002, ST.E[1]); edge.castShadow = true; scene.add(edge);
+  const edge = new THREE.Mesh(new THREE.BoxGeometry(vw, y - .002, vh), new THREE.MeshStandardMaterial({color: '#F7F7F7', roughness: .9})); edge.position.set(ST.E[0], (y - .002) / 2, ST.E[1]);   // 2 mm under the printed face (no depth fight) edge.castShadow = true; scene.add(edge);
   M.end = {c, ctx: c.getContext('2d'), t, key: null, pxE: vw / W, y};
-  M.cta = new THREE.Mesh(new RoundedBoxGeometry(vw / W * 660, .06, vw / W * 140, 8, vw / W * 68), glassMat({thickness: .04, attenuationColor: new THREE.Color('#cfe3ff'), attenuationDistance: .8})); scene.add(M.cta);
+  M.cta = new THREE.Mesh(pillGeometry({L: vw / W * 668, D: vw / W * 144, R: vw / W * 72, H: .06, B: .045}, 160, 48), readGlass({attenuationColor: new THREE.Color('#cfe3ff'), attenuationDistance: .8})); scene.add(M.cta);
 }
 
 // ---------- the pill's path ----------
@@ -332,11 +337,11 @@ function pillPose(t) {
   if (t < O.land) { const u = eOut(prog(t, O.touch, O.land) * .96 + .04 * prog(t, O.touch, O.land)); x = lerp(-2.6, TAG0[0], u); z = TAG0[1]; yaw = -6 * deg * (1 - u); }
   else if (t < C.pan[0].t0) { x = TAG0[0]; z = TAG0[1]; }
   else if (t < 8.6) {   // A -> B, knocks the membership card at cardPush, deflects out of frame to the right
-    const K = [[C.pan[0].t0, TAG0[0], TAG0[1]], [7.55, .98, 2.52], [C.cardPush, .66, 3.05], [8.6, 1.75, 4.35]];
+    const K = [[C.pan[0].t0, TAG0[0], TAG0[1]], [7.55, .98, 2.87], [C.cardPush, .66, 3.40], [8.6, 1.75, 4.70]];
     ({x, z} = path(K, t)); yaw = t < C.cardPush ? lerp(0, -38, prog(t, C.pan[0].t0, 7.55)) * deg : lerp(-38, -62, prog(t, C.cardPush, 8.6)) * deg;
-  } else if (t < C.pan[2].t0) { x = 1.75; z = 4.35; yaw = -62 * deg; }
+  } else if (t < C.pan[2].t0) { x = 1.75; z = 4.70; yaw = -62 * deg; }
   else if (t < C.pillLand) {
-    const K = [[C.pan[2].t0, 1.75, 4.35], [16.85, .62, 2.25], [C.pillLand, TAG0[0], TAG0[1]]];
+    const K = [[C.pan[2].t0, 1.75, 4.70], [16.85, .62, 2.40], [C.pillLand, TAG0[0], TAG0[1]]];
     ({x, z} = path(K, t)); yaw = lerp(-62, 0, eIO(prog(t, C.pan[2].t0, C.pillLand))) * deg;
   } else { x = TAG0[0]; z = TAG0[1]; }
   // squash: the touch-down, the landings, breathing on the table
@@ -359,9 +364,9 @@ function camAt(t, pill) {
   const upZ = new THREE.Vector3(0, 0, -1);
   if (t < O.dive) {
     // spherical orbit round the moving pill: in from the far side, around the front, over the top
-    const th = t < O.swirl[0] ? lerp(Math.PI, .80 * Math.PI, eOut(prog(t, 0, O.swirl[0]))) : t < O.over[0] ? lerp(.80 * Math.PI, .14 * Math.PI, eIO(prog(t, ...O.swirl))) : lerp(.14 * Math.PI, 0, eIO(prog(t, ...O.over)));
-    const el = (t < O.swirl[0] ? lerp(4, 9, prog(t, 0, O.swirl[0])) : t < O.over[0] ? lerp(9, 30, e2(prog(t, ...O.swirl))) : lerp(30, 90, eIO(prog(t, ...O.over)))) * deg;
-    const r = t < O.swirl[0] ? lerp(6.2, 2.5, eOut(prog(t, 0, O.swirl[0]))) : t < O.over[0] ? lerp(2.5, 2.15, prog(t, ...O.swirl)) : lerp(2.15, TOP.h, eIO(prog(t, ...O.over)));
+    const th = t < O.swirl[0] ? lerp(1.18 * Math.PI, .80 * Math.PI, eOut(prog(t, 0, O.swirl[0]))) : t < O.over[0] ? lerp(.80 * Math.PI, .14 * Math.PI, eIO(prog(t, ...O.swirl))) : lerp(.14 * Math.PI, 0, eIO(prog(t, ...O.over)));
+    const el = (t < O.swirl[0] ? lerp(7, 11, prog(t, 0, O.swirl[0])) : t < O.over[0] ? lerp(11, 30, e2(prog(t, ...O.swirl))) : lerp(30, 90, eIO(prog(t, ...O.over)))) * deg;
+    const r = t < O.swirl[0] ? lerp(3.4, 2.4, eOut(prog(t, 0, O.swirl[0]))) : t < O.over[0] ? lerp(2.4, 2.15, prog(t, ...O.swirl)) : lerp(2.15, TOP.h, eIO(prog(t, ...O.over)));
     const k = eIO(prog(t, ...O.over));
     const tgt = new THREE.Vector3(lerp(pill.x, ST.A[0], k), lerp(.08, 0, k), lerp(pill.z, ST.A[1], k));
     const pos = tgt.clone().add(new THREE.Vector3(r * Math.cos(el) * Math.sin(th), r * Math.sin(el), r * Math.cos(el) * Math.cos(th)));
@@ -384,9 +389,10 @@ function camAt(t, pill) {
 // ---------- per frame ----------
 export function render(t) {
   const P = pillPose(t);
+  M.pill.material.envMapIntensity = lerp(.3, .025, eIO(prog(t, O.over[0], O.dive)));
   M.pill.position.set(P.x, 0, P.z); M.pill.rotation.y = P.yaw; M.pill.scale.set(P.sxz, P.sy, P.sxz);
   M.pillShadow.position.set(P.x + .07, .0012, P.z + .07); M.pillShadow.rotation.z = P.yaw;
-  M.pillCaustic.position.set(P.x + .24, .0016, P.z + .2); M.pillCaustic.rotation.z = P.yaw;
+  M.pillCaustic.position.set(P.x + Math.cos(P.yaw) * .5 + .1, .0016, P.z + .36);   // light focused through the glass lands past its lower-right edge M.pillCaustic.rotation.z = P.yaw;
 
   // --- A: ink, twine ---
   M.pad.paint('A' + Math.round(t * 30), x => {
@@ -406,7 +412,7 @@ export function render(t) {
     M.member.position.set(x0 - s * .62, 0, z0 + s * .78); M.member.rotation.y = -4 * deg + (d > 0 ? (1 - Math.exp(-d / .3)) * 1.9 : 0);
     M.member.visible = !(d > 1.2); }
   { const off = eIO(prog(t, C.toggleOff.t0, C.toggleOff.t1)), [tx, tz] = wp('B', 300, 672);
-    M.togTrack.position.set(tx, .025, tz); M.togKnob.position.set(tx + pxm(lerp(55, -55, off)), pxm(44) * .55, tz);
+    M.togTrack.position.set(tx, M.togCard.thick, tz); M.togKnob.position.set(tx + pxm(lerp(55, -55, off)), pxm(44) * .55, tz);
     M.togCard.paint('T' + Math.round(off * 40), x => {
       const col = off < .5 ? `rgb(${lerp(0, 201, off * 2) | 0},${lerp(113, 209, off * 2) | 0},${lerp(254, 220, off * 2) | 0})` : '#C9D1DC';
       x.fillStyle = col; x.beginPath(); x.roundRect(150 - 104, 87 - 52, 208, 104, 52); x.fill();
@@ -414,7 +420,7 @@ export function render(t) {
   { const u = spring(t, C.btnIn.t0, .38, .09), [bx, bz] = wp('B', CX, 960), dx = (1 - u) * 1.6;
     M.btnCard.grp.position.set(bx + dx, 0, bz); M.btnCard.grp.visible = t >= C.btnIn.t0 - .01;
     const press = t > C.btnPress - .09 && t < C.btnPress ? prog(t, C.btnPress - .09, C.btnPress) : t >= C.btnPress ? 1 - spring(t, C.btnPress, .26, .05) : 0;
-    M.btnGlass.position.set(bx + dx - pxm(40), .035 * (1 - .45 * press) + M.btnCard.thick, bz); M.btnGlass.scale.y = 1 - .45 * press; M.btnGlass.visible = M.btnCard.grp.visible;
+    M.btnGlass.position.set(bx + dx - pxm(40), M.btnCard.thick, bz); M.btnGlass.scale.y = 1 - .45 * press; M.btnGlass.visible = M.btnCard.grp.visible;
     const ck = spring(t, C.checkPop, .3, .07);
     M.btnCheck.position.set(bx + dx + pxm(250), .015 + M.btnCard.thick, bz); M.btnCheck.scale.set(Math.max(.001, ck), 1, Math.max(.001, ck)); M.btnCheck.visible = ck > .01;
     M.btnCard.paint('R' + Math.round(ck * 30), x => { text(x, COPY.button, 350 - 40, 113, 50, 600); drawCheck(x, 350 + 250, 95, ck, 6); }); }
@@ -424,24 +430,24 @@ export function render(t) {
   { const I = M.inkCv, keyS = 'I' + Math.round(t * 30);
     if (I.key !== keyS) { I.key = keyS; I.ctx.clearRect(0, 0, I.c.width, I.c.height); M.inkC.draw(I.ctx, t, [C.inkC.t0, C.inkC.t1], C.inkC.morph); I.t.needsUpdate = true; } }
   M.list.paint('L' + C.checks.map(c => Math.round(spring(t, c, .3, .07) * 30)).join('.') + Math.round(eOut(prog(t, C.claim24.t0, C.claim24.land)) * 30) + (t >= C.checks[1] - .2 ? 1 : 0) + (t >= C.checks[2] - .2 ? 1 : 0), x => {
-    // (card origin: layout (465, 410)) rows at 520 / 800 / 1060
-    C.checks.forEach((c, i) => drawCheck(x, 510 - 465, [520, 800, 1060][i] - 410 + 4, spring(t, c, .3, .07), 5));
+    // (card origin: layout (465, 410)) rows at 520 / 800 / 1030
+    C.checks.forEach((c, i) => drawCheck(x, 510 - 465, [520, 800, 1030][i] - 410 + 4, spring(t, c, .3, .07), 5));
     COPY.claim24.forEach((s, i) => maskLine(x, s, 560 - 465, 575 - 410 + i * 32, 26, 500, NAVY, {align: 'left', enter: eOut(prog(t, C.claim24.t0 + i * .06, C.claim24.land + i * .06))}));
     maskLine(x, COPY.checks[1], 560 - 465, 815 - 410, 44, 600, NAVY, {align: 'left', enter: eOut(prog(t, C.checks[1] - .2, C.checks[1] + .12))});
-    maskLine(x, COPY.checks[2], 560 - 465, 1075 - 410, 44, 600, NAVY, {align: 'left', enter: eOut(prog(t, C.checks[2] - .2, C.checks[2] + .12))});
+    maskLine(x, COPY.checks[2], 560 - 465, 1045 - 410, 44, 600, NAVY, {align: 'left', enter: eOut(prog(t, C.checks[2] - .2, C.checks[2] + .12))});
   });
-  C.checks.forEach((c, i) => { const s = spring(t, c, .3, .07), [x, z] = wp('C', 510, [520, 800, 1060][i] + 4); M.checks[i].position.set(x, M.list.thick + .013, z); M.checks[i].scale.set(Math.max(.001, s), 1, Math.max(.001, s)); M.checks[i].visible = s > .01; });
+  C.checks.forEach((c, i) => { const s = spring(t, c, .3, .07), [x, z] = wp('C', 510, [520, 800, 1030][i] + 4); M.checks[i].position.set(x, M.list.thick + .013, z); M.checks[i].scale.set(Math.max(.001, s), 1, Math.max(.001, s)); M.checks[i].visible = s > .01; });
   { // the vial rolls in from the left and stops label-up
     const [vx, vz] = wp('C', 290, 800), u = eOut(prog(t, C.vialIn.t0, C.vialIn.land)), dx = (1 - u) * -1.5 + wob(t, C.vialIn.land, .012, .12, .3);
     M.vial.position.set(vx + dx, 0, vz + pxm(0)); M.vial.userData.roll.rotation.z = -dx / M.vial.userData.R;
     M.vial.visible = t >= C.vialIn.t0 - .02;
     M.vialShadow.position.set(vx + dx + .03, .0012, vz + .04); M.vialShadow.visible = M.vial.visible; }
   { // the box drops in, bounces, settles
-    const [bx, bz] = wp('C', 290, 1060), d = t - C.boxIn.t0, fall = C.boxIn.land - C.boxIn.t0;
-    let y = .125; if (d < fall) y = .125 + 1.8 * (1 - (d / fall) ** 2); else y = .125 + Math.abs(wob(t, C.boxIn.land, .06, .09, .3));
+    const [bx, bz] = wp('C', 290, 1022), d = t - C.boxIn.t0, fall = C.boxIn.land - C.boxIn.t0;
+    let y = .11; if (d < fall) y = .11 + .9 * (1 - (d / fall) ** 2); else y = .11 + Math.abs(wob(t, C.boxIn.land, .05, .09, .3));
     M.box.position.set(bx, y, bz); M.box.rotation.set(wob(t, C.boxIn.land, .05, .1, .26), -3 * deg + (d < fall ? (1 - d / fall) * .25 : 0), wob(t, C.boxIn.land + .03, .04, .1, .3));
     M.box.visible = d >= 0; }
-  { const u = spring(t, C.noIns.t0, .36, .09), [nx, nz] = wp('C', CX, 1172); M.noIns.grp.position.set(nx, 0, nz + (1 - u) * .9); M.noIns.grp.visible = t >= C.noIns.t0;
+  { const u = spring(t, C.noIns.t0, .36, .09), [nx, nz] = wp('C', CX, 1186); M.noIns.grp.position.set(nx, 0, nz + (1 - u) * .9); M.noIns.grp.visible = t >= C.noIns.t0;
     M.noIns.paint('N' + Math.round(eOut(prog(t, C.noIns.t0 + .1, C.noIns.land + .1)) * 30), x => maskLine(x, COPY.noIns, 330, 50, 34, 600, NAVY, {enter: eOut(prog(t, C.noIns.t0 + .1, C.noIns.land + .1))})); }
 
   // --- D: slider ---
@@ -454,7 +460,7 @@ export function render(t) {
       text(x, COPY.dose[0], 60, 128, 28, 500, NAVY, 'left'); text(x, COPY.dose[1], 660, 128, 28, 500, NAVY, 'right');
       COPY.doseLine.forEach((s, i) => maskLine(x, s, 360, 240 + i * 56, 46, 600, NAVY, {enter: eOut(prog(t, C.doseLine.t0 + i * .1, C.doseLine.land + i * .1))}));
     });
-    const [rx, rz] = wp('D', CX, 780); M.rail.position.set(rx, M.slider.thick + .02, rz + dz); M.rail.visible = M.slider.grp.visible;
+    const [rx, rz] = wp('D', CX, 780); M.rail.position.set(rx, M.slider.thick, rz + dz); M.rail.visible = M.slider.grp.visible;
     M.knob.position.set(rx + pxm(kxPx), M.slider.thick + pxm(40) * .75, rz + dz); M.knob.visible = M.slider.grp.visible; }
 
   // --- E: end card ---
@@ -471,7 +477,7 @@ export function render(t) {
       E.t.needsUpdate = true; }
     const press = t > C.ctaClick - .08 && t < C.ctaClick ? prog(t, C.ctaClick - .08, C.ctaClick) : t >= C.ctaClick && t < C.finalStill - .1 ? 1 - spring(t, C.ctaClick, .26, .05) : 0;
     const cx = ST.E[0] + (CX - 540) * E.pxE, cz = ST.E[1] + (790 - 960) * E.pxE;
-    M.cta.position.set(cx, E.y + .03 * (1 - .4 * press), cz); M.cta.scale.set(Math.max(.001, cs), 1 - .4 * press, Math.max(.001, cs)); M.cta.visible = cs > .01; }
+    M.cta.position.set(cx, E.y, cz); M.cta.scale.set(Math.max(.001, cs), 1 - .4 * press, Math.max(.001, cs)); M.cta.visible = cs > .01; }
 
   // --- camera + light ---
   const cam = camAt(t, P);
@@ -500,3 +506,5 @@ function drawDisclaimer(ctx, t) {
   ctx.restore();
 }
 export const info = () => ({disc, COPY, PX, TAG0, CX});
+export const debugE = () => { const d = M.end.ctx.getImageData(510, 400, 1, 1).data; return {key: M.end.key, px: Array.from(d), camPos: camera.position.toArray()}; };
+export const debugToggle = (name, on) => { const o = {pulse: M.pulse, pad: M.pad.grp, rope: M.rope.mesh, caustic: M.pillCaustic, shadow: M.pillShadow, key}[name]; if (o) o.visible = on; if (name === 'env') scene.environmentIntensity = on ? .6 : 0; };

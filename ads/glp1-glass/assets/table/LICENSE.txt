@@ -1,0 +1,4 @@
+silver_oak_*.jpg - "Silver Oak Veneer 01" by Jenelle van Heerden, Poly Haven (https://polyhaven.com/a/silver_oak_veneer_01).
+License: CC0 1.0 (public domain) - free for commercial use, no attribution required. Downloaded 2026-09-30 (4K JPG:
+diffuse, roughness, OpenGL normal), re-encoded at JPEG quality 3 (ffmpeg -q:v 3). Real-world size of one tile: 1 m x 1 m.
+silver_oak_Diffuse_cool.jpg: the diffuse desaturated to 55%, slightly brightened and cooled (ffmpeg eq/colorbalance) to sit in the ad palette.

@@ -15,7 +15,7 @@ export const b = n => +(n * BEAT).toFixed(4);
 // one continuous 3D camera. 0-4.25 s the fly-over: in low from the far side of the table, around the gliding pill,
 // over the top to the top-down view. Then top-down "stations" on the same table, joined by pans the pill leads.
 export const OPEN = {touch: 0, land: 2.9, swirl: [1.0, 2.9], over: [2.9, 4.2], dive: 4.25};
-export const STATIONS = {A: [0, 0], B: [0, 3.9], C: [0, 7.8], D: [0, .9], E: [2.75, .9]};   // camera centres (x, z), metres
+export const STATIONS = {A: [0, 0], B: [0, 4.25], C: [0, 8.3], D: [0, .9], E: [2.75, .9]};   // camera centres (x, z), metres
 
 export const SCENES = [
   {id: 'open3d',  t0: 0,     t1: 4.25},
