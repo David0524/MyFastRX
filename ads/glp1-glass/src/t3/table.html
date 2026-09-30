@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>MyFastRx table film</title>
+<script type="importmap">{"imports": {"three": "/node_modules/three/build/three.module.js", "three/addons/": "/node_modules/three/examples/jsm/"}}</script>
+<style>html,body{margin:0;background:#222}</style></head>
+<body>
+<script type="module">
+const film = await import('./film.mjs');
+const TL = await import('../timeline.mjs');
+let out;
+window.__init = async () => { await film.init(); return JSON.parse(JSON.stringify(film.info())); };
+window.__render = async (t) => { out = film.render(t); return true; };
+window.__post = async (i) => { const d = out.getContext('2d').getImageData(0, 0, TL.W, TL.H).data; return (await fetch('/frame?i=' + i, {method: 'POST', body: d})).status; };
+window.__png = () => out.toDataURL('image/png');
+window.__ready = true;
+</script>
+</body></html>

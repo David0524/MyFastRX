@@ -1,0 +1,7 @@
+<!doctype html><html><head><meta charset="utf-8"><title>gen wood</title>
+<script type="importmap">{"imports": {"three": "/node_modules/three/build/three.module.js"}}</script></head><body>
+<script type="module">
+const T = await import('./tex.mjs');
+window.__gen = (o) => { const {color, rough} = T.oakCanvases(o); return {color: color.toDataURL('image/jpeg', .93), rough: rough.toDataURL('image/jpeg', .9)}; };
+window.__ready = true;
+</script></body></html>

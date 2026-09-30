@@ -12,134 +12,6 @@
     "x": 100,
     "y": 1092
   },
-  "L": {
-    "pill1": {
-      "c": [
-        510,
-        820
-      ],
-      "half": [
-        250,
-        140
-      ],
-      "r": 140
-    },
-    "head1Y": [
-      356,
-      438
-    ],
-    "pulse1Y": 540,
-    "head2Y": [
-      356,
-      438
-    ],
-    "btn": {
-      "c": [
-        510,
-        700
-      ],
-      "half": [
-        300,
-        80
-      ],
-      "r": 80
-    },
-    "frame": {
-      "c": [
-        510,
-        500
-      ],
-      "half": [
-        410,
-        240
-      ],
-      "r": 40
-    },
-    "coversY": 832,
-    "rows": [
-      912,
-      1002,
-      1092
-    ],
-    "btnR": 36,
-    "noInsY": 1176,
-    "pill": {
-      "c": [
-        510,
-        640
-      ],
-      "half": [
-        250,
-        140
-      ],
-      "r": 140
-    },
-    "slider": {
-      "c": [
-        510,
-        1004
-      ],
-      "half": [
-        300,
-        20
-      ],
-      "r": 20
-    },
-    "knobR": 40,
-    "doseY": 1076,
-    "logo": {
-      "c": [
-        510,
-        400
-      ],
-      "scale": 0.5
-    },
-    "tagY": [
-      606,
-      682
-    ],
-    "cta": {
-      "c": [
-        510,
-        790
-      ],
-      "half": [
-        330,
-        70
-      ],
-      "r": 70
-    },
-    "urlY": 930,
-    "badge": {
-      "cx": 510,
-      "y": 956,
-      "w": 280
-    },
-    "capY": 1206,
-    "rowX0": 282,
-    "knobX": [
-      220,
-      800
-    ],
-    "targets": {
-      "btn": [
-        720,
-        730
-      ],
-      "knob0": [
-        232,
-        1018
-      ],
-      "knob1": [
-        812,
-        1018
-      ],
-      "cta": [
-        772,
-        820
-      ]
-    }
-  },
   "COPY": {
     "disclaimer": "Compounded medication. Not FDA-approved. Results may vary. Not all patients qualify. Prescription issued only if medically appropriate following provider review. MyFastRx does not manufacture medications; product appearance and labeling may vary. Actor portrayal.",
     "qual": [
@@ -157,6 +29,7 @@
       "No membership fees.",
       "No automatic refills."
     ],
+    "autoRefill": "Auto-refill",
     "button": "Request refill",
     "covers": "One price covers",
     "checks": [
@@ -164,11 +37,12 @@
       "Medication",
       "Shipping"
     ],
-    "noIns": "No insurance needed. No contracts.",
     "claim24": [
       "Online visit in minutes.",
-      "Review typically within 24 hours."
+      "Review typically",
+      "within 24 hours."
     ],
+    "noIns": "No insurance needed. No contracts.",
     "dose": [
       "Lower dose",
       "Higher dose"
@@ -182,6 +56,13 @@
       "Clear care."
     ],
     "cta": "See if you qualify",
-    "url": "MyFastRx.com"
-  }
+    "url": "MyFastRx.com",
+    "membership": "MEMBERSHIP"
+  },
+  "PX": 0.0019630564980738087,
+  "TAG0": [
+    -0.05889169494221426,
+    -0.2551973447495951
+  ],
+  "CX": 510
 }
