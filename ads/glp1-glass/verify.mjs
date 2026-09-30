@@ -48,7 +48,7 @@ function cam(t) {
 }
 // price + qualification boxes (world), relative to the pill that carries them (offsets = PRICE in src/scene.mjs)
 const priceBox = c => [c[0] - 150, c[1] + 88 - 128, c[0] + 150, c[1] + 88 + 6];
-const qualBox = c => [c[0] - 262, c[1] + 186 - 34, c[0] + 262, c[1] + 228 + 10];
+const qualBox = c => [c[0] - 240, c[1] + 186 - 34, c[0] + 240, c[1] + 228 + 10];
 const xf = (f, b) => { const a = f([b[0], b[1]]), z = f([b[2], b[3]]); return [Math.round(a[0]), Math.round(a[1]), Math.round(z[0]), Math.round(z[1])]; };
 const onScreen = b => b[0] >= 0 && b[1] >= 0 && b[2] <= W && b[3] <= H;
 const pillAt = t => t < TL.CUES.qual1Out.t1 ? L.pill1.c : (t >= TL.CUES.morphPill.t0 && t < TL.CUES.qualOut.t1 ? L.pill.c : null);   // after these the end card's words sit in the same boxes

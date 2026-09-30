@@ -4,12 +4,12 @@
     {
       "name": "video spec",
       "pass": true,
-      "detail": "h264 High 1080x1920 30/1 yuv420p frames=750 field_order=progressive bt709/bt709/bt709 range=tv"
+      "detail": "h264 High 1080x1920 30/1 yuv420p frames=810 field_order=progressive bt709/bt709/bt709 range=tv"
     },
     {
       "name": "video bitrate 10-15 Mbps",
       "pass": true,
-      "detail": "12.54 Mbps"
+      "detail": "12.49 Mbps"
     },
     {
       "name": "progressive",
@@ -22,45 +22,45 @@
       "detail": "aac 48000 Hz 2 ch"
     },
     {
-      "name": "duration 25 s",
+      "name": "duration 27 s",
       "pass": true,
-      "detail": "25.000000"
+      "detail": "27.000000"
     },
     {
       "name": "audio: no clipping (true peak < -1 dBTP)",
       "pass": true,
-      "detail": "integrated -16 LUFS, true peak -1.5 dBFS"
+      "detail": "integrated -15.7 LUFS, true peak -1.5 dBFS"
     },
     {
       "name": "audio: -16 LUFS integrated",
       "pass": true,
-      "detail": "-16 LUFS"
+      "detail": "-15.7 LUFS"
     },
     {
-      "name": "disclaimer on the end card in the ENCODED file",
-      "pass": null,
-      "detail": "max channel diff vs its first risen frame = 9 (frame 749), worst frame mean diff = 0.448 (H.264 noise; renderer output is checked for exact identity below)"
-    },
-    {
-      "name": "qualification fully present whenever $69 is visible",
+      "name": "disclaimer absent before the end card",
       "pass": true,
-      "detail": "268 frames show the price; frames where qualification < 90% of its settled ink: none"
+      "detail": "no panel before 21.3s"
     },
     {
-      "name": "vial label vs source pixels (final H.264, rest frames)",
+      "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "PSNR min 35.34 dB, mean 35.5 dB over 9 sampled rest frames (lossy codec; exact check on lossless render below)"
+      "detail": "max channel diff vs its first risen frame = 7 (H.264 noise; exact identity checked on renderer output below)"
+    },
+    {
+      "name": "overhead: qualification fully present whenever $69 is fully visible",
+      "pass": true,
+      "detail": "167 frames show the whole price; frames where qualification/price ink is < 90% of its settled ratio: none (6 pull-back frames show only a partial \"$\" glyph, magnified)"
     },
     {
       "name": "final hold in the ENCODED file",
       "pass": null,
-      "detail": "max frame-to-frame diff from 21.6s to end = 7 (H.264 GOP refresh noise on a static picture; renderer output is checked for exact identity below)"
+      "detail": "max frame-to-frame diff from 25.6s to end = 4 (H.264 noise on a static picture; exact identity checked on renderer output below)"
     },
     {
       "name": "no visible box around the logo / badge files (mean edge step, levels)",
       "pass": true,
       "detail": {
-        "logo": 0.26,
+        "logo": 0.11,
         "badge": 0
       }
     },
@@ -79,92 +79,127 @@
       }
     },
     {
-      "name": "vial label pixel-exact in the renderer output (frame 170)",
-      "pass": true,
-      "detail": "max channel diff = 0 over 43228 label pixels vs the half-size source"
-    },
-    {
       "name": "disclaimer holds byte-identical on the end card (renderer output)",
       "pass": true,
-      "detail": "end-card frames 600, 610, 650, 700, 749 (from 19.9s, once risen): identical, identical, identical, identical, identical"
+      "detail": "frames 655, 700, 760, 809: identical, identical, identical, identical"
     },
     {
       "name": "final hold byte-identical in the renderer output",
       "pass": true,
-      "detail": "frames 650, 700 vs 749: identical, identical"
+      "detail": "frames 775, 790 vs 809: identical, identical"
     },
     {
-      "name": "OCR \"disclaimer\" @20.5s",
-      "pass": true,
-      "detail": "matches exactly"
-    },
-    {
-      "name": "OCR \"disclaimer_last\" @24.9s",
-      "pass": true,
-      "detail": "matches exactly"
-    },
-    {
-      "name": "OCR \"macro_frame1_qual\" @0s",
-      "pass": true,
-      "detail": "matches exactly"
-    },
-    {
-      "name": "OCR \"macro_price\" @3.4s",
+      "name": "vial label in the photo frame vs the source file (renderer output, frame 441)",
       "pass": null,
-      "detail": "read: \"Starting at\" | expected: \"Starting at $69\""
+      "detail": "PSNR 34.2 dB vs a box-filtered x0.434 downscale of the unedited source (label area; the frame's clear glass adds a faint tint)"
     },
     {
-      "name": "OCR \"qualification\" @6s",
+      "name": "3D opening: qualification read wherever \"$69\" is read (OCR every 6th frame)",
       "pass": true,
-      "detail": "matches exactly"
+      "detail": "\"$69\" read in frames 96,102; qualification not read in: none (the price and the qualification are one printed texture, so a miss here is OCR on a perspective view, check the listed frames by eye)"
     },
     {
-      "name": "OCR \"starting_at\" @6s",
-      "pass": true,
-      "detail": "matches exactly"
-    },
-    {
-      "name": "OCR \"price_69\" @6s",
+      "name": "OCR \"o3d_price\" @3.7s",
       "pass": null,
-      "detail": "read: \"S69\" | expected: \"$69\""
+      "detail": "read: \"Starting at $09\" | expected: \"Starting at $69\""
     },
     {
-      "name": "OCR \"headline_visit\" @7s",
+      "name": "OCR \"head1\" @6.5s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"caption_1\" @5.4s",
+      "name": "OCR \"strings_starting\" @6.5s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"caption_2\" @7.8s",
+      "name": "OCR \"strings_69\" @6.5s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"checks\" @14.2s",
+      "name": "OCR \"strings_qual\" @6.5s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"fees\" @17.4s",
+      "name": "OCR \"head2\" @9.2s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"caption_3\" @17.6s",
+      "name": "OCR \"button\" @9.8s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"cta\" @23s",
+      "name": "OCR \"caption_1\" @11s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"url\" @23s",
+      "name": "OCR \"claim24\" @13.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"covers\" @16.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"checks\" @16.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"no_insurance\" @16.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_starting\" @18s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_69\" @18s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_qual\" @18s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"dose_line\" @19.5s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"tag\" @23.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"cta\" @24.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"url\" @24.8s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"disclaimer\" @22.5s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"disclaimer_last\" @26.9s",
       "pass": true,
       "detail": "matches exactly"
     },
@@ -181,12 +216,12 @@
     {
       "name": "VO in the final file says the script (speech-to-text)",
       "pass": true,
-      "detail": "\"GLP -1 care, starting at $69. Start with an online visit and provider -guided care from MyFastRx. Provider review, medication and shipping are all included. No membership fees and you choose when to request your next refill. See if you qualify at MyFastRx .com.\""
+      "detail": "\"GLP -1 Care with no strings attached, no membership fees, no automatic refills. You request each one when you're ready. One price covers your provider review, medication, and shipping, starting at $69. Clear pricing, clear care. See if you qualify at MyFastRX .com.\""
     },
     {
       "name": "captions sit inside their VO line windows",
       "pass": true,
-      "detail": "4.77-6.09 \"Start with an online visit\" | 6.09-8.9 \"and provider-guided care from MyFastRx.\" | 16.06-18.62 \"and you choose when to request your next refill.\""
+      "detail": "10.2-12.05 \"You request each one when you're ready.\""
     },
     {
       "name": "caption wording is verbatim VO",
@@ -205,53 +240,15 @@
     "blueOk": true
   },
   "boxEdges": {
-    "logo": 0.26,
+    "logo": 0.11,
     "badge": 0
   },
   "stats": {
-    "panelMax": 9,
-    "panelMaxFrame": 749,
-    "panelMeanMax": 0.44774411201262115,
-    "priceFrames": 268,
-    "priceWithoutFullQual": [],
-    "stillMax": 7,
-    "labelPSNR": [
-      {
-        "i": 150,
-        "psnr": 35.34
-      },
-      {
-        "i": 155,
-        "psnr": 35.38
-      },
-      {
-        "i": 160,
-        "psnr": 35.47
-      },
-      {
-        "i": 165,
-        "psnr": 35.48
-      },
-      {
-        "i": 170,
-        "psnr": 35.49
-      },
-      {
-        "i": 175,
-        "psnr": 35.49
-      },
-      {
-        "i": 180,
-        "psnr": 35.51
-      },
-      {
-        "i": 185,
-        "psnr": 35.51
-      },
-      {
-        "i": 190,
-        "psnr": 35.51
-      }
-    ]
+    "priceFrames": 167,
+    "priceWithoutQual": [],
+    "partialPrice": 6,
+    "panelEarly": [],
+    "stillMax": 4,
+    "panelMax": 7
   }
 }

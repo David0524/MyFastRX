@@ -1,21 +1,21 @@
 PASS  video spec: h264 High 1080x1920 30/1 yuv420p frames=810 field_order=progressive bt709/bt709/bt709 range=tv
-PASS  video bitrate 10-15 Mbps: 12.47 Mbps
+PASS  video bitrate 10-15 Mbps: 12.49 Mbps
 PASS  progressive: progressive
 PASS  audio spec: aac 48000 Hz 2 ch
 PASS  duration 27 s: 27.000000
 PASS  audio: no clipping (true peak < -1 dBTP): integrated -15.7 LUFS, true peak -1.5 dBFS
 PASS  audio: -16 LUFS integrated: -15.7 LUFS
 PASS  disclaimer absent before the end card: no panel before 21.3s
-NOTE  disclaimer held on the end card (ENCODED file): max channel diff vs its first risen frame = 6 (H.264 noise; exact identity checked on renderer output below)
-FAIL  overhead: qualification fully present whenever $69 is fully visible: 167 frames show the whole price; frames where qualification/price ink is < 90% of its settled ratio: 145 (6 pull-back frames show only a partial "$" glyph, magnified)
-NOTE  final hold in the ENCODED file: max frame-to-frame diff from 25.6s to end = 3 (H.264 noise on a static picture; exact identity checked on renderer output below)
+NOTE  disclaimer held on the end card (ENCODED file): max channel diff vs its first risen frame = 7 (H.264 noise; exact identity checked on renderer output below)
+PASS  overhead: qualification fully present whenever $69 is fully visible: 167 frames show the whole price; frames where qualification/price ink is < 90% of its settled ratio: none (6 pull-back frames show only a partial "$" glyph, magnified)
+NOTE  final hold in the ENCODED file: max frame-to-frame diff from 25.6s to end = 4 (H.264 noise on a static picture; exact identity checked on renderer output below)
 PASS  no visible box around the logo / badge files (mean edge step, levels): {"logo":0.11,"badge":0}
 PASS  logo colors (last frame) vs logo file: {"dominant":["#021E46","#0272FE"],"fileNavy":"#001C44","fileBlue":"#0070FC","navyOk":true,"blueOk":true}
 PASS  disclaimer holds byte-identical on the end card (renderer output): frames 655, 700, 760, 809: identical, identical, identical, identical
 PASS  final hold byte-identical in the renderer output: frames 775, 790 vs 809: identical, identical
 NOTE  vial label in the photo frame vs the source file (renderer output, frame 441): PSNR 34.2 dB vs a box-filtered x0.434 downscale of the unedited source (label area; the frame's clear glass adds a faint tint)
 PASS  3D opening: qualification read wherever "$69" is read (OCR every 6th frame): "$69" read in frames 96,102; qualification not read in: none (the price and the qualification are one printed texture, so a miss here is OCR on a perspective view, check the listed frames by eye)
-NOTE  OCR "o3d_price" @3.7s: read: "Starting at $u9" | expected: "Starting at $69"
+NOTE  OCR "o3d_price" @3.7s: read: "Starting at $09" | expected: "Starting at $69"
 PASS  OCR "head1" @6.5s: matches exactly
 PASS  OCR "strings_starting" @6.5s: matches exactly
 PASS  OCR "strings_69" @6.5s: matches exactly
