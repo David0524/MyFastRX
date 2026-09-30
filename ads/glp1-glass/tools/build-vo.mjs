@@ -5,9 +5,9 @@ import {execFileSync} from 'node:child_process';
 import {mkdirSync} from 'node:fs';
 import * as TL from '../src/timeline.mjs';
 mkdirSync('out/stems', {recursive: true});
-const files = [...new Set(TL.VO_EDIT.map(e => e.file))];
+const files = TL.VO_EDIT.map(e => e.file);   // one input per segment: a shared input feeding several delayed branches stalls ffmpeg
 const parts = TL.VO_EDIT.map((e, i) => {
-  const k = files.indexOf(e.file), len = e.src[1] - e.src[0];
+  const k = i, len = e.src[1] - e.src[0];
   return `[${k}:a]atrim=${e.src[0]}:${e.src[1]},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=mono,afade=t=in:d=0.012,afade=t=out:st=${(len - 0.012).toFixed(3)}:d=0.012,adelay=${Math.round(e.at * 1000)}[p${i}]`;
 });
 const graph = parts.join(';') + ';' + TL.VO_EDIT.map((_, i) => `[p${i}]`).join('') + `amix=inputs=${TL.VO_EDIT.length}:normalize=0,highpass=f=70,apad,atrim=0:${TL.DURATION},aformat=channel_layouts=stereo[v]`;
