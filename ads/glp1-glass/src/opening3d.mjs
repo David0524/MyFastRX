@@ -61,8 +61,10 @@ async function tableTexture() {
   const txt = (s, zM, sizeM, wt) => { x.font = `${wt} ${Math.round(sizeM * ppm)}px G${wt}`; x.fillStyle = '#001D45'; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillText(s, S / 2, P(zM)); };
   txt('Starting at', (657 - 712) * pxm, 44 / mag * pxm, 500);
   txt('$69', (785.3 - 712) * pxm, 172 / mag * pxm, 700);
+  // the qualification in three lines, each no wider than "$69": whenever the whole price is in frame, so is the whole qualification
   txt('Introductory offer.', (898 - 712) * pxm, 34 * pxm, 500);
-  txt('Regular pricing varies by plan.', (940 - 712) * pxm, 34 * pxm, 500);
+  txt('Regular pricing', (940 - 712) * pxm, 34 * pxm, 500);
+  txt('varies by plan.', (982 - 712) * pxm, 34 * pxm, 500);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16;
   return {tex: t, size: M};
 }
@@ -134,9 +136,9 @@ export function render(t) {
   shadow.position.set(p.x + .07, .0008, .06); shadow.scale.set(p.sxz, 1, p.sxz);
   caustic.position.set(p.x + .26, .0012, .24); caustic.scale.set(p.sxz, 1, p.sxz);
   // camera: low follow -> crane to overhead -> dive into the pill's left end (no text under it: pure glass)
-  const follow = new THREE.Vector3(p.x + lerp(.16, .04, prog(t, 0, O.land)), .95, 2.75);
-  const followLook = new THREE.Vector3(p.x - .06, .02, .06);
-  const over = new THREE.Vector3(0, 2.85, 0), overLook = new THREE.Vector3(0, 0, 0);   // fov 40: pill ~74% of the width, as in the 2D macro
+  const follow = new THREE.Vector3(p.x + lerp(.10, 0, prog(t, 0, O.land)), .98, 2.9);
+  const followLook = new THREE.Vector3(p.x, .02, .26);   // aimed nearer the viewer so the printed qualification sits above the Reels caption zone
+  const over = new THREE.Vector3(0, 2.85, .28), overLook = new THREE.Vector3(0, 0, .28);   // pill above centre (as in the 2D layout), qualification clear of the Reels caption zone   // fov 40: pill ~74% of the width, as in the 2D macro
   const dive = new THREE.Vector3(-.345, .205, 0), diveLook = new THREE.Vector3(-.345, 0, 0);
   const upZ = new THREE.Vector3(0, 0, -1), upY = new THREE.Vector3(0, 1, 0);
   let pos, q;
@@ -144,7 +146,9 @@ export function render(t) {
   else if (t < O.crane[1]) {
     const m = eIO(prog(t, ...O.crane));
     pos = new THREE.Vector3().lerpVectors(follow, over, m); pos.y += Math.sin(Math.PI * m) * .5;
-    q = camQ(follow, followLook, upY).slerp(camQ(over, overLook, upZ), m);
+    // look at a point gliding from the follow target to the overhead one, so the price block stays framed through the move
+    const look = new THREE.Vector3().lerpVectors(followLook, overLook, m), up = new THREE.Vector3().lerpVectors(upY, upZ, m).normalize();
+    q = camQ(pos, look, up);
   } else {
     const m = eIO(prog(t, O.crane[1], O.dive));
     pos = new THREE.Vector3().lerpVectors(over, dive, 1 - (1 - m) ** 2);

@@ -13,7 +13,7 @@ const {W, H, CUES: C, CAPTIONS, CURSOR, SCENES} = TL;
 export const COLORS = {navy: '#001D45', blue: '#0071FE', teal: '#14A3B8', white: '#FFFFFF'};
 export const COPY = {
   disclaimer: 'Compounded medication. Not FDA-approved. Results may vary. Not all patients qualify. Prescription issued only if medically appropriate following provider review. MyFastRx does not manufacture medications; product appearance and labeling may vary. Actor portrayal.',
-  qual: ['Introductory offer.', 'Regular pricing varies by plan.'],
+  qual: ['Introductory offer.', 'Regular pricing', 'varies by plan.'],   // three lines, each no wider than "$69"
   startingAt: 'Starting at', price: '$69',
   head1: ['GLP-1 care,', 'no strings attached.'],
   head2: ['No membership fees.', 'No automatic refills.'],
@@ -47,7 +47,7 @@ export const L = {
   capY: 1206,                                                // caption baseline (bottom line)
 };
 // price block, relative to a pill's center (the 3D print uses the same offsets)
-const PRICE = {start: -66, price: 88, qual: [186, 228]};
+const PRICE = {start: -66, price: 88, qual: [186, 228, 270]};
 
 // ---------- math ----------
 const clamp = (v, a = 0, z = 1) => Math.min(z, Math.max(a, v));
@@ -146,10 +146,10 @@ function blobsAt(t) {
 function calmZones(t, sec) {
   // [x0, y0, x1, y1, feather, a]: a zone clears in (a 0 -> 1) just before its text arrives, so no empty patch waits for it
   const z = [], by = t0 => clamp((t - t0 + .45) / .4);
-  if (sec === 'strings') z.push([140, 280, 880, 460, 50, 1], [380, 740, 640, 930, 40, 1], [200, 960, 820, 1060, 40, 1]);
+  if (sec === 'strings') z.push([140, 280, 880, 460, 50, 1], [380, 740, 640, 930, 40, 1], [200, 960, 820, 1102, 40, 1]);
   if (sec === 'control') z.push([120, 280, 900, 460, 50, 1]);
   if (sec === 'covers') z.push([L.rowX0 - 20, 790, 900, 1120, 40, by(C.coversIn.t0)], [150, 1140, 870, 1195, 30, by(C.noIns.t0)]);
-  if (sec === 'price') z.push([380, 560, 640, 750, 40, 1], [200, 770, 820, 880, 40, 1], [180, 1050, 840, 1095, 30, by(C.sliderIn.t0)], [100, 1100, 920, 1225, 40, by(C.doseLine.t0)]);
+  if (sec === 'price') z.push([380, 560, 640, 750, 40, 1], [200, 770, 820, 922, 40, 1], [180, 1050, 840, 1095, 30, by(C.sliderIn.t0)], [100, 1100, 920, 1225, 40, by(C.doseLine.t0)]);
   if (sec === 'end') z.push([60, 240, 960, 560, 70, 1], [120, 550, 900, 710, 50, by(C.tag[0].t0)], [160, 880, 860, 945, 40, by(C.urlIn.t0)], [220, 930, 800, 1100, 50, by(C.urlIn.t0)]);
   const cap = CAPTIONS.map(c => clamp(Math.min(t - c.t0 + .45, c.t1 + .45 - t) / .4)).reduce((a, v) => Math.max(a, v), 0);
   if (cap > 0) z.push([100, 1140, 920, 1225, 40, cap]);
@@ -233,7 +233,7 @@ const clipped = (ctx, [y0, y1], fn) => { ctx.save(); if (y0 > -1e5 || y1 < 1e5) 
 // Mid pull-back the frame never shows the whole "$69" without the whole qualification (the qualification line is wider
 // than the price): while the line can't fit, the camera keeps the price's right edge just out of frame; once it can,
 // the camera keeps the line's right end in frame. Both are nudges of a few px in a fast zoom. Extents measured at 1:1.
-const PRICE_X = [357, 667], QUAL_X = [270, 752], EDGE = 8;
+const PRICE_X = [357, 667], QUAL_X = [369, 652], EDGE = 8;
 function keepQualWithPrice() {
   const X = w => (w - camF[0]) * camS + camG[0];
   const priceIn = X(PRICE_X[0]) >= 0 && X(PRICE_X[1]) <= W;

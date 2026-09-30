@@ -72,7 +72,8 @@ Every transition is a glass move:
 
 The disclaimer appears on the end card only (client direction, 2026-09-30): it rises in at 21.3 s and holds, byte-identical,
 to the last frame (~6 s). 22 px Geist Medium on a navy panel spanning the safe area (x 100-920), bottom edge at y 1236,
-above the Reels caption/controls zone and left of the right-hand button rail. The price qualification is separate and
+above the Reels caption/controls zone and left of the right-hand button rail. The price qualification ("Introductory offer. / Regular pricing / varies by plan.", 34 px, three lines so no line is
+wider than "$69" and the whole qualification is in frame whenever the whole price is) is separate and
 stays with $69 whenever it is on screen: it is printed with the price on the 3D table, and in the overhead film the
 $69 leaves before its qualification does (verified per frame).
 

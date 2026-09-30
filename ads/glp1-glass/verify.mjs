@@ -38,7 +38,7 @@ function cam(t) {
   if (m >= 1) return p => p;
   const F = [L.pill1.c[0] - .345 * 500, L.pill1.c[1]], s = Math.exp(Math.log(34) * (1 - m)), G = [W / 2 + (F[0] - W / 2) * m, H / 2 + (F[1] - H / 2) * m];
   // keepQualWithPrice() in src/scene.mjs
-  const X = w => (w - F[0]) * s + G[0], PX = [357, 667], QX = [270, 752], E = 8;
+  const X = w => (w - F[0]) * s + G[0], PX = [357, 667], QX = [369, 652], E = 8;
   if (X(PX[0]) >= 0 && X(PX[1]) <= W) {
     if ((QX[1] - QX[0]) * s > W - 2 * E) G[0] += W + 4 - X(PX[1]);
     else if (X(QX[1]) > W - E) G[0] -= X(QX[1]) - (W - E);
@@ -48,7 +48,7 @@ function cam(t) {
 }
 // price + qualification boxes (world), relative to the pill that carries them (offsets = PRICE in src/scene.mjs)
 const priceBox = c => [c[0] - 150, c[1] + 88 - 128, c[0] + 150, c[1] + 88 + 6];
-const qualBox = c => [c[0] - 240, c[1] + 186 - 34, c[0] + 240, c[1] + 228 + 10];
+const qualBox = c => [c[0] - 160, c[1] + 186 - 34, c[0] + 160, c[1] + 270 + 10];
 const xf = (f, b) => { const a = f([b[0], b[1]]), z = f([b[2], b[3]]); return [Math.round(a[0]), Math.round(a[1]), Math.round(z[0]), Math.round(z[1])]; };
 const onScreen = b => b[0] >= 0 && b[1] >= 0 && b[2] <= W && b[3] <= H;
 const pillAt = t => t < TL.CUES.qual1Out.t1 ? L.pill1.c : (t >= TL.CUES.morphPill.t0 && t < TL.CUES.qualOut.t1 ? L.pill.c : null);   // after these the end card's words sit in the same boxes
