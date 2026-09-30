@@ -230,13 +230,25 @@ function priceBlock(ctx, cx, cy, {enter = 1, exit = 0, qExit = 0} = {}) {
 }
 const clipped = (ctx, [y0, y1], fn) => { ctx.save(); if (y0 > -1e5 || y1 < 1e5) { ctx.beginPath(); ctx.rect(-4000, y0, 9000, y1 - y0); ctx.clip(); } fn(); ctx.restore(); };
 
+// Mid pull-back the frame never shows the whole "$69" without the whole qualification (the qualification line is wider
+// than the price): while the line can't fit, the camera keeps the price's right edge just out of frame; once it can,
+// the camera keeps the line's right end in frame. Both are nudges of a few px in a fast zoom. Extents measured at 1:1.
+const PRICE_X = [357, 667], QUAL_X = [270, 752], EDGE = 8;
+function keepQualWithPrice() {
+  const X = w => (w - camF[0]) * camS + camG[0];
+  const priceIn = X(PRICE_X[0]) >= 0 && X(PRICE_X[1]) <= W;
+  if (!priceIn) return;
+  if ((QUAL_X[1] - QUAL_X[0]) * camS > W - 2 * EDGE) camG[0] += W + 4 - X(PRICE_X[1]);   // line can't fit yet: keep the price cropped
+  else if (X(QUAL_X[1]) > W - EDGE) camG[0] -= X(QUAL_X[1]) - (W - EDGE);
+  else if (X(QUAL_X[0]) < EDGE) camG[0] += EDGE - X(QUAL_X[0]);
+}
 // ---------- frame ----------
 export async function render(t) {
   const bg = cv.bg.getContext('2d'), fg = cv.fg.getContext('2d'), hud = cv.hud.getContext('2d');
   for (const c of [fg, hud, cv.content.getContext('2d')]) { c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, W, H); }
   // camera: starts deep in the pill's left end (where the 3D dive ends: ~42 world px across the frame), pulls back
   const m0 = eIO(prog(t, C.pullBack.t0, C.pullBack.t1));
-  if (m0 < 1) { const F = [L.pill1.c[0] - .345 * 500, L.pill1.c[1]]; camS = Math.exp(lerp(Math.log(34), 0, m0)); camF = F; camG = lerp2([W / 2, H / 2], F, m0); }
+  if (m0 < 1) { const F = [L.pill1.c[0] - .345 * 500, L.pill1.c[1]]; camS = Math.exp(lerp(Math.log(34), 0, m0)); camF = F; camG = lerp2([W / 2, H / 2], F, m0); keepQualWithPrice(); }
   else { camS = 1; camF = camG = [0, 0]; }
   worldXf(bg); worldXf(fg);
   FOOTAGE.laptop.start = C.morphFrame.t0; FOOTAGE.package.start = C.frameSwap[1] - .2;

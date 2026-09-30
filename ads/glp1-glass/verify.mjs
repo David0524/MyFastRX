@@ -37,6 +37,13 @@ function cam(t) {
   const P = TL.CUES.pullBack, m = eIO(clamp((t - P.t0) / (P.t1 - P.t0)));
   if (m >= 1) return p => p;
   const F = [L.pill1.c[0] - .345 * 500, L.pill1.c[1]], s = Math.exp(Math.log(34) * (1 - m)), G = [W / 2 + (F[0] - W / 2) * m, H / 2 + (F[1] - H / 2) * m];
+  // keepQualWithPrice() in src/scene.mjs
+  const X = w => (w - F[0]) * s + G[0], PX = [357, 667], QX = [270, 752], E = 8;
+  if (X(PX[0]) >= 0 && X(PX[1]) <= W) {
+    if ((QX[1] - QX[0]) * s > W - 2 * E) G[0] += W + 4 - X(PX[1]);
+    else if (X(QX[1]) > W - E) G[0] -= X(QX[1]) - (W - E);
+    else if (X(QX[0]) < E) G[0] += E - X(QX[0]);
+  }
   return ([x, y]) => [(x - F[0]) * s + G[0], (y - F[1]) * s + G[1]];
 }
 // price + qualification boxes (world), relative to the pill that carries them (offsets = PRICE in src/scene.mjs)
@@ -44,7 +51,7 @@ const priceBox = c => [c[0] - 150, c[1] + 88 - 128, c[0] + 150, c[1] + 88 + 6];
 const qualBox = c => [c[0] - 262, c[1] + 186 - 34, c[0] + 262, c[1] + 228 + 10];
 const xf = (f, b) => { const a = f([b[0], b[1]]), z = f([b[2], b[3]]); return [Math.round(a[0]), Math.round(a[1]), Math.round(z[0]), Math.round(z[1])]; };
 const onScreen = b => b[0] >= 0 && b[1] >= 0 && b[2] <= W && b[3] <= H;
-const pillAt = t => t < TL.CUES.wipe1.t1 ? L.pill1.c : (t >= TL.CUES.morphPill.t0 && t < TL.CUES.wipe2.t1 ? L.pill.c : null);
+const pillAt = t => t < TL.CUES.qual1Out.t1 ? L.pill1.c : (t >= TL.CUES.morphPill.t0 && t < TL.CUES.qualOut.t1 ? L.pill.c : null);   // after these the end card's words sit in the same boxes
 const REF = {strings: Math.round(6.5 * FPS), price: Math.round(18.0 * FPS)};
 const stats = {priceFrames: 0, priceWithoutQual: [], partialPrice: 0, panelEarly: [], stillMax: 0, panelMax: 0};
 const rows = []; let panel0 = null, last = null;
@@ -57,7 +64,9 @@ await new Promise((res, rej) => {
       const f = acc.subarray(0, FS); acc = acc.subarray(FS); const t = idx / FPS;
       // disclaimer: end card only (its navy panel absent before discIn), then held
       const pn = navyCount(f, panel) / panelArea;
-      if (t < TL.CUES.discIn.t0 && pn > .3) stats.panelEarly.push(idx);
+      // (the panel = its four inner corners navy too, so a magnified "$" glyph passing through the area isn't mistaken for it)
+      const corner = [[panel[0] + 3, panel[1] + 1], [panel[2] - 4, panel[1] + 1], [panel[0] + 3, panel[3] - 2], [panel[2] - 4, panel[3] - 2]].every(([x, y]) => { const [r, g, b] = px(f, x, y); return r < 70 && g < 90 && b < 140; });
+      if (t < TL.CUES.discIn.t0 && pn > .3 && corner) stats.panelEarly.push(idx);
       if (t >= TL.CUES.discIn.land + .05) { const cur = Buffer.alloc((panel[2] - panel[0]) * (panel[3] - panel[1]) * 3); let k = 0;
         for (let y = panel[1]; y < panel[3]; y++) { f.copy(cur, k, (y * W + panel[0]) * 3, (y * W + panel[2]) * 3); k += (panel[2] - panel[0]) * 3; }
         if (!panel0) panel0 = cur; else { let mx = 0; for (let j = 0; j < cur.length; j++) mx = Math.max(mx, Math.abs(cur[j] - panel0[j])); stats.panelMax = Math.max(stats.panelMax, mx); } }
@@ -81,10 +90,11 @@ for (const r of rows) {
   const R0 = ref(r.i / FPS < TL.CUES.wipe1.t1 ? 'strings' : 'price');
   if (r.p < R0.p * .08) continue;                        // no price ink on screen
   if (!r.full) { stats.partialPrice++; continue; }       // only part of the glyphs in frame (the pull-back out of the pill)
-  stats.priceFrames++; if (!r.qOn || r.q < R0.q * .9) stats.priceWithoutQual.push(r.i);
+  // qualification ink relative to price ink (both scale alike in the pull-back), vs the settled ratio
+  stats.priceFrames++; if (!r.qOn || r.q / r.p < (R0.q / R0.p) * .9) stats.priceWithoutQual.push(r.i);
 }
 ok('overhead: qualification fully present whenever $69 is fully visible', stats.priceWithoutQual.length === 0,
-  `${stats.priceFrames} frames show the whole price; frames where the qualification is < 90% of its settled ink: ${stats.priceWithoutQual.length ? stats.priceWithoutQual.join(',') : 'none'} (${stats.partialPrice} pull-back frames show only a partial "$" glyph, magnified)`);
+  `${stats.priceFrames} frames show the whole price; frames where qualification/price ink is < 90% of its settled ratio: ${stats.priceWithoutQual.length ? stats.priceWithoutQual.join(',') : 'none'} (${stats.partialPrice} pull-back frames show only a partial "$" glyph, magnified)`);
 ok('final hold in the ENCODED file', null, `max frame-to-frame diff from ${TL.CUES.finalStill}s to end = ${stats.stillMax} (H.264 noise on a static picture; exact identity checked on renderer output below)`);
 ok('no visible box around the logo / badge files (mean edge step, levels)', R.boxEdges.logo <= 2 && R.boxEdges.badge <= 2, R.boxEdges);
 ok('logo colors (last frame) vs logo file', R.lastFrameLogo.navyOk && R.lastFrameLogo.blueOk, R.lastFrameLogo);
@@ -100,7 +110,7 @@ try {
   ok('final hold byte-identical in the renderer output', holds.every(Boolean), `frames 775, 790 vs ${N - 1}: ${holds.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
   // the vial photo in the frame: the unedited source, scaled uniformly (x0.434) behind the frame's flat glass top
   const src = execFileSync('ffmpeg', ['-v', 'error', '-i', 'images/vial_semaglutide.png', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], {maxBuffer: 1 << 28}), SW = 1024, s = .434;
-  const ox = F.c[0] - 509 * s, oy = F.c[1] - 743 * s, raw = still(441);
+  const ox = L.frame.c[0] - 509 * s, oy = L.frame.c[1] - 743 * s, raw = still(441);
   let se = 0, n = 0;
   for (let y = Math.ceil(oy + 668 * s); y < oy + 1068 * s; y++) for (let x = Math.ceil(ox + 300 * s); x < ox + 718 * s; x++) {
     const sx0 = (x - ox) / s, sy0 = (y - oy) / s; const acc = [0, 0, 0]; let m = 0;
@@ -164,16 +174,18 @@ const P1 = L.pill1.c, P2 = L.pill.c, F = L.frame;
 const expect = [
   ['o3d_price', 3.7, [760, 560, 160, 620], false, `${COPY.startingAt} ${COPY.price}`],
   ['head1', 6.5, [860, 200, 80, 280], false, COPY.head1.join(' ')],
-  ['strings_price', 6.5, box([P1[0] - 190, P1[1] - 110, P1[0] + 190, P1[1] + 96]), false, `${COPY.startingAt} ${COPY.price}`],
+  ['strings_starting', 6.5, box([P1[0] - 160, P1[1] - 110, P1[0] + 160, P1[1] - 54]), false, COPY.startingAt, 7],
+  ['strings_69', 6.5, box(priceBox(P1), 12), false, COPY.price, 7],
   ['strings_qual', 6.5, box(qualBox(P1)), false, COPY.qual.join(' ')],
   ['head2', 9.2, [860, 200, 80, 280], false, COPY.head2.join(' ')],
   ['button', 9.8, [460, 90, 260, L.btn.c[1] - 45], false, COPY.button, 7],
   ['caption_1', 11.0, capBox(2), false, TL.CAPTIONS[0].lines.join(' ')],
   ['claim24', 13.2, [620, 104, F.c[0] - F.half[0] + 18, F.c[1] + F.half[1] - 118], false, COPY.claim24.join(' ')],
   ['covers', 16.2, [600, 70, 210, L.coversY - 52], false, COPY.covers, 7],
-  ['checks', 16.2, [520, 300, L.rowX0 + 2 * L.btnR + 18, L.rows[0] - 50], false, COPY.checks.join(' ')],
+  ['checks', 16.2, [520, 262, L.rowX0 + 2 * L.btnR + 18, L.rows[0] - 50], false, COPY.checks.join(' ')],
   ['no_insurance', 16.2, [820, 60, 100, L.noInsY - 42], false, COPY.noIns, 7],
-  ['price', 18.0, box([P2[0] - 190, P2[1] - 110, P2[0] + 190, P2[1] + 96]), false, `${COPY.startingAt} ${COPY.price}`],
+  ['price_starting', 18.0, box([P2[0] - 160, P2[1] - 110, P2[0] + 160, P2[1] - 54]), false, COPY.startingAt, 7],
+  ['price_69', 18.0, box(priceBox(P2), 12), false, COPY.price, 7],
   ['price_qual', 18.0, box(qualBox(P2)), false, COPY.qual.join(' ')],
   ['dose_line', 19.5, capBox(2), false, COPY.doseLine.join(' ')],
   ['tag', 23.2, [860, 180, 80, L.tagY[0] - 66], false, COPY.tag.join(' ')],
