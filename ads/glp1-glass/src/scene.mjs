@@ -36,12 +36,12 @@ export const FOOTAGE = {
 const CX = 510;                                   // visual center of the safe area (x 100..920)
 const DISC = {w: 880, pad: 24, size: 32, lh: 1.2, bottom: H - 400};
 export const L = {
-  vial: {x: 100, y: 560},                          // half-size vial 230x467, integer top-left at rest
+  vial: {x: 100, y: 520},                          // half-size vial 230x467, integer top-left at rest
   headY: 450, head2Y: [392, 478],
   startY: 704, priceY: 858, priceX: 646,
   pill: {c: [646, 763], half: [250, 125], r: 125},
   qualY: [944, 986],
-  tubeY: 745,
+  tubeY: 705,
   frame: {c: [510, 550], half: [410, 280], r: 44},
   rows: [925, 1045, 1165], btnR: 40,
   track: {c: [510, 600], half: [230, 110], r: 110}, knobR: 84,

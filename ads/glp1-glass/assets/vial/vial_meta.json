@@ -4,24 +4,26 @@
     "x0": 280,
     "y0": 232,
     "x1": 740,
-    "y1": 1166
+    "y1": 1250
   },
   "half": {
     "w": 230,
-    "h": 467
+    "h": 509
   },
   "centerX_src": 509,
   "zones_src_rows": {
     "capEnd": 415,
     "labelTop": 661,
     "labelBot": 1073,
-    "baseEnd": 1164
+    "floorLine": 1162,
+    "baseEnd": 1248
   },
   "zones_half_rows": {
     "capEnd": 91.5,
     "labelTop": 214.5,
     "labelBot": 420.5,
-    "baseEnd": 466
+    "floorLine": 465,
+    "baseEnd": 508
   },
   "srcBackdrop": [
     238,

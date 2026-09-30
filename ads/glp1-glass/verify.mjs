@@ -30,7 +30,7 @@ const px = (buf, x, y) => { const i = (y * W + x) * 3; return [buf[i], buf[i + 1
 const navyCount = (buf, [x0, y0, x1, y1]) => { let n = 0; for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { const [r, g, b] = px(buf, x, y); if (r < 70 && g < 90 && b < 140) n++; } return n; };
 const panel = [Math.round(disc.x), Math.round(disc.y), Math.round(disc.x + 880), Math.round(disc.y + disc.h)];
 const priceBox = [440, 660, 860, 872], qualBox = [330, 905, 965, 1032];
-const labelBox = [L.vial.x + 6, L.vial.y + 216, L.vial.x + 224, L.vial.y + 418];   // vial label (half-res rows 216..418)
+const labelBox = [L.vial.x + 6, L.vial.y + 216, L.vial.x + 224, L.vial.y + 418];   // label rows only (cap, glass excluded)   // vial label (half-res rows 216..418)
 let panel0 = null, last = null; const stats = {panelMax: 0, panelMaxFrame: -1, panelMeanMax: 0, priceFrames: 0, priceWithoutFullQual: [], stillMax: 0, labelPSNR: []};
 const frames = [];
 const refLabel = (() => { const raw = readFileSync('assets/vial/vial_color_half.rgba'), w = 230; return (x, y) => { const i = ((y - L.vial.y) * w + (x - L.vial.x)) * 4; return [raw[i], raw[i + 1], raw[i + 2]]; }; })();

@@ -9,9 +9,12 @@ const src = load('images/vial_semaglutide.png');
 const {w, data} = src;
 const px = (x, y) => { const i = (y * w + x) * 4; return [data[i], data[i + 1], data[i + 2]]; };
 // Crop (even numbers so the half-size map is exact). Source rows: cap top ~236, crimp ends ~414, label 662-1072, glass base ends ~1164.
-const X0 = 280, X1 = 740, Y0 = 232, Y1 = 1166;         // crop box in source pixels
+const X0 = 280, X1 = 740, Y0 = 232, Y1 = 1250;         // crop box in source pixels (base runs to ~1248)
 const CW = X1 - X0, CH = Y1 - Y0;
-const ZONES = {capEnd: 415, labelTop: 661, labelBot: 1073, baseEnd: 1164};
+const ZONES = {capEnd: 415, labelTop: 661, labelBot: 1073, floorLine: 1162, baseEnd: 1248};
+// Below the floor line the scene's backdrop changes, so edge detection fails there; the thick glass base is modeled instead:
+// straight walls, then a rounded bottom corner (radius measured on the source: ~70 px, bottom at row 1248).
+const BASE_R = 70;
 // Per-row silhouette edges: first/last column that differs from the row's backdrop.
 const hwRaw = [];
 let cxs = [];
@@ -29,8 +32,12 @@ cxs.sort((a, b) => a - b);
 const CX = cxs[cxs.length >> 1];
 // Median-smooth the half widths over +-3 rows.
 const hw = hwRaw.map((_, i) => { const a = hwRaw.slice(Math.max(0, i - 3), i + 4).sort((p, q) => p - q); return a[a.length >> 1]; });
-for (let y = ZONES.baseEnd; y < Y1; y++) hw[y - Y0] = 0;       // below the glass base is floor, not vial
-const report = [236, 240, 250, 260, 300, 414, 420, 500, 560, 700, 1100, 1140, 1150, 1156, 1160, 1163].map(y => `${y}:${hw[y - Y0]?.toFixed(1)}`);
+const wallHW = hw[ZONES.floorLine - 8 - Y0];
+for (let y = ZONES.floorLine - 6; y < Y1; y++) {
+  const k = y - (ZONES.baseEnd - BASE_R);
+  hw[y - Y0] = y >= ZONES.baseEnd ? 0 : k <= 0 ? wallHW : wallHW - BASE_R + Math.sqrt(Math.max(0, BASE_R * BASE_R - k * k));
+}
+const report = [236, 260, 414, 420, 560, 1100, 1160, 1180, 1200, 1220, 1235, 1245, 1247].map(y => `${y}:${hw[y - Y0]?.toFixed(1)}`);
 console.log('CX', CX, 'hw', report.join(' '));
 // Full-res mask, then 2x2 average.
 const smooth = (e0, e1, v) => { const t = Math.min(1, Math.max(0, (v - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
