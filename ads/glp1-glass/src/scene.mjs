@@ -331,7 +331,7 @@ export async function render(t) {
   }
   if (t >= C.urlIn.t0) line(fg, COPY.url, CX, L.urlY, 52, 600, COLORS.navy, {enter: eOut(prog(t, C.urlIn.t0, C.urlIn.land))});
   if (t >= C.badgePop - .35) {
-    const s = spring(t, C.badgePop - .35, .36, .09);
+    const s = t >= C.finalStill - .1 ? 1 : spring(t, C.badgePop - .35, .36, .09);   // exactly at rest before the final hold
     const bw = L.badge.w, bh = Math.round(img.badge.height * bw / img.badge.width), cx = L.badge.cx, cy = L.badge.y + bh / 2;
     fg.save(); fg.imageSmoothingQuality = 'high';
     if (Math.abs(s - 1) < 1e-4) fg.drawImage(img.badge, Math.round(cx - bw / 2), L.badge.y, bw, bh);   // at rest: integer-placed, unscaled draw
