@@ -37,11 +37,7 @@
       "Medication",
       "Shipping"
     ],
-    "claim24": [
-      "Online visit in minutes.",
-      "Review typically",
-      "within 24 hours."
-    ],
+    "claim24": "Online visit in minutes. Review typically within 24 hours.",
     "noIns": "No insurance needed. No contracts.",
     "dose": [
       "Lower dose",
@@ -56,13 +52,24 @@
       "Clear care."
     ],
     "cta": "See if you qualify",
-    "url": "MyFastRx.com",
-    "membership": "MEMBERSHIP"
+    "url": "MyFastRx.com"
   },
   "PX": 0.0019630564980738087,
   "TAG0": [
     -0.05889169494221426,
     -0.2551973447495951
   ],
-  "CX": 510
+  "CX": 510,
+  "PRICE0": [
+    510,
+    830
+  ],
+  "TAG": {
+    "w": 400,
+    "h": 651,
+    "c": [
+      510,
+      985
+    ]
+  }
 }
