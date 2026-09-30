@@ -17,7 +17,7 @@ const only = flag('--only')?.split(',').map(Number);
 const N = Math.round(TL.DURATION * TL.FPS);
 const from = +(flag('--from') ?? 0), to = +(flag('--to') ?? N);
 const outDir = path.join(ROOT, 'out'); mkdirSync(path.join(outDir, 'stills'), {recursive: true});
-const MIME = {'.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.ttf': 'font/ttf'};
+const MIME = {'.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.ttf': 'font/ttf', '.jpeg': 'image/jpeg'};
 let onFrame = null;
 const server = http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x');
@@ -31,13 +31,14 @@ const server = http.createServer((req, res) => {
 });
 await new Promise(r => server.listen(0, r));
 const port = server.address().port;
-const browser = await chromium.launch({executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist']});
+const browser = await chromium.launch({executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--ignore-certificate-errors']});
 const page = await browser.newPage();
 const errs = []; page.on('pageerror', e => errs.push(String(e))); page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.text()); });
-await page.goto(`http://127.0.0.1:${port}/src/film.html?intro=${TL.INTRO}`);
+const PAGE = flag('--page') || 'film';
+await page.goto(`http://127.0.0.1:${port}/src/${PAGE}.html?intro=${TL.INTRO}`);
 await page.waitForFunction('window.__ready === true');
 const info = await page.evaluate(() => window.__init());
-writeFileSync(path.join(outDir, 'layout.json'), JSON.stringify(info, null, 2));
+if (info && Object.keys(info).length) writeFileSync(path.join(outDir, 'layout.json'), JSON.stringify(info, null, 2));   // the 3D page has no 2D layout
 if (errs.length) console.error(errs.join('\n'));
 if (only) {
   for (const i of only) {
@@ -47,7 +48,7 @@ if (only) {
     console.log('still', i);
   }
 } else {
-  const file = path.join(outDir, flag('--from') || flag('--to') ? `part_${String(from).padStart(4, '0')}_${to}.mp4` : 'A_video_only.mp4');
+  const file = path.join(outDir, flag('--from') || flag('--to') ? `part_${String(from).padStart(4, '0')}_${to}.mp4` : 'A_video_only.mp4');   // the 3D opening renders into its own parts too (same frame numbering)
   // Intermediate: near-lossless H.264 (crf 8, yuv444 -> converted at final mux). Final encode happens in mix.sh.
   const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', `${TL.W}x${TL.H}`, '-r', String(TL.FPS), '-i', '-',
     '-vf', 'scale=out_color_matrix=bt709:out_range=tv', '-c:v', 'libx264', '-preset', 'medium', '-crf', '6', '-pix_fmt', 'yuv444p', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-colorspace', 'bt709', file], {stdio: ['pipe', 'inherit', 'inherit']});

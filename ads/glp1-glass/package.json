@@ -1,0 +1,15 @@
+{
+  "name": "glp1-glass",
+  "version": "1.0.0",
+  "description": "Opens on an \"oddly satisfying\" macro shot: a teal glass pill touches down with a glass tap on frame 1, glides across the table, settles with a jelly wobble and magnifies the printed \"$69\" (price qualification printed beneath it from frame 1). The camera then pulls back and that pill is the price pill of the layout: one continuous take in a bright glass world: nothing crossfades or cuts. Text rises out of mask lines, objects pop on springs, the teal price pill morphs into the photo frame, the frame contracts into the toggle track, and a navy flood contracts into the CTA button. A cursor drives the clicks and the drag. Geist type, #F7F7F7 canvas, navy #001D45.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.170.0"
+  }
+}

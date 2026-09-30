@@ -1,136 +1,118 @@
-// Single source of truth for timing (Version A, continuous take). Shared by the renderer (src/scene.mjs) and audio/compose.mjs.
-// Tempo 96 BPM -> one beat = 0.625 s, 40 beats = 25.0 s. Scene changes, clicks and glass landings sit on beats.
-// Two openings share everything after 4.4 s:
-//   INTRO=glass (default) "oddly satisfying": a macro shot of the price pill sliding across the table and magnifying $69
-//   INTRO=latte           native footage opener (latte pour, word stickers, pill drops onto the screen)
-// Select with the env var INTRO (node) or ?intro= on the page (the renderer passes it through).
-export const INTRO = (globalThis.process?.env?.INTRO) || globalThis.__INTRO || 'glass';
-const GLASS = INTRO === 'glass';
-export const FPS = 30, DURATION = 25, W = 1080, H = 1920;
+// Version A v3 "No strings attached" - single source of truth for timing. Shared by the 3D opening (src/opening3d.mjs),
+// the overhead table film (src/scene.mjs), and the audio build (audio/compose.mjs, tools/build-vo.mjs).
+// (v2, the price-led cut, is commit f2a6a1b; its sources are kept in src/v2/ for reference.)
+//
+// 0.00 - 4.25  3D opening: a glass pill touches down (tap on frame 1), glides, settles over $69; the camera cranes
+//              overhead and dives into the glass. No VO, no logo, no pitch.
+// 4.25 - 27.5  overhead: the table seen from above. Glass objects, a glass digital photo frame for the footage.
+//
+// VO v2: vo/body_v2.wav = the ElevenLabs read (vo/body_v2_src.mp3) at 1.15x tempo (client direction), pitch kept.
+// The read ends line 4 at "starting at $69." (no "your price doesn't climb..."), so the flat-price-across-doses claim is
+// on-screen text on the dose-slider beat, not a caption. Word times: python3 tools/transcribe.py vo/body_v2.wav.
+export const INTRO = 'glass3d';
+export const FPS = 30, DURATION = 27.0, W = 1080, H = 1920;
 export const BPM = 96, BEAT = 60 / BPM;
-export const b = n => +(n * BEAT).toFixed(4);          // beat number -> seconds
-export const LEAD = 0.14;                              // moves start their final approach this early so they land on the beat
+export const b = n => +(n * BEAT).toFixed(4);
+
+export const OPEN = {touch: 0, land: 2.8, startX: 1.15, crane: [2.8, 3.75], dive: 4.25};
 
 export const SCENES = [
-  {id: 'price',  t0: 0,     t1: b(15)},              // 0.000 - 9.375  hook + online visit (one set: price carries forward)
-  {id: 'checks', t0: b(15), t1: b(24)},              // 9.375 - 15.000 provider review / medication / shipping
-  {id: 'nofees', t0: b(24), t1: b(30)},              // 15.000 - 18.750 no membership fees / no automatic refills
-  {id: 'end',    t0: b(30), t1: DURATION},           // 18.750 - 25.000 end card
+  {id: 'open3d',  t0: 0,     t1: 4.25},
+  {id: 'strings', t0: 4.25,  t1: 7.30},    // "GLP-1 care, with no strings attached,"
+  {id: 'control', t0: 7.30,  t1: 12.20},   // "no membership fees, no automatic refills. You request each one when you're ready."
+  {id: 'covers',  t0: 12.20, t1: 16.85},   // "One price covers your provider review, medication, and shipping,"
+  {id: 'price',   t0: 16.85, t1: 20.80},   // "starting at $69."  + the dose slider (on-screen: your price doesn't climb...)
+  {id: 'end',     t0: 20.80, t1: 27.0},    // "Clear pricing, clear care. See if you qualify at MyFastRx.com."
 ];
 
-// VO: ElevenLabs reads delivered 2026-09-30 (vo/hook_A.wav, vo/body.wav; transcribed with faster-whisper = script, word for word).
-// body.wav is one take; each line is placed on its scene by cutting in the breaths between lines (no time-stretch, no speed change).
-// src = [from, to] seconds in the file, at = where `from` lands in the ad. Speech windows below are measured (10 ms RMS envelope).
+// the take is cut only in its pauses (speech edges from tools/vo-env.mjs: 11.04 | 11.37 and 12.85 | 13.16)
 export const VO_EDIT = [
-  {file: 'vo/hook_A.wav', src: [0.00, 3.92],  at: GLASS ? 0.75 : 0.30},   // "GLP-1 care, starting at $69."  speech +0.02 .. +3.77 (glass intro: the first 0.75 s is just the tap and the slide)
-  {file: 'vo/body.wav',   src: [0.00, 4.42],  at: GLASS ? 4.75 : 4.60},   // "Start with an online visit ..." speech +0.02 .. +4.18
-  {file: 'vo/body.wav',   src: [4.42, 8.50],  at: 9.99},   // "Provider review, medication, ..."       speech 10.25 - 13.92
-  {file: 'vo/body.wav',   src: [8.50, 12.35], at: 14.94},  // "No membership fees, and you choose ..." speech 15.10 - 18.63
-  {file: 'vo/body.wav',   src: [12.35, 15.84], at: 19.30}, // "See if you qualify at MyFastRx.com."   speech 19.40 - 22.65
+  {file: 'vo/body_v2.wav', src: [0, 11.20],     at: 4.60},    // lines 1-3, as read
+  {file: 'vo/body_v2.wav', src: [11.20, 13.00], at: 16.80},   // "starting at $69." once the price pill has formed
+  {file: 'vo/body_v2.wav', src: [13.00, 17.828], at: 20.80},  // the close, on the end card
 ];
-export const VO = [
-  {t0: GLASS ? 0.77 : 0.32, t1: GLASS ? 4.52 : 4.07, text: 'GLP-1 care, starting at $69.'},
-  {t0: GLASS ? 4.77 : 4.62, t1: GLASS ? 8.93 : 8.78, text: 'Start with an online visit and provider-guided care from MyFastRx.'},
-  {t0: 10.25, t1: 13.92, text: 'Provider review, medication, and shipping are all included.'},
-  {t0: 15.10, t1: 18.63, text: 'No membership fees, and you choose when to request your next refill.'},
-  {t0: 19.40, t1: 22.65, text: 'See if you qualify at MyFastRx.com.'},
+export const VO = [          // measured speech windows (music ducks under these)
+  {t0: 4.61,  t1: 7.26,  text: 'GLP-1 care, with no strings attached,'},
+  {t0: 7.54,  t1: 12.04, text: "no membership fees, no automatic refills. You request each one when you're ready."},
+  {t0: 12.48, t1: 15.64, text: 'One price covers your provider review, medication, and shipping,'},
+  {t0: 16.97, t1: 18.45, text: 'starting at $69.'},
+  {t0: 20.96, t1: 25.53, text: 'Clear pricing, clear care. See if you qualify at MyFastRx.com.'},
 ];
-// Word onsets used to sync picture (ad time): "and provider" 5.94 | Provider 10.26, medication 11.27, shipping 12.22 |
-// "and you choose" 16.06 | "MyFastRx.com" 20.79
-
-// Burned-in captions only where the on-screen card does not already say the line. Max two lines each.
+// captions only where the on-screen card doesn't already say the line (max two lines; verbatim VO)
 export const CAPTIONS = [
-  {t0: GLASS ? 4.77 : 4.62, t1: GLASS ? 6.09 : 5.94, lines: ['Start with an online visit']},
-  {t0: GLASS ? 6.09 : 5.94, t1: 8.90, lines: ['and provider-guided care', 'from MyFastRx.']},
-  {t0: 16.06, t1: 18.62, lines: ['and you choose when to', 'request your next refill.']},   // "No membership fees" is the card itself
+  {t0: 10.20, t1: 12.05, lines: ['You request each one', "when you're ready."]},
 ];
-
-export const MUSIC_IN = GLASS ? {t0: 0.55, t1: 1.60} : null;   // glass intro: the first half second is just the tap
 
 export const CUES = {
-  hookWords:  [{w: 'GLP-1', t: 0.32}, {w: 'care,', t: 1.40}],   // native word stickers, on the measured VO words
-  qualIn:     GLASS ? {t0: -1, land: -.9} : {t0: 1.72, land: 2.00},   // up BEFORE any part of $69 can show (glass: from frame 1)
-  pillSlide:  GLASS ? {t0: -0.03, land: b(4)} : {t0: 1.95, land: b(4)},  // glass: touches down on frame 1, slides, settles on $69 at 2.5 s
-  pillCrisp:  GLASS ? 3.10 : b(4),                 // price drawn sharp once the pill has stopped wobbling
-  macro:      {s: 1.6, g: [540, 860], t0: b(7), t1: 5.00},   // glass intro: macro camera on the pill, pulls back 4.375 -> 5.0
-  footOut:    {t0: b(7), t1: 4.85},                // latte card pushes up, revealing the glass world
-  vialRise:   {t0: 4.62, land: b(8)},              // 5.000  rises once the card's edge has cleared it
-  headSwap:   {t0: 4.74, land: b(8)},              // 5.000 'GLP-1 weight-loss care' rises
-  tubeSlide:  {t0: 5.10, land: b(10)},             // 6.250  glass pulse tube slides in behind the vial
-  vialSway:   {t0: 6.40, t1: 8.20},                // gentle tilt, back to exact rest
-  pillClick:  b(14),                               // 8.750  cursor clicks the price pill
-  priceOut:   {t0: b(14), t1: b(14) + 0.16},       // $69 leaves first ...
-  qualOut:    {t0: b(14) + 0.16, t1: b(14) + 0.32},//  ... then its qualification
-  pushOut:    {t0: 99, t1: 99},                    // (retired: replaced by the glass pane wipe)
-  wipeIn:     {t0: 8.85, t1: 9.65},                // a clear glass pane sweeps up: behind its edge the room becomes the kitchen
-  wipeOut:    {t0: 14.55, t1: 15.35},              // and sweeps down again: back to the glass world
-  zoom:       {t0: 8.30, peak: b(14), t1: 9.65, s: 1.14},
-  morphFrame: {t0: 8.92, land: b(15)},             // 9.375  pill becomes the photo frame
-  checks:     [10.26, 11.27, 12.22],               // clicks land on 'Provider' / 'medication' / 'shipping'
-  footPush:   {t0: 11.62, t1: 11.98},              // photo A pushes out, photo B (package) in, before 'shipping'
-  checksOut:  {t0: 14.50, t1: 14.78},
-  morphTrack: {t0: 14.72, land: b(25)},            // 15.625 photo frame contracts into the toggle track
-  knobPop:    b(25),
-  drag:       {t0: 15.86, t1: b(26)},              // 16.250 snap on
-  feesIn:     [{t0: 15.30, land: b(25)}, {t0: 15.42, land: b(25) + 0.12}],   // with 'No membership fees'
-  feesOut:    {t0: 18.45, t1: 18.62},
-  knobOut:    {t0: 18.48, t1: 18.70},              // the knob pops away
-  ctaMorph:   {t0: 18.62, land: 19.30},            // the switched-on glass track becomes the CTA button
-  flood:      {t0: 99, full: 99, t1: 99},          // (retired)
-  discIn:     {t0: 19.62, land: 19.90},            // fine print rises in with the end card, then holds still to the last frame
-  logoIn:     {t0: 19.30, land: 19.69},
-  ctaText:    {t0: 19.30, land: 19.62},
-  urlIn:      {t0: 20.45, land: 20.79},            // with 'MyFastRx.com'
-  ctaClick:   b(33.5),                             // 20.938
-  badgePop:   b(34),                               // 21.250 ; everything is still from finalStill to the last frame
-  finalStill: 21.60,
+  pullBack:   {t0: 4.25, t1: 5.15},                // out of the pill's glass to the overhead layout
+  head1:      [{t0: 4.62, land: 4.97}, {t0: 5.90, land: 6.25}],   // "GLP-1 care," / "no strings attached." (on "with no strings")
+  pulseIn:    {t0: 6.20, land: 6.90},              // the glass heartbeat glides in under the headline
+  price1Out:  {t0: 6.90, t1: 7.05},                // the $69 leaves first, then its qualification, before the wipe reaches them
+  qual1Out:   {t0: 7.05, t1: 7.20},
+  wipe1:      {t0: 7.08, t1: 7.78},                // a glass heartbeat sweeps up the table: behind it, the next scene
+  head2:      [{t0: 7.56, land: 7.92}, {t0: 8.72, land: 9.08}],   // "No membership fees." / "No automatic refills." (7.60 / 8.78)
+  btnIn:      {t0: 9.10, land: 9.55},              // the "Request refill" glass button
+  btnPress:   10.40,                               // "YOU request each one" (10.32): the cursor presses it
+  checkPop:   10.46,
+  head2Out:   {t0: 11.95, t1: 12.20},
+  morphFrame: {t0: 12.00, land: 12.65},            // the button becomes the glass photo frame
+  coversIn:   {t0: 12.45, land: 12.80},            // "One price covers" (12.50)
+  claim24:    {t0: 12.75, t1: 14.22},              // "Online visit in minutes. Review typically within 24 hours." on the laptop photo
+  checks:     [13.45, 14.34, 15.20],               // provider review / medication / shipping (13.40 / 14.32 / 15.18)
+  frameSwap:  [14.30, 15.12],                      // photo glints: laptop -> vial -> package
+  noIns:      {t0: 15.50, land: 15.85},            // "No insurance needed. No contracts."
+  coversOut:  {t0: 16.60, t1: 16.85},
+  morphPill:  {t0: 16.55, land: 17.15},            // the frame contracts into the teal price pill
+  priceIn:    {t0: 17.00, land: 17.25},            // "starting at" 16.97, "$69" 17.40
+  sliderIn:   {t0: 18.25, land: 18.65},            // the dose slider
+  doseLine:   {t0: 18.45, land: 18.80},            // on-screen: "Your price doesn't climb / as your dose does."
+  drag:       {t0: 19.00, t1: 20.10},              // the cursor drags the dose up; the price holds
+  priceOut:   {t0: 20.35, t1: 20.50},
+  qualOut:    {t0: 20.50, t1: 20.65},
+  wipe2:      {t0: 20.45, t1: 21.15},              // the heartbeat sweeps up again into the end card
+  logoIn:     {t0: 20.95, land: 21.30},
+  tag:        [{t0: 20.95, land: 21.30}, {t0: 21.90, land: 22.25}],   // "Clear pricing." / "Clear care." (20.96 / 21.93)
+  discIn:     {t0: 21.30, land: 21.60},            // fine print: end card only, then still to the last frame
+  ctaIn:      {t0: 22.70, land: 23.10},            // "See if you qualify" (22.82)
+  ctaClick:   23.55,
+  urlIn:      {t0: 24.00, land: 24.35},            // "MyFastRx.com" (24.06)
+  badgePop:   24.75,
+  finalStill: 25.60,
 };
 
-// Cursor path: [t, x, y, pressed]. World coordinates (the camera applies to it, and it scales with the zoom).
-const CK = CUES.checks;
+// cursor: [t, x, y, pressed, target?] (world coords; targets resolved in scene.mjs)
 export const CURSOR = [
-  [7.20, 1160, 700, 0], [8.35, 856, 752, 0], [8.62, 856, 752, 1], [8.78, 856, 752, 0],   // enters at pill height, clicks the pill's right end (clear of all text)
-  [9.40, 470, 1040, 0],
-  ...CK.flatMap((t, i) => [[t - .32, 0, 0, 0, 'c' + i], [t - .07, 0, 0, 1, 'c' + i], [t + .05, 0, 0, 0, 'c' + i]]),
-  [14.85, 0, 0, 0, 'c2'], [15.25, 70, 760, 0],                     // around the left margin, never across the text
-  [15.70, 0, 0, 0, 'knob0'], [15.80, 0, 0, 1, 'knob0'], [16.25, 0, 0, 1, 'knob1'], [16.34, 0, 0, 0, 'knob1'],
-  [17.20, 1160, 660, 0],
-  [20.20, 1160, 760, 0], [20.78, 640, 718, 0], [20.86, 640, 718, 1], [20.95, 640, 718, 0], [21.58, 1160, 790, 0],
+  [9.50, 1160, 900, 0], [10.22, 0, 0, 0, 'btn'], [10.34, 0, 0, 1, 'btn'], [10.46, 0, 0, 0, 'btn'], [11.20, 1160, 980, 0],
+  [18.40, 1160, 1060, 0], [18.85, 0, 0, 0, 'knob0'], [19.00, 0, 0, 1, 'knob0'], [20.10, 0, 0, 1, 'knob1'], [20.20, 0, 0, 0, 'knob1'], [20.75, 1160, 1080, 0],
+  [22.95, 1160, 820, 0], [23.40, 0, 0, 0, 'cta'], [23.50, 0, 0, 1, 'cta'], [23.60, 0, 0, 0, 'cta'], [24.30, 1160, 760, 0],
 ];
 
-// Sound effects: `at` is where the sound should be HEARD (its measured onset is aligned there, not its file start).
+export const MUSIC_IN = {t0: 0.55, t1: 1.60};      // the opening is just the tap and the glide; the bed eases in
 export const SFX = [
-  ...(GLASS ? [
-  {id: 'tap_glass',  at: 0.0, gain: -8},                    // the crisp glass tap, heard on frame 1
-  {id: 'slide_long', at: 0.05, gain: -26},                  // glass gliding on the table, slowing with friction
-  {id: 'tap_low',    at: CUES.pillSlide.land, gain: -17},   // it settles
-  {id: 'tap_glass',  at: CUES.pillSlide.land + .02, gain: -24},
-  {id: 'slide_air',  at: CUES.macro.t0, gain: -24},         // camera pulls back
-  ] : [
-  {id: 'click',      at: CUES.hookWords[0].t, gain: -24},
-  {id: 'click',      at: CUES.hookWords[1].t, gain: -24},
-  {id: 'slide_air',  at: CUES.pillSlide.t0 + .1, gain: -21},
-  {id: 'tap_glass',  at: CUES.pillSlide.land, gain: -12},
-  {id: 'slide_air',  at: CUES.footOut.t0, gain: -21},
-  ]),
-  {id: 'slide_soft', at: CUES.vialRise.t0, gain: -23},
-  {id: 'tap_glass',  at: CUES.vialRise.land, gain: -18},
-  {id: 'slide_soft', at: CUES.tubeSlide.t0, gain: -21},
-  {id: 'tap_low',    at: CUES.tubeSlide.land, gain: -18},
-  {id: 'click',      at: CUES.pillClick, gain: -13},
-  {id: 'slide_air',  at: CUES.wipeIn.t0 + .08, gain: -20},
+  {id: 'tap_glass',  at: 0.0, gain: -8},          // the glass tap, heard on frame 1
+  {id: 'slide_long', at: 0.05, gain: -26},        // gliding on the table
+  {id: 'tap_low',    at: OPEN.land, gain: -17},   // it settles
+  {id: 'tap_glass',  at: OPEN.land + .02, gain: -24},
+  {id: 'slide_air',  at: OPEN.crane[0] + .1, gain: -24},   // crane up
+  {id: 'slide_air',  at: OPEN.dive - .25, gain: -20},      // dive into the glass
+  {id: 'tap_low',    at: CUES.pullBack.t0, gain: -20},
+  {id: 'tap_glass',  at: CUES.pulseIn.land, gain: -21},
+  {id: 'slide_air',  at: CUES.wipe1.t0, gain: -20},
+  {id: 'tap_low',    at: CUES.btnIn.land, gain: -19},
+  {id: 'press',      at: CUES.btnPress, gain: -13},
+  {id: 'tap_glass',  at: CUES.checkPop + .02, gain: -18},
+  {id: 'slide_soft', at: CUES.morphFrame.t0, gain: -21},
   {id: 'tap_low',    at: CUES.morphFrame.land, gain: -18},
   {id: 'press',      at: CUES.checks[0], gain: -14},
   {id: 'press',      at: CUES.checks[1], gain: -14},
   {id: 'press',      at: CUES.checks[2], gain: -14},
-  {id: 'slide_soft', at: CUES.footPush.t0, gain: -25},
-  {id: 'slide_air',  at: CUES.wipeOut.t0 + .08, gain: -21},
-  {id: 'tap_low',    at: CUES.morphTrack.land, gain: -18},
-  {id: 'tap_glass',  at: CUES.knobPop + 0.03, gain: -20},
-  {id: 'slide_soft', at: CUES.drag.t0, gain: -24},
-  {id: 'toggle',     at: CUES.drag.t1, gain: -12},
-  {id: 'slide_soft', at: CUES.ctaMorph.t0, gain: -20},
-  {id: 'tap_glass',  at: CUES.ctaMorph.land, gain: -15},
+  {id: 'slide_soft', at: CUES.morphPill.t0, gain: -21},
+  {id: 'tap_glass',  at: CUES.morphPill.land, gain: -15},
+  {id: 'tap_low',    at: CUES.sliderIn.land, gain: -19},
+  {id: 'slide_long', at: CUES.drag.t0, gain: -28},
+  {id: 'tap_glass',  at: CUES.drag.t1, gain: -19},
+  {id: 'slide_air',  at: CUES.wipe2.t0, gain: -20},
+  {id: 'tap_low',    at: CUES.ctaIn.land, gain: -18},
   {id: 'click',      at: CUES.ctaClick, gain: -14},
   {id: 'chime_end',  at: CUES.badgePop, gain: -25},
 ];

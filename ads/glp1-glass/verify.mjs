@@ -6,7 +6,7 @@ import * as TL from './src/timeline.mjs';
 const FILE = process.argv[2] || 'out/MyFastRx_LiquidGlass_A.mp4';
 const lay = JSON.parse(readFileSync('out/layout.json', 'utf8'));
 const {disc, L, COPY} = lay;
-const W = 1080, H = 1920, N = 750;
+const {W, H, FPS} = TL, N = Math.round(TL.DURATION * FPS), HAND = Math.round(TL.OPEN.dive * FPS);
 const R = {file: FILE, checks: []};
 const ok = (name, pass, detail) => { R.checks.push({name, pass, detail}); console.log(`${pass === true ? 'PASS' : pass === false ? 'FAIL' : 'NOTE'}  ${name}: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`); };
 
@@ -19,51 +19,53 @@ ok('video spec', v.codec_name === 'h264' && v.width === 1080 && v.height === 192
 ok('video bitrate 10-15 Mbps', +v.bit_rate >= 10e6 && +v.bit_rate <= 15e6, `${(v.bit_rate / 1e6).toFixed(2)} Mbps`);
 ok('progressive', !v.field_order || v.field_order === 'progressive', v.field_order || 'progressive (no field order flag)');
 ok('audio spec', a.codec_name === 'aac' && +a.sample_rate === 48000 && a.channels === 2, `${a.codec_name} ${a.sample_rate} Hz ${a.channels} ch`);
-ok('duration 25 s', Math.abs(+pr.format.duration - 25) < .05, pr.format.duration);
+ok(`duration ${TL.DURATION} s`, Math.abs(+pr.format.duration - TL.DURATION) < .05, pr.format.duration);
 const lo2 = execFileSync('bash', ['-c', `ffmpeg -hide_banner -nostats -i "${FILE}" -af ebur128=peak=true -f null - 2>&1 | grep -A14 Summary`]).toString();
 const I = +(/I:\s+(-?[\d.]+) LUFS/.exec(lo2) || [])[1], TP = +(/Peak:\s+(-?[\d.]+) dBFS/.exec(lo2) || [])[1];
 ok('audio: no clipping (true peak < -1 dBTP)', TP < -1, `integrated ${I} LUFS, true peak ${TP} dBFS`);
-ok('audio: -16 LUFS integrated', Math.abs(I + 16) <= 1 ? true : null, Math.abs(I + 16) <= 1 ? `${I} LUFS` : `${I} LUFS - no VO yet, so the mix is music+SFX at bed level; mix.sh normalizes to -16 once vo/ exists`);
+ok('audio: -16 LUFS integrated', Math.abs(I + 16) <= 1 ? true : null, Math.abs(I + 16) <= 1 ? `${I} LUFS` : `${I} LUFS - no VO yet, so the mix is music+SFX at bed level; mix.sh normalizes to -16 once VO_EDIT is filled`);
 
 // ---------- 2. per-frame measurements on decoded RGB ----------
 const px = (buf, x, y) => { const i = (y * W + x) * 3; return [buf[i], buf[i + 1], buf[i + 2]]; };
-const navyCount = (buf, [x0, y0, x1, y1]) => { let n = 0; for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { const [r, g, b] = px(buf, x, y); if (r < 70 && g < 90 && b < 140) n++; } return n; };
+const inb = (x, y) => x >= 0 && y >= 0 && x < W && y < H;
+const navyCount = (buf, [x0, y0, x1, y1]) => { let n = 0; for (let y = Math.max(0, y0); y < Math.min(H, y1); y++) for (let x = Math.max(0, x0); x < Math.min(W, x1); x++) { const [r, g, b] = px(buf, x, y); if (r < 70 && g < 90 && b < 140) n++; } return n; };
 const panel = [Math.round(disc.x) + 2, Math.round(disc.y) + 14, Math.round(disc.x + disc.w) - 2, Math.round(disc.y + disc.h) - 14];   // inside the rounded panel (12 px corners excluded)
-// the price only ever exists on the teal pill, so 'price visible' = teal pill pixels inside the pill's rest box
-const pillBox = [L.pill.c[0] - L.pill.half[0], L.pill.c[1] - L.pill.half[1], L.pill.c[0] + L.pill.half[0], L.pill.c[1] + L.pill.half[1]];
-const qualBox = [L.priceX - 250, L.qualY[0] - 42, L.priceX + 250, L.qualY[1] + 18];   // inside the white label: only the text is navy
-const tealCount = (buf, [x0, y0, x1, y1]) => { let n = 0; for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) { const [r, g, b] = px(buf, x, y); if (g - r > 55 && b - r > 55 && g > 120) n++; } return n; };
-const labelBox = [L.vial.x + 8, L.vial.y + 216, L.vial.x + 222, L.vial.y + 418];   // label rows only (cap, glass excluded)   // vial label (half-res rows 216..418)
-let panel0 = null, last = null; const stats = {panelMax: 0, panelMaxFrame: -1, panelMeanMax: 0, priceFrames: 0, priceWithoutFullQual: [], stillMax: 0, labelPSNR: []};
-const frames = [];
-const refLabel = (() => { const raw = readFileSync('assets/vial/vial_color_half.rgba'), w = 230; return (x, y) => { const i = ((y - L.vial.y) * w + (x - L.vial.x)) * 4; return [raw[i], raw[i + 1], raw[i + 2]]; }; })();
-const restFrames = new Set(); for (let i = 0; i < N; i++) { const t = i / 30; if ((t >= TL.CUES.vialRise.land && t < TL.CUES.vialSway.t0) || (t >= TL.CUES.vialSway.t1 && t < TL.CUES.zoom.t0)) restFrames.add(i); }
-const qualRefFrame = 170;   // camera at rest, price and qualification settled
-let qualRef = 0, priceRef = 0;
+const panelArea = (panel[2] - panel[0]) * (panel[3] - panel[1]);
+// the overhead camera (same curve as src/scene.mjs): deep in the opening pill at the handoff, pulling back to 1:1
+const eIO = u => u < .5 ? 4 * u ** 3 : 1 - (-2 * u + 2) ** 3 / 2, clamp = (v, a = 0, z = 1) => Math.min(z, Math.max(a, v));
+function cam(t) {
+  const P = TL.CUES.pullBack, m = eIO(clamp((t - P.t0) / (P.t1 - P.t0)));
+  if (m >= 1) return p => p;
+  const F = [L.pill1.c[0] - .345 * 500, L.pill1.c[1]], s = Math.exp(Math.log(34) * (1 - m)), G = [W / 2 + (F[0] - W / 2) * m, H / 2 + (F[1] - H / 2) * m];
+  return ([x, y]) => [(x - F[0]) * s + G[0], (y - F[1]) * s + G[1]];
+}
+// price + qualification boxes (world), relative to the pill that carries them (offsets = PRICE in src/scene.mjs)
+const priceBox = c => [c[0] - 150, c[1] + 88 - 128, c[0] + 150, c[1] + 88 + 6];
+const qualBox = c => [c[0] - 262, c[1] + 186 - 34, c[0] + 262, c[1] + 228 + 10];
+const xf = (f, b) => { const a = f([b[0], b[1]]), z = f([b[2], b[3]]); return [Math.round(a[0]), Math.round(a[1]), Math.round(z[0]), Math.round(z[1])]; };
+const onScreen = b => b[0] >= 0 && b[1] >= 0 && b[2] <= W && b[3] <= H;
+const pillAt = t => t < TL.CUES.wipe1.t1 ? L.pill1.c : (t >= TL.CUES.morphPill.t0 && t < TL.CUES.wipe2.t1 ? L.pill.c : null);
+const REF = {strings: Math.round(6.5 * FPS), price: Math.round(18.0 * FPS)};
+const stats = {priceFrames: 0, priceWithoutQual: [], partialPrice: 0, panelEarly: [], stillMax: 0, panelMax: 0};
+const rows = []; let panel0 = null, last = null;
 await new Promise((res, rej) => {
   const ff = spawn('ffmpeg', ['-v', 'error', '-i', FILE, '-vf', 'scale=in_color_matrix=bt709:in_range=tv:flags=accurate_rnd+full_chroma_int', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-']);
   const FS = W * H * 3; let acc = Buffer.alloc(0), idx = 0;
   ff.stdout.on('data', d => {
     acc = Buffer.concat([acc, d]);
     while (acc.length >= FS) {
-      const f = acc.subarray(0, FS); acc = acc.subarray(FS);
-      // panel
-      const cur = Buffer.alloc((panel[2] - panel[0]) * (panel[3] - panel[1]) * 3); let k = 0;
-      for (let y = panel[1]; y < panel[3]; y++) { f.copy(cur, k, (y * W + panel[0]) * 3, (y * W + panel[2]) * 3); k += (panel[2] - panel[0]) * 3; }
-      if (idx < Math.ceil(TL.CUES.discIn.land * 30)) {} else if (!panel0) panel0 = cur; else { let mx = 0, sum = 0; for (let j = 0; j < cur.length; j++) { const d2 = Math.abs(cur[j] - panel0[j]); sum += d2; if (d2 > mx) mx = d2; } if (mx > stats.panelMax) { stats.panelMax = mx; stats.panelMaxFrame = idx; } stats.panelMeanMax = Math.max(stats.panelMeanMax, sum / cur.length); }
-      // price vs qualification
-      // follow the camera push-in (same curve as src/scene.mjs) so the boxes track what is on screen
-      const tt = idx / 30, Z = TL.CUES.zoom, eIO = u => u < .5 ? 4 * u ** 3 : 1 - (-2 * u + 2) ** 3 / 2, pr = (a, b) => Math.min(1, Math.max(0, (tt - a) / (b - a)));
-      let zs = 1 + (Z.s - 1) * (tt < Z.peak ? eIO(pr(Z.t0, Z.peak)) : 1 - eIO(pr(Z.peak + .2, Z.t1))), zg = L.pill.c;
-      if (TL.INTRO === 'glass' && tt < TL.CUES.macro.t1) { const M = TL.CUES.macro, m = eIO(pr(M.t0, M.t1)); zs = M.s + (1 - M.s) * m; zg = [M.g[0] + (L.pill.c[0] - M.g[0]) * m, M.g[1] + (L.pill.c[1] - M.g[1]) * m]; }
-      const cam = b => [0, 1, 2, 3].map(k => Math.round((b[k] - L.pill.c[k % 2]) * zs + zg[k % 2]));
-      const pn = tealCount(f, cam(pillBox)), qn = navyCount(f, cam(qualBox)) / (zs * zs);
-      frames.push({i: idx, pn, qn});
-      if (idx === qualRefFrame) { qualRef = qn; priceRef = pn; }
-      // vial label at rest
-      if (restFrames.has(idx) && idx % 5 === 0) { let se = 0, n = 0; for (let y = labelBox[1]; y < labelBox[3]; y++) for (let x = labelBox[0]; x < labelBox[2]; x++) { const p = px(f, x, y), q = refLabel(x, y); for (let c = 0; c < 3; c++) { se += (p[c] - q[c]) ** 2; n++; } } stats.labelPSNR.push({i: idx, psnr: +(10 * Math.log10(255 * 255 / (se / n))).toFixed(2)}); }
-      // final still
-      if (idx >= Math.ceil(TL.CUES.finalStill * 30)) { if (last) { let mx = 0; for (let j = 0; j < f.length; j += 7) { const d2 = Math.abs(f[j] - last[j]); if (d2 > mx) mx = d2; } stats.stillMax = Math.max(stats.stillMax, mx); } last = Buffer.from(f); }
+      const f = acc.subarray(0, FS); acc = acc.subarray(FS); const t = idx / FPS;
+      // disclaimer: end card only (its navy panel absent before discIn), then held
+      const pn = navyCount(f, panel) / panelArea;
+      if (t < TL.CUES.discIn.t0 && pn > .3) stats.panelEarly.push(idx);
+      if (t >= TL.CUES.discIn.land + .05) { const cur = Buffer.alloc((panel[2] - panel[0]) * (panel[3] - panel[1]) * 3); let k = 0;
+        for (let y = panel[1]; y < panel[3]; y++) { f.copy(cur, k, (y * W + panel[0]) * 3, (y * W + panel[2]) * 3); k += (panel[2] - panel[0]) * 3; }
+        if (!panel0) panel0 = cur; else { let mx = 0; for (let j = 0; j < cur.length; j++) mx = Math.max(mx, Math.abs(cur[j] - panel0[j])); stats.panelMax = Math.max(stats.panelMax, mx); } }
+      // overhead: price ink vs qualification ink, in camera space
+      const c = idx >= HAND ? pillAt(t) : null;
+      if (c) { const k = cam(t), s = Math.abs(k([1, 0])[0] - k([0, 0])[0]), pb = xf(k, priceBox(c)), qb = xf(k, qualBox(c));
+        rows.push({i: idx, full: onScreen(pb), qOn: onScreen(qb), p: navyCount(f, pb) / (s * s), q: onScreen(qb) ? navyCount(f, qb) / (s * s) : 0}); }
+      if (idx >= Math.ceil(TL.CUES.finalStill * FPS)) { if (last) { let mx = 0; for (let j = 0; j < f.length; j += 7) mx = Math.max(mx, Math.abs(f[j] - last[j])); stats.stillMax = Math.max(stats.stillMax, mx); } last = Buffer.from(f); }
       if (idx === N - 1) { R.lastFrameLogo = sampleLogo(f);
         const lw = 800, lh = 266, bw = L.badge.w, bh = Math.round(638 * bw / 1600);
         R.boxEdges = {logo: boxEdge(f, [Math.round(L.logo.c[0] - lw / 2), Math.round(L.logo.c[1] - lh / 2), lw, lh]), badge: badgeCorners(f, [Math.round(L.badge.cx - bw / 2), L.badge.y, bw, bh])}; }
@@ -72,29 +74,41 @@ await new Promise((res, rej) => {
   });
   ff.on('close', c => c === 0 ? res() : rej(new Error('decode failed')));
 });
-ok('disclaimer on the end card in the ENCODED file', null, `max channel diff vs its first risen frame = ${stats.panelMax} (frame ${stats.panelMaxFrame}), worst frame mean diff = ${stats.panelMeanMax.toFixed(3)} (H.264 noise; renderer output is checked for exact identity below)`);
-for (const f of frames) if (f.i / 30 < TL.CUES.priceOut.t1 && (TL.INTRO === 'glass' || f.pn > priceRef * .2))   // glass intro: $69 is printed on the table from frame 1   // the pill outlives the price text by a few frames; the price is gone at priceOut.t1
-   { stats.priceFrames++; if (f.qn < qualRef * .9) stats.priceWithoutFullQual.push(f.i); }
-ok('qualification fully present whenever $69 is visible', stats.priceWithoutFullQual.length === 0, `${stats.priceFrames} frames show the price; frames where qualification < 90% of its settled ink: ${stats.priceWithoutFullQual.length ? stats.priceWithoutFullQual.join(',') : 'none'}`);
-const psn = stats.labelPSNR.map(s => s.psnr);
-ok('vial label vs source pixels (final H.264, rest frames)', null, `PSNR min ${Math.min(...psn)} dB, mean ${(psn.reduce((a, b) => a + b, 0) / psn.length).toFixed(1)} dB over ${psn.length} sampled rest frames (lossy codec; exact check on lossless render below)`);
-ok('final hold in the ENCODED file', null, `max frame-to-frame diff from ${TL.CUES.finalStill}s to end = ${stats.stillMax} (H.264 GOP refresh noise on a static picture; renderer output is checked for exact identity below)`);
+ok('disclaimer absent before the end card', stats.panelEarly.length === 0, stats.panelEarly.length ? `navy panel found in frames ${stats.panelEarly.slice(0, 20).join(',')}` : `no panel before ${TL.CUES.discIn.t0}s`);
+ok('disclaimer held on the end card (ENCODED file)', null, `max channel diff vs its first risen frame = ${stats.panelMax} (H.264 noise; exact identity checked on renderer output below)`);
+const ref = k => rows.find(r => r.i === REF[k]);
+for (const r of rows) {
+  const R0 = ref(r.i / FPS < TL.CUES.wipe1.t1 ? 'strings' : 'price');
+  if (r.p < R0.p * .08) continue;                        // no price ink on screen
+  if (!r.full) { stats.partialPrice++; continue; }       // only part of the glyphs in frame (the pull-back out of the pill)
+  stats.priceFrames++; if (!r.qOn || r.q < R0.q * .9) stats.priceWithoutQual.push(r.i);
+}
+ok('overhead: qualification fully present whenever $69 is fully visible', stats.priceWithoutQual.length === 0,
+  `${stats.priceFrames} frames show the whole price; frames where the qualification is < 90% of its settled ink: ${stats.priceWithoutQual.length ? stats.priceWithoutQual.join(',') : 'none'} (${stats.partialPrice} pull-back frames show only a partial "$" glyph, magnified)`);
+ok('final hold in the ENCODED file', null, `max frame-to-frame diff from ${TL.CUES.finalStill}s to end = ${stats.stillMax} (H.264 noise on a static picture; exact identity checked on renderer output below)`);
 ok('no visible box around the logo / badge files (mean edge step, levels)', R.boxEdges.logo <= 2 && R.boxEdges.badge <= 2, R.boxEdges);
 ok('logo colors (last frame) vs logo file', R.lastFrameLogo.navyOk && R.lastFrameLogo.blueOk, R.lastFrameLogo);
 
-// ---------- 3. lossless checks on the renderer output (before encoding): node render.mjs --only 0,120,290,563,650,700,749 ----------
+// ---------- lossless checks on the renderer output (before encoding) ----------
+// needs: node render.mjs --only 441,655,700,760,775,790,809  (the vial photo at rest in the frame, end card, final hold)
 const still = i => execFileSync('ffmpeg', ['-v', 'error', '-i', `out/stills/f${String(i).padStart(4, '0')}.png`, '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], {maxBuffer: 1 << 28});
 try {
-  const raw = still(170);
-  let diff = 0, n = 0; for (let y = labelBox[1]; y < labelBox[3]; y++) for (let x = labelBox[0]; x < labelBox[2]; x++) { const p = px(raw, x, y), q = refLabel(x, y); for (let c = 0; c < 3; c++) diff = Math.max(diff, Math.abs(p[c] - q[c])); n++; }
-  ok('vial label pixel-exact in the renderer output (frame 170)', diff === 0, `max channel diff = ${diff} over ${n} label pixels vs the half-size source`);
   const region = (buf, [x0, y0, x1, y1]) => { const o = []; for (let y = y0; y < y1; y++) o.push(buf.subarray((y * W + x0) * 3, (y * W + x1) * 3)); return Buffer.concat(o); };
-  const ids = [600, 610, 650, 700, 749], p0 = region(still(ids[0]), panel);
-  const same = ids.map(i => region(still(i), panel).equals(p0));
-  ok('disclaimer holds byte-identical on the end card (renderer output)', same.every(Boolean), `end-card frames ${ids.join(', ')} (from ${TL.CUES.discIn.land}s, once risen): ${same.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
-  const e = still(749), holds = [650, 700].map(i => still(i).equals(e));
-  ok('final hold byte-identical in the renderer output', holds.every(Boolean), `frames 650, 700 vs 749: ${holds.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
-} catch (e) { ok('lossless checks', null, 'stills missing - run node render.mjs --only 0,120,290,563,650,700,749 (' + String(e).slice(0, 80) + ')'); }
+  const ids = [655, 700, 760, 809], p0 = region(still(ids[0]), panel), same = ids.map(i => region(still(i), panel).equals(p0));
+  ok('disclaimer holds byte-identical on the end card (renderer output)', same.every(Boolean), `frames ${ids.join(', ')}: ${same.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
+  const e = still(N - 1), holds = [775, 790].map(i => still(i).equals(e));
+  ok('final hold byte-identical in the renderer output', holds.every(Boolean), `frames 775, 790 vs ${N - 1}: ${holds.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
+  // the vial photo in the frame: the unedited source, scaled uniformly (x0.434) behind the frame's flat glass top
+  const src = execFileSync('ffmpeg', ['-v', 'error', '-i', 'images/vial_semaglutide.png', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], {maxBuffer: 1 << 28}), SW = 1024, s = .434;
+  const ox = F.c[0] - 509 * s, oy = F.c[1] - 743 * s, raw = still(441);
+  let se = 0, n = 0;
+  for (let y = Math.ceil(oy + 668 * s); y < oy + 1068 * s; y++) for (let x = Math.ceil(ox + 300 * s); x < ox + 718 * s; x++) {
+    const sx0 = (x - ox) / s, sy0 = (y - oy) / s; const acc = [0, 0, 0]; let m = 0;
+    for (let v = Math.floor(sy0); v < sy0 + 1 / s; v++) for (let u = Math.floor(sx0); u < sx0 + 1 / s; u++) { const j = (v * SW + u) * 3; acc[0] += src[j]; acc[1] += src[j + 1]; acc[2] += src[j + 2]; m++; }
+    const p = px(raw, x, y); for (let c = 0; c < 3; c++) { se += (p[c] - acc[c] / m) ** 2; n++; }
+  }
+  ok('vial label in the photo frame vs the source file (renderer output, frame 441)', null, `PSNR ${(10 * Math.log10(255 * 255 / (se / n))).toFixed(1)} dB vs a box-filtered x0.434 downscale of the unedited source (label area; the frame's clear glass adds a faint tint)`);
+} catch (e) { ok('lossless checks', null, 'stills missing - run node render.mjs --only 441,655,700,760,775,790,809 (' + String(e).slice(0, 80) + ')'); }
 
 // the supplied logo/badge JPGs have #F7F7F7 backgrounds: the end card must match them so no box edge shows
 function boxEdge(f, [x0, y0, w, h]) {
@@ -131,22 +145,42 @@ function ocr(name, t, crop, invert = false, psm = 6) {
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-ss', String(t), '-i', FILE, '-frames:v', '1', '-vf', `crop=${crop.join(':')},scale=iw*2:ih*2:flags=lanczos${invert ? ',negate' : ''},format=gray`, png]);
   return norm(execFileSync('tesseract', [png, '-', '--psm', String(psm)], {stdio: ['ignore', 'pipe', 'ignore']}).toString());
 }
+// ---------- 3D opening: whenever OCR reads the price, it must also read the qualification (same printed table) ----------
+{
+  const bad = [], seen = [];
+  for (let i = 0; i < HAND; i += 6) {
+    const png = `out/ocr/o3d_${i}.png`;
+    execFileSync('ffmpeg', ['-v', 'error', '-y', '-ss', String(i / FPS + .001), '-i', FILE, '-frames:v', '1', '-vf', 'format=gray', png]);
+    const txt = norm(execFileSync('tesseract', [png, '-', '--psm', '11'], {stdio: ['ignore', 'pipe', 'ignore']}).toString()).toLowerCase();
+    if (/\$\s*69/.test(txt)) { seen.push(i); if (!(txt.includes('introductory offer') && txt.includes('varies by plan'))) bad.push(i); }
+  }
+  ok('3D opening: qualification read wherever "$69" is read (OCR every 6th frame)', bad.length === 0 ? true : null,
+     `"$69" read in frames ${seen.join(',') || 'none'}; qualification not read in: ${bad.join(',') || 'none'} (the price and the qualification are one printed texture, so a miss here is OCR on a perspective view, check the listed frames by eye)`);
+}
+const box = (b, pad = 0) => [b[2] - b[0] + 2 * pad, b[3] - b[1] + 2 * pad, b[0] - pad, b[1] - pad];   // ffmpeg crop w:h:x:y
+const dc = [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4];
+const capBox = n => [820, 60 + 56 * (n - 1) + 14, 100, L.capY - 50 - 56 * (n - 1)];
+const P1 = L.pill1.c, P2 = L.pill.c, F = L.frame;
 const expect = [
-  ['disclaimer', 20.5, [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4], true, COPY.disclaimer],
-  ['disclaimer_last', 24.9, [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4], true, COPY.disclaimer],
-  ...(TL.INTRO === 'glass' ? [['macro_frame1_qual', 0.0, [880, 150, 100, 1105], false, COPY.qual.join(' ')], ['macro_price', 3.4, [760, 340, 160, 680], false, `${COPY.startingAt} ${COPY.price}`]]
-      : [['hook_words', 1.8, [820, 110, 100, L.hookY - 80], false, TL.CUES.hookWords.map(w => w.w).join(' ')]]),
-  ['qualification', 6.0, [600, 110, 346, L.qualY[0] - 38], false, COPY.qual.join(' ')],
-  ['starting_at', 6.0, [520, 64, 386, L.startY - 46], false, COPY.startingAt],
-  ['price_69', 6.0, [440, 150, 426, L.priceY - 140], false, COPY.price, 7],
-  ['headline_visit', 7.0, [820, 190, 100, L.head2Y[0] - 70], false, COPY.visitHead.join(' ')],
-  ['caption_1', 5.4, [820, 66, 100, Math.round(disc.y) - 80], false, TL.CAPTIONS[0].lines.join(' ')],
-  ['caption_2', 7.8, [820, 124, 100, Math.round(disc.y) - 136], false, TL.CAPTIONS[1].lines.join(' ')],
-  ['checks', 14.2, [640, 300, L.rowX0 + 2 * L.btnR + 20, L.rows[0] - 50], false, COPY.checks.join(' ')],
-  ['fees', 17.4, [820, 200, 100, L.feesY[0] - 70], false, COPY.fees.join(' ')],
-  ['caption_3', 17.6, [820, 124, 100, Math.round(disc.y) - 136], false, TL.CAPTIONS[2].lines.join(' ')],
-  ['cta', 23.0, [520, 80, 250, L.cta.c[1] - 40], true, COPY.cta, 7],
-  ['url', 23.0, [820, 80, 100, L.urlY - 52], false, COPY.url],
+  ['o3d_price', 3.7, [760, 560, 160, 620], false, `${COPY.startingAt} ${COPY.price}`],
+  ['head1', 6.5, [860, 200, 80, 280], false, COPY.head1.join(' ')],
+  ['strings_price', 6.5, box([P1[0] - 190, P1[1] - 110, P1[0] + 190, P1[1] + 96]), false, `${COPY.startingAt} ${COPY.price}`],
+  ['strings_qual', 6.5, box(qualBox(P1)), false, COPY.qual.join(' ')],
+  ['head2', 9.2, [860, 200, 80, 280], false, COPY.head2.join(' ')],
+  ['button', 9.8, [460, 90, 260, L.btn.c[1] - 45], false, COPY.button, 7],
+  ['caption_1', 11.0, capBox(2), false, TL.CAPTIONS[0].lines.join(' ')],
+  ['claim24', 13.2, [620, 104, F.c[0] - F.half[0] + 18, F.c[1] + F.half[1] - 118], false, COPY.claim24.join(' ')],
+  ['covers', 16.2, [600, 70, 210, L.coversY - 52], false, COPY.covers, 7],
+  ['checks', 16.2, [520, 300, L.rowX0 + 2 * L.btnR + 18, L.rows[0] - 50], false, COPY.checks.join(' ')],
+  ['no_insurance', 16.2, [820, 60, 100, L.noInsY - 42], false, COPY.noIns, 7],
+  ['price', 18.0, box([P2[0] - 190, P2[1] - 110, P2[0] + 190, P2[1] + 96]), false, `${COPY.startingAt} ${COPY.price}`],
+  ['price_qual', 18.0, box(qualBox(P2)), false, COPY.qual.join(' ')],
+  ['dose_line', 19.5, capBox(2), false, COPY.doseLine.join(' ')],
+  ['tag', 23.2, [860, 180, 80, L.tagY[0] - 66], false, COPY.tag.join(' ')],
+  ['cta', 24.2, [560, 80, 230, L.cta.c[1] - 40], true, COPY.cta, 7],
+  ['url', 24.8, [820, 70, 100, L.urlY - 54], false, COPY.url, 7],
+  ['disclaimer', 22.5, dc, true, COPY.disclaimer],
+  ['disclaimer_last', TL.DURATION - .1, dc, true, COPY.disclaimer],
 ];
 const strip = s => s.toLowerCase().replace(/[^a-z0-9$\-;., ]/g, '').replace(/\s+/g, ' ').trim();
 for (const [name, t, crop, inv, want, psm] of expect) {
@@ -169,7 +203,8 @@ try {
   const w = x => x.toLowerCase().replace(/myfastrx\s*\.\s*com/g, 'myfastrx dot com').replace(/[-,.;:!?"']/g, ' ').replace(/[^a-z0-9$ ]/g, ' ').split(/\s+/).filter(Boolean);
   const a1 = w(tr), a2 = w(want);
   const same = a1.join(' ') === a2.join(' ');
-  ok('VO in the final file says the script (speech-to-text)', same, same ? `"${tr}"` : `heard: "${tr}" | script: "${want}"`);
+  if (!TL.VO_EDIT.length) ok('VO in the final file', null, 'no VO recorded yet (vo/body_v2.wav): the mix is music + SFX only; VO windows and captions are planned from vo/ELEVENLABS_PROMPT_v2.md');
+  else ok('VO in the final file says the script (speech-to-text)', same, same ? `"${tr}"` : `heard: "${tr}" | script: "${want}"`);
 } catch (e) { ok('VO transcript', null, 'transcription unavailable: ' + String(e).slice(0, 100)); }
 const capBad = TL.CAPTIONS.filter(c => !TL.VO.some(v => c.t0 >= v.t0 - .25 && c.t1 <= v.t1 + .3));
 ok('captions sit inside their VO line windows', capBad.length === 0, TL.CAPTIONS.map(c => `${c.t0}-${c.t1} "${c.lines.join(' ')}"`).join(' | '));

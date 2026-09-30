@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Mix + final encode for Version A.
 #   ./mix.sh            -> out/MyFastRx_LiquidGlass_A.mp4 and out/stems/*.wav
-# VO: when vo/hook_A.wav and vo/body.wav exist, each line is placed per src/timeline.mjs VO_EDIT (tools/build-vo.mjs) and
+# VO: when src/timeline.mjs VO_EDIT is filled (vo/body_v2.wav recorded), each line is placed per src/timeline.mjs VO_EDIT (tools/build-vo.mjs) and
 # the full mix is loudness-normalized to -16 LUFS integrated, -1.5 dBTP.
 # Without VO (current state) the output carries music + SFX at their under-VO bed level (NOT raised to -16 LUFS, because
 # that would push the bed up ~12 dB and it would then fight the voice).
@@ -11,17 +11,19 @@ V=out/A_video_only.mp4; M=audio/stems/A_music.wav; S=audio/stems/A_sfx.wav
 OUT=out/MyFastRx_LiquidGlass_A.mp4
 mkdir -p out/stems
 cp "$M" out/stems/A_music.wav; cp "$S" out/stems/A_sfx.wav
-if [[ -f vo/hook_A.wav && -f vo/body.wav ]]; then
+D=$(node -e "import('./src/timeline.mjs').then(t=>console.log(t.DURATION))")
+if node -e "import('./src/timeline.mjs').then(t=>process.exit(t.VO_EDIT.length ? 0 : 1))"; then
   # VO lines placed per src/timeline.mjs VO_EDIT; the music bed is already ducked under the measured VO windows
   node tools/build-vo.mjs
-  ffmpeg -v error -y -i out/stems/A_music.wav -i out/stems/A_sfx.wav -i out/stems/A_vo.wav -filter_complex "[0][1][2]amix=inputs=3:normalize=0,atrim=0:25" -c:a pcm_s24le out/A_premix.wav
+  ffmpeg -v error -y -i out/stems/A_music.wav -i out/stems/A_sfx.wav -i out/stems/A_vo.wav -filter_complex "[0][1][2]amix=inputs=3:normalize=0,atrim=0:$D" -c:a pcm_s24le out/A_premix.wav
   # two-pass loudnorm to -16 LUFS integrated, -1.5 dBTP
   J=$(ffmpeg -hide_banner -nostats -i out/A_premix.wav -af loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json -f null - 2>&1 | sed -n '/^{/,/^}/p')
   g(){ echo "$J" | sed -n "s/.*\"$1\" : \"\(.*\)\".*/\1/p"; }
   ffmpeg -v error -y -i out/A_premix.wav -af "loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=$(g input_i):measured_TP=$(g input_tp):measured_LRA=$(g input_lra):measured_thresh=$(g input_thresh):offset=$(g target_offset):linear=true,aresample=48000" -c:a pcm_s24le out/A_mix.wav
 else
+  rm -f out/stems/A_vo.wav
   echo "NOTE: no VO in vo/ - mixing music + SFX only, at bed level (no -16 LUFS normalization)."
-  ffmpeg -v error -y -i out/stems/A_music.wav -i out/stems/A_sfx.wav -filter_complex "[0][1]amix=inputs=2:normalize=0,alimiter=limit=0.84:level=false,atrim=0:25" -c:a pcm_s24le out/A_mix.wav
+  ffmpeg -v error -y -i out/stems/A_music.wav -i out/stems/A_sfx.wav -filter_complex "[0][1]amix=inputs=2:normalize=0,alimiter=limit=0.84:level=false,atrim=0:$D" -c:a pcm_s24le out/A_mix.wav
 fi
 # Final: H.264 High, 1080x1920, 30 fps CFR, progressive, 4:2:0, Rec.709 SDR (tv range), 12.5 Mbps CBR (HRD-signalled,
 # because this bright, clean picture would otherwise encode far below the 10-15 Mbps spec); AAC-LC 48 kHz stereo.

@@ -13,22 +13,10 @@
     "y": 1092
   },
   "L": {
-    "vial": {
-      "x": 100,
-      "y": 460
-    },
-    "hookY": 420,
-    "head2Y": [
-      340,
-      424
-    ],
-    "startY": 646,
-    "priceY": 800,
-    "priceX": 646,
-    "pill": {
+    "pill1": {
       "c": [
-        646,
-        712
+        510,
+        820
       ],
       "half": [
         250,
@@ -36,93 +24,119 @@
       ],
       "r": 140
     },
-    "qualY": [
-      898,
-      940
+    "head1Y": [
+      356,
+      438
     ],
-    "tubeY": 645,
+    "pulse1Y": 540,
+    "head2Y": [
+      356,
+      438
+    ],
+    "btn": {
+      "c": [
+        510,
+        700
+      ],
+      "half": [
+        300,
+        80
+      ],
+      "r": 80
+    },
     "frame": {
       "c": [
         510,
-        510
+        500
       ],
       "half": [
         410,
         240
       ],
-      "r": 44
+      "r": 40
     },
+    "coversY": 832,
     "rows": [
-      850,
-      950,
-      1050
+      912,
+      1002,
+      1092
     ],
-    "btnR": 40,
-    "track": {
+    "btnR": 36,
+    "noInsY": 1176,
+    "pill": {
       "c": [
         510,
-        560
+        640
       ],
       "half": [
-        230,
-        110
+        250,
+        140
       ],
-      "r": 110
+      "r": 140
     },
-    "knobR": 84,
-    "feesY": [
-      800,
-      886
-    ],
+    "slider": {
+      "c": [
+        510,
+        1004
+      ],
+      "half": [
+        300,
+        20
+      ],
+      "r": 20
+    },
+    "knobR": 40,
+    "doseY": 1076,
     "logo": {
       "c": [
         510,
-        430
+        400
       ],
       "scale": 0.5
     },
+    "tagY": [
+      606,
+      682
+    ],
     "cta": {
       "c": [
         510,
-        650
+        790
       ],
       "half": [
         330,
-        72
+        70
       ],
-      "r": 72
+      "r": 70
     },
-    "urlY": 800,
+    "urlY": 930,
     "badge": {
       "cx": 510,
-      "y": 850,
-      "w": 380
+      "y": 956,
+      "w": 280
     },
-    "rowX0": 241,
+    "capY": 1206,
+    "rowX0": 282,
     "knobX": [
-      390,
-      630
+      220,
+      800
     ],
     "targets": {
-      "c0": [
-        287,
-        858
-      ],
-      "c1": [
-        287,
-        958
-      ],
-      "c2": [
-        287,
-        1058
+      "btn": [
+        720,
+        730
       ],
       "knob0": [
-        400,
-        572
+        232,
+        1018
       ],
       "knob1": [
-        640,
-        572
+        812,
+        1018
+      ],
+      "cta": [
+        772,
+        820
       ]
     }
   },
@@ -132,21 +146,39 @@
       "Introductory offer.",
       "Regular pricing varies by plan."
     ],
-    "hookHead": "GLP-1 care",
-    "visitHead": [
-      "GLP-1 weight-loss",
-      "care"
-    ],
     "startingAt": "Starting at",
     "price": "$69",
+    "head1": [
+      "GLP-1 care,",
+      "no strings attached."
+    ],
+    "head2": [
+      "No membership fees.",
+      "No automatic refills."
+    ],
+    "button": "Request refill",
+    "covers": "One price covers",
     "checks": [
       "Provider review",
       "Medication",
-      "Shipping included"
+      "Shipping"
     ],
-    "fees": [
-      "No membership fees",
-      "No automatic refills"
+    "noIns": "No insurance needed. No contracts.",
+    "claim24": [
+      "Online visit in minutes.",
+      "Review typically within 24 hours."
+    ],
+    "dose": [
+      "Lower dose",
+      "Higher dose"
+    ],
+    "doseLine": [
+      "Your price doesn't climb",
+      "as your dose does."
+    ],
+    "tag": [
+      "Clear pricing.",
+      "Clear care."
     ],
     "cta": "See if you qualify",
     "url": "MyFastRx.com"

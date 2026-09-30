@@ -1,0 +1,22 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>MyFastRx Liquid Glass A</title>
+<style>html,body{margin:0;background:#222}canvas{display:block;width:540px;height:960px}</style></head>
+<body>
+<script type="module">
+globalThis.__INTRO = new URLSearchParams(location.search).get('intro') || 'glass';
+const scene = await import('./scene.mjs');
+const TL = await import('./timeline.mjs');
+let out;
+window.__init = async () => { const r = await scene.init(); window.__info = JSON.parse(JSON.stringify(scene.info())); return window.__info; };
+window.__render = async (t) => { out = await scene.render(t); return true; };
+// send the current frame (raw RGBA) to the render server
+window.__post = async (i) => {
+  const d = out.getContext('2d').getImageData(0, 0, TL.W, TL.H).data;
+  const r = await fetch('/frame?i=' + i, {method: 'POST', body: d});
+  return r.status;
+};
+window.__png = () => out.toDataURL('image/png');
+window.__probe = (x, y) => Object.fromEntries(Object.entries(scene.layers()).map(([k, c]) => { try { return [k, Array.from(c.getContext(k === 'gl' ? 'webgl2' : '2d').getImageData ? c.getContext('2d').getImageData(x, y, 1, 1).data : [])]; } catch (e) { return [k, String(e)]; } }));
+window.__ready = true;
+</script>
+</body></html>

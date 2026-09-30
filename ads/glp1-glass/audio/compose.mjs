@@ -87,7 +87,7 @@ const CH = [
   {root: 31, tones: [43, 50, 54, 57]},   // Gmaj7: G1 | G2 D3 F#3 A3
   {root: 33, tones: [45, 52, 57, 59]},   // Asus: A1 | A2 E3 A3 B3
 ];
-const prog = [0, 1, 2, 3, 0, 1, 2, 3, 2, 0];
+const prog = [0, 1, 2, 3, 0, 1, 2, 3, 0, 2, 0];   // 11 bars = 27.5 s
 prog.forEach((ci, bi) => {
   const t0 = bi * bar, c = CH[ci], last = bi === prog.length - 1;
   const len = last ? DUR - t0 - .2 : bar * .95;
@@ -106,10 +106,10 @@ prog.forEach((ci, bi) => {
 const MOTIF = [[0, 105], [1.5, 107], [2.5, 109], [4, 105], [5.5, 104], [6.5, 102]];   // [beat, midi] ; 105 = A7
 for (let rep = 0; rep < 5; rep++) {
   const tb = rep * 2 * bar;
-  MOTIF.forEach(([bt, m], k) => { if (rep === 4 && k > 3) return; add(music, glassKey(midi(m), 1.1, .075), tb + bt * TL.BEAT, 1, k % 2 ? .4 : -.4); });
+  MOTIF.forEach(([bt, m], k) => { add(music, glassKey(midi(m), 1.1, .075), tb + bt * TL.BEAT, 1, k % 2 ? .4 : -.4); });
 }
 // final shimmer on the end card, then the tail fades out by the last frame
-add(music, glassKey(midi(105), 2.5, .06), 9 * bar, 1, -.3); add(music, glassKey(midi(110), 2.5, .045), 9 * bar + .02, 1, .3);
+add(music, glassKey(midi(105), 2.5, .06), 10 * bar, 1, -.3); add(music, glassKey(midi(110), 2.5, .045), 10 * bar + .02, 1, .3);
 const fadeOut = (x, t0, t1) => { for (let i = Math.round(t0 * SR); i < x.length; i++) x[i] *= Math.max(0, 1 - (i / SR - t0) / (t1 - t0)); };
 music.forEach(ch => fadeOut(ch, DUR - 1.2, DUR - .02));
 // duck under the planned VO windows (-7 dB, 80 ms in, 300 ms out)
