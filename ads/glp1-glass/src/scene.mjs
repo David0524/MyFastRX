@@ -39,8 +39,8 @@ export const L = {
   vial: {x: 100, y: 520},                          // half-size vial 230x467, integer top-left at rest
   headY: 450, head2Y: [392, 478],
   startY: 704, priceY: 858, priceX: 646,
-  pill: {c: [646, 763], half: [250, 125], r: 125},
-  qualY: [944, 986],
+  pill: {c: [646, 770], half: [250, 140], r: 140},
+  qualY: [956, 998],
   tubeY: 705,
   frame: {c: [510, 550], half: [410, 280], r: 44},
   rows: [925, 1045, 1165], btnR: 40,
@@ -139,12 +139,12 @@ function mainShape(t) {
     const sq = squish(t, C.pillSlide.land, .05);
     let press = 0;
     if (t > 8.6) press = t < C.pillClick ? .035 * eOut(prog(t, 8.62, 8.7)) : .035 * (1 - spring(t, C.pillClick, .3, .06));
-    return {kind: 'pill', c, half: P.half, r: P.r, bevel: 44, scale: [1 + sq - press, 1 - sq - press], anchor: press ? c : [c[0], c[1] + P.half[1]], mat: TEAL};
+    return {kind: 'pill', c, half: P.half, r: P.r, bevel: 32, scale: [1 + sq - press, 1 - sq - press], anchor: press ? c : [c[0], c[1] + P.half[1]], mat: TEAL};
   }
   if (t < C.morphTrack.t0) {
     const m = eIO(prog(t, C.morphFrame.t0, C.morphFrame.land)), sq = squish(t, C.morphFrame.land, .012);
     const c = lerp2(P.c, F.c, m), half = lerp2(P.half, F.half, m);
-    return {kind: 'frame', c, half, r: lerp(P.r, F.r, m), bevel: lerp(44, 30, m), scale: [1 + sq, 1 - sq], anchor: [c[0], c[1] + half[1]], mat: lerpMat(TEAL, CLEAR, m)};
+    return {kind: 'frame', c, half, r: lerp(P.r, F.r, m), bevel: lerp(32, 30, m), scale: [1 + sq, 1 - sq], anchor: [c[0], c[1] + half[1]], mat: lerpMat(TEAL, CLEAR, m)};
   }
   const m = eIO(prog(t, C.morphTrack.t0, C.morphTrack.land)), sq = squish(t, C.morphTrack.land, .04);
   const c = lerp2(F.c, K.c, m), half = lerp2(F.half, K.half, m);
@@ -246,7 +246,7 @@ export async function render(t) {
   // ===== price + qualification =====
   if (t < C.qualOut.t1) {
     const pe = eOut(prog(t, C.priceIn.t0, C.priceIn.land)), px = eIn(prog(t, C.priceOut.t0, C.priceOut.t1));
-    const pc = t < C.pillCrisp ? bg : fg;       // while the pill slides over it, the price sits behind the glass and bends
+    const pc = t < pillSettleT() ? bg : fg;       // while the pill slides over it, the price sits behind the glass and bends
     line(pc, COPY.startingAt, L.priceX, L.startY, 44, 500, COLORS.navy, {enter: pe, exit: px, exitDir: 1});
     line(pc, COPY.price, L.priceX, L.priceY, 172, 700, COLORS.navy, {enter: pe, exit: px, exitDir: 1});
     const qe = eOut(prog(t, C.qualIn.t0, C.qualIn.land)), qx = eIn(prog(t, C.qualOut.t0, C.qualOut.t1));
@@ -356,6 +356,8 @@ export async function render(t) {
   return cv.out;
 }
 
+// the moment the sliding pill is within 3 px of rest: from then on the price is drawn sharp, on top of the glass
+function pillSettleT() { const d = C.pillSlide.land - C.pillSlide.t0, u = 1 - 3 / 780; return C.pillSlide.t0 + d * (-Math.log2(1 - u * (1 - 2 ** -10)) / 10); }
 function knobX(t) {
   if (t < C.drag.t0) return L.knobX[0];
   if (t >= C.drag.t1) return L.knobX[1];

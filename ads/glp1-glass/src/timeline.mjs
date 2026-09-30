@@ -37,7 +37,7 @@ export const CUES = {
   qualIn:     {t0: 1.18, land: 1.50},              // qualification is fully up BEFORE any part of $69 shows
   priceIn:    {t0: 1.50, land: b(3)},              // 1.875  "Starting at $69" rises
   pillSlide:  {t0: 1.60, land: b(4)},              // 2.500  teal glass pill slides over the price, lenses it, lands
-  pillCrisp:  2.85,
+  pillCrisp:  b(4),                                // sharp the moment it lands: rim bending only while it moves
   headSwap:   {t0: b(7), land: b(8)},              // 4.375 -> 5.000 old headline leaves up, new one rises
   tubeSlide:  {t0: 5.10, land: b(10)},             // 6.250  glass pulse tube slides in behind the vial
   vialSway:   {t0: 6.40, t1: 8.20},                // gentle tilt, back to exact rest

@@ -29,8 +29,8 @@ ok('audio: -16 LUFS integrated', Math.abs(I + 16) <= 1 ? true : null, Math.abs(I
 const px = (buf, x, y) => { const i = (y * W + x) * 3; return [buf[i], buf[i + 1], buf[i + 2]]; };
 const navyCount = (buf, [x0, y0, x1, y1]) => { let n = 0; for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { const [r, g, b] = px(buf, x, y); if (r < 70 && g < 90 && b < 140) n++; } return n; };
 const panel = [Math.round(disc.x), Math.round(disc.y), Math.round(disc.x + 880), Math.round(disc.y + disc.h)];
-const priceBox = [440, 660, 860, 872], qualBox = [330, 905, 965, 1032];
-const labelBox = [L.vial.x + 6, L.vial.y + 216, L.vial.x + 224, L.vial.y + 418];   // label rows only (cap, glass excluded)   // vial label (half-res rows 216..418)
+const priceBox = [440, 660, 860, 880], qualBox = [330, 915, 965, 1044];
+const labelBox = [L.vial.x + 8, L.vial.y + 216, L.vial.x + 222, L.vial.y + 418];   // label rows only (cap, glass excluded)   // vial label (half-res rows 216..418)
 let panel0 = null, last = null; const stats = {panelMax: 0, panelMaxFrame: -1, panelMeanMax: 0, priceFrames: 0, priceWithoutFullQual: [], stillMax: 0, labelPSNR: []};
 const frames = [];
 const refLabel = (() => { const raw = readFileSync('assets/vial/vial_color_half.rgba'), w = 230; return (x, y) => { const i = ((y - L.vial.y) * w + (x - L.vial.x)) * 4; return [raw[i], raw[i + 1], raw[i + 2]]; }; })();
@@ -106,9 +106,9 @@ function ocr(name, t, crop, invert = false, psm = 6) {
 const expect = [
   ['disclaimer', 0.0, [880, Math.round(disc.h), Math.round(disc.x), Math.round(disc.y)], true, COPY.disclaimer],
   ['disclaimer_last', 24.9, [880, Math.round(disc.h), Math.round(disc.x), Math.round(disc.y)], true, COPY.disclaimer],
-  ['qualification', 4.0, [600, 110, 346, 910], false, COPY.qual.join(' ')],
+  ['qualification', 4.0, [600, 110, 346, 920], false, COPY.qual.join(' ')],
   ['starting_at', 4.0, [520, 70, 386, 652], false, COPY.startingAt],
-  ['price_69', 4.0, [440, 150, 426, 718], false, COPY.price, 7],
+  ['price_69', 4.0, [440, 150, 426, 725], false, COPY.price, 7],
   ['headline_hook', 3.0, [820, 110, 100, 370], false, COPY.hookHead],
   ['headline_visit', 7.0, [820, 190, 100, 310], false, COPY.visitHead.join(' ')],
   ['caption_1', 5.8, [820, 90, 100, Math.round(disc.y) - 100], false, TL.CAPTIONS[0].lines.join(' ')],

@@ -1,0 +1,334 @@
+{
+  "file": "out/MyFastRx_LiquidGlass_A.mp4",
+  "checks": [
+    {
+      "name": "video spec",
+      "pass": true,
+      "detail": "h264 High 1080x1920 30/1 yuv420p frames=750 field_order=progressive bt709/bt709/bt709 range=tv"
+    },
+    {
+      "name": "video bitrate 10-15 Mbps",
+      "pass": true,
+      "detail": "12.45 Mbps"
+    },
+    {
+      "name": "progressive",
+      "pass": true,
+      "detail": "progressive"
+    },
+    {
+      "name": "audio spec",
+      "pass": true,
+      "detail": "aac 48000 Hz 2 ch"
+    },
+    {
+      "name": "duration 25 s",
+      "pass": true,
+      "detail": "25.000000"
+    },
+    {
+      "name": "audio: no clipping (true peak < -1 dBTP)",
+      "pass": true,
+      "detail": "integrated -29.6 LUFS, true peak -12.6 dBFS"
+    },
+    {
+      "name": "audio: -16 LUFS integrated",
+      "pass": null,
+      "detail": "-29.6 LUFS - no VO yet, so the mix is music+SFX at bed level; mix.sh normalizes to -16 once vo/ exists"
+    },
+    {
+      "name": "disclaimer panel in the ENCODED file",
+      "pass": null,
+      "detail": "max channel diff vs frame 0 = 18 (frame 563), worst frame mean diff = 0.129 (H.264 4:2:0 chroma at the panel edge when the backdrop behind it changes, e.g. the navy flood; renderer output is checked for exact identity below)"
+    },
+    {
+      "name": "qualification fully present whenever $69 is visible",
+      "pass": true,
+      "detail": "221 frames show the price; frames where qualification < 90% of its settled ink: none"
+    },
+    {
+      "name": "vial label vs source pixels (final H.264, rest frames)",
+      "pass": null,
+      "detail": "PSNR min 35.51 dB, mean 35.5 dB over 35 sampled rest frames (lossy codec; exact check on lossless render below)"
+    },
+    {
+      "name": "final hold in the ENCODED file",
+      "pass": null,
+      "detail": "max frame-to-frame diff from 21.6s to end = 3 (H.264 GOP refresh noise on a static picture; renderer output is checked for exact identity below)"
+    },
+    {
+      "name": "logo colors (last frame) vs logo file",
+      "pass": true,
+      "detail": {
+        "dominant": [
+          "#021E46",
+          "#0272FE"
+        ],
+        "fileNavy": "#001C44",
+        "fileBlue": "#0070FC",
+        "navyOk": true,
+        "blueOk": true
+      }
+    },
+    {
+      "name": "vial label pixel-exact in the renderer output (frame 120)",
+      "pass": true,
+      "detail": "max channel diff = 0 over 43228 label pixels vs the half-size source"
+    },
+    {
+      "name": "disclaimer panel byte-identical in the renderer output",
+      "pass": true,
+      "detail": "frames 0, 120, 290, 563, 650, 700, 749 (incl. 563 = navy flood): identical, identical, identical, identical, identical, identical, identical"
+    },
+    {
+      "name": "final hold byte-identical in the renderer output",
+      "pass": true,
+      "detail": "frames 650, 700 vs 749: identical, identical"
+    },
+    {
+      "name": "OCR \"disclaimer\" @0s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"disclaimer_last\" @24.9s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"qualification\" @4s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"starting_at\" @4s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_69\" @4s",
+      "pass": null,
+      "detail": "read: \"S69\" | expected: \"$69\""
+    },
+    {
+      "name": "OCR \"headline_hook\" @3s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"headline_visit\" @7s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"caption_1\" @5.8s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"caption_2\" @7.8s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"checks\" @14.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"fees\" @17.4s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"caption_3\" @15.9s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"caption_4\" @17.9s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"cta\" @23s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"url\" @23s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "banned wording absent from all on-screen copy",
+      "pass": true,
+      "detail": "trial, /month, first month, 1st month, tirzepatide, $129, apple, ios"
+    },
+    {
+      "name": "only price shown is $69",
+      "pass": true,
+      "detail": "$69"
+    }
+  ],
+  "lastFrameLogo": {
+    "dominant": [
+      "#021E46",
+      "#0272FE"
+    ],
+    "fileNavy": "#001C44",
+    "fileBlue": "#0070FC",
+    "navyOk": true,
+    "blueOk": true
+  },
+  "stats": {
+    "panelMax": 18,
+    "panelMaxFrame": 563,
+    "panelMeanMax": 0.12933587928464976,
+    "priceFrames": 221,
+    "priceWithoutFullQual": [],
+    "stillMax": 3,
+    "labelPSNR": [
+      {
+        "i": 20,
+        "psnr": 35.51
+      },
+      {
+        "i": 25,
+        "psnr": 35.51
+      },
+      {
+        "i": 30,
+        "psnr": 35.52
+      },
+      {
+        "i": 35,
+        "psnr": 35.52
+      },
+      {
+        "i": 40,
+        "psnr": 35.52
+      },
+      {
+        "i": 45,
+        "psnr": 35.52
+      },
+      {
+        "i": 50,
+        "psnr": 35.52
+      },
+      {
+        "i": 55,
+        "psnr": 35.52
+      },
+      {
+        "i": 60,
+        "psnr": 35.53
+      },
+      {
+        "i": 65,
+        "psnr": 35.53
+      },
+      {
+        "i": 70,
+        "psnr": 35.53
+      },
+      {
+        "i": 75,
+        "psnr": 35.53
+      },
+      {
+        "i": 80,
+        "psnr": 35.53
+      },
+      {
+        "i": 85,
+        "psnr": 35.53
+      },
+      {
+        "i": 90,
+        "psnr": 35.53
+      },
+      {
+        "i": 95,
+        "psnr": 35.51
+      },
+      {
+        "i": 100,
+        "psnr": 35.51
+      },
+      {
+        "i": 105,
+        "psnr": 35.51
+      },
+      {
+        "i": 110,
+        "psnr": 35.51
+      },
+      {
+        "i": 115,
+        "psnr": 35.51
+      },
+      {
+        "i": 120,
+        "psnr": 35.52
+      },
+      {
+        "i": 125,
+        "psnr": 35.52
+      },
+      {
+        "i": 130,
+        "psnr": 35.52
+      },
+      {
+        "i": 135,
+        "psnr": 35.52
+      },
+      {
+        "i": 140,
+        "psnr": 35.52
+      },
+      {
+        "i": 145,
+        "psnr": 35.52
+      },
+      {
+        "i": 150,
+        "psnr": 35.52
+      },
+      {
+        "i": 155,
+        "psnr": 35.52
+      },
+      {
+        "i": 160,
+        "psnr": 35.51
+      },
+      {
+        "i": 165,
+        "psnr": 35.51
+      },
+      {
+        "i": 170,
+        "psnr": 35.52
+      },
+      {
+        "i": 175,
+        "psnr": 35.52
+      },
+      {
+        "i": 180,
+        "psnr": 35.52
+      },
+      {
+        "i": 185,
+        "psnr": 35.52
+      },
+      {
+        "i": 190,
+        "psnr": 35.51
+      }
+    ]
+  }
+}
