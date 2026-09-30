@@ -1,6 +1,8 @@
 # MyFastRx "Liquid Glass" - Version A (25 s, 1080x1920)
 
-Opens like native content (a latte pour with word stickers; a glass price pill drops onto the screen), then one continuous take in a bright glass world: nothing crossfades or cuts. Text rises out of mask lines, objects pop on
+Opens on an "oddly satisfying" macro shot: a teal glass pill touches down with a glass tap on frame 1, glides across the
+table, settles with a jelly wobble and magnifies the printed "$69" (price qualification printed beneath it from frame 1).
+The camera then pulls back and that pill is the price pill of the layout: one continuous take in a bright glass world: nothing crossfades or cuts. Text rises out of mask lines, objects pop on
 springs, the teal price pill morphs into the photo frame, the frame contracts into the toggle track, and a navy flood
 contracts into the CTA button. A cursor drives the clicks and the drag. Geist type, #F7F7F7 canvas, navy #001D45.
 
@@ -8,7 +10,7 @@ contracts into the CTA button. A cursor drives the clicks and the drag. Geist ty
 
 | Item | State |
 |---|---|
-| Version A video | `out/MyFastRx_LiquidGlass_A.mp4` |
+| Version A video | `out/MyFastRx_LiquidGlass_A.mp4` (glass intro). Alternate opening: `out/MyFastRx_LiquidGlass_A_latte.mp4` (render with `INTRO=latte`) |
 | Version B | not built (asked for A only) |
 | Voiceover | ElevenLabs reads (voice "Susan Kathleen"), lines placed per `VO_EDIT` in `src/timeline.mjs`; mix at -16 LUFS / -1.5 dBTP |
 | Footage | Mixkit Free License clips (latte pour, hands on a laptop, package at the door); see `footage_sources.txt`. No face shown, no person generated |
