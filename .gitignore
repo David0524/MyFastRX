@@ -3,3 +3,10 @@ ads/nad-reel/out/*-frames/
 ads/nad-reel/out/*.jpg
 ads/nad-reel/audio/wav/
 ads/nad-reel/out/safezone/*-frames/
+ads/glp1-glass/out/part_*.mp4
+ads/glp1-glass/out/parts.txt
+ads/glp1-glass/out/*.log
+ads/glp1-glass/out/stills/
+ads/glp1-glass/out/ocr/
+ads/glp1-glass/out/A_premix.wav
+ads/glp1-glass/footage/frames/

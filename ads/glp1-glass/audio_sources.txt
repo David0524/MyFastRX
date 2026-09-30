@@ -1,0 +1,42 @@
+AUDIO SOURCES - MyFastRx "Liquid Glass" Version A (25 s, 9:16)
+Checked 2026-09-30.
+
+SUMMARY: every sound in this ad was composed/synthesized in code for this project (audio/compose.mjs).
+No third-party music, loops, samples or sound effects are used, so there is nothing to license and nothing
+to attribute. Re-running `node audio/compose.mjs` regenerates every file bit-for-bit (seeded).
+
+======================================================================
+MUSIC (composed)
+======================================================================
+audio/stems/A_music.wav  (48 kHz / 24-bit stereo, 25.0 s)
+  Original composition, 96 BPM, D major (D - Bm - G - A, twice, then G - D on the end card).
+  Instruments, all synthesized in code:
+    - soft felt piano chords (additive synthesis, inharmonic partials, low voicing, partials above 300 Hz attenuated)
+    - plucked bass (Karplus-Strong), roots on beats 1 and 3
+    - small glass-like plucked keys: the ONLY melodic line, fundamentals A7 (3520 Hz) and up, i.e. above the speech band
+    - light percussion: soft sine kick on 1 and 3, high-passed noise shaker on 8ths
+  Arrangement rule: no melody between ~300 and 3500 Hz. The bed ducks -7 dB under the planned VO windows
+  (src/timeline.mjs VO[]); once the real VO exists, mix.sh side-chain ducks the music from the VO stem instead.
+
+======================================================================
+SOUND EFFECTS (composed)
+======================================================================
+Single hits in audio/sfx/, placements and measured onsets in audio/sfx_onsets.json.
+  tap_glass   - inharmonic sine partials 2.4/3.7/5.2/7.0 kHz + 4 ms noise transient (glass landing)
+  tap_low     - 180 Hz body + 0.5/1.2/2.5 kHz partials (soft landing of large glass shapes)
+  slide_soft  - band-passed noise sweep 700 -> 2600 Hz (glass sliding)
+  slide_air   - band-passed noise sweep 2.2 -> 6.5 kHz (morphs, flood)
+  press       - tap_low + delayed tap_glass (check buttons pressed)
+  click       - two short transients + faint glass tick (cursor clicks)
+  toggle      - double click + glass tick (toggle snap)
+  chime_end   - two glass keys, D7 + A7 (badge lands)
+Placement: each effect's audible onset (first sample within 30 dB of its peak) is aligned to its cue time,
+not the file start (see sfx_onsets.json: file_start = at - onset).
+
+======================================================================
+NOT INCLUDED
+======================================================================
+Voiceover: vo/hook_A.wav and vo/body.wav have not been delivered yet. No VO stem exists; see README.md.
+
+Fonts (on-screen, not audio): Geist Medium/SemiBold/Bold, SIL Open Font License 1.1,
+https://github.com/vercel/geist-font  (license copy: assets/fonts/OFL-Geist.txt)

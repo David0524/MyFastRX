@@ -1,0 +1,154 @@
+{
+  "disc": {
+    "lines": [
+      "Compounded medication. Not FDA-approved. Results",
+      "may vary. Not all patients qualify. Prescription issued",
+      "only if medically appropriate following provider review.",
+      "MyFastRx does not manufacture medications; product",
+      "appearance and labeling may vary. Actor portrayal."
+    ],
+    "lh": 38,
+    "h": 244,
+    "x": 100,
+    "y": 1276
+  },
+  "L": {
+    "vial": {
+      "x": 100,
+      "y": 560
+    },
+    "headY": 450,
+    "head2Y": [
+      392,
+      478
+    ],
+    "startY": 704,
+    "priceY": 858,
+    "priceX": 646,
+    "pill": {
+      "c": [
+        646,
+        763
+      ],
+      "half": [
+        250,
+        125
+      ],
+      "r": 125
+    },
+    "qualY": [
+      944,
+      986
+    ],
+    "tubeY": 745,
+    "frame": {
+      "c": [
+        510,
+        550
+      ],
+      "half": [
+        410,
+        280
+      ],
+      "r": 44
+    },
+    "rows": [
+      925,
+      1045,
+      1165
+    ],
+    "btnR": 40,
+    "track": {
+      "c": [
+        510,
+        600
+      ],
+      "half": [
+        230,
+        110
+      ],
+      "r": 110
+    },
+    "knobR": 84,
+    "feesY": [
+      836,
+      922
+    ],
+    "logo": {
+      "c": [
+        510,
+        452
+      ],
+      "scale": 0.5
+    },
+    "cta": {
+      "c": [
+        510,
+        690
+      ],
+      "half": [
+        330,
+        72
+      ],
+      "r": 72
+    },
+    "urlY": 842,
+    "badge": {
+      "cx": 510,
+      "y": 892,
+      "w": 380
+    },
+    "rowX0": 241,
+    "knobX": [
+      390,
+      630
+    ],
+    "targets": {
+      "c0": [
+        287,
+        933
+      ],
+      "c1": [
+        287,
+        1053
+      ],
+      "c2": [
+        287,
+        1173
+      ],
+      "knob0": [
+        400,
+        612
+      ],
+      "knob1": [
+        640,
+        612
+      ]
+    }
+  },
+  "COPY": {
+    "disclaimer": "Compounded medication. Not FDA-approved. Results may vary. Not all patients qualify. Prescription issued only if medically appropriate following provider review. MyFastRx does not manufacture medications; product appearance and labeling may vary. Actor portrayal.",
+    "qual": [
+      "Introductory offer.",
+      "Regular pricing varies by plan."
+    ],
+    "hookHead": "GLP-1 care",
+    "visitHead": [
+      "GLP-1 weight-loss",
+      "care"
+    ],
+    "startingAt": "Starting at",
+    "price": "$69",
+    "checks": [
+      "Provider review",
+      "Medication",
+      "Shipping included"
+    ],
+    "fees": [
+      "No membership fees",
+      "No automatic refills"
+    ],
+    "cta": "See if you qualify",
+    "url": "MyFastRx.com"
+  }
+}

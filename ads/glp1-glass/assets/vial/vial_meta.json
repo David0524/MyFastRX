@@ -1,0 +1,32 @@
+{
+  "source": "images/vial_semaglutide.png",
+  "crop": {
+    "x0": 280,
+    "y0": 232,
+    "x1": 740,
+    "y1": 1166
+  },
+  "half": {
+    "w": 230,
+    "h": 467
+  },
+  "centerX_src": 509,
+  "zones_src_rows": {
+    "capEnd": 415,
+    "labelTop": 661,
+    "labelBot": 1073,
+    "baseEnd": 1164
+  },
+  "zones_half_rows": {
+    "capEnd": 91.5,
+    "labelTop": 214.5,
+    "labelBot": 420.5,
+    "baseEnd": 466
+  },
+  "srcBackdrop": [
+    238,
+    242,
+    245
+  ],
+  "note": "color = 2x2 box average of the source crop; no pixel edited. mask/normals derived from the silhouette."
+}
