@@ -34,7 +34,7 @@ const port = server.address().port;
 const browser = await chromium.launch({executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist']});
 const page = await browser.newPage();
 const errs = []; page.on('pageerror', e => errs.push(String(e))); page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.text()); });
-await page.goto(`http://127.0.0.1:${port}/src/film.html`);
+await page.goto(`http://127.0.0.1:${port}/src/film.html?intro=${TL.INTRO}`);
 await page.waitForFunction('window.__ready === true');
 const info = await page.evaluate(() => window.__init());
 writeFileSync(path.join(outDir, 'layout.json'), JSON.stringify(info, null, 2));

@@ -120,6 +120,8 @@ for (let i = 0; i < N; i++) {
   duck[i] = 1 - g * (1 - db(-7));
 }
 music.forEach(ch => { for (let i = 0; i < N; i++) ch[i] *= duck[i]; });
+// glass intro: the bed eases in after the first tap
+if (TL.MUSIC_IN) music.forEach(ch => { for (let i = 0; i < N; i++) { const u = Math.min(1, Math.max(0, (i / SR - TL.MUSIC_IN.t0) / (TL.MUSIC_IN.t1 - TL.MUSIC_IN.t0))); ch[i] *= u * u * (3 - 2 * u); } });
 
 // ---------- sound effects ----------
 function tapGlass(vel = .6) {
@@ -142,6 +144,16 @@ function slide(len, f0, f1, vel = .5) {
   for (let i = 0; i < n; i++) { const u = i / n; out[i] *= vel * Math.sin(Math.PI * Math.min(1, u * 1.25)) ** 1.5; }
   return out;
 }
+// glass gliding on a table: soft band-passed friction noise, bright at first, darker and quieter as it slows
+function glide(len) {
+  const n = Math.round(SR * len), out = new Float32Array(n), B = 256;
+  for (let st = 0; st < n; st += B) {
+    const u = st / n, blk = new Float32Array(Math.min(B, n - st)); for (let i = 0; i < blk.length; i++) blk[i] = rnd() * 2 - 1;
+    biquadBP(blk, 5200 * (1 - .7 * u), 2.2); out.set(blk, st);
+  }
+  for (let i = 0; i < n; i++) { const u = i / n; out[i] *= .35 * Math.min(1, u * 40) * Math.exp(-u * 3.2); }
+  return out;
+}
 function press(vel = .6) { const a = tapLow(vel * .8), b = tapGlass(vel * .5); for (let i = 0; i < b.length && i < a.length; i++) a[i] += b[i] * (i > SR * .012 ? 1 : 0); return a; }
 function toggle(vel = .7) {
   const n = Math.round(SR * .5), x = new Float32Array(n);
@@ -158,7 +170,7 @@ function click(vel = .7) {   // a short, soft mouse click: two tiny transients +
 }
 function chime(vel = .4) { const a = glassKey(midi(98), 2.2, vel), c = glassKey(midi(105), 2.2, vel * .7); for (let i = 0; i < a.length; i++) a[i] += c[i]; return a; }
 const LIB = {
-  tap_glass: () => tapGlass(.6), tap_low: () => tapLow(.6), slide_soft: () => slide(.55, 700, 2600, .35), slide_air: () => slide(.95, 2200, 6500, .25),
+  tap_glass: () => tapGlass(.6), tap_low: () => tapLow(.6), slide_soft: () => slide(.55, 700, 2600, .35), slide_air: () => slide(.95, 2200, 6500, .25), slide_long: () => glide(2.3),
   press: () => press(.65), click: () => click(.7), toggle: () => toggle(.75), chime_end: () => chime(.35),
 };
 // measure where each sound is actually heard: first sample within 30 dB of its peak

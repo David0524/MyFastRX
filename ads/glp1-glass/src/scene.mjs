@@ -12,6 +12,9 @@ import * as TL from './timeline.mjs';
 import {createGlass} from './glass.mjs';
 
 const {W, H, CUES: C, CAPTIONS, CURSOR} = TL;
+const GLASS = TL.INTRO === 'glass';
+const MAG = 1.2;                                   // the price pill's flat top magnifies by this much (glass intro)
+const SLIDE = 362;                                 // how far the pill slides (world px) before it settles on $69
 export const COLORS = {off1: '#F7F7F7', off2: '#F2F3F5', navy: '#001D45', blue: '#0071FE', teal: '#14A3B8', white: '#FFFFFF'};
 
 export const COPY = {
@@ -64,11 +67,11 @@ const eIO = u => u < .5 ? 4 * u ** 3 : 1 - (-2 * u + 2) ** 3 / 2;
 const spring = (t, t0, per = .34, dec = .085) => { const d = t - t0; return d <= 0 ? 0 : 1 - Math.exp(-d / dec) * Math.cos(2 * Math.PI * d / per); };
 const squish = (t, t0, amp) => { const d = t - t0; return d < 0 ? 0 : amp * Math.exp(-d / .08) * Math.sin(2 * Math.PI * d / .22); };
 
-let cv, G, img = {}, disc = null, camS = 1, camF = [0, 0];
+let cv, G, img = {}, disc = null, camS = 1, camF = [0, 0], camG = [0, 0];   // p' = (p - camF) * camS + camG
 const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
 const font = (px, wt) => `${wt} ${px}px G${wt}`;
-const T = p => [(p[0] - camF[0]) * camS + camF[0], (p[1] - camF[1]) * camS + camF[1]];
-const worldXf = ctx => ctx.setTransform(camS, 0, 0, camS, camF[0] * (1 - camS), camF[1] * (1 - camS));
+const T = p => [(p[0] - camF[0]) * camS + camG[0], (p[1] - camF[1]) * camS + camG[1]];
+const worldXf = ctx => ctx.setTransform(camS, 0, 0, camS, camG[0] - camF[0] * camS, camG[1] - camF[1] * camS);
 
 function setFont(ctx, px, wt) { ctx.font = font(px, wt); ctx.letterSpacing = px >= 64 ? `${(-0.022 * px).toFixed(2)}px` : '0px'; }
 function measure(s, px, wt) { const c = cv.hud.getContext('2d'); setFont(c, px, wt); return c.measureText(s).width; }
@@ -143,17 +146,27 @@ function mainShape(t) {
   const P = L.pill, F = L.frame, K = L.track;
   if (t < C.pillSlide.t0) return null;
   if (t < C.morphFrame.t0) {
-    const u = prog(t, C.pillSlide.t0, C.pillSlide.land);            // falls onto the screen: accelerates, stops dead, squishes
-    const c = [P.c[0], lerp(-P.half[1] - 60, P.c[1], u * u)];
-    const sq = squish(t, C.pillSlide.land, .08);
+    let c, sq, extra = {};
+    if (GLASS) {
+      // touches down on frame 1 already squishing, glides with friction, settles on $69 with a jelly wobble
+      const u = eOut(prog(t, C.pillSlide.t0, C.pillSlide.land));
+      c = [P.c[0] + (1 - u) * SLIDE, P.c[1]];
+      const wob = (t0, a, dec, per) => { const d = t - t0; return d < 0 ? 0 : a * Math.exp(-d / dec) * Math.sin(2 * Math.PI * d / per); };
+      sq = wob(C.pillSlide.t0 - .02, .09, .10, .26) + wob(C.pillSlide.land - .04, .065, .16, .24);
+      extra = {mag: MAG, sheen: 1.25 - 2.6 * u, sheenAmt: .16, caustic: .42, glowCol: [.30, .95, 1.0], shadow: {off: [7, 15], blur: 20, amt: .26, col: [.52, .74, .80]}};
+    } else {
+      const u = prog(t, C.pillSlide.t0, C.pillSlide.land);            // falls onto the screen: accelerates, stops dead, squishes
+      c = [P.c[0], lerp(-P.half[1] - 60, P.c[1], u * u)];
+      sq = squish(t, C.pillSlide.land, .08);
+    }
     let press = 0;
     if (t > 8.6) press = t < C.pillClick ? .035 * eOut(prog(t, 8.62, 8.7)) : .035 * (1 - spring(t, C.pillClick, .3, .06));
-    return {kind: 'pill', c, half: P.half, r: P.r, bevel: 32, scale: [1 + sq - press, 1 - sq - press], anchor: press ? c : [c[0], c[1] + P.half[1]], mat: TEAL, content: t < C.pillCrisp};
+    return {kind: 'pill', c, half: P.half, r: P.r, bevel: 32, scale: [1 + sq - press, 1 - sq - press], anchor: press ? c : [c[0], c[1] + P.half[1]], mat: {...TEAL, ...extra}, content: !GLASS && t < C.pillCrisp};
   }
   if (t < C.morphTrack.t0) {
     const m = eIO(prog(t, C.morphFrame.t0, C.morphFrame.land)), sq = squish(t, C.morphFrame.land, .012);
     const c = lerp2(P.c, F.c, m), half = lerp2(P.half, F.half, m);
-    return {kind: 'frame', c, half, r: lerp(P.r, F.r, m), bevel: lerp(32, 30, m), scale: [1 + sq, 1 - sq], anchor: [c[0], c[1] + half[1]], mat: lerpMat(TEAL, CLEAR, m)};
+    return {kind: 'frame', c, half, r: lerp(P.r, F.r, m), bevel: lerp(32, 30, m), scale: [1 + sq, 1 - sq], anchor: [c[0], c[1] + half[1]], mat: {...lerpMat(TEAL, CLEAR, m), mag: lerp(GLASS ? MAG : 1, 1, m), caustic: GLASS ? .5 * (1 - m) : 0}};
   }
   const m = eIO(prog(t, C.morphTrack.t0, C.morphTrack.land)), sq = squish(t, C.morphTrack.land, .04);
   const c = lerp2(F.c, K.c, m), half = lerp2(F.half, K.half, m);
@@ -220,15 +233,31 @@ export async function render(t) {
   // camera: exactly identity whenever text is being read; one push-in on the price-pill click
   const Z = C.zoom;
   const zu = t < Z.peak ? eIO(prog(t, Z.t0, Z.peak)) : 1 - eIO(prog(t, Z.peak + .2, Z.t1));
-  camS = 1 + (Z.s - 1) * zu; camF = camS === 1 ? [0, 0] : [L.pill.c[0], L.pill.c[1]];
+  camS = 1 + (Z.s - 1) * zu; camF = camS === 1 ? [0, 0] : [L.pill.c[0], L.pill.c[1]]; camG = camF;
+  if (GLASS && t < C.macro.t1) {
+    // macro: the camera sits close on the pill, then pulls back to the full layout (the table IS the glass world)
+    const m = eIO(prog(t, C.macro.t0, C.macro.t1));
+    camS = lerp(C.macro.s, 1, m); camF = L.pill.c; camG = lerp2(C.macro.g, L.pill.c, m);
+    if (m >= 1) { camS = 1; camF = camG = [0, 0]; }
+  }
   worldXf(bg); worldXf(fg); worldXf(top);
+  if (GLASS && t < C.flood.full) {
+    if (!img.grain) {                                // a tiny, seeded grain tile for the table surface
+      const gc = document.createElement('canvas'); gc.width = gc.height = 256; const gx = gc.getContext('2d'), id = gx.createImageData(256, 256);
+      let sd = 99; for (let i = 0; i < id.data.length; i += 4) { sd = (sd * 1664525 + 1013904223) >>> 0; const v = 128 + ((sd >>> 24) - 128) * .5; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; }
+      gx.putImageData(id, 0, 0); img.grain = gc;
+    }
+    bg.save(); bg.globalAlpha = .035; bg.globalCompositeOperation = 'overlay'; bg.fillStyle = bg.createPattern(img.grain, 'repeat'); bg.fillRect(-2000, -2000, 5000, 6000); bg.restore();
+    const lg = bg.createRadialGradient(360, 380, 60, 520, 760, 1300); lg.addColorStop(0, 'rgba(255,255,255,0.55)'); lg.addColorStop(1, 'rgba(226,230,236,0.35)');
+    bg.save(); bg.globalCompositeOperation = 'multiply'; bg.fillStyle = lg; bg.fillRect(-2000, -2000, 5000, 6000); bg.restore();
+  }
   const ops = [];
   const push = eIn(prog(t, C.pushOut.t0, C.pushOut.t1)) * -1150;
   FOOTAGE.laptop.start = C.morphFrame.t0; FOOTAGE.package.start = C.footPush.t0;
   for (const id of Object.keys(FOOTAGE)) img['foot_' + id] = await footFrame(id, t);
 
   // ===== opening: full-frame footage card, native word stickers; pushes up at footOut to reveal the glass world =====
-  if (t < C.footOut.t1) {
+  if (!GLASS && t < C.footOut.t1) {
     const off = -eIO(prog(t, C.footOut.t0, C.footOut.t1)) * (H + 80);
     bg.save(); bg.beginPath(); bg.roundRect(-10, -80 + off, W + 20, H + 80, off < 0 ? 64 : 0); bg.clip();
     footage(bg, 'latte', [0, 0, W, H], 0, off);
@@ -278,13 +307,21 @@ export async function render(t) {
   if (t < C.qualOut.t1) {
     const px = eIn(prog(t, C.priceOut.t0, C.priceOut.t1));
     // while the pill falls, the price lives on the pill's top face (content layer): seen only through the glass
-    const pc = t < C.pillCrisp ? cv.content.getContext('2d') : fg;
-    if (t >= C.pillSlide.t0) {
-      line(pc, COPY.startingAt, L.priceX, L.startY, 44, 500, COLORS.navy, {exit: px, exitDir: 1});
-      line(pc, COPY.price, L.priceX, L.priceY, 172, 700, COLORS.navy, {exit: px, exitDir: 1});
+    if (GLASS && t < C.pillCrisp) {
+      // printed on the table at 1/MAG size, where the lens maps it onto the final layout
+      const cy = L.pill.c[1], iy = y => cy + (y - cy) / MAG;
+      line(bg, COPY.startingAt, L.priceX, iy(L.startY), 44 / MAG, 500, COLORS.navy);
+      line(bg, COPY.price, L.priceX, iy(L.priceY), 172 / MAG, 700, COLORS.navy);
+    } else {
+      const pc = t < C.pillCrisp ? cv.content.getContext('2d') : fg;
+      if (t >= C.pillSlide.t0) {
+        line(pc, COPY.startingAt, L.priceX, L.startY, 44, 500, COLORS.navy, {exit: px, exitDir: 1});
+        line(pc, COPY.price, L.priceX, L.priceY, 172, 700, COLORS.navy, {exit: px, exitDir: 1});
+      }
     }
     const qe = eOut(prog(t, C.qualIn.t0, C.qualIn.land)), qx = eIn(prog(t, C.qualOut.t0, C.qualOut.t1));
-    if (qe > 0 && qx < 1) {
+    if (GLASS) COPY.qual.forEach((q, i) => line(fg, q, L.priceX, L.qualY[i], 34, 500, COLORS.navy, {exit: qx, exitDir: 1}));   // printed right under the price
+    else if (qe > 0 && qx < 1) {
       // white label (native text-sticker style) keeps it legible over footage and canvas alike
       const qw = Math.max(...COPY.qual.map(q => measure(q, 34, 500))) + 44, qs = spring(t, C.qualIn.t0, .3, .07) * (1 - qx);
       fg.save(); fg.translate(L.priceX, (L.qualY[0] + L.qualY[1]) / 2 - 12); fg.scale(qs, qs);

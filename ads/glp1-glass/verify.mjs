@@ -38,7 +38,7 @@ let panel0 = null, last = null; const stats = {panelMax: 0, panelMaxFrame: -1, p
 const frames = [];
 const refLabel = (() => { const raw = readFileSync('assets/vial/vial_color_half.rgba'), w = 230; return (x, y) => { const i = ((y - L.vial.y) * w + (x - L.vial.x)) * 4; return [raw[i], raw[i + 1], raw[i + 2]]; }; })();
 const restFrames = new Set(); for (let i = 0; i < N; i++) { const t = i / 30; if ((t >= TL.CUES.vialRise.land && t < TL.CUES.vialSway.t0) || (t >= TL.CUES.vialSway.t1 && t < TL.CUES.zoom.t0)) restFrames.add(i); }
-const qualRefFrame = 120;
+const qualRefFrame = 170;   // camera at rest, price and qualification settled
 let qualRef = 0, priceRef = 0;
 await new Promise((res, rej) => {
   const ff = spawn('ffmpeg', ['-v', 'error', '-i', FILE, '-vf', 'scale=in_color_matrix=bt709:in_range=tv:flags=accurate_rnd+full_chroma_int', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-']);
@@ -54,8 +54,9 @@ await new Promise((res, rej) => {
       // price vs qualification
       // follow the camera push-in (same curve as src/scene.mjs) so the boxes track what is on screen
       const tt = idx / 30, Z = TL.CUES.zoom, eIO = u => u < .5 ? 4 * u ** 3 : 1 - (-2 * u + 2) ** 3 / 2, pr = (a, b) => Math.min(1, Math.max(0, (tt - a) / (b - a)));
-      const zs = 1 + (Z.s - 1) * (tt < Z.peak ? eIO(pr(Z.t0, Z.peak)) : 1 - eIO(pr(Z.peak + .2, Z.t1)));
-      const cam = b => [0, 1, 2, 3].map(k => Math.round((b[k] - L.pill.c[k % 2]) * zs + L.pill.c[k % 2]));
+      let zs = 1 + (Z.s - 1) * (tt < Z.peak ? eIO(pr(Z.t0, Z.peak)) : 1 - eIO(pr(Z.peak + .2, Z.t1))), zg = L.pill.c;
+      if (TL.INTRO === 'glass' && tt < TL.CUES.macro.t1) { const M = TL.CUES.macro, m = eIO(pr(M.t0, M.t1)); zs = M.s + (1 - M.s) * m; zg = [M.g[0] + (L.pill.c[0] - M.g[0]) * m, M.g[1] + (L.pill.c[1] - M.g[1]) * m]; }
+      const cam = b => [0, 1, 2, 3].map(k => Math.round((b[k] - L.pill.c[k % 2]) * zs + zg[k % 2]));
       const pn = tealCount(f, cam(pillBox)), qn = navyCount(f, cam(qualBox)) / (zs * zs);
       frames.push({i: idx, pn, qn});
       if (idx === qualRefFrame) { qualRef = qn; priceRef = pn; }
@@ -70,7 +71,7 @@ await new Promise((res, rej) => {
   ff.on('close', c => c === 0 ? res() : rej(new Error('decode failed')));
 });
 ok('disclaimer on the end card in the ENCODED file', null, `max channel diff vs its first risen frame = ${stats.panelMax} (frame ${stats.panelMaxFrame}), worst frame mean diff = ${stats.panelMeanMax.toFixed(3)} (H.264 noise; renderer output is checked for exact identity below)`);
-for (const f of frames) if (f.i / 30 < TL.CUES.priceOut.t1 && f.pn > priceRef * .2)   // the pill outlives the price text by a few frames; the price is gone at priceOut.t1
+for (const f of frames) if (f.i / 30 < TL.CUES.priceOut.t1 && (TL.INTRO === 'glass' || f.pn > priceRef * .2))   // glass intro: $69 is printed on the table from frame 1   // the pill outlives the price text by a few frames; the price is gone at priceOut.t1
    { stats.priceFrames++; if (f.qn < qualRef * .9) stats.priceWithoutFullQual.push(f.i); }
 ok('qualification fully present whenever $69 is visible', stats.priceWithoutFullQual.length === 0, `${stats.priceFrames} frames show the price; frames where qualification < 90% of its settled ink: ${stats.priceWithoutFullQual.length ? stats.priceWithoutFullQual.join(',') : 'none'}`);
 const psn = stats.labelPSNR.map(s => s.psnr);
@@ -85,7 +86,7 @@ try {
   let diff = 0, n = 0; for (let y = labelBox[1]; y < labelBox[3]; y++) for (let x = labelBox[0]; x < labelBox[2]; x++) { const p = px(raw, x, y), q = refLabel(x, y); for (let c = 0; c < 3; c++) diff = Math.max(diff, Math.abs(p[c] - q[c])); n++; }
   ok('vial label pixel-exact in the renderer output (frame 170)', diff === 0, `max channel diff = ${diff} over ${n} label pixels vs the half-size source`);
   const region = (buf, [x0, y0, x1, y1]) => { const o = []; for (let y = y0; y < y1; y++) o.push(buf.subarray((y * W + x0) * 3, (y * W + x1) * 3)); return Buffer.concat(o); };
-  const ids = [600, 610, 650, 700, 749], p0 = region(still(0), panel);
+  const ids = [600, 610, 650, 700, 749], p0 = region(still(ids[0]), panel);
   const same = ids.map(i => region(still(i), panel).equals(p0));
   ok('disclaimer holds byte-identical on the end card (renderer output)', same.every(Boolean), `end-card frames ${ids.join(', ')} (from ${TL.CUES.discIn.land}s, once risen): ${same.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
   const e = still(749), holds = [650, 700].map(i => still(i).equals(e));
@@ -114,10 +115,11 @@ function ocr(name, t, crop, invert = false, psm = 6) {
 const expect = [
   ['disclaimer', 20.5, [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4], true, COPY.disclaimer],
   ['disclaimer_last', 24.9, [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4], true, COPY.disclaimer],
-  ['hook_words', 1.8, [820, 110, 100, L.hookY - 80], false, TL.CUES.hookWords.map(w => w.w).join(' ')],
-  ['qualification', 4.0, [600, 110, 346, L.qualY[0] - 38], false, COPY.qual.join(' ')],
-  ['starting_at', 4.0, [520, 64, 386, L.startY - 46], false, COPY.startingAt],
-  ['price_69', 4.0, [440, 150, 426, L.priceY - 140], false, COPY.price, 7],
+  ...(TL.INTRO === 'glass' ? [['macro_frame1_qual', 0.0, [880, 150, 100, 1105], false, COPY.qual.join(' ')], ['macro_price', 3.4, [760, 340, 160, 680], false, `${COPY.startingAt} ${COPY.price}`]]
+      : [['hook_words', 1.8, [820, 110, 100, L.hookY - 80], false, TL.CUES.hookWords.map(w => w.w).join(' ')]]),
+  ['qualification', 6.0, [600, 110, 346, L.qualY[0] - 38], false, COPY.qual.join(' ')],
+  ['starting_at', 6.0, [520, 64, 386, L.startY - 46], false, COPY.startingAt],
+  ['price_69', 6.0, [440, 150, 426, L.priceY - 140], false, COPY.price, 7],
   ['headline_visit', 7.0, [820, 190, 100, L.head2Y[0] - 70], false, COPY.visitHead.join(' ')],
   ['caption_1', 5.4, [820, 66, 100, Math.round(disc.y) - 80], false, TL.CAPTIONS[0].lines.join(' ')],
   ['caption_2', 7.8, [820, 124, 100, Math.round(disc.y) - 136], false, TL.CAPTIONS[1].lines.join(' ')],
@@ -144,7 +146,8 @@ try {
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', FILE, '-vn', '-ac', '1', '-ar', '16000', 'out/ocr/final_audio.wav']);
   const tr = execFileSync('python3', ['tools/transcribe.py', 'out/ocr/final_audio.wav'], {stdio: ['ignore', 'pipe', 'ignore']}).toString().split('\n')[0].replace('out/ocr/final_audio.wav ', '');
   const want = TL.VO.map(v => v.text).join(' ');
-  const w = x => x.toLowerCase().replace(/myfastrx\s*\.com|myfastrx \.com/g, 'myfastrx.com').replace(/glp\s*-?\s*1/g, 'glp-1').replace(/provider\s*-guided/g, 'provider-guided').replace(/[^a-z0-9$.\- ]/g, ' ').replace(/\.(\s|$)/g, ' ').split(/\s+/).filter(Boolean);
+  // compare words only: punctuation and hyphenation are the transcriber's choice, not the voice's
+  const w = x => x.toLowerCase().replace(/myfastrx\s*\.\s*com/g, 'myfastrx dot com').replace(/[-,.;:!?"']/g, ' ').replace(/[^a-z0-9$ ]/g, ' ').split(/\s+/).filter(Boolean);
   const a1 = w(tr), a2 = w(want);
   const same = a1.join(' ') === a2.join(' ');
   ok('VO in the final file says the script (speech-to-text)', same, same ? `"${tr}"` : `heard: "${tr}" | script: "${want}"`);

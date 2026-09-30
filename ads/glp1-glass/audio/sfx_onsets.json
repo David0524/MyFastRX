@@ -4,6 +4,7 @@
     "tap_low": 0.0001,
     "slide_soft": 0.0227,
     "slide_air": 0.0391,
+    "slide_long": 0.0038,
     "press": 0.0001,
     "click": 0,
     "toggle": 0,
@@ -11,33 +12,33 @@
   },
   "placements": [
     {
-      "id": "click",
-      "at": 0.32,
-      "gain": -24,
-      "file_start": 0.32
+      "id": "tap_glass",
+      "at": 0,
+      "gain": -8,
+      "file_start": 0
     },
     {
-      "id": "click",
-      "at": 1.4,
-      "gain": -24,
-      "file_start": 1.4
+      "id": "slide_long",
+      "at": 0.05,
+      "gain": -26,
+      "file_start": 0.0462
     },
     {
-      "id": "slide_air",
-      "at": 2.05,
-      "gain": -21,
-      "file_start": 2.0109
+      "id": "tap_low",
+      "at": 2.5,
+      "gain": -17,
+      "file_start": 2.4999
     },
     {
       "id": "tap_glass",
-      "at": 2.5,
-      "gain": -12,
-      "file_start": 2.5
+      "at": 2.52,
+      "gain": -24,
+      "file_start": 2.52
     },
     {
       "id": "slide_air",
       "at": 4.375,
-      "gain": -21,
+      "gain": -24,
       "file_start": 4.3359
     },
     {

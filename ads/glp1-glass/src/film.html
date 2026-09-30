@@ -3,8 +3,9 @@
 <style>html,body{margin:0;background:#222}canvas{display:block;width:540px;height:960px}</style></head>
 <body>
 <script type="module">
-import * as scene from './scene.mjs';
-import * as TL from './timeline.mjs';
+globalThis.__INTRO = new URLSearchParams(location.search).get('intro') || 'glass';
+const scene = await import('./scene.mjs');
+const TL = await import('./timeline.mjs');
 let out;
 window.__init = async () => { const r = await scene.init(); window.__info = JSON.parse(JSON.stringify(scene.info())); return window.__info; };
 window.__render = async (t) => { out = await scene.render(t); return true; };

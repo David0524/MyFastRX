@@ -39,6 +39,7 @@ uniform vec2 uAnchor;
 uniform vec2 uPts[10]; uniform int uN;
 uniform vec3 uSigma;          // absorption per unit thickness
 uniform float uRefr, uDisp, uRim, uSpec, uGlow, uAlpha, uLift;
+uniform float uMag, uSheen, uSheenAmt, uCaustic;   // flat-top magnification, moving sheen band (pos, amount), focused light on the table
 uniform vec3 uGlowCol;
 uniform vec2 uShOff; uniform float uShBlur, uShAmt; uniform vec3 uShCol;
 uniform sampler2D uContent; uniform float uContentOn;   // under-glass content (premultiplied, y up)
@@ -68,6 +69,14 @@ void main(){
   float da = shape(p - uShOff * 2.6);
   float amb = uShAmt * .45 * (1. - smoothstep(-uShBlur * 1.5, uShBlur * 3.2, da));
   vec3 outside = bg * mix(vec3(1.), uShCol, clamp((sh + amb) * uAlpha, 0., 1.) * step(-.5, d));
+  // caustic: light focused through the glass lands as a soft tinted pool inside the shadow
+  if (uCaustic > 0.) {
+    // the key light (upper left) is focused by the lens and lands just past the lower-right rim: a bright crescent
+    float dc = shape(p - uShOff * 2.8) + uBevel * .7;
+    float c1 = 1. - smoothstep(-uBevel * 1.1, uBevel * .9, dc);
+    float rimBand = exp(-pow(max(d, 0.) / (uBevel * .9), 2.));
+    outside += uGlowCol * uCaustic * uAlpha * c1 * rimBand * step(0., d);
+  }
   if (d > 1.) { o = vec4(outside, 1.); return; }
   vec2 e = vec2(1., 0.);
   vec2 g = vec2(shape(p + e.xy) - shape(p - e.xy), shape(p + e.yx) - shape(p - e.yx));
@@ -78,6 +87,8 @@ void main(){
   vec3 n = normalize(vec3(dir * q, max(nz, 1e-3)));
   // refraction concentrated in the rounded rim, zero on the flat top
   vec2 off = -dir * uRefr * q * q;
+  vec2 cS = (uC - uAnchor) * uScale + uAnchor;       // lens center follows the squish
+  off += (cS - p) * (1. - 1. / uMag) * nz;           // the flat top is a magnifying lens (uMag = 1: plain slab)
   if (p.x > uProtect.x && p.x < uProtect.z && p.y > uProtect.y && p.y < uProtect.w) off = vec2(0.);
   float k = uDisp * q;
   vec3 refr = vec3(srcAt(p + off * (1. + k)).r, srcAt(p + off).g, srcAt(p + off * (1. - k)).b);
@@ -94,6 +105,8 @@ void main(){
   vec3 hv = normalize(KEY + vec3(0., 0., 1.));
   float nh = max(dot(n, hv), 0.);
   col += uSpec * (pow(nh, 160.) * 1.0 + pow(nh, 20.) * .06);
+  // a soft reflected sheen band across the top face; its position is driven by the object's motion
+  if (uSheenAmt > 0. && uType == 0) { vec2 lp = (p - cS) / (uHalf * uScale); float v = lp.x * .8 + lp.y * .45; col += uSheenAmt * nz * (exp(-pow((v - uSheen) / .10, 2.)) + .5 * exp(-pow((v - uSheen - .22) / .035, 2.))); }
   // hairline edges: a white inner line and a faint dark outer line
   col = mix(col, vec3(1.), .55 * uRim * (1. - smoothstep(0., 1.8, -d)) * (.4 + .6 * lit));
   col += uGlowCol * uGlow * pow(shade, 2.) * q;      // faint colored light exiting the far rim (no outer glow)
@@ -261,6 +274,7 @@ export function createGlass(canvas) {
       gl.uniform1f(L.uRefr, o.refr ?? 26); gl.uniform1f(L.uDisp, o.disp ?? .12);
       gl.uniform1f(L.uRim, o.rim ?? .7); gl.uniform1f(L.uSpec, o.spec ?? .9); gl.uniform1f(L.uGlow, o.glow ?? .04);
       gl.uniform3f(L.uGlowCol, ...(o.glowCol || [.55, .8, 1])); gl.uniform1f(L.uLift, o.lift ?? .015);
+      gl.uniform1f(L.uMag, o.mag ?? 1); gl.uniform1f(L.uSheen, o.sheen ?? 0); gl.uniform1f(L.uSheenAmt, o.sheenAmt ?? 0); gl.uniform1f(L.uCaustic, o.caustic ?? 0);
       gl.uniform1f(L.uAlpha, o.alpha ?? 1);
       gl.uniform2f(L.uShOff, ...sh.off); gl.uniform1f(L.uShBlur, sh.blur); gl.uniform1f(L.uShAmt, sh.amt); gl.uniform3f(L.uShCol, ...sh.col);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, contentTex); gl.uniform1i(L.uContent, 1);
