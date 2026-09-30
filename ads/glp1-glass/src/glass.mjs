@@ -39,7 +39,8 @@ uniform vec2 uAnchor;
 uniform vec2 uPts[10]; uniform int uN;
 uniform vec3 uSigma;          // absorption per unit thickness
 uniform float uRefr, uDisp, uRim, uSpec, uGlow, uAlpha, uLift;
-uniform float uMag, uSheen, uSheenAmt, uCaustic;   // flat-top magnification, moving sheen band (pos, amount), focused light on the table
+uniform float uMag, uSheen, uSheenAmt, uCaustic;
+uniform vec2 uClip;            // object exists only for uClip.x <= y <= uClip.y (a glass pane passing over it)   // flat-top magnification, moving sheen band (pos, amount), focused light on the table
 uniform vec3 uGlowCol;
 uniform vec2 uShOff; uniform float uShBlur, uShAmt; uniform vec3 uShCol;
 uniform sampler2D uContent; uniform float uContentOn;   // under-glass content (premultiplied, y up)
@@ -62,6 +63,7 @@ vec3 contentOver(vec3 c, vec2 p){
 void main(){
   vec2 p = P();
   vec3 bg = srcAt(p);
+  if (p.y < uClip.x || p.y > uClip.y) { o = vec4(bg, 1.); return; }
   float d = shape(p);
   // two-layer shadow: a tight contact shadow + a wide, faint ambient one (both cast down, away from the key light)
   float ds = shape(p - uShOff);
@@ -274,7 +276,7 @@ export function createGlass(canvas) {
       gl.uniform1f(L.uRefr, o.refr ?? 26); gl.uniform1f(L.uDisp, o.disp ?? .12);
       gl.uniform1f(L.uRim, o.rim ?? .7); gl.uniform1f(L.uSpec, o.spec ?? .9); gl.uniform1f(L.uGlow, o.glow ?? .04);
       gl.uniform3f(L.uGlowCol, ...(o.glowCol || [.55, .8, 1])); gl.uniform1f(L.uLift, o.lift ?? .015);
-      gl.uniform1f(L.uMag, o.mag ?? 1); gl.uniform1f(L.uSheen, o.sheen ?? 0); gl.uniform1f(L.uSheenAmt, o.sheenAmt ?? 0); gl.uniform1f(L.uCaustic, o.caustic ?? 0);
+      gl.uniform2f(L.uClip, ...(o.clip || [-1e6, 1e6])); gl.uniform1f(L.uMag, o.mag ?? 1); gl.uniform1f(L.uSheen, o.sheen ?? 0); gl.uniform1f(L.uSheenAmt, o.sheenAmt ?? 0); gl.uniform1f(L.uCaustic, o.caustic ?? 0);
       gl.uniform1f(L.uAlpha, o.alpha ?? 1);
       gl.uniform2f(L.uShOff, ...sh.off); gl.uniform1f(L.uShBlur, sh.blur); gl.uniform1f(L.uShAmt, sh.amt); gl.uniform3f(L.uShCol, ...sh.col);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, contentTex); gl.uniform1i(L.uContent, 1);

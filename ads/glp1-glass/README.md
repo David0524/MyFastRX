@@ -43,6 +43,17 @@ that follow words (check clicks, toggle snap, URL rise) and `CAPTIONS` sit next 
 Slots and in-points are in that script; `FOOTAGE` in `src/scene.mjs` says when each plays and whether it shows a person
 (glass never refracts footage with a person in it). Licenses and screening notes: `footage_sources.txt`.
 
+## Background and transitions
+
+Never plain white: a vertical gradient (#F7F7F7, flat through the upper half so the supplied logo and badge sit on their own
+background, easing to #EEF3FA), a few large soft teal/blue shapes drifting where glass passes over them, and a faint
+graph-paper grid on the tabletop plane (world space, so it curves through every piece of glass and magnifies in the macro
+shot). Shapes and grid fade out behind every headline, the price, the qualification, captions and the end-card marks
+(`calmZones` in `src/scene.mjs`). The checks scene sits on softly blurred kitchen footage instead.
+Every transition is a glass move: macro pull-back, pill -> photo frame morph under a rising glass pane (the room becomes the
+kitchen behind its edge), a glint sweep between the two photos, a falling pane back to the glass world with the frame
+contracting into the toggle track, and the switched-on track morphing into the blue CTA button.
+
 ## Fine print
 
 The disclaimer appears on the end card only (client direction, 2026-09-30): it rises in at 19.6 s and holds, byte-identical,

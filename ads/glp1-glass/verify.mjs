@@ -64,7 +64,9 @@ await new Promise((res, rej) => {
       if (restFrames.has(idx) && idx % 5 === 0) { let se = 0, n = 0; for (let y = labelBox[1]; y < labelBox[3]; y++) for (let x = labelBox[0]; x < labelBox[2]; x++) { const p = px(f, x, y), q = refLabel(x, y); for (let c = 0; c < 3; c++) { se += (p[c] - q[c]) ** 2; n++; } } stats.labelPSNR.push({i: idx, psnr: +(10 * Math.log10(255 * 255 / (se / n))).toFixed(2)}); }
       // final still
       if (idx >= Math.ceil(TL.CUES.finalStill * 30)) { if (last) { let mx = 0; for (let j = 0; j < f.length; j += 7) { const d2 = Math.abs(f[j] - last[j]); if (d2 > mx) mx = d2; } stats.stillMax = Math.max(stats.stillMax, mx); } last = Buffer.from(f); }
-      if (idx === N - 1) { R.lastFrameLogo = sampleLogo(f); }
+      if (idx === N - 1) { R.lastFrameLogo = sampleLogo(f);
+        const lw = 800, lh = 266, bw = L.badge.w, bh = Math.round(638 * bw / 1600);
+        R.boxEdges = {logo: boxEdge(f, [Math.round(L.logo.c[0] - lw / 2), Math.round(L.logo.c[1] - lh / 2), lw, lh]), badge: badgeCorners(f, [Math.round(L.badge.cx - bw / 2), L.badge.y, bw, bh])}; }
       idx++;
     }
   });
@@ -77,6 +79,7 @@ ok('qualification fully present whenever $69 is visible', stats.priceWithoutFull
 const psn = stats.labelPSNR.map(s => s.psnr);
 ok('vial label vs source pixels (final H.264, rest frames)', null, `PSNR min ${Math.min(...psn)} dB, mean ${(psn.reduce((a, b) => a + b, 0) / psn.length).toFixed(1)} dB over ${psn.length} sampled rest frames (lossy codec; exact check on lossless render below)`);
 ok('final hold in the ENCODED file', null, `max frame-to-frame diff from ${TL.CUES.finalStill}s to end = ${stats.stillMax} (H.264 GOP refresh noise on a static picture; renderer output is checked for exact identity below)`);
+ok('no visible box around the logo / badge files (mean edge step, levels)', R.boxEdges.logo <= 2 && R.boxEdges.badge <= 2, R.boxEdges);
 ok('logo colors (last frame) vs logo file', R.lastFrameLogo.navyOk && R.lastFrameLogo.blueOk, R.lastFrameLogo);
 
 // ---------- 3. lossless checks on the renderer output (before encoding): node render.mjs --only 0,120,290,563,650,700,749 ----------
@@ -93,6 +96,22 @@ try {
   ok('final hold byte-identical in the renderer output', holds.every(Boolean), `frames 650, 700 vs 749: ${holds.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
 } catch (e) { ok('lossless checks', null, 'stills missing - run node render.mjs --only 0,120,290,563,650,700,749 (' + String(e).slice(0, 80) + ')'); }
 
+// the supplied logo/badge JPGs have #F7F7F7 backgrounds: the end card must match them so no box edge shows
+function boxEdge(f, [x0, y0, w, h]) {
+  let inS = 0, outS = 0, n = 0;
+  for (let x = x0 + 6; x < x0 + w - 6; x += 4) for (const [yi, yo] of [[y0 + 2, y0 - 3], [y0 + h - 3, y0 + h + 2]]) { const a = px(f, x, yi), b = px(f, x, yo); inS += (a[0] + a[1] + a[2]) / 3; outS += (b[0] + b[1] + b[2]) / 3; n++; }
+  for (let y = y0 + 6; y < y0 + h - 6; y += 4) for (const [xi, xo] of [[x0 + 2, x0 - 3], [x0 + w - 3, x0 + w + 2]]) { const a = px(f, xi, y), b = px(f, xo, y); inS += (a[0] + a[1] + a[2]) / 3; outS += (b[0] + b[1] + b[2]) / 3; n++; }
+  return +Math.abs(inS / n - outS / n).toFixed(2);
+}
+// the badge art runs to its file's edges; only its four corners are file background (#F7F7F7): compare those to the card
+function badgeCorners(f, [x0, y0, w, h]) {
+  let worst = 0;
+  for (const [cx, cy, dx, dy] of [[x0, y0, 1, 1], [x0 + w - 1, y0, -1, 1], [x0, y0 + h - 1, 1, -1], [x0 + w - 1, y0 + h - 1, -1, -1]]) {
+    const a = px(f, cx + 3 * dx, cy + 3 * dy), b = px(f, cx - 4 * dx, cy - 4 * dy);
+    worst = Math.max(worst, Math.abs((a[0] + a[1] + a[2]) / 3 - (b[0] + b[1] + b[2]) / 3));
+  }
+  return +worst.toFixed(2);
+}
 function sampleLogo(f) {
   const lw = 800, lh = 266, x0 = Math.round(L.logo.c[0] - lw / 2), y0 = Math.round(L.logo.c[1] - lh / 2);
   const hist = new Map();

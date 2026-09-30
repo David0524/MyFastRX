@@ -10,6 +10,6 @@ row(){ local crop=$1; shift; local ins=() f=""; local i=0; for t in "$@"; do ins
   f+="$(for j in $(seq 0 $((i-1))); do printf '[c%d]' $j; done)hstack=$i[o]"; ffmpeg -v error -y "${ins[@]}" -frames:v 1 -filter_complex "$f" -map "[o]" -frames:v 1 "$OUT_ROW"; }
 OUT_ROW=previews/_r1.png row 760:420:160:700 0.00 0.40 0.90 1.50 2.10 3.20
 OUT_ROW=previews/_r2.png row 560:300:0:560 5.20 5.45 5.70 5.95 6.20 7.00
-OUT_ROW=previews/_r3.png row 560:300:360:440 8.95 9.05 9.15 9.25 9.40 9.80
+OUT_ROW=previews/_r3.png row 1080:760:0:560 8.95 9.10 9.22 9.32 9.45 9.70
 ffmpeg -v error -y -i previews/_r1.png -i previews/_r2.png -i previews/_r3.png -filter_complex "[0]scale=3360:-2[a];[1]scale=3360:-2[b];[2]scale=3360:-2[c];[a][b][c]vstack=3,scale=-2:1500" previews/A_refraction_proof.png
 rm previews/_r*.png; echo previews/A_refraction_proof.png

@@ -61,7 +61,9 @@ export const CUES = {
   pillClick:  b(14),                               // 8.750  cursor clicks the price pill
   priceOut:   {t0: b(14), t1: b(14) + 0.16},       // $69 leaves first ...
   qualOut:    {t0: b(14) + 0.16, t1: b(14) + 0.32},//  ... then its qualification
-  pushOut:    {t0: 8.90, t1: 9.35},                // headline, vial, tube push out left
+  pushOut:    {t0: 99, t1: 99},                    // (retired: replaced by the glass pane wipe)
+  wipeIn:     {t0: 8.85, t1: 9.65},                // a clear glass pane sweeps up: behind its edge the room becomes the kitchen
+  wipeOut:    {t0: 14.55, t1: 15.35},              // and sweeps down again: back to the glass world
   zoom:       {t0: 8.30, peak: b(14), t1: 9.65, s: 1.14},
   morphFrame: {t0: 8.92, land: b(15)},             // 9.375  pill becomes the photo frame
   checks:     [10.26, 11.27, 12.22],               // clicks land on 'Provider' / 'medication' / 'shipping'
@@ -72,10 +74,12 @@ export const CUES = {
   drag:       {t0: 15.86, t1: b(26)},              // 16.250 snap on
   feesIn:     [{t0: 15.30, land: b(25)}, {t0: 15.42, land: b(25) + 0.12}],   // with 'No membership fees'
   feesOut:    {t0: 18.45, t1: 18.62},
-  flood:      {t0: 18.62, full: 18.98, t1: 19.62}, // navy floods from the knob after the line ends, then contracts into the CTA
+  knobOut:    {t0: 18.48, t1: 18.70},              // the knob pops away
+  ctaMorph:   {t0: 18.62, land: 19.30},            // the switched-on glass track becomes the CTA button
+  flood:      {t0: 99, full: 99, t1: 99},          // (retired)
   discIn:     {t0: 19.62, land: 19.90},            // fine print rises in with the end card, then holds still to the last frame
-  logoIn:     {t0: 19.55, land: b(32)},            // 20.000
-  ctaText:    {t0: 19.65, land: b(32)},
+  logoIn:     {t0: 19.30, land: 19.69},
+  ctaText:    {t0: 19.30, land: 19.62},
   urlIn:      {t0: 20.45, land: 20.79},            // with 'MyFastRx.com'
   ctaClick:   b(33.5),                             // 20.938
   badgePop:   b(34),                               // 21.250 ; everything is still from finalStill to the last frame
@@ -85,7 +89,7 @@ export const CUES = {
 // Cursor path: [t, x, y, pressed]. World coordinates (the camera applies to it, and it scales with the zoom).
 const CK = CUES.checks;
 export const CURSOR = [
-  [7.20, 1160, 1060, 0], [8.35, 700, 820, 0], [8.62, 700, 820, 1], [8.78, 700, 820, 0],
+  [7.20, 1160, 700, 0], [8.35, 856, 752, 0], [8.62, 856, 752, 1], [8.78, 856, 752, 0],   // enters at pill height, clicks the pill's right end (clear of all text)
   [9.40, 470, 1040, 0],
   ...CK.flatMap((t, i) => [[t - .32, 0, 0, 0, 'c' + i], [t - .07, 0, 0, 1, 'c' + i], [t + .05, 0, 0, 0, 'c' + i]]),
   [14.85, 0, 0, 0, 'c2'], [15.25, 70, 760, 0],                     // around the left margin, never across the text
@@ -114,19 +118,19 @@ export const SFX = [
   {id: 'slide_soft', at: CUES.tubeSlide.t0, gain: -21},
   {id: 'tap_low',    at: CUES.tubeSlide.land, gain: -18},
   {id: 'click',      at: CUES.pillClick, gain: -13},
-  {id: 'slide_air',  at: CUES.morphFrame.t0, gain: -21},
+  {id: 'slide_air',  at: CUES.wipeIn.t0 + .08, gain: -20},
   {id: 'tap_low',    at: CUES.morphFrame.land, gain: -18},
   {id: 'press',      at: CUES.checks[0], gain: -14},
   {id: 'press',      at: CUES.checks[1], gain: -14},
   {id: 'press',      at: CUES.checks[2], gain: -14},
   {id: 'slide_soft', at: CUES.footPush.t0, gain: -25},
-  {id: 'slide_air',  at: CUES.morphTrack.t0, gain: -22},
+  {id: 'slide_air',  at: CUES.wipeOut.t0 + .08, gain: -21},
   {id: 'tap_low',    at: CUES.morphTrack.land, gain: -18},
   {id: 'tap_glass',  at: CUES.knobPop + 0.03, gain: -20},
   {id: 'slide_soft', at: CUES.drag.t0, gain: -24},
   {id: 'toggle',     at: CUES.drag.t1, gain: -12},
-  {id: 'slide_air',  at: CUES.flood.t0, gain: -20},
-  {id: 'tap_low',    at: CUES.flood.t1, gain: -17},
+  {id: 'slide_soft', at: CUES.ctaMorph.t0, gain: -20},
+  {id: 'tap_glass',  at: CUES.ctaMorph.land, gain: -15},
   {id: 'click',      at: CUES.ctaClick, gain: -14},
   {id: 'chime_end',  at: CUES.badgePop, gain: -25},
 ];

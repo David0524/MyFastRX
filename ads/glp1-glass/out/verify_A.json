@@ -9,7 +9,7 @@
     {
       "name": "video bitrate 10-15 Mbps",
       "pass": true,
-      "detail": "12.45 Mbps"
+      "detail": "12.54 Mbps"
     },
     {
       "name": "progressive",
@@ -29,7 +29,7 @@
     {
       "name": "audio: no clipping (true peak < -1 dBTP)",
       "pass": true,
-      "detail": "integrated -16 LUFS, true peak -1.4 dBFS"
+      "detail": "integrated -16 LUFS, true peak -1.5 dBFS"
     },
     {
       "name": "audio: -16 LUFS integrated",
@@ -39,7 +39,7 @@
     {
       "name": "disclaimer on the end card in the ENCODED file",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 5 (frame 601), worst frame mean diff = 0.085 (H.264 noise; renderer output is checked for exact identity below)"
+      "detail": "max channel diff vs its first risen frame = 9 (frame 749), worst frame mean diff = 0.448 (H.264 noise; renderer output is checked for exact identity below)"
     },
     {
       "name": "qualification fully present whenever $69 is visible",
@@ -49,12 +49,20 @@
     {
       "name": "vial label vs source pixels (final H.264, rest frames)",
       "pass": null,
-      "detail": "PSNR min 35.48 dB, mean 35.5 dB over 9 sampled rest frames (lossy codec; exact check on lossless render below)"
+      "detail": "PSNR min 35.34 dB, mean 35.5 dB over 9 sampled rest frames (lossy codec; exact check on lossless render below)"
     },
     {
       "name": "final hold in the ENCODED file",
       "pass": null,
-      "detail": "max frame-to-frame diff from 21.6s to end = 4 (H.264 GOP refresh noise on a static picture; renderer output is checked for exact identity below)"
+      "detail": "max frame-to-frame diff from 21.6s to end = 7 (H.264 GOP refresh noise on a static picture; renderer output is checked for exact identity below)"
+    },
+    {
+      "name": "no visible box around the logo / badge files (mean edge step, levels)",
+      "pass": true,
+      "detail": {
+        "logo": 0.26,
+        "badge": 0
+      }
     },
     {
       "name": "logo colors (last frame) vs logo file",
@@ -173,7 +181,7 @@
     {
       "name": "VO in the final file says the script (speech-to-text)",
       "pass": true,
-      "detail": "\"GLP -1 care starting at $69. Start with an online visit and provider guided care from MyFastRx. Provider review, medication and shipping are all included. No membership fees and you choose when to request your next refill. See if you qualify at MyFastRx .com\""
+      "detail": "\"GLP -1 care, starting at $69. Start with an online visit and provider -guided care from MyFastRx. Provider review, medication and shipping are all included. No membership fees and you choose when to request your next refill. See if you qualify at MyFastRx .com.\""
     },
     {
       "name": "captions sit inside their VO line windows",
@@ -196,25 +204,29 @@
     "navyOk": true,
     "blueOk": true
   },
+  "boxEdges": {
+    "logo": 0.26,
+    "badge": 0
+  },
   "stats": {
-    "panelMax": 5,
-    "panelMaxFrame": 601,
-    "panelMeanMax": 0.08533708023439261,
+    "panelMax": 9,
+    "panelMaxFrame": 749,
+    "panelMeanMax": 0.44774411201262115,
     "priceFrames": 268,
     "priceWithoutFullQual": [],
-    "stillMax": 4,
+    "stillMax": 7,
     "labelPSNR": [
       {
         "i": 150,
-        "psnr": 35.48
+        "psnr": 35.34
       },
       {
         "i": 155,
-        "psnr": 35.49
+        "psnr": 35.38
       },
       {
         "i": 160,
-        "psnr": 35.49
+        "psnr": 35.47
       },
       {
         "i": 165,
@@ -230,11 +242,11 @@
       },
       {
         "i": 180,
-        "psnr": 35.5
+        "psnr": 35.51
       },
       {
         "i": 185,
-        "psnr": 35.5
+        "psnr": 35.51
       },
       {
         "i": 190,

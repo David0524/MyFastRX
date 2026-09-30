@@ -6,7 +6,7 @@
 //   bg   (2D, world/camera space): canvas, text that glass is passing over, footage inside the frame, fills
 //   glass (WebGL): vial, tube, pill/frame/track, check buttons, knob, CTA - each refracts everything behind it
 //   fg   (2D, world): landed text, check marks, logo, badge, cursor
-//   top  (2D, world): the navy flood
+//   decor (2D, world): drifting color shapes + tabletop grid, erased behind text (composited into bg)
 //   hud  (2D, screen - never zoomed, never covered): captions + the static disclaimer panel
 import * as TL from './timeline.mjs';
 import {createGlass} from './glass.mjs';
@@ -34,6 +34,7 @@ export const FOOTAGE = {
   latte:   {frames: 'footage/frames/latte',   n: 155, start: 0,    hasPerson: false, label: 'Latte pour'},
   laptop:  {frames: 'footage/frames/laptop',  n: 108, start: null, hasPerson: true,  label: 'Hands on a laptop'},
   package: {frames: 'footage/frames/package', n: 117, start: null, hasPerson: true,  label: 'Package at the door'},
+  kitchen: {frames: 'footage/frames/kitchen', n: 216, start: null, hasPerson: false, label: 'Kitchen (blurred backdrop)'},
 };
 
 const CX = 510;                                   // visual center of the safe area (x 100..920)
@@ -108,9 +109,9 @@ export async function init() {
   img.badge = await load('../images/badge_bbb_a_rating_horizontal.jpg');
   const meta = await (await fetch('../assets/vial/vial_meta.json')).json();
   const raw = async f => new Uint8Array(await (await fetch(f)).arrayBuffer());
-  cv = {bg: mk(), content: mk(), fg: mk(), top: mk(), hud: mk(), gl: mk(), out: mk()};
+  cv = {bg: mk(), content: mk(), fg: mk(), top: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk()};
   // every 2D layer CPU-backed: a GPU-backed layer can hand drawImage a stale snapshot in headless Chrome
-  for (const k of ['bg', 'content', 'fg', 'top', 'hud', 'out']) cv[k].getContext('2d', {willReadFrequently: true});
+  for (const k of ['bg', 'content', 'fg', 'top', 'hud', 'out', 'decor']) cv[k].getContext('2d', {willReadFrequently: true});
   G = createGlass(cv.gl);
   G.setVial(await raw('../assets/vial/vial_color_half.rgba'), await raw('../assets/vial/vial_mask_half.rgba'), meta.half.w, meta.half.h);
   img.vialW = meta.half.w; img.vialH = meta.half.h;
@@ -168,9 +169,17 @@ function mainShape(t) {
     const c = lerp2(P.c, F.c, m), half = lerp2(P.half, F.half, m);
     return {kind: 'frame', c, half, r: lerp(P.r, F.r, m), bevel: lerp(32, 30, m), scale: [1 + sq, 1 - sq], anchor: [c[0], c[1] + half[1]], mat: {...lerpMat(TEAL, CLEAR, m), mag: lerp(GLASS ? MAG : 1, 1, m), caustic: GLASS ? .5 * (1 - m) : 0}};
   }
-  const m = eIO(prog(t, C.morphTrack.t0, C.morphTrack.land)), sq = squish(t, C.morphTrack.land, .04);
-  const c = lerp2(F.c, K.c, m), half = lerp2(F.half, K.half, m);
-  return {kind: 'track', c, half, r: lerp(F.r, K.r, m), bevel: lerp(30, 40, m), scale: [1 + sq, 1 - sq], anchor: [c[0], c[1] + half[1]], mat: CLEAR};
+  if (t < C.ctaMorph.t0) {
+    const m = eIO(prog(t, C.morphTrack.t0, C.morphTrack.land)), sq = squish(t, C.morphTrack.land, .04);
+    const c = lerp2(F.c, K.c, m), half = lerp2(F.half, K.half, m);
+    return {kind: 'track', c, half, r: lerp(F.r, K.r, m), bevel: lerp(30, 40, m), scale: [1 + sq, 1 - sq], anchor: [c[0], c[1] + half[1]], mat: CLEAR};
+  }
+  // the switched-on track becomes the CTA button; the cursor's click presses it
+  const m = eIO(prog(t, C.ctaMorph.t0, C.ctaMorph.land)), sq = squish(t, C.ctaMorph.land, .05);
+  const Q = L.cta, c = lerp2(K.c, Q.c, m), half = lerp2(K.half, Q.half, m);
+  const press = t > C.ctaClick - .08 && t < C.ctaClick ? .03 * prog(t, C.ctaClick - .08, C.ctaClick) : t >= C.ctaClick ? .03 * (1 - spring(t, C.ctaClick, .26, .05)) : 0;
+  const settled = t >= C.finalStill - .1;
+  return {kind: 'cta', c, half, r: lerp(K.r, Q.r, m), bevel: 40, scale: settled ? [1, 1] : [1 + sq - press, 1 - sq - press], anchor: press ? c : [c[0], c[1] + half[1]], mat: {...CLEAR, sigma: [.02, .01, 0], refr: 14, rim: .7, shadow: SH(.2, [.55, .64, .84])}};
 }
 
 // ---------- cursor ----------
@@ -225,11 +234,79 @@ function tubePts(dx) {
   return [[-640, 0], [-120, 0], [-92, -30], [-62, 40], [-18, -100], [18, 26], [48, 0], [130, 0]].map(([x, y]) => [x + sx + dx, y + L.tubeY]);
 }
 
+// ---------- background system ----------
+// Never plain white: a soft vertical gradient (flat #F7F7F7 through the upper half, so the supplied logo and badge sit on
+// their own background, easing to #EEF3FA), a few large soft teal/blue shapes drifting where glass passes over them,
+// and a faint graph-paper grid on the tabletop plane. Shapes and grid are erased behind every piece of text (calm zones).
+const BLOBS = [   // world coords per section; teal #14A3B8, blue #0071FE
+  {t: 0,     b: [[1010, 640, 380, 'teal', .22], [170, 840, 360, 'blue', .18], [130, 1330, 300, 'teal', .13]]},
+  {t: 5.0,   b: [[1030, 760, 340, 'teal', .20], [180, 760, 340, 'blue', .19], [930, 1300, 300, 'teal', .12]]},
+  {t: 15.35, b: [[300, 560, 300, 'teal', .22], [830, 520, 280, 'blue', .17], [150, 1250, 300, 'teal', .12]]},
+  {t: 19.30, b: [[120, 1150, 320, 'teal', .16], [990, 990, 340, 'blue', .16], [990, 290, 250, 'teal', .10]]},
+];
+const BLOB_MOVES = [[4.375, 5.0], [14.55, 15.35], [18.62, 19.30]];
+function blobsAt(t) {
+  let i = 0; while (i < BLOBS.length - 1 && t >= BLOBS[i + 1].t) i++;
+  let set = BLOBS[i].b;
+  const mv = BLOB_MOVES.find(([a, z]) => t >= a && t < z);
+  if (mv) { const k = BLOBS.findIndex(x => x.t >= mv[1] - 1e-6), m = eIO(prog(t, mv[0], mv[1])); set = BLOBS[k - 1].b.map((b, j) => b.map((v, q) => typeof v === 'number' ? lerp(v, BLOBS[k].b[j][q], m) : v)); }
+  const td = Math.min(t, C.finalStill);   // the drift stops for the final hold: the last frames are completely still
+  return set.map(([x, y, r, c, a], j) => [x + 26 * Math.sin(td * .5 + j * 2.1), y + 20 * Math.cos(td * .4 + j * 1.3), r, c, a]);
+}
+function calmZones(t) {
+  const z = [];
+  if (t < C.priceOut.t1) z.push([446, 600, 846, 826, 50]);
+  if (t < C.qualOut.t1) z.push([L.priceX - 300, L.qualY[0] - 44, L.priceX + 300, L.qualY[1] + 20, 40]);
+  if (t >= C.headSwap.t0 - .1 && t < C.wipeIn.t1) z.push([110, 268, 910, 446, 50]);
+  if (CAPTIONS.some(c => t >= c.t0 - .3 && t < c.t1 + .3)) z.push([100, 978, 920, 1094, 40]);
+  if (t >= C.feesIn[0].t0 - .1 && t < C.feesOut.t1 + .1) z.push([100, 722, 920, 916, 50]);
+  // end card: the logo and badge files carry a #F7F7F7 background, so the card must be exactly that colour well past their edges
+  if (t >= C.ctaMorph.t0) z.push([60, 250, 960, 610, 70], [160, 740, 860, 822, 40], [260, 800, 760, 1052, 50]);
+  return z;
+}
+function worldBackdrop(bg, t) {
+  bg.save(); bg.setTransform(1, 0, 0, 1, 0, 0);
+  const g = bg.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#F7F7F7'); g.addColorStop(.55, '#F7F7F7'); g.addColorStop(1, '#EEF3FA');
+  bg.fillStyle = g; bg.fillRect(0, 0, W, H); bg.restore();
+  const d = cv.decor.getContext('2d');
+  d.setTransform(1, 0, 0, 1, 0, 0); d.clearRect(0, 0, W, H); worldXf(d);
+  for (const [x, y, r, c, a] of blobsAt(t)) {
+    const rg = d.createRadialGradient(x, y, 0, x, y, r), col = c === 'teal' ? '20,163,184' : '0,113,254';
+    rg.addColorStop(0, `rgba(${col},${a})`); rg.addColorStop(.55, `rgba(${col},${a * .55})`); rg.addColorStop(1, `rgba(${col},0)`);
+    d.fillStyle = rg; d.fillRect(x - r, y - r, 2 * r, 2 * r);
+  }
+  // graph-paper grid on the table plane (world space: it magnifies under the macro camera and bends through glass)
+  d.strokeStyle = 'rgba(0,29,69,0.075)'; d.lineWidth = 1.5; d.beginPath();
+  for (let x = -1500; x <= 2600; x += 60) { d.moveTo(x + .5, -1500); d.lineTo(x + .5, 3500); }
+  for (let y = -1500; y <= 3500; y += 60) { d.moveTo(-1500, y + .5); d.lineTo(2600, y + .5); }
+  d.stroke();
+  // calm zones: fully clear inside, feathered outward
+  d.globalCompositeOperation = 'destination-out';
+  for (const [x0, y0, x1, y1, f] of calmZones(t)) {
+    // a soft, wide fade (no visible box): the blurred shape is fully calm at the text, fading out over ~2f
+    d.filter = `blur(${Math.round(f * camS * .9)}px)`; d.fillStyle = 'rgba(0,0,0,1)';
+    d.beginPath(); d.roundRect(x0 - f * .3, y0 - f * .3, x1 - x0 + f * .6, y1 - y0 + f * .6, f); d.fill();
+    d.filter = 'none'; d.fillRect(x0 + f * .6, y0 + f * .4, x1 - x0 - f * 1.2, y1 - y0 - f * .8);
+  }
+  d.globalCompositeOperation = 'source-over';
+  bg.save(); bg.setTransform(1, 0, 0, 1, 0, 0); bg.drawImage(cv.decor, 0, 0); bg.restore();
+}
+// lifestyle scenes: softly blurred kitchen behind the glass, washed light, extra calm behind the check labels
+function kitchenBackdrop(bg, t) {
+  bg.save(); bg.setTransform(1, 0, 0, 1, 0, 0);
+  if (img.foot_kitchen) bg.drawImage(img.foot_kitchen, 0, 0, W, H); else { bg.fillStyle = '#E9E6E1'; bg.fillRect(0, 0, W, H); }
+  bg.fillStyle = 'rgba(247,247,247,0.34)'; bg.fillRect(0, 0, W, H);
+  const x0 = L.rowX0 + 70, y0 = L.rows[0] - 70, y1 = L.rows[2] + 60;
+  bg.filter = 'blur(46px)'; bg.fillStyle = 'rgba(247,247,247,0.66)'; bg.beginPath(); bg.roundRect(x0 - 20, y0 - 20, 960 - x0, y1 - y0 + 40, 60); bg.fill(); bg.filter = 'none';
+  bg.restore();
+}
+const wipeInY = t => lerp(H + 40, -1460, eIO(prog(t, C.wipeIn.t0, C.wipeIn.t1)));     // top edge of the rising pane
+const wipeOutY = t => lerp(-40, H + 1460, eIO(prog(t, C.wipeOut.t0, C.wipeOut.t1)));  // bottom edge of the falling pane
+
 // ---------- frame ----------
 export async function render(t) {
   const bg = cv.bg.getContext('2d'), fg = cv.fg.getContext('2d'), top = cv.top.getContext('2d'), hud = cv.hud.getContext('2d');
   for (const c of [fg, top, hud, cv.content.getContext('2d')]) { c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, W, H); }
-  bg.setTransform(1, 0, 0, 1, 0, 0); bg.fillStyle = COLORS.off1; bg.fillRect(0, 0, W, H);
   // camera: exactly identity whenever text is being read; one push-in on the price-pill click
   const Z = C.zoom;
   const zu = t < Z.peak ? eIO(prog(t, Z.t0, Z.peak)) : 1 - eIO(prog(t, Z.peak + .2, Z.t1));
@@ -241,20 +318,23 @@ export async function render(t) {
     if (m >= 1) { camS = 1; camF = camG = [0, 0]; }
   }
   worldXf(bg); worldXf(fg); worldXf(top);
-  if (GLASS && t < C.flood.full) {
-    if (!img.grain) {                                // a tiny, seeded grain tile for the table surface
-      const gc = document.createElement('canvas'); gc.width = gc.height = 256; const gx = gc.getContext('2d'), id = gx.createImageData(256, 256);
-      let sd = 99; for (let i = 0; i < id.data.length; i += 4) { sd = (sd * 1664525 + 1013904223) >>> 0; const v = 128 + ((sd >>> 24) - 128) * .5; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; }
-      gx.putImageData(id, 0, 0); img.grain = gc;
-    }
-    bg.save(); bg.globalAlpha = .035; bg.globalCompositeOperation = 'overlay'; bg.fillStyle = bg.createPattern(img.grain, 'repeat'); bg.fillRect(-2000, -2000, 5000, 6000); bg.restore();
-    const lg = bg.createRadialGradient(360, 380, 60, 520, 760, 1300); lg.addColorStop(0, 'rgba(255,255,255,0.55)'); lg.addColorStop(1, 'rgba(226,230,236,0.35)');
-    bg.save(); bg.globalCompositeOperation = 'multiply'; bg.fillStyle = lg; bg.fillRect(-2000, -2000, 5000, 6000); bg.restore();
-  }
   const ops = [];
-  const push = eIn(prog(t, C.pushOut.t0, C.pushOut.t1)) * -1150;
-  FOOTAGE.laptop.start = C.morphFrame.t0; FOOTAGE.package.start = C.footPush.t0;
+  const push = 0;
+  FOOTAGE.laptop.start = C.morphFrame.t0; FOOTAGE.package.start = C.footPush.t0; FOOTAGE.kitchen.start = C.wipeIn.t0;
   for (const id of Object.keys(FOOTAGE)) img['foot_' + id] = await footFrame(id, t);
+  // backdrop, with the two glass-pane wipes between the glass world and the kitchen
+  const inWipe = t >= C.wipeIn.t0 && t < C.wipeIn.t1, outWipe = t >= C.wipeOut.t0 && t < C.wipeOut.t1;
+  const kitchenTime = t >= C.wipeIn.t1 && t < C.wipeOut.t0;
+  const yIn = inWipe ? wipeInY(t) : t < C.wipeIn.t0 ? 1e6 : -1e6;          // old world visible above this screen y
+  if (kitchenTime) kitchenBackdrop(bg, t);
+  else if (inWipe) { worldBackdrop(bg, t); bg.save(); bg.setTransform(1, 0, 0, 1, 0, 0); bg.beginPath(); bg.rect(0, yIn, W, H); bg.clip(); kitchenBackdrop(bg, t); bg.restore(); worldXf(bg); }
+  else if (outWipe) { const ye = wipeOutY(t); kitchenBackdrop(bg, t); bg.save(); bg.setTransform(1, 0, 0, 1, 0, 0); bg.beginPath(); bg.rect(0, 0, W, ye); bg.clip(); worldBackdrop(bg, t); bg.restore(); worldXf(bg); }
+  else worldBackdrop(bg, t);
+  worldXf(bg);
+  const frameBox = [L.frame.c[0] - L.frame.half[0] - 60, L.frame.c[1] - L.frame.half[1] - 60, L.frame.c[0] + L.frame.half[0] + 60, L.frame.c[1] + L.frame.half[1] + 60];
+  const pane = [];   // the wipe pane goes on top of every other glass pass
+  if (inWipe) pane.push(() => G.glass(cg({type: 'rect', ...CLEAR, c: [W / 2, yIn + 700], half: [W / 2 + 100, 700], r: 90, bevel: 90, refr: 34, disp: .28, lift: .01, protect: frameBox, shadow: SH(.06)})));
+  if (outWipe) { const ye = wipeOutY(t); pane.push(() => G.glass(cg({type: 'rect', ...CLEAR, c: [W / 2, ye - 700], half: [W / 2 + 100, 700], r: 90, bevel: 90, refr: 34, disp: .28, lift: .01, protect: frameBox, shadow: SH(.06)}))); }
 
   // ===== opening: full-frame footage card, native word stickers; pushes up at footOut to reveal the glass world =====
   if (!GLASS && t < C.footOut.t1) {
@@ -281,7 +361,7 @@ export async function render(t) {
   }
 
   // ===== vial + tube =====
-  if (t >= C.vialRise.t0 && t < C.pushOut.t1) {
+  if (t >= C.vialRise.t0 && t < C.wipeIn.t1) {
     const u = eOut(prog(t, C.vialRise.t0, C.vialRise.land));
     const floor = L.vial.y + img.vialH;
     let vx = L.vial.x + push, vy = L.vial.y + (1 - u) * (img.vialH + 12), rot = 0;
@@ -290,18 +370,23 @@ export async function render(t) {
     const specU = -.52 + (vx - L.vial.x) * .004 - rot * 9 + (1 - u) * .35;
     if (t >= C.tubeSlide.t0) {
       const tu = eOut(prog(t, C.tubeSlide.t0, C.tubeSlide.land));
-      ops.push(() => G.glass(cg({type: 'tube', c: [0, 0], pts: tubePts(-560 * (1 - tu) + push), r: 11, bevel: 11, refr: 8, disp: .2,
+      ops.push(() => G.glass(cg({type: 'tube', c: [0, 0], pts: tubePts(-560 * (1 - tu) + push), clip: [-1e6, yIn], r: 11, bevel: 11, refr: 8, disp: .2,
         sigma: [1.9, .95, .1], rim: .8, spec: 1, glow: .08, glowCol: [.3, .55, 1], lift: .02, shadow: SH(.16, [.62, .70, .92])})));
     }
     ops.push(() => {
       const pivot = T([vx + img.vialW / 2, vy + img.vialH]), fl = T([0, floor])[1];
-      G.vial({pos: [pivot[0] - img.vialW / 2, pivot[1] - img.vialH], scale: camS, rot, specU, clipY: fl, floorY: fl, reflA: u});
+      G.vial({pos: [pivot[0] - img.vialW / 2, pivot[1] - img.vialH], scale: camS, rot, specU, clipY: Math.min(fl, yIn), floorY: fl, reflA: u * (yIn > fl + 60 ? 1 : 0)});
     });
   }
 
   // ===== headline =====
-  if (t >= C.headSwap.t0 && t < C.pushOut.t1)
-    COPY.visitHead.forEach((s, i) => line(fg, s, CX + push, L.head2Y[i], 80, 700, COLORS.navy, {enter: eOut(prog(t, C.headSwap.t0 + i * .08, C.headSwap.land + i * .08))}));
+  if (t >= C.headSwap.t0 && t < C.wipeIn.t1) {
+    // while the pane passes, the headline sits behind it (bg) so its edge bends it, and is cut where the pane has been
+    const hc = inWipe ? bg : fg;
+    hc.save(); if (inWipe) { hc.beginPath(); hc.rect(-4000, -4000, 9000, yIn + 4000); hc.clip(); }
+    COPY.visitHead.forEach((s, i) => line(hc, s, CX + push, L.head2Y[i], 80, 700, COLORS.navy, {enter: eOut(prog(t, C.headSwap.t0 + i * .08, C.headSwap.land + i * .08))}));
+    hc.restore();
+  }
 
   // ===== price + qualification =====
   if (t < C.qualOut.t1) {
@@ -333,25 +418,39 @@ export async function render(t) {
 
   // ===== the main glass shape (pill / frame / track) and what lives inside it =====
   const shape = mainShape(t);
-  if (shape && t < C.flood.full) {
+  if (shape) {
     if (shape.kind !== 'pill') {
       const box = [L.frame.c[0] - L.frame.half[0], L.frame.c[1] - L.frame.half[1], L.frame.c[0] + L.frame.half[0], L.frame.c[1] + L.frame.half[1]];
       bg.save(); bg.beginPath(); bg.roundRect(shape.c[0] - shape.half[0], shape.c[1] - shape.half[1], 2 * shape.half[0], 2 * shape.half[1], shape.r); bg.clip();
-      const span = 2 * L.frame.half[0] + 40, fp = eIO(prog(t, C.footPush.t0, C.footPush.t1)) * span;
-      const down = shape.kind === 'track' ? eIn(prog(t, C.morphTrack.t0, C.morphTrack.t0 + .55)) * 900 : 0;
-      if (shape.kind === 'track') { bg.fillStyle = '#E4E9F0'; bg.fillRect(-500, -500, W + 1000, H + 1000); }
+      // photo A -> B: a glint of glass sweeps across; the new photo is behind it (people in both: nothing is bent)
+      const xg = lerp(box[0] + 46, box[2] - 46, eIO(prog(t, C.footPush.t0, C.footPush.t1)));
+      const down = shape.kind === 'track' || shape.kind === 'cta' ? eIn(prog(t, C.morphTrack.t0, C.morphTrack.t0 + .55)) * 900 : 0;
+      if (shape.kind === 'track' || shape.kind === 'cta') { bg.fillStyle = '#E4E9F0'; bg.fillRect(-500, -500, W + 1000, H + 1000); }
       if (down < 900) {
-        if (fp < span) footage(bg, 'laptop', box, -fp, down);
-        if (fp > 0) footage(bg, 'package', box, span - fp, down);
+        if (t < C.footPush.t1) { bg.save(); bg.beginPath(); bg.rect(xg, -4000, 9000, 9000); bg.clip(); footage(bg, 'laptop', box, 0, down); bg.restore(); }
+        if (t >= C.footPush.t0) { bg.save(); bg.beginPath(); bg.rect(-4000, -4000, xg + 4000, 9000); bg.clip(); footage(bg, 'package', box, 0, down); bg.restore(); }
       }
-      if (shape.kind === 'track' && t >= C.drag.t0) {
+      if (t >= C.footPush.t0 && t < C.footPush.t1)
+        pane.push(() => G.glass(cg({type: 'rect', ...CLEAR, c: [xg, L.frame.c[1]], half: [40, L.frame.half[1] - 3], r: 34, bevel: 34, refr: 0, protect: frameBox, rim: 1, spec: 1.2, sheenAmt: .22, sheen: 0, shadow: SH(0)})));
+      if (shape.kind === 'cta') {
+        // the switched-on blue fill fills the whole button
+        const ps = shape.scale[0];
+        bg.fillStyle = COLORS.blue; bg.beginPath(); bg.roundRect(shape.c[0] - shape.half[0] * ps + 6, shape.c[1] - shape.half[1] * ps + 6, 2 * shape.half[0] * ps - 12, 2 * shape.half[1] * ps - 12, Math.max(0, shape.r * ps - 6)); bg.fill();
+      } else if (shape.kind === 'track' && t >= C.drag.t0) {
         const kx = knobX(t), x0 = L.track.c[0] - L.track.half[0] + 16;
         bg.fillStyle = COLORS.blue; bg.beginPath();
         bg.roundRect(x0, L.track.c[1] - L.track.half[1] + 16, Math.max(kx + L.knobR + 10 - x0, 2 * L.knobR), 2 * L.track.half[1] - 32, L.track.half[1] - 16); bg.fill();
       }
       bg.restore();
     }
-    const prot = shape.kind === 'frame' ? [L.frame.c[0] - L.frame.half[0] - 60, L.frame.c[1] - L.frame.half[1] - 60, L.frame.c[0] + L.frame.half[0] + 60, L.frame.c[1] + L.frame.half[1] + 60] : null;   // hands/bodies: no bending
+    const prot = shape.kind === 'frame' ? frameBox : null;   // hands/bodies: no bending
+    if (shape.kind === 'cta' && t >= C.ctaText.t0) {
+      // the label rises inside the button (the button is its mask)
+      const ps = shape.scale[0];
+      fg.save(); fg.beginPath(); fg.roundRect(shape.c[0] - shape.half[0] * ps, shape.c[1] - shape.half[1] * ps, 2 * shape.half[0] * ps, 2 * shape.half[1] * ps, shape.r * ps); fg.clip();
+      line(fg, COPY.cta, L.cta.c[0], L.cta.c[1] + 18, 50, 600, COLORS.white, {enter: eOut(prog(t, C.ctaText.t0, C.ctaText.land))});
+      fg.restore();
+    }
     ops.push(() => G.glass(cg({type: 'rect', ...shape.mat, c: shape.c, half: shape.half, r: shape.r, bevel: shape.bevel, scale: shape.scale, anchor: shape.anchor, protect: prot, content: shape.content})));
   }
 
@@ -372,33 +471,13 @@ export async function render(t) {
   }
 
   // ===== toggle knob + fees text =====
-  if (t >= C.knobPop && t < C.flood.full) {
-    const kx = knobX(t), sq = squish(t, C.drag.t1, .07), s = spring(t, C.knobPop, .32, .08);
+  if (t >= C.knobPop && t < C.knobOut.t1) {
+    const kx = knobX(t), sq = squish(t, C.drag.t1, .07), s = spring(t, C.knobPop, .32, .08) * (1 - eIn(prog(t, C.knobOut.t0, C.knobOut.t1)));
     ops.push(() => G.glass(cg({type: 'rect', ...CLEAR, c: [kx, L.track.c[1]], half: [L.knobR, L.knobR], r: L.knobR, bevel: L.knobR, scale: [s * (1 + sq), s * (1 - sq)], anchor: [kx, L.track.c[1]], refr: 30, disp: .25, shadow: SH(.24)})));
   }
   if (t >= C.feesIn[0].t0 && t < C.feesOut.t1 + .1)
     COPY.fees.forEach((s, i) => line(fg, s, CX, L.feesY[i], 72, 700, COLORS.navy, {enter: eOut(prog(t, C.feesIn[i].t0, C.feesIn[i].land)), exit: eIn(prog(t, C.feesOut.t0 + i * .04, C.feesOut.t1 + i * .04))}));
 
-  // ===== navy flood -> CTA button =====
-  const F = C.flood;
-  if (t >= F.t0) {
-    const kc = [L.knobX[1], L.track.c[1]];
-    let c, w, h, r;
-    if (t < F.full) { const R = lerp(L.knobR, 2400, eIn(prog(t, F.t0, F.full))); c = kc; w = h = 2 * R; r = R; }
-    else { const m = eOut(prog(t, F.full, F.t1)); c = lerp2(kc, L.cta.c, m); w = lerp(4800, 2 * L.cta.half[0], m); h = lerp(4800, 2 * L.cta.half[1], m); r = lerp(2400, L.cta.r, m); }
-    const done = t >= F.t1;
-    const press = t > C.ctaClick - .08 && t < C.ctaClick ? .03 * prog(t, C.ctaClick - .08, C.ctaClick) : t >= C.ctaClick ? .03 * (1 - spring(t, C.ctaClick, .26, .05)) : 0;
-    const ps = 1 - press;
-    const target = done ? bg : top;
-    target.save(); target.fillStyle = COLORS.navy; target.beginPath();
-    target.roundRect(c[0] - w / 2 * ps, c[1] - h / 2 * ps, w * ps, h * ps, r * ps); target.fill(); target.restore();
-    if (done) {
-      ops.push(() => G.glass(cg({type: 'rect', ...CLEAR, c: L.cta.c, half: L.cta.half, r: L.cta.r, bevel: 40, scale: [ps, ps], anchor: L.cta.c, sigma: [0, 0, 0], refr: 10, rim: .55, spec: .9, lift: 0, shadow: SH(.2, [.62, .66, .76])})));
-      fg.save(); fg.beginPath(); fg.roundRect(c[0] - w / 2, c[1] - h / 2, w, h, r); fg.clip();
-      line(fg, COPY.cta, L.cta.c[0], L.cta.c[1] + 18, 50, 600, COLORS.white, {enter: eOut(prog(t, C.ctaText.t0, C.ctaText.land))});
-      fg.restore();
-    }
-  }
   // ===== end card: logo, URL, badge =====
   if (t >= C.logoIn.t0) {
     const u = eOut(prog(t, C.logoIn.t0, C.logoIn.land));
@@ -428,6 +507,7 @@ export async function render(t) {
   // ===== composite =====
   G.begin(cv.bg, cv.content);
   for (const op of ops) op();
+  for (const op of pane) op();
   G.finish();
   const out = cv.out.getContext('2d', {willReadFrequently: true});
   out.drawImage(cv.gl, 0, 0); out.drawImage(cv.fg, 0, 0); out.drawImage(cv.top, 0, 0); out.drawImage(cv.hud, 0, 0);

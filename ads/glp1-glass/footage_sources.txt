@@ -24,6 +24,13 @@ package  footage/src/mixkit-31155_package-to-door.mp4  (1920x1080, 24 fps, 9.50 
          Used 3.20-7.10 s, crop 1400x820 @ (120,260) -> 820x480 (courier's back, shoulders down; the box at the door),
          in the photo frame 11.62-15.3 s.
 
+kitchen  footage/src/mixkit-43033_kitchen-interior.mp4  (1920x1080, 23.976 fps, 12.80 s)
+         https://mixkit.co/free-stock-video/interior-view-of-a-spacious-modern-kitchen-43033/
+         https://assets.mixkit.co/videos/43033/43033-1080.mp4
+         Used 1.00-8.20 s, centre crop 608x1080 (the brand-name stand mixer is outside the crop), heavily blurred
+         (gaussian sigma 13 at half res), as the soft lifestyle backdrop behind the glass in the checks scene
+         (8.85-15.35 s). No person; the oven's small maker's name is unreadable after the blur.
+
 Grade (tools/extract-footage.sh): one shared grade on all clips - gentle contrast cut, -10% saturation, slight gamma lift,
 small cool shift - plus a per-clip exposure match. Glass never refracts the laptop or package footage (people present);
 the latte shot has no person, and the price pill refracts it.

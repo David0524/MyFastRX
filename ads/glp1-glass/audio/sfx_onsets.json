@@ -73,9 +73,9 @@
     },
     {
       "id": "slide_air",
-      "at": 8.92,
-      "gain": -21,
-      "file_start": 8.8809
+      "at": 8.93,
+      "gain": -20,
+      "file_start": 8.8909
     },
     {
       "id": "tap_low",
@@ -109,9 +109,9 @@
     },
     {
       "id": "slide_air",
-      "at": 14.72,
-      "gain": -22,
-      "file_start": 14.6809
+      "at": 14.63,
+      "gain": -21,
+      "file_start": 14.5909
     },
     {
       "id": "tap_low",
@@ -138,16 +138,16 @@
       "file_start": 16.25
     },
     {
-      "id": "slide_air",
+      "id": "slide_soft",
       "at": 18.62,
       "gain": -20,
-      "file_start": 18.5809
+      "file_start": 18.5973
     },
     {
-      "id": "tap_low",
-      "at": 19.62,
-      "gain": -17,
-      "file_start": 19.6199
+      "id": "tap_glass",
+      "at": 19.3,
+      "gain": -15,
+      "file_start": 19.3
     },
     {
       "id": "click",

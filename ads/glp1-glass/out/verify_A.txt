@@ -1,14 +1,15 @@
 PASS  video spec: h264 High 1080x1920 30/1 yuv420p frames=750 field_order=progressive bt709/bt709/bt709 range=tv
-PASS  video bitrate 10-15 Mbps: 12.45 Mbps
+PASS  video bitrate 10-15 Mbps: 12.54 Mbps
 PASS  progressive: progressive
 PASS  audio spec: aac 48000 Hz 2 ch
 PASS  duration 25 s: 25.000000
-PASS  audio: no clipping (true peak < -1 dBTP): integrated -16 LUFS, true peak -1.4 dBFS
+PASS  audio: no clipping (true peak < -1 dBTP): integrated -16 LUFS, true peak -1.5 dBFS
 PASS  audio: -16 LUFS integrated: -16 LUFS
-NOTE  disclaimer on the end card in the ENCODED file: max channel diff vs its first risen frame = 5 (frame 601), worst frame mean diff = 0.085 (H.264 noise; renderer output is checked for exact identity below)
+NOTE  disclaimer on the end card in the ENCODED file: max channel diff vs its first risen frame = 9 (frame 749), worst frame mean diff = 0.448 (H.264 noise; renderer output is checked for exact identity below)
 PASS  qualification fully present whenever $69 is visible: 268 frames show the price; frames where qualification < 90% of its settled ink: none
-NOTE  vial label vs source pixels (final H.264, rest frames): PSNR min 35.48 dB, mean 35.5 dB over 9 sampled rest frames (lossy codec; exact check on lossless render below)
-NOTE  final hold in the ENCODED file: max frame-to-frame diff from 21.6s to end = 4 (H.264 GOP refresh noise on a static picture; renderer output is checked for exact identity below)
+NOTE  vial label vs source pixels (final H.264, rest frames): PSNR min 35.34 dB, mean 35.5 dB over 9 sampled rest frames (lossy codec; exact check on lossless render below)
+NOTE  final hold in the ENCODED file: max frame-to-frame diff from 21.6s to end = 7 (H.264 GOP refresh noise on a static picture; renderer output is checked for exact identity below)
+PASS  no visible box around the logo / badge files (mean edge step, levels): {"logo":0.26,"badge":0}
 PASS  logo colors (last frame) vs logo file: {"dominant":["#021E46","#0272FE"],"fileNavy":"#001C44","fileBlue":"#0070FC","navyOk":true,"blueOk":true}
 PASS  vial label pixel-exact in the renderer output (frame 170): max channel diff = 0 over 43228 label pixels vs the half-size source
 PASS  disclaimer holds byte-identical on the end card (renderer output): end-card frames 600, 610, 650, 700, 749 (from 19.9s, once risen): identical, identical, identical, identical, identical
@@ -30,6 +31,6 @@ PASS  OCR "cta" @23s: matches exactly
 PASS  OCR "url" @23s: matches exactly
 PASS  banned wording absent from all on-screen copy: trial, /month, first month, 1st month, tirzepatide, $129, apple, ios
 PASS  only price shown is $69: $69
-PASS  VO in the final file says the script (speech-to-text): "GLP -1 care starting at $69. Start with an online visit and provider guided care from MyFastRx. Provider review, medication and shipping are all included. No membership fees and you choose when to request your next refill. See if you qualify at MyFastRx .com"
+PASS  VO in the final file says the script (speech-to-text): "GLP -1 care, starting at $69. Start with an online visit and provider -guided care from MyFastRx. Provider review, medication and shipping are all included. No membership fees and you choose when to request your next refill. See if you qualify at MyFastRx .com."
 PASS  captions sit inside their VO line windows: 4.77-6.09 "Start with an online visit" | 6.09-8.9 "and provider-guided care from MyFastRx." | 16.06-18.62 "and you choose when to request your next refill."
 PASS  caption wording is verbatim VO: each caption string found word-for-word in the VO lines
