@@ -144,7 +144,8 @@
     "disclaimer": "Compounded medication. Not FDA-approved. Results may vary. Not all patients qualify. Prescription issued only if medically appropriate following provider review. MyFastRx does not manufacture medications; product appearance and labeling may vary. Actor portrayal.",
     "qual": [
       "Introductory offer.",
-      "Regular pricing varies by plan."
+      "Regular pricing",
+      "varies by plan."
     ],
     "startingAt": "Starting at",
     "price": "$69",
