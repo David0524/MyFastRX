@@ -43,3 +43,11 @@ counsel.
 | walk_take1.mp4 | 349b80bb-a05d-491c-a794-3cf9468a998a | 720x1280, 24 fps; phone into the tote ~2.1-2.9 s, looks up and smiles from ~3.3 s; v6 uses it from 2.35 s |
 
 Credits used for footage: ~33.5 (stills ~8.5, two Seedance 2.0 fast takes 25).
+
+## Opening take (Seedance 2.0 fast, 720p, 5 s, start frame char_2.png)
+
+| File | Higgsfield job | Notes |
+|---|---|---|
+| open_take1.mp4 | f78199b2-9ebe-49fc-9a40-17ff2988081f | slow push-in; she reaches for the phone ~1.7 s, picks it up ~2.1-2.9 s, looks at it smiling; v6 uses it from 1.3 s for 2.4 s. The phone back shows a multi-lens camera bump (no logo visible) |
+
+Credits used for footage so far: ~46 (stills ~8.5, three Seedance 2.0 fast takes 37.5).

@@ -103,7 +103,7 @@ export async function init() {
   for (const k of ['table_top', 'room_back']) img[k] = await load(`../../plates/${k}.jpg`);
   img.heart = await load('../../images/heartbeat_glass.png');                 // the client's glass heartbeat, cut by tools/prep-heartbeat.py
   HB.meta = await (await fetch('../../images/heartbeat_glass.json')).json();
-  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), heart: mk(W, 700), frost: mk(108, 192)};
+  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), heart: mk(W, 700), frost: mk(108, 192), world: mk()};
   for (const k of ['bg', 'content', 'fg', 'hud', 'out', 'decor', 'grid', 'vial']) cv[k].getContext('2d', {willReadFrequently: true});
   G = createGlass(cv.gl);
   const lines = wrap(COPY.disclaimer, DISC.size, 500, DISC.w - 2 * DISC.pad), lh = Math.round(DISC.size * DISC.lh), h = lines.length * lh + 2 * DISC.pad + 4;
@@ -434,7 +434,12 @@ function sceneHook(t, cl, ops, top, bg, fg, M) {
   const F = TAP.finger, u = prog(t, ...HOOK.ring), R = t < TAP.at ? 0 : RMAX * (1 - (1 - u) ** 2.6);
   if (R < RMAX - 1) bg.drawImage(img.tapFrame, 0, 0, W, H);
   if (R > 0) {
-    bg.save(); bg.beginPath(); bg.arc(F[0], F[1], R, 0, 2 * Math.PI); bg.clip(); backdrop(bg, t, 'strings'); bg.restore();
+    // the glass world on its own canvas, masked to the circle, then laid over the footage (a clip region + the dither's
+    // 'overlay' blend directly on bg left the footage black outside the clip's bounding box on some frames)
+    const wc = cv.world.getContext('2d'); wc.setTransform(1, 0, 0, 1, 0, 0); wc.globalCompositeOperation = 'source-over'; wc.clearRect(0, 0, W, H);
+    backdrop(wc, t, 'strings');
+    wc.globalCompositeOperation = 'destination-in'; wc.fillStyle = '#000'; wc.beginPath(); wc.arc(F[0], F[1], R, 0, 2 * Math.PI); wc.fill();
+    wc.globalCompositeOperation = 'source-over'; bg.drawImage(cv.world, 0, 0);
     if (R < RMAX - 1) { const w = lerp(12, 34, Math.min(1, u * 3)) * (1 - .35 * u);
       ops.push(() => glass({type: 'ring', ...CLEAR, c: F, half: [R, 0], r: w, bevel: w, refr: 46, disp: .32, rim: 1.15, spec: 1.35, sigma: [.05, .02, .01], glow: .1, glowCol: [.35, .8, 1], oneSided: true, shadow: SH(.10)})); }
   }
@@ -492,7 +497,9 @@ export async function render(t) {
     else { wy = lerp(wp.kind === 'pulseUp' ? H + 120 : L.pulseY, -140, u); splitNew = [wy, 1e6]; splitOld = [-1e6, wy]; }   // the resident heartbeat lifts off (D: a new one rises from below)
   }
   const live = SPANS.filter(s => t >= s.t0 && t < s.t1);
-  if (live.some(s => s.id === 'hook')) img.tapFrame = await footFrame(TAP.dir, TAP.contact + (t - TAP.at) * TAP.fps, TAP.n);
+  if (live.some(s => s.id === 'hook')) img.tapFrame = t < TL.OPEN.cut   // the opening shot, then (cut on the action) the tap close-up
+    ? await footFrame(TL.OPENING.dir, (TL.OPENING.from + t) * TL.OPENING.fps, TL.OPENING.n)
+    : await footFrame(TAP.dir, TAP.contact + (t - TAP.at) * TAP.fps, TAP.n);
   if (live.some(s => s.id === 'walk')) img.walkFrame = await footFrame(WALK.dir, (WALK.from + t - C.wipeC.t0) * WALK.fps, WALK.n);
   for (const s of live) {
     const cl = live.length > 1 ? (s === live[live.length - 1] ? splitNew : splitOld) : [-1e6, 1e6];

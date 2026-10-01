@@ -1,4 +1,4 @@
-// v6 "Touch": original music bed + glass/UI sound effects, composed in code. 48 kHz stereo.
+// v6 "Touch": original music bed + UI sound effects, composed in code. 48 kHz stereo.
 //   node audio/compose_v6.mjs  ->  audio/stems/v6_music.wav, audio/stems/v6_sfx.wav, audio/sfx_v6/*.wav, audio/sfx_onsets_v6.json
 // Tempo, arrangement marks and cue times come from src/v6/timeline.mjs, so every hit sits on its picture.
 //
@@ -100,13 +100,16 @@ function pad(tones, len, vel = .05) {   // soft detuned saw pad, low-passed unde
   for (let i = 0; i < n; i++) { const t = i / SR; x[i] *= Math.min(1, t / .35) * Math.min(1, (len - t) / .4); }
   return onePoleLP(onePoleLP(x, 900), 900);
 }
-// the hook: a pad swells under the glass sounds, a riser into the drop
+// the opening: a quiet room (soft low noise), the pad swelling under her moment, a riser into the drop
+{ const n = Math.round(TL.TAP.at * SR) + SR, x = new Float32Array(n); for (let i = 0; i < n; i++) x[i] = rnd() * 2 - 1;
+  onePoleLP(onePoleLP(x, 500), 500); for (let i = 0; i < n; i++) { const t = i / SR; x[i] *= .5 * Math.min(1, t / .6) * Math.max(0, Math.min(1, (TL.TAP.at + .6 - t) / .8)); }
+  add(music, x, 0, 1, -.15); add(music, x.slice().reverse(), 0, 1, .15); }
 add(music, pad([50, 57, 61, 64], D0 + .2, .05), .4, 1, 0);
 { const [r0, r1] = TL.MUSIC.riser, n = Math.round((r1 - r0) * SR), x = new Float32Array(n), B = 256;
   for (let s = 0; s < n; s += B) { const u = s / n, blk = new Float32Array(Math.min(B, n - s)); for (let i = 0; i < blk.length; i++) blk[i] = rnd() * 2 - 1; biquadBP(blk, 800 * 12 ** u, 1.6); x.set(blk, s); }
   for (let i = 0; i < n; i++) { const u = i / n; x[i] *= .5 * u ** 2.2; }
   add(music, x, r0, 1, -.2); add(music, x, r0 + .004, 1, .2);
-  for (let k = 0; k < 8; k++) add(music, glassKey(midi(98 + k * 2), .5, .02 + .006 * k), r0 + .3 + k * (r1 - r0 - .35) / 8, 1, k % 2 ? .4 : -.4); }
+}
 // the body: from the drop to the end card
 const brk = t => t >= TL.MUSIC.breakAt && t < TL.MUSIC.breakAt + .4;   // the break before the price
 for (let t0 = D0; t0 < END - 1e-6; t0 += BAR) {
@@ -124,14 +127,14 @@ for (let t0 = D0; t0 < END - 1e-6; t0 += BAR) {
     for (let s = 0; s < 4; s++) add(music, hat(s === 2 ? .07 : .035, s === 2 && b === 3), tb + s * BT / 4, 1, .35);
   }
   // glass-key motif above 3.5 kHz, every other bar
-  if (Math.round((t0 - D0) / BAR) % 2 === 0) [[0, 105], [1.5, 107], [2.5, 109], [4, 105], [5.5, 104], [6.5, 102]].forEach(([bt, m], k) => { const tt = t0 + bt * BT; if (tt < END - .1 && !brk(tt)) add(music, glassKey(midi(m), 1.0, .07), tt, 1, k % 2 ? .4 : -.4); });
+  if (Math.round((t0 - D0) / BAR) % 2 === 0) [[0, 105], [1.5, 107], [2.5, 109], [4, 105], [5.5, 104], [6.5, 102]].forEach(([bt, m], k) => { const tt = t0 + bt * BT; if (tt < END - .1 && !brk(tt)) add(music, onePoleLP(glassKey(midi(m), .8, .035), 6000), tt, 1, k % 2 ? .4 : -.4); });
 }
 // fills: snaps on 16ths rising into the next section
 for (const [f0, f1] of TL.MUSIC.fill) for (let tt = f0, k = 0; tt < f1 - 1e-6; tt += BT / 4, k++) add(music, snapHit(.12 + .2 * (tt - f0) / (f1 - f0)), tt, 1, k % 2 ? .3 : -.3);
 // the end card: drums out, one resolving chord + shimmer that rings to the last frame
 CH[0].tones.forEach((m, j) => add(music, piano(midi(m), DUR - END - .4, .12 - j * .015), END + j * .012, 1, -.25 + j * .17));
 add(music, pad([38 + 12, ...CH[0].tones], DUR - END, .04), END, 1, 0);
-add(music, glassKey(midi(105), 2.5, .06), END + .02, 1, -.3); add(music, glassKey(midi(110), 2.5, .045), END + .5, 1, .3);
+// (no glass keys on the end card: the resolving chord carries it)
 // pump: everything but the kick dips under each kick (a gentle sidechain feel)
 { const env = new Float32Array(N).fill(1);
   for (let tb = D0; tb < END; tb += BT) { if (brk(tb)) continue; const o = Math.round(tb * SR); for (let i = 0; i < SR * .22 && o + i < N; i++) env[o + i] = Math.min(env[o + i], 1 - .35 * Math.exp(-i / (SR * .07))); }
@@ -144,79 +147,82 @@ const duck = new Float32Array(N).fill(1);
 for (let i = 0; i < N; i++) {
   const t = i / SR; let g = 0;
   for (const v of TL.VO) { const a = Math.min(1, Math.max(0, (t - (v.t0 - .08)) / .08)), r = Math.min(1, Math.max(0, ((v.t1 + .3) - t) / .3)); g = Math.max(g, Math.min(a, r)); }
-  duck[i] = 1 - g * (1 - db(-8));
+  duck[i] = 1 - g * (1 - db(-7));
 }
 music.forEach(ch => { for (let i = 0; i < N; i++) ch[i] *= duck[i]; });
 
 // ---------- sound effects ----------
-function tapGlass(vel = .6) {
-  const n = Math.round(SR * .6), x = new Float32Array(n);
-  for (const [f, a, d] of [[2380, 1, .22], [3740, .6, .14], [5230, .35, .09], [6980, .2, .06]]) { const ph = rnd() * 6.28; for (let i = 0; i < n; i++) { const t = i / SR; x[i] += vel * a * .5 * Math.sin(2 * Math.PI * f * t + ph) * Math.exp(-t / d); } }
-  for (let i = 0; i < SR * .004; i++) x[i] += (rnd() * 2 - 1) * vel * .4 * (1 - i / (SR * .004));
+// Modern UI sound, not glassware: short muted transients, soft low "thocks", airy noise moves. Nothing rings: no
+// sustained partials above 1 kHz (the v5 set's bell-like glass taps and chimes read as "chime-y").
+const env = (n, a, d) => { const e = new Float32Array(n); for (let i = 0; i < n; i++) { const t = i / SR; e[i] = Math.min(1, t / a) * Math.exp(-t / d); } return e; };
+function sine(n, f0, f1, k, ph = 0) { const x = new Float32Array(n); let p = ph; for (let i = 0; i < n; i++) { const t = i / SR, f = f1 + (f0 - f1) * Math.exp(-t / k); p += 2 * Math.PI * f / SR; x[i] = Math.sin(p); } return x; }
+function noise(n) { const x = new Float32Array(n); for (let i = 0; i < n; i++) x[i] = rnd() * 2 - 1; return x; }
+function mixInto(dst, src, g = 1, o = 0) { for (let i = 0; i < src.length && i + o < dst.length; i++) dst[i + o] += src[i] * g; return dst; }
+function tap(vel = .7) {            // a fingertip on glass, muted: a soft click and a short low body, no ring
+  const n = Math.round(SR * .16), x = new Float32Array(n), e = env(n, .0008, .028);
+  const body = sine(n, 520, 190, .012), clk = onePoleLP(onePoleHP(noise(n), 1200), 4500), ec = env(n, .0003, .004);
+  for (let i = 0; i < n; i++) x[i] = vel * (.8 * body[i] * e[i] + .55 * clk[i] * ec[i]);
   return x;
 }
-function tapLow(vel = .6) {
-  const n = Math.round(SR * .4), x = new Float32Array(n);
-  for (const [f, a, d] of [[180, 1, .07], [540, .5, .08], [1220, .3, .06], [2450, .25, .05]]) { const ph = rnd() * 6.28; for (let i = 0; i < n; i++) { const t = i / SR; x[i] += vel * a * .5 * Math.sin(2 * Math.PI * f * t + ph) * Math.exp(-t / d) * Math.min(1, t / .0015); } }
+function thock(vel = .7) {          // a soft, low landing
+  const n = Math.round(SR * .3), x = new Float32Array(n), e = env(n, .001, .07), nz = onePoleLP(noise(n), 700), en = env(n, .0005, .012);
+  const s1 = sine(n, 160, 68, .03);
+  for (let i = 0; i < n; i++) x[i] = vel * (s1[i] * e[i] + .35 * nz[i] * en[i]);
   return x;
 }
-function slide(len, f0, f1, vel = .5) {
-  const n = Math.round(SR * len), x = new Float32Array(n);
-  for (let i = 0; i < n; i++) x[i] = rnd() * 2 - 1;
-  // time-varying band-pass (block-wise)
-  const out = new Float32Array(n), B = 256;
-  for (let s = 0; s < n; s += B) { const u = s / n, blk = x.slice(s, s + B); biquadBP(blk, f0 * (f1 / f0) ** u, 1.4); out.set(blk, s); }
-  for (let i = 0; i < n; i++) { const u = i / n; out[i] *= vel * Math.sin(Math.PI * Math.min(1, u * 1.25)) ** 1.5; }
-  return out;
+function uiClick(vel = .6) {        // a short dry click (two tiny transients), above the voice's body but not bright
+  const n = Math.round(SR * .06), x = new Float32Array(n);
+  for (const [o, v] of [[0, 1], [Math.round(SR * .014), .5]]) { const c = onePoleLP(onePoleHP(noise(Math.round(SR * .006)), 1500), 5000); for (let i = 0; i < c.length; i++) x[o + i] += vel * v * c[i] * Math.exp(-i / (SR * .0011)); }
+  return x;
 }
-// glass gliding on a table: soft band-passed friction noise, bright at first, darker and quieter as it slows
-function glide(len) {
+function press(vel = .65) { return mixInto(thock(vel * .8), uiClick(vel * .7), 1, 0); }
+function toggle(vel = .75) { const x = mixInto(uiClick(vel), uiClick(vel * .7), 1, Math.round(SR * .045)); const t = thock(vel * .45); const out = new Float32Array(Math.max(x.length, t.length + Math.round(SR * .045))); mixInto(out, x); mixInto(out, t, 1, Math.round(SR * .045)); return out; }
+function tick(vel = .5) { return uiClick(vel * .8); }
+function slide(len, f0, f1, vel = .5) {   // a band-passed air move (time-varying)
+  const n = Math.round(SR * len), x = noise(n), out = new Float32Array(n), B = 256;
+  for (let s = 0; s < n; s += B) { const u = s / n, blk = x.slice(s, s + B); biquadBP(blk, f0 * (f1 / f0) ** u, 1.1); out.set(blk, s); }
+  for (let i = 0; i < n; i++) { const u = i / n; out[i] *= vel * Math.sin(Math.PI * Math.min(1, u * 1.15)) ** 1.6; }
+  return onePoleLP(out, 6000);
+}
+function glide(len) {               // something smooth moving: low, soft friction
   const n = Math.round(SR * len), out = new Float32Array(n), B = 256;
-  for (let st = 0; st < n; st += B) {
-    const u = st / n, blk = new Float32Array(Math.min(B, n - st)); for (let i = 0; i < blk.length; i++) blk[i] = rnd() * 2 - 1;
-    biquadBP(blk, 5200 * (1 - .7 * u), 2.2); out.set(blk, st);
-  }
-  for (let i = 0; i < n; i++) { const u = i / n; out[i] *= .35 * Math.min(1, u * 40) * Math.exp(-u * 3.2); }
+  for (let st = 0; st < n; st += B) { const u = st / n, blk = noise(Math.min(B, n - st)); biquadBP(blk, 1800 * (1 - .6 * u), 1.6); out.set(blk, st); }
+  for (let i = 0; i < n; i++) { const u = i / n; out[i] *= .3 * Math.min(1, u * 30) * Math.exp(-u * 3); }
   return out;
 }
-function press(vel = .6) { const a = tapLow(vel * .8), b = tapGlass(vel * .5); for (let i = 0; i < b.length && i < a.length; i++) a[i] += b[i] * (i > SR * .012 ? 1 : 0); return a; }
-function toggle(vel = .7) {
-  const n = Math.round(SR * .5), x = new Float32Array(n);
-  const click = (o, v) => { for (let i = 0; i < SR * .006; i++) x[o + i] += (rnd() * 2 - 1) * v * Math.exp(-i / (SR * .0012)); };
-  click(0, vel); click(Math.round(SR * .038), vel * .6);
-  const t2 = tapGlass(vel * .45); for (let i = 0; i < t2.length && i + Math.round(SR * .038) < n; i++) x[i + Math.round(SR * .038)] += t2[i];
-  return onePoleHP(x, 400);
+function airSwell(vel = .35) {      // replaces the old glass shimmer: a short rising breath of air
+  const x = slide(.55, 900, 5000, vel); for (let i = 0; i < x.length; i++) x[i] *= Math.min(1, i / (SR * .4)); return x;
 }
-function click(vel = .7) {   // a short, soft mouse click: two tiny transients + a faint glass tick
-  const n = Math.round(SR * .12), x = new Float32Array(n);
-  for (const [o, v] of [[0, vel], [Math.round(SR * .018), vel * .45]]) for (let i = 0; i < SR * .004 && o + i < n; i++) x[o + i] += (rnd() * 2 - 1) * v * Math.exp(-i / (SR * .0009));
-  const tk = tapGlass(vel * .18); for (let i = 0; i < n; i++) x[i] += tk[i];
-  return onePoleHP(x, 900);
-}
-function chime(vel = .4) { const a = glassKey(midi(98), 2.2, vel), c = glassKey(midi(105), 2.2, vel * .7); for (let i = 0; i < a.length; i++) a[i] += c[i]; return a; }
-function impact(vel = .8) {   // the drop: a low boom with a pitch fall, a noise burst, a glass tap on top
-  const n = Math.round(SR * 1.1), x = new Float32Array(n); let ph = 0;
-  for (let i = 0; i < n; i++) { const t = i / SR, f = 42 + 70 * Math.exp(-t / .06); ph += 2 * Math.PI * f / SR; x[i] = vel * Math.sin(ph) * Math.exp(-t / .38) * Math.min(1, t / .002); }
-  const nz = new Float32Array(Math.round(SR * .25)); for (let i = 0; i < nz.length; i++) nz[i] = (rnd() * 2 - 1) * vel * .35 * Math.exp(-i / (SR * .05));
-  onePoleLP(nz, 2500); for (let i = 0; i < nz.length; i++) x[i] += nz[i];
-  const tg = tapGlass(vel * .5); for (let i = 0; i < tg.length; i++) x[i] += tg[i];
+function bloom(vel = .5) {          // replaces the end chime: a soft low swell under the badge
+  const n = Math.round(SR * 1.2), x = new Float32Array(n), s1 = sine(n, 82, 82, 1), nz = onePoleLP(onePoleLP(noise(n), 900), 900);
+  for (let i = 0; i < n; i++) { const t = i / SR, e = Math.min(1, t / .25) * Math.exp(-Math.max(0, t - .25) / .35); x[i] = vel * e * (.6 * s1[i] + .5 * nz[i]); }
   return x;
 }
-function whoosh(len = .5, vel = .4) { const x = slide(len, 500, 5200, vel); return x; }
-function swish(vel = .4) { return slide(.26, 1800, 7000, vel); }
-function snapString(vel = .7) {   // a taut string letting go: a sharp crack, a short low twang, a little fibre noise
-  const n = Math.round(SR * .5), x = new Float32Array(n);
-  for (let i = 0; i < SR * .005; i++) x[i] += (rnd() * 2 - 1) * vel * Math.exp(-i / (SR * .0009));
-  const tw = pluck(196, .45, .6, .993); for (let i = 0; i < tw.length && i < n; i++) x[i] += tw[i] * vel * .55 * Math.exp(-i / (SR * .12));
-  const nz = slide(.18, 3000, 900, vel * .3); for (let i = 0; i < nz.length; i++) x[i + Math.round(SR * .004)] += nz[i];
-  return onePoleHP(x, 120);
+function impact(vel = .8) {         // the drop: a deep boom with a pitch fall and a soft noise burst (no glass on top)
+  const n = Math.round(SR * 1.2), x = new Float32Array(n), s1 = sine(n, 110, 40, .07), e = env(n, .002, .42);
+  const nz = onePoleLP(noise(Math.round(SR * .3)), 1800), en = env(nz.length, .001, .05);
+  for (let i = 0; i < n; i++) x[i] = vel * s1[i] * e[i];
+  for (let i = 0; i < nz.length; i++) x[i] += vel * .4 * nz[i] * en[i];
+  return x;
 }
-function tick(vel = .5) { const n = Math.round(SR * .06), x = new Float32Array(n); for (let i = 0; i < SR * .003; i++) x[i] += (rnd() * 2 - 1) * vel * Math.exp(-i / (SR * .0006)); const g = glassKey(midi(100), .06, vel * .25); for (let i = 0; i < n && i < g.length; i++) x[i] += g[i]; return onePoleHP(x, 1800); }
-function shimmer(vel = .3) { const n = Math.round(SR * .9), x = new Float32Array(n); [98, 102, 105, 110].forEach((m, k) => { const g = glassKey(midi(m), .7, vel * (1 - k * .15)); const o = Math.round(k * .045 * SR); for (let i = 0; i < g.length && o + i < n; i++) x[o + i] += g[i]; }); return x; }
+function heart(vel = .6) {          // the opening's pulse: a low "lub-dub", felt more than heard
+  const n = Math.round(SR * .55), x = new Float32Array(n);
+  for (const [o, f, v] of [[0, 62, 1], [.17, 54, .7]]) { const k = Math.round(o * SR), m = Math.round(SR * .3), s1 = sine(m, f * 1.6, f, .02), e = env(m, .004, .06); for (let i = 0; i < m; i++) x[k + i] += vel * v * s1[i] * e[i]; }
+  return onePoleLP(x, 400);
+}
+function whoosh(len = .5, vel = .38) { return slide(len, 350, 3200, vel); }
+function swish(vel = .35) { return slide(.24, 900, 4200, vel); }
+function snapString(vel = .6) {     // a taut string letting go: a dry crack and a little fibre noise (no twang)
+  const n = Math.round(SR * .3), x = new Float32Array(n);
+  const c = onePoleHP(noise(Math.round(SR * .006)), 800); for (let i = 0; i < c.length; i++) x[i] += vel * c[i] * Math.exp(-i / (SR * .0012));
+  mixInto(x, slide(.18, 2400, 700, vel * .35), 1, Math.round(SR * .004)); mixInto(x, thock(vel * .35));
+  return x;
+}
 const LIB = {
-  tap_glass: () => tapGlass(.6), tap_low: () => tapLow(.6), slide_soft: () => slide(.55, 700, 2600, .35), slide_long: () => glide(1.4), glide: () => glide(2.5),
-  press: () => press(.65), click: () => click(.7), toggle: () => toggle(.75), chime_end: () => chime(.35),
-  impact: () => impact(.8), whoosh: () => whoosh(.5, .4), swish: () => swish(.4), snap: () => snapString(.7), tick: () => tick(.5), shimmer: () => shimmer(.3),
+  tap_glass: () => tap(.7), tap_low: () => thock(.6), slide_soft: () => slide(.5, 500, 2000, .32), slide_long: () => glide(1.4), glide: () => glide(2.5),
+  press: () => press(.65), click: () => uiClick(.7), toggle: () => toggle(.75), chime_end: () => bloom(.5),
+  impact: () => impact(.8), whoosh: () => whoosh(.5, .38), swish: () => swish(.35), snap: () => snapString(.6), tick: () => tick(.5), shimmer: () => airSwell(.3),
+  heart: () => heart(.6),
 };
 // measure where each sound is actually heard: first sample within 30 dB of its peak
 const onsets = {};
@@ -235,7 +241,7 @@ for (const s of TL.SFX) {
 writeFileSync(path.join(ROOT, 'sfx_onsets_v6.json'), JSON.stringify({onsets_s: onsets, placements: TL.SFX.map(s => ({...s, file_start: +(s.at - onsets[s.id]).toFixed(4)}))}, null, 2));
 // the bed to a fixed peak (it sits under the VO; the hype bed runs a little hotter than v3's); SFX at their cue gains
 let mp = 0; for (const ch of music) for (const v of ch) mp = Math.max(mp, Math.abs(v));
-music.forEach(ch => { for (let i = 0; i < N; i++) ch[i] *= db(-11) / mp; });
+music.forEach(ch => { for (let i = 0; i < N; i++) ch[i] *= db(-9) / mp; });   // +2 dB vs v5: the bed sits a little more forward
 writeWav(path.join(ROOT, 'stems', 'v6_music.wav'), music);
 writeWav(path.join(ROOT, 'stems', 'v6_sfx.wav'), sfx);
 console.log('onsets', onsets);

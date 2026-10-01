@@ -1,25 +1,28 @@
 // Version v6 "Touch" - single source of truth for timing. Shared by the film (src/v6/scene.mjs), the audio build
 // (audio/compose_v6.mjs, tools/build-vo.mjs) and verify_v6.mjs. (v5 = the 3D-hook hype cut, src/v5/.)
 //
-// 0.00 - 3.00  HOOK: real footage. Close on her hand over her phone in a bright kitchen; she taps the black screen at
-//              1.2 s and a liquid-glass ring spreads from her fingertip across the frame - inside it the glass world,
+// 0.00 - 5.10  HOOK: real footage. A slow push-in on her at the kitchen island as she picks up her phone (a low
+//              heartbeat under it); a cut on the action to the close-up of her hand; she taps the black screen at
+//              3.3 s and a liquid-glass ring spreads from her fingertip across the frame - inside it the glass world,
 //              outside it her kitchen. A teal glass drop left at the touch point glides up and grows into the price
 //              pill, landing at 2.42 s; "$69" rises in it with its qualification (which leads). No VO, no logo.
-// 3.00 - 18.6  the v5 glass film on the beat (120 BPM), the glass heartbeat living in the bottom band.
-// 18.6 - 21.2  real again: the heartbeat lifts off to reveal her walking outdoors, "Clear pricing. / Clear care." on
+// 5.10 - 20.7  the v5 glass film on the beat (120 BPM), the glass heartbeat living in the bottom band.
+// 20.7 - 23.3  real again: the heartbeat lifts off to reveal her walking outdoors, "Clear pricing. / Clear care." on
 //              frosted glass above her; a second heartbeat sweeps up into the end card.
 //
 // Footage: Higgsfield (Seedance 2.0) clips in footage/gen/, frames by tools/extract-gen.sh. Lifestyle character only.
-export const SHIFT = 0;
+export const SHIFT = 2.1;                         // the opening's extra beat: everything after the hook moves this much
 export const FPS = 30, DURATION = 25.5 + SHIFT, W = 1080, H = 1920;
 export const BPM = 120, BEAT = 60 / BPM;          // a bar = 2 s; downbeats at 4, 6, 8 ... (the hook ends on one)
 const shiftT = v => typeof v === 'number' ? +(v + SHIFT).toFixed(4) : Array.isArray(v) ? v.map(shiftT)
   : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, ['id', 'text', 'file', 'src'].includes(k) ? x : shiftT(x)])) : v;
 
-export const OPEN = {dive: 3.0};                 // the hook hands over to the strings scene at 3.0 s
+export const OPEN = {dive: 3.0 + SHIFT, cut: 2.4};   // the hook hands over to the strings scene; `cut` = opening shot -> tap close-up
+// the opening shot (she picks up her phone): 24 fps, used from `from` s of the clip
+export const OPENING = {dir: 'open', fps: 24, n: 121, from: 1.3};   // she reaches for the phone, picks it up, looks at it
 // the tap clip: 24 fps, her fingertip touches the screen on frame 41 (0-based) at (271, 657) in the 720p source
-export const TAP = {dir: 'tap', fps: 24, n: 121, contact: 41, at: 1.2, finger: [271 * 1.5, 657 * 1.5]};
-export const HOOK = {ring: [1.2, 2.2], bead: {t0: 1.24, land: 1.5}, glide: [1.66, 2.42], qualIn: [2.34, 2.6], priceIn: [2.4, 2.66]};
+export const TAP = {dir: 'tap', fps: 24, n: 121, contact: 41, at: 1.2 + SHIFT, finger: [271 * 1.5, 657 * 1.5]};
+export const HOOK = shiftT({ring: [1.2, 2.2], bead: {t0: 1.24, land: 1.5}, glide: [1.66, 2.42], qualIn: [2.34, 2.6], priceIn: [2.4, 2.66]});
 
 export const SCENES = [{id: 'hook', t0: 0, t1: OPEN.dive}, ...shiftT([
   {id: 'strings', t0: 3.0,   t1: 5.85},    // "GLP-1 care, with no strings attached,"
@@ -121,7 +124,11 @@ export const CURSOR = [
 ].map(k => [+(k[0] + SHIFT).toFixed(4), ...k.slice(1)]);
 
 export const SFX = [
-  {id: 'tap_glass',  at: TAP.at, gain: -7},        // her fingertip touches the glass
+  {id: 'heart',      at: .55, gain: -22},          // the opening's pulse, building into her tap
+  {id: 'heart',      at: 1.55, gain: -19},
+  {id: 'heart',      at: 2.55, gain: -16},
+  {id: 'swish',      at: OPEN.cut - .06, gain: -28},   // the cut on the action
+  {id: 'tap_glass',  at: TAP.at, gain: -8},        // her fingertip touches the glass
   {id: 'whoosh',     at: TAP.at + .03, gain: -21}, // the ring spreads
   {id: 'shimmer',    at: TAP.at + .12, gain: -25},
   {id: 'slide_soft', at: HOOK.glide[0], gain: -22},  // the drop glides up and grows into the pill

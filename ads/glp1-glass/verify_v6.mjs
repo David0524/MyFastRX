@@ -122,7 +122,7 @@ const expect = [
   ['price_69', 16.2 + S, [L.priceBox[2] - L.priceBox[0] + 24, L.priceBox[3] - L.priceBox[1] + 24, L.priceBox[0] - 12, L.priceBox[1] - 12], false, COPY.price, 7],
   ['price_qual', 16.2 + S, [L.qualBox[2] - L.qualBox[0], L.qualBox[3] - L.qualBox[1], L.qualBox[0], L.qualBox[1]], false, COPY.qual.join(' ')],
   ['dose_line', 18.2 + S, lineCrop(L.doseLineY, 46), false, COPY.doseLine.join(' ')],
-  ['walk_tag', 20.6, cw(L.walkTagY[0] - 62, 160), false, COPY.tag.join(' ')],
+  ['walk_tag', 20.6 + S, cw(L.walkTagY[0] - 62, 160), false, COPY.tag.join(' ')],
   ['tag', 22.0 + S, [860, 180, 80, L.tagY[0] - 66], false, COPY.tag.join(' ')],
   ['cta', 22.6 + S, [560, 80, 230, L.cta.c[1] - 40], true, COPY.cta, 7],
   ['url', 23.0 + S, [820, 70, 100, L.urlY - 54], false, COPY.url, 7],

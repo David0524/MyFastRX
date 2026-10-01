@@ -1,23 +1,25 @@
-# MyFastRx "Liquid Glass" - v6 "Touch" (25.5 s, 1080x1920) - current
+# MyFastRx "Liquid Glass" - v6 "Touch" (27.6 s, 1080x1920) - current
 
 `out/MyFastRx_Touch_v6.mp4` (review copy `previews/v6_review_copy.mp4`). v5's glass film, opened and closed by a real
 woman (AI-generated footage, Higgsfield: Soul 2.0 / Nano Banana Pro stills, Seedance 2.0 video; see `footage/gen/README.md`).
 
 | Time | VO | Picture |
 |---|---|---|
-| 0-3.0 | none | **Real:** close on her hand over her phone in a bright kitchen. She taps the black screen at 1.2 s and a liquid-glass ring spreads from her fingertip: inside it the glass world, outside it her kitchen (the ring refracts only its inside, never her). A teal drop left at the touch point glides up and grows into the price pill; "$69" rises in it with its qualification. |
-| 3.0-18.6 | the body | v5's glass film unchanged, with the glass heartbeat in the bottom band. |
-| 18.6-21.2 | "Clear pricing, clear care." | **Real:** the heartbeat lifts off to reveal her walking outdoors; the two lines on frosted glass in the sky above her. A heartbeat sweeps up into the end card. |
-| 21.2-25.5 | "See if you qualify at MyFastRx.com." | The end card: logo, tagline, CTA, URL, BBB badge, disclaimer (bottom y 1236), the vial under it. |
+| 0-2.4 | none | **Real:** a slow push-in on her at the kitchen island as she reaches for her phone and lifts it, smiling at it; a low heartbeat "lub-dub" under it, once a second. |
+| 2.4-5.1 | none | Cut on the action to the close-up of her hand. She taps the black screen at 3.3 s and a liquid-glass ring spreads from her fingertip: inside it the glass world, outside it her kitchen (the ring refracts only its inside, never her). A teal drop left at the touch point glides up and grows into the price pill; "$69" rises in it with its qualification. |
+| 5.1-20.7 | the body | v5's glass film, with the glass heartbeat in the bottom band. |
+| 20.7-23.3 | "Clear pricing, clear care." | **Real:** the heartbeat lifts off to reveal her walking outdoors; the two lines on frosted glass in the sky above her. A heartbeat sweeps up into the end card. |
+| 23.3-27.6 | "See if you qualify at MyFastRx.com." | The end card: logo, tagline, CTA, URL, BBB badge, disclaimer (bottom y 1236), the vial under it. |
 
 **Build**
 ```
-tools/extract-gen.sh tap_take1 tap && tools/extract-gen.sh walk_take1 walk   # graded 1080x1920 frames (footage/frames/, regenerated)
+tools/extract-gen.sh open_take1 open && tools/extract-gen.sh tap_take1 tap && tools/extract-gen.sh walk_take1 walk   # graded 1080x1920 frames (footage/frames/, regenerated)
 ./render-v6.sh && node audio/compose_v6.mjs && ./mix_v6.sh
 node render.mjs --tl src/v6/timeline.mjs --page v6/film --stills v6/stills --layout v6/layout.json --only $(node verify_v6.mjs --stills)
 node verify_v6.mjs
 ```
-Compliance: she is a lifestyle character only (no implied medication use, no testimonial, she never speaks). The
+Sound: muted UI sounds (soft taps, low thocks, dry clicks, air moves; nothing that rings), a heartbeat under the
+opening, the music bed 2 dB up on v5. Compliance: she is a lifestyle character only (no implied medication use, no testimonial, she never speaks). The
 disclaimer's "Actor portrayal" vs an AI-imagery disclosure is for counsel.
 
 ---
