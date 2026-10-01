@@ -15,3 +15,14 @@ node_modules/
 ads/glp1-glass/out/stills3d/
 ads/glp1-glass/out/stems/A_vo_raw.wav
 ads/glp1-glass/out/x264A*
+ads/glp1-glass/out/v5/part_*
+ads/glp1-glass/out/v5/*.log
+ads/glp1-glass/out/v5/parts.txt
+ads/glp1-glass/out/v5/video_only.mp4
+ads/glp1-glass/out/v5/*mix.wav
+ads/glp1-glass/out/v5/stills/
+ads/glp1-glass/out/v5/stills3d/
+ads/glp1-glass/out/v5/ocr/
+ads/glp1-glass/out/v5/x264*
+ads/glp1-glass/out/v5/frame_meta.json
+ads/glp1-glass/out/stems/v5_vo_raw.wav

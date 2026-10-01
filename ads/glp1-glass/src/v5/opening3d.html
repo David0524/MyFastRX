@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>MyFastRx opening 3D</title>
+<script type="importmap">{"imports": {"three": "/node_modules/three/build/three.module.js", "three/addons/": "/node_modules/three/examples/jsm/"}}</script>
+<style>html,body{margin:0;background:#222}</style></head>
+<body>
+<script type="module">
+globalThis.__INTRO = 'glass';
+const op = await import('./opening3d.mjs');
+const TL = await import('./timeline.mjs');
+let out, ctx2d;
+window.__init = async () => { await op.init(); const c = document.createElement('canvas'); c.width = TL.W; c.height = TL.H; ctx2d = c.getContext('2d', {willReadFrequently: true}); out = c; return {}; };
+window.__render = async (t) => { const gl = op.render(t); ctx2d.drawImage(gl, 0, 0); return true; };
+window.__post = async (i) => { const d = ctx2d.getImageData(0, 0, TL.W, TL.H).data; return (await fetch('/frame?i=' + i, {method: 'POST', body: d})).status; };
+window.__png = () => out.toDataURL('image/png');
+window.__ready = true;
+</script>
+</body></html>
