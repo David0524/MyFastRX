@@ -110,9 +110,9 @@ const lineCrop = (ys, px) => cw(ys[0] - Math.round(px * .95), ys[ys.length - 1] 
 const expect = [
   ['head1', 5.75 + S, lineCrop(L.head1Y, L.px.head1), false, COPY.head1.join(' ')],
   ['head2', 6.7 + S, lineCrop(L.head2Y, L.px.head2), false, COPY.head2.join(' ')],
-  ['toggle', 8.1 + S, cw(L.toggleLabelY - 42, 56), false, COPY.toggle, 7],
-  ['head3', 8.1 + S, lineCrop(L.head2Y, L.px.head2), false, COPY.head3.join(' ')],
-  ['button', 10.3 + S, [460, 90, 230, L.btn.c[1] - 45], false, COPY.button, 7],
+  ['toggle', 8.1 + S, [440, 64, L.rowLabelX - 10, L.row.c[1] - 26], false, COPY.toggle, 7],
+  ['head3', 8.1 + S, lineCrop(L.head3Y, L.px.head3), false, COPY.head3.join(' ')],
+  ['button', 10.3 + S, [480, 90, 230, L.btn.c[1] - 45], true, COPY.button, 7],
   ['head4', 10.3 + S, lineCrop(L.head4Y, L.px.head4), false, COPY.head4.join(' ')],
   ['covers', 12.6 + S, lineCrop([L.coversY], L.px.covers), false, COPY.covers, 7],
   ['label_provider', 12.8 + S, lineCrop([L.labelY], L.px.label), false, COPY.labels[0], 7],

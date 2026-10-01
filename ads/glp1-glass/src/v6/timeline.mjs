@@ -71,17 +71,15 @@ export const CUES = shiftT({
   snap:       5.42,                               // ...snaps at the end of "attached"
   wipeA:      {t0: 5.66, t1: 6.00},               // a glass bar sweeps across: new scene left of it (cut on the downbeat... 6.0)
   // control
-  cardIn:     {t0: 5.90, land: 6.30},             // the navy card slides in ("no membership fees")
-  head2:      [{t0: Wd.membership - .04, land: Wd.membership + .24}],
-  cardOut:    {t0: 6.86, t1: 7.12},               // ...and is flicked away
-  head2Out:   {t0: 6.92, t1: 7.08},
-  toggleIn:   {t0: 7.00, land: 7.36},
+  head2:      [{t0: 5.88, land: 6.12}, {t0: Wd.membership - .02, land: Wd.membership + .24}, {t0: 6.38, land: 6.62}],   // "No / membership / fees.", a word at a time
+  head2Out:   {t0: 6.84, t1: 7.00},
+  toggleIn:   {t0: 7.04, land: 7.40},             // the "Automatic refills" settings row
   head3:      [{t0: Wd.noAuto - .04, land: Wd.noAuto + .24}],
   toggleOff:  {t0: 7.66, t1: 7.86},               // flicks OFF on "refills"
   head3Out:   {t0: 8.30, t1: 8.46},
   // request
   morphBtn:   {t0: 8.30, land: 8.66},             // the toggle becomes the "Request refill" button
-  btnPress:   9.02,                               // "you request" -> the cursor presses it
+  btnPress:   9.02,                               // "you request" -> a fingertip presses it (touch + ripple)
   checkPop:   9.08,
   pulseIn:    {t0: 3.06, land: 3.60},             // the resident glass heartbeat rises into the bottom band
   wipeB:      {t0: 10.50, t1: 11.10},             // the heartbeat lifts off and sweeps up: the old scene above it, the new one below
@@ -116,12 +114,9 @@ export const CUES = shiftT({
   finalStill: 23.90,
 });
 
-// cursor: [t, x, y, pressed, target?] (screen coords; targets resolved in scene.mjs)
-export const CURSOR = [
-  [8.40, 1160, 1000, 0], [8.88, 0, 0, 0, 'btn'], [8.96, 0, 0, 1, 'btn'], [9.08, 0, 0, 0, 'btn'], [9.90, 1160, 1060, 0],
-  [16.70, 1160, 1060, 0], [17.05, 0, 0, 0, 'knob0'], [17.15, 0, 0, 1, 'knob0'], [18.05, 0, 0, 1, 'knob1'], [18.15, 0, 0, 0, 'knob1'], [18.60, 1160, 1080, 0],
-  [21.10, 1160, 820, 0], [21.72, 0, 0, 0, 'cta'], [21.82, 0, 0, 1, 'cta'], [21.92, 0, 0, 0, 'cta'], [22.70, 1160, 760, 0],
-].map(k => [+(k[0] + SHIFT).toFixed(4), ...k.slice(1)]);
+// touches (no cursor): a glass fingertip disc lands, presses, and leaves a glass ripple - the request button, the dose
+// slider (held through the drag), the CTA
+export const TOUCHES = [{at: CUES.btnPress, target: 'btn'}, {at: CUES.drag.t0, hold: CUES.drag.t1, target: 'knob'}, {at: CUES.ctaClick, target: 'cta'}];
 
 export const SFX = [
   {id: 'heart',      at: .55, gain: -22},          // the opening's pulse, building into her tap
@@ -140,8 +135,9 @@ export const SFX = [
   {id: 'tick',       at: CUES.twineIn.land, gain: -24},
   {id: 'snap',       at: CUES.snap, gain: -13},
   {id: 'whoosh',     at: CUES.wipeA.t0 - .05, gain: -21},
-  {id: 'tap_low',    at: CUES.cardIn.land, gain: -18},
-  {id: 'swish',      at: CUES.cardOut.t0, gain: -18},
+  {id: 'tick',       at: CUES.head2[0].land - .1, gain: -24},
+  {id: 'tap_low',    at: CUES.head2[2].land - .08, gain: -20},
+  {id: 'swish',      at: CUES.head2Out.t0, gain: -24},
   {id: 'tap_low',    at: CUES.toggleIn.land, gain: -19},
   {id: 'toggle',     at: CUES.toggleOff.t1 - .05, gain: -11},
   {id: 'slide_soft', at: CUES.morphBtn.t0, gain: -22},

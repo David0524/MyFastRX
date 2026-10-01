@@ -115,22 +115,28 @@
       "file_start": 7.6773
     },
     {
+      "id": "tick",
+      "at": 8.120000000000001,
+      "gain": -24,
+      "file_start": 8.12
+    },
+    {
       "id": "tap_low",
-      "at": 8.4,
-      "gain": -18,
-      "file_start": 8.3999
+      "at": 8.64,
+      "gain": -20,
+      "file_start": 8.6399
     },
     {
       "id": "swish",
-      "at": 8.96,
-      "gain": -18,
-      "file_start": 8.9476
+      "at": 8.94,
+      "gain": -24,
+      "file_start": 8.9276
     },
     {
       "id": "tap_low",
-      "at": 9.46,
+      "at": 9.5,
       "gain": -19,
-      "file_start": 9.4599
+      "file_start": 9.4999
     },
     {
       "id": "toggle",
