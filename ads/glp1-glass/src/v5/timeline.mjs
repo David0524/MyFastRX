@@ -2,47 +2,53 @@
 // (src/v5/scene.mjs), the audio build (audio/compose_v5.mjs, tools/build-vo.mjs) and verify_v5.mjs.
 // (v3 = commit cbd39d2, sources in src/v2/*_v3.mjs; v4 = the 3D tabletop, src/t3/.)
 //
-// 0.00 - 3.00  HOOK (three.js): an action shot. A teal glass pill taps down on frame 1 and races across the table in a
-//              low tracking shot that swings round it; it lands on the printed "$69" (qualification printed beneath it)
-//              at 2.5 s, a glint crosses it, and the camera cranes up to a locked overhead that matches the 2D film's
-//              layout exactly at 3.0 s (a match-cut). No VO, no logo, no pitch.
-// 3.00 - end   2D Liquid Glass film on the beat (120 BPM): kinetic type, glass UI, the photo plates as product shots.
+// 0.00 - 4.00  HOOK (three.js): an action shot. A teal glass pill taps down on frame 1 and races across the table in a
+//              smooth low tracking shot that swings round it; it lands on the printed "$69" (qualification printed
+//              beneath it) at 2.5 s and the shot sits on it for a second (a glint crosses it), then the camera cranes up
+//              to a locked overhead that matches the 2D film's layout exactly at 4.0 s (a match-cut). No VO, no logo.
+// 4.00 - end   2D Liquid Glass film on the beat (120 BPM): kinetic type, glass UI, the photo plates as product shots, and
+//              a glass heartbeat living in the empty bottom band (it also does the wipes).
+//
+// Everything after the hook is authored below relative to a 3.0 s handoff and moved by SHIFT (the hook's sit on the
+// price), so the edit keeps its word-locked timing.
 //
 // VO: vo/body_v2.wav (ElevenLabs read at 1.15x), cut only in its pauses (speech edges: tools/vo-env.mjs) and placed on
 // downbeats. Word times below are faster-whisper on the file (tools/transcribe.py), shifted by each segment's offset.
-export const FPS = 30, DURATION = 25.5, W = 1080, H = 1920;
-export const BPM = 120, BEAT = 60 / BPM;          // a bar = 2 s; downbeats at 3, 5, 7 ... (hook ends on one)
+export const SHIFT = 1.0;
+export const FPS = 30, DURATION = 25.5 + SHIFT, W = 1080, H = 1920;
+export const BPM = 120, BEAT = 60 / BPM;          // a bar = 2 s; downbeats at 4, 6, 8 ... (the hook ends on one)
+const shiftT = v => typeof v === 'number' ? +(v + SHIFT).toFixed(4) : Array.isArray(v) ? v.map(shiftT)
+  : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, ['id', 'text', 'file', 'src'].includes(k) ? x : shiftT(x)])) : v;
 
-export const OPEN = {touch: 0, land: 2.5, startX: 2.3, glint: [2.4, 2.8], crane: [2.3, 3.0], dive: 3.0};   // dive = the handoff to 2D
+export const OPEN = {touch: 0, land: 2.5, startX: 2.3, hold: [2.5, 3.4], glint: [2.75, 3.3], crane: [3.4, 4.0], dive: 4.0};   // dive = the handoff to 2D
 
-export const SCENES = [
-  {id: 'hook',    t0: 0,     t1: 3.0},
+export const SCENES = [{id: 'hook', t0: 0, t1: OPEN.dive}, ...shiftT([
   {id: 'strings', t0: 3.0,   t1: 5.85},    // "GLP-1 care, with no strings attached,"
   {id: 'control', t0: 5.85,  t1: 8.45},    // "no membership fees, no automatic refills."
   {id: 'request', t0: 8.45,  t1: 10.80},   // "You request each one when you're ready."
   {id: 'covers',  t0: 10.80, t1: 14.60},   // "One price covers your provider review, medication, and shipping,"
   {id: 'price',   t0: 14.60, t1: 18.90},   // "starting at $69." + the dose slider (on-screen: your price doesn't climb...)
   {id: 'end',     t0: 18.90, t1: 25.5},    // "Clear pricing, clear care. See if you qualify at MyFastRx.com."
-];
+])];
 
 // cut points sit in measured pauses: 7.44|7.88, 11.04|11.37, 12.85|13.16 (file time)
-export const VO_EDIT = [
+export const VO_EDIT = [   // `at` below is pre-SHIFT
   {file: 'vo/body_v2.wav', src: [0, 7.66],      at: 3.00},    // lines 1-3, as read          (+3.00)
   {file: 'vo/body_v2.wav', src: [7.66, 11.20],  at: 11.00},   // "One price covers ..."      (+3.34)
   {file: 'vo/body_v2.wav', src: [11.20, 13.00], at: 15.00},   // "starting at $69."          (+3.80)
   {file: 'vo/body_v2.wav', src: [13.00, 17.828], at: 19.00},  // the close, on the end card  (+6.00)
-];
-export const VO = [          // measured speech windows (video time); the music ducks under these
+].map(e => ({...e, at: +(e.at + SHIFT).toFixed(4)}));
+export const VO = shiftT([          // measured speech windows; the music ducks under these
   {t0: 3.01,  t1: 5.66,  text: 'GLP-1 care, with no strings attached,'},
   {t0: 5.94,  t1: 10.44, text: "no membership fees, no automatic refills. You request each one when you're ready."},
   {t0: 11.22, t1: 14.38, text: 'One price covers your provider review, medication, and shipping,'},
   {t0: 15.17, t1: 16.65, text: 'starting at $69.'},
   {t0: 19.16, t1: 23.73, text: 'Clear pricing, clear care. See if you qualify at MyFastRx.com.'},
-];
+]);
 // word onsets (video time) the picture cuts on
-export const WORDS = {
+const WORDS0 = {
   glp: 3.00, care: 3.88, noStrings: 4.56, attached: 5.10,
-  membership: 6.02, noAuto: 7.18, refills: 7.68, you: 8.66, request: 8.72, ready: 10.14,
+  membership: 6.02, noAuto: 7.18, refills: 7.68, you: 8.66, request: 8.72, when: 9.68, ready: 10.14,
   one: 11.24, provider: 12.12, medication: 13.06, shipping: 13.92,
   starting: 15.17, price69: 15.60,
   clear1: 19.16, clear2: 20.24, see: 21.18, qualify: 21.54, url: 22.26,
@@ -50,9 +56,10 @@ export const WORDS = {
 // captions only where the on-screen type doesn't already say the line (verbatim VO). In v5 every line is set as
 // kinetic type on screen ("You request each one / when you're ready." is a headline), so there are none.
 export const CAPTIONS = [];
+export const WORDS = shiftT(WORDS0);
 
-const Wd = WORDS;
-export const CUES = {
+const Wd = WORDS0;
+export const CUES = shiftT({
   // strings
   priceOut0:  {t0: 3.02, t1: 3.16},               // the hook's "$69" leaves first, then its qualification
   qualOut0:   {t0: 3.14, t1: 3.28},
@@ -74,10 +81,12 @@ export const CUES = {
   morphBtn:   {t0: 8.30, land: 8.66},             // the toggle becomes the "Request refill" button
   btnPress:   9.02,                               // "you request" -> the cursor presses it
   checkPop:   9.08,
-  wipeB:      {t0: 10.50, t1: 11.10},             // a glass heartbeat sweeps up: the old scene above it, the new one below
+  pulseIn:    {t0: 3.06, land: 3.60},             // the resident glass heartbeat rises into the bottom band
+  wipeB:      {t0: 10.50, t1: 11.10},             // the heartbeat lifts off and sweeps up: the old scene above it, the new one below
+  pulseBack:  {t0: 10.92, land: 11.40},           // a new one rises back into the band
   // covers
   coversIn:   {t0: 11.18, land: 11.44},           // "One price covers" (11.24)
-  frameIn:    {t0: 11.02, land: 11.50},           // the glass product frame
+  frameIn:    {t0: 10.74, land: 11.22},           // the glass product frame (in as the wipe passes: no empty beat)
   shots:      [{t0: 11.40, id: 'rx'}, {t0: 12.98, id: 'vial'}, {t0: 13.84, id: 'box'}],   // glint swaps just before each word
   labels:     [{t0: Wd.provider - .06, land: Wd.provider + .20}, {t0: Wd.medication - .06, land: Wd.medication + .20}, {t0: Wd.shipping - .06, land: Wd.shipping + .20}],
   coversOut:  {t0: 14.40, t1: 14.56},
@@ -89,7 +98,7 @@ export const CUES = {
   drag:       {t0: 17.15, t1: 18.05},
   priceOut:   {t0: 18.45, t1: 18.58},             // the $69 leaves first, then its qualification, before the wipe reaches them
   qualOut:    {t0: 18.58, t1: 18.70},
-  wipeC:      {t0: 18.55, t1: 19.15},
+  wipeC:      {t0: 18.55, t1: 19.15},             // it lifts off again into the end card, and stays gone
   // end card (v3's, re-timed)
   logoIn:     {t0: 18.98, land: 19.32},
   tag:        [{t0: 19.10, land: 19.40}, {t0: 20.18, land: 20.48}],   // "Clear pricing." / "Clear care."
@@ -98,27 +107,27 @@ export const CUES = {
   ctaClick:   21.86,
   urlIn:      {t0: 22.20, land: 22.52},           // "MyFastRx.com" (22.26)
   badgePop:   22.95,
-  vialIn:     {t0: 23.02, land: 23.40},           // the vial, lying under the BBB badge, with one glint across it
+  vialIn:     {t0: 23.02, land: 23.40},           // the vial rises out of a line under the disclaimer, one glint across it
   vialGlint:  [23.40, 23.85],
   finalStill: 23.90,
-};
+});
 
 // cursor: [t, x, y, pressed, target?] (screen coords; targets resolved in scene.mjs)
 export const CURSOR = [
   [8.40, 1160, 1000, 0], [8.88, 0, 0, 0, 'btn'], [8.96, 0, 0, 1, 'btn'], [9.08, 0, 0, 0, 'btn'], [9.90, 1160, 1060, 0],
   [16.70, 1160, 1060, 0], [17.05, 0, 0, 0, 'knob0'], [17.15, 0, 0, 1, 'knob0'], [18.05, 0, 0, 1, 'knob1'], [18.15, 0, 0, 0, 'knob1'], [18.60, 1160, 1080, 0],
   [21.10, 1160, 820, 0], [21.72, 0, 0, 0, 'cta'], [21.82, 0, 0, 1, 'cta'], [21.92, 0, 0, 0, 'cta'], [22.70, 1160, 760, 0],
-];
+].map(k => [+(k[0] + SHIFT).toFixed(4), ...k.slice(1)]);
 
 export const SFX = [
   {id: 'tap_glass',  at: 0.0, gain: -7},           // the glass tap, heard on frame 1
   {id: 'glide',      at: 0.04, gain: -23},         // racing across the table
-  {id: 'tap_low',    at: OPEN.land, gain: -16},    // it settles on the price
+  {id: 'tap_low',    at: OPEN.land, gain: -16},    // it lands on the price
   {id: 'tap_glass',  at: OPEN.land + .02, gain: -23},
   {id: 'shimmer',    at: OPEN.glint[0] + .1, gain: -27},
   {id: 'swish',      at: .55, gain: -24},          // the camera swings round it
   {id: 'whoosh',     at: OPEN.crane[0], gain: -20},  // crane up to overhead
-  {id: 'impact',     at: 3.0, gain: -12},          // the drop
+  {id: 'impact',     at: OPEN.dive, gain: -12},    // the drop
   {id: 'slide_soft', at: CUES.paneForm.t0, gain: -22},
   {id: 'tap_glass',  at: CUES.paneForm.land, gain: -22},
   {id: 'tick',       at: CUES.twineIn.land, gain: -24},
@@ -152,4 +161,4 @@ export const SFX = [
   {id: 'shimmer',    at: CUES.vialGlint[0] + .05, gain: -28},
 ];
 // music arrangement marks (audio/compose_v5.mjs)
-export const MUSIC = {riser: [1.9, 3.0], drop: 3.0, fill: [[10.25, 11.0], [14.55, 15.0]], breakAt: 14.6, endAt: 19.0};
+export const MUSIC = {riser: [OPEN.dive - 1.1, OPEN.dive], drop: OPEN.dive, ...shiftT({fill: [[10.25, 11.0], [14.55, 15.0]], breakAt: 14.6, endAt: 19.0})};

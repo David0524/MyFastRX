@@ -1,9 +1,9 @@
-// v5 hook, 0 - 3.0 s (three.js, rendered frame by frame in headless Chromium): an action shot.
+// v5 hook, 0 - 4.0 s (three.js, rendered frame by frame in headless Chromium): an action shot.
 // A teal glass pill touches down on the tabletop (glass tap on frame 1) and races across it, swerving; the camera chases
 // it low, swings round beside it and ends in front as it lands on the printed "$69" (qualification printed beneath it)
-// at 2.5 s, which it magnifies. A glint sweeps the glass, then the camera cranes up to a locked top-down view that is
+// at 2.5 s, which it magnifies; the shot sits on it for a second while a glint sweeps the glass, then the camera cranes up to a locked top-down view that is
 // the 2D film's first frame exactly (pill at (510, 820), 500 px per metre, same gradient, light and grid): the cut at
-// 3.0 s is a match-cut and the 2D film carries on from it.
+// 4.0 s is a match-cut and the 2D film carries on from it.
 import * as THREE from 'three';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import * as TL from './timeline.mjs';
@@ -142,12 +142,16 @@ function pillPose(t) {
 }
 const camQ = (pos, look, up) => { const m = new THREE.Matrix4().lookAt(pos, look, up); return new THREE.Quaternion().setFromRotationMatrix(m); };
 // the chase: camera offset around the pill [t, azimuth deg (0 = in front, + = toward +x), elevation deg, distance m]
-const ORBIT = [[0, 78, 8, 1.75], [.7, 52, 10, 1.8], [1.4, 18, 12, 1.95], [2.0, -16, 16, 2.15], [2.5, -9, 30, 2.5], [3.0, -5, 40, 2.8]];
+// (smooth: one C1 spline, no handheld shake - the motion comes from the swing and the pill's own speed)
+// it starts ahead of the pill, which races toward the lens (the price is behind the camera), then swings round in front
+const ORBIT = [[0, -72, 8, 1.8], [.7, -62, 10, 1.9], [1.4, -46, 13, 2.0], [2.0, -26, 18, 2.2], [2.5, -10, 27, 2.45], [3.4, -6, 30, 2.28], [4.0, -5, 32, 2.2]];
 function orbitAt(t) {
-  let i = 0; while (i < ORBIT.length - 2 && t > ORBIT[i + 1][0]) i++;
-  const P = k => ORBIT[clamp(k, 0, ORBIT.length - 1)], p0 = P(i - 1), p1 = P(i), p2 = P(i + 1), p3 = P(i + 2);
-  const u = clamp((t - p1[0]) / (p2[0] - p1[0])), cr = (a, b, c, d) => .5 * (2 * b + (-a + c) * u + (2 * a - 5 * b + 4 * c - d) * u * u + (-a + 3 * b - 3 * c + d) * u ** 3);
-  return [1, 2, 3].map(j => cr(p0[j], p1[j], p2[j], p3[j]));
+  // Hermite spline with tangents scaled by the (uneven) key spacing, so the camera's velocity is continuous through
+  // every key (a plain Catmull-Rom on uneven keys changes speed abruptly at each one: a hitch every key)
+  const K = ORBIT, n = K.length; let i = 0; while (i < n - 2 && t > K[i + 1][0]) i++;
+  const tg = (k, j) => { const a = K[Math.max(0, k - 1)], b = K[Math.min(n - 1, k + 1)]; return (b[j] - a[j]) / (b[0] - a[0]); };
+  const t0 = K[i][0], t1 = K[i + 1][0], h = t1 - t0, u = clamp((t - t0) / h), u2 = u * u, u3 = u2 * u;
+  return [1, 2, 3].map(j => (2 * u3 - 3 * u2 + 1) * K[i][j] + (u3 - 2 * u2 + u) * h * tg(i, j) + (-2 * u3 + 3 * u2) * K[i + 1][j] + (u3 - u2) * h * tg(i + 1, j));
 }
 // the locked overhead at the handoff: the 2D layout exactly (500 px per metre at the table, pill centre at (510, 820))
 const LOCK_FOV = 62, LOCK_H = H / (2 * Math.tan(LOCK_FOV / 2 * Math.PI / 180) * SC.ppm2d);   // low and wide: a crisp lens through the pill
@@ -156,12 +160,9 @@ LOCK.look = new THREE.Vector3(LOCK.pos.x, 0, LOCK.pos.z);
 function chase(t, p) {
   const [az, el, d] = orbitAt(t), A = az * Math.PI / 180, E = el * Math.PI / 180;
   const pos = new THREE.Vector3(p.x + d * Math.sin(A) * Math.cos(E), d * Math.sin(E) + .03, p.z + d * Math.cos(A) * Math.cos(E));
-  // aim a little ahead of the pill while it moves, then at the middle of the price block once it has landed
-  const settle = eIO(prog(t, O.land - .5, O.land + .3));
-  const look = new THREE.Vector3(p.x - .16 * p.speed / 2.4, .05, p.z).lerp(new THREE.Vector3(0, 0, .2), settle);
-  // handheld: a little drift and shake, strongest at speed
-  const sh = (.004 + .006 * p.speed / 2.4) * (1 - prog(t, O.crane[0], O.crane[0] + .3));
-  pos.x += sh * Math.sin(t * 23.1) + sh * .6 * Math.sin(t * 41.7); pos.y += sh * Math.sin(t * 31.3 + 1);
+  // aim a little ahead of the pill while it moves, then at the middle of the price block, where the shot sits
+  const settle = eIO(prog(t, O.land - .6, O.land + .2));
+  const look = new THREE.Vector3(p.x - .16 * p.speed / 2.4, .05, p.z).lerp(new THREE.Vector3(0, 0, .22), settle);
   return {pos, look};
 }
 // projected screen boxes of the printed price and qualification (verify_v5.mjs: whole price on screen => whole qualification)
@@ -172,30 +173,59 @@ function boxOnScreen([[x0, z0], [x1, z1]]) {
 }
 export const frameMeta = () => lastMeta;
 
-export function render(t) {
+const smoother = u => u * u * u * (u * (6 * u - 15) + 10);   // smootherstep: no jump in acceleration (the crane's mid-move kick)
+const QC = new THREE.Vector3(0, 0, .44);                 // the qualification's centre
+function camBase(t) {
+  const p = pillPose(t), c = chase(t, p), m = smoother(prog(t, ...O.crane));
+  // crane: position, aim and roll blend together, so the pill and the price stay framed all the way up
+  return {m, pos: new THREE.Vector3().lerpVectors(c.pos, LOCK.pos, m), look: new THREE.Vector3().lerpVectors(c.look, LOCK.look, m),
+    up: new THREE.Vector3().lerpVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, -1), m).normalize(), fov: lerp(50, LOCK_FOV, m)};
+}
+function applyCam(b, a) {   // a: how far the aim leans toward the qualification (0 = the planned shot)
+  camera.fov = b.fov; camera.position.copy(b.pos); camera.quaternion.copy(camQ(b.pos, b.look.clone().lerp(QC, a), b.up));
+  camera.updateMatrixWorld(); camera.updateProjectionMatrix();
+}
+const violates = () => boxOnScreen(BOX.price) && !boxOnScreen(BOX.qual);
+// framing rule: whenever the whole price is on screen, the whole qualification must be too. Where the planned shot
+// would break it, the aim leans toward the qualification - eased in and out over half a second (planned from the
+// frames around it), never snapped per frame, which is what made the camera judder.
+const alphaCache = new Map();
+function alphaAt(t) {
+  const key = Math.round(t * 600); if (alphaCache.has(key)) return alphaCache.get(key);
+  // leaning toward the qualification frames it more (monotonic) but can also bring the whole price into view, so plan on
+  // the qualification: the least lean that frames it whole, needed wherever the price is whole with or without that lean
+  const b = camBase(t), qualAt = a => { applyCam(b, a); return boxOnScreen(BOX.qual); }, priceAt = a => { applyCam(b, a); return boxOnScreen(BOX.price); };
+  let aq = 0;
+  if (!qualAt(0)) { let lo = 0, hi = 1; for (let i = 0; i < 14; i++) { const mid = (lo + hi) / 2; if (qualAt(mid)) hi = mid; else lo = mid; } aq = hi; }
+  const r = aq > 0 && (priceAt(0) || priceAt(aq) || priceAt(aq / 2)) ? Math.min(1, aq + .04) : 0;
+  alphaCache.set(key, r); return r;
+}
+function leanAt(t) {
+  let a = 0;
+  for (let d = -.5; d <= .5 + 1e-9; d += 1 / 60) { const w = .5 + .5 * Math.cos(Math.PI * d / .5); a = Math.max(a, alphaAt(t + d) * w); }
+  return a;
+}
+function setup(t) {
   const p = pillPose(t);
   pill.position.set(p.x, 0, p.z); pill.rotation.y = p.yaw; pill.scale.set(p.sxz, p.sy, p.sxz);
   shadow.position.set(p.x + .07, .0008, p.z + .06); shadow.rotation.z = p.yaw; shadow.scale.set(p.sxz, 1, p.sxz);
-  caustic.position.set(p.x + .44, .0012, p.z + .06);   // past the right end, clear of the printed lines caustic.rotation.z = p.yaw; caustic.scale.set(p.sxz, 1, p.sxz);
-  // the glint: the studio's light strips slide across the pill's top once it has landed
+  caustic.position.set(p.x + .44, .0012, p.z + .06); caustic.rotation.z = p.yaw; caustic.scale.set(p.sxz, 1, p.sxz);   // past the right end, clear of the printed lines
+  // the glint: the studio's light strips slide across the pill's top while the shot sits on the price
   const gm = eIO(prog(t, ...O.glint));
   // reflections: lively during the chase, then turned down over the price as the camera locks (text stays crisp)
   pill.material.envMapIntensity = lerp(.55, .16, eIO(prog(t, O.glint[1] - .1, O.dive - .1)));
   scene.environmentRotation.set(0, Math.PI / 2 - .9 * (1 - gm), 0);   // ends at the clean orientation (no light strip across the price)
-  const c = chase(t, p), upY = new THREE.Vector3(0, 1, 0), upZ = new THREE.Vector3(0, 0, -1);
-  const m = eIO(prog(t, ...O.crane));
-  // crane: position, aim and roll blend together, so the pill and the price stay framed all the way up
-  const pos = new THREE.Vector3().lerpVectors(c.pos, LOCK.pos, m);
-  const look = new THREE.Vector3().lerpVectors(c.look, LOCK.look, m), up = new THREE.Vector3().lerpVectors(upY, upZ, m).normalize();
-  const q = camQ(pos, look, up);
-  camera.fov = lerp(50, LOCK_FOV, m);
-  camera.position.copy(pos); camera.quaternion.copy(q); camera.updateMatrixWorld(); camera.updateProjectionMatrix();
-  // framing clamp: whenever the whole price is on screen, the whole qualification must be too - aim toward it until it is
-  const qc = new THREE.Vector3(0, 0, .44);
-  for (let k = 0; k < 40 && boxOnScreen(BOX.price) && !boxOnScreen(BOX.qual); k++) {
-    look.lerp(qc, .06); camera.quaternion.copy(camQ(pos, look, up)); camera.updateMatrixWorld();
-  }
+  const lean = leanAt(t), b = camBase(t);
+  applyCam(b, lean);
+  let k = 0;   // a last safety net (should never run: the lean above already covers every frame)
+  for (; k < 40 && violates(); k++) applyCam(b, Math.min(1, lean + (k + 1) * .03));
+  return {lean, k};
+}
+// the camera pose without rendering (smoothness checks)
+export function pose(t) { const dbg = setup(t); const d = new THREE.Vector3(); camera.getWorldDirection(d); return {p: camera.position.toArray(), d: d.toArray(), pill: pill.position.toArray(), dbg: {...dbg, pw: boxOnScreen(BOX.price), qw: boxOnScreen(BOX.qual)}}; }
+export function render(t) {
+  const {lean, k} = setup(t);
   renderer.render(scene, camera);
-  lastMeta = {t, priceWhole: boxOnScreen(BOX.price), qualWhole: boxOnScreen(BOX.qual)};
+  lastMeta = {t, priceWhole: boxOnScreen(BOX.price), qualWhole: boxOnScreen(BOX.qual), lean: +lean.toFixed(3), clamp: k};
   return canvas;
 }

@@ -1,6 +1,6 @@
 // v5 "Hype": measures the FINAL file (not the plan).  node verify_v5.mjs [out/MyFastRx_Hype_v5.mp4]  ->  out/v5/verify.json
 // needs: ./render-v5.sh (out/v5/frame_meta.json, out/v5/layout.json), ./mix_v5.sh, and renderer stills for the lossless checks:
-//   node render.mjs --tl src/v5/timeline.mjs --page v5/film --stills v5/stills --layout v5/layout.json --only 600,650,720,740,764
+//   node render.mjs --tl src/v5/timeline.mjs --page v5/film --stills v5/stills --layout v5/layout.json --only $(node verify_v5.mjs --stills)
 import {execFileSync, spawn} from 'node:child_process';
 import {readFileSync, writeFileSync, mkdirSync} from 'node:fs';
 import * as TL from './src/v5/timeline.mjs';
@@ -8,8 +8,10 @@ import * as TL from './src/v5/timeline.mjs';
 const FILE = process.argv[2] || 'out/MyFastRx_Hype_v5.mp4';
 const {disc, L, COPY} = JSON.parse(readFileSync('out/v5/layout.json', 'utf8'));
 const META = JSON.parse(readFileSync('out/v5/frame_meta.json', 'utf8'));
-const {W, H, FPS, CUES: C} = TL, N = Math.round(TL.DURATION * FPS), HAND = Math.round(TL.OPEN.dive * FPS);
+const {W, H, FPS, CUES: C, SHIFT: S} = TL, N = Math.round(TL.DURATION * FPS), HAND = Math.round(TL.OPEN.dive * FPS);
 const R = {file: FILE, checks: []};
+export const STILLS = {disc: [Math.ceil((C.discIn.land + .1) * FPS), Math.ceil((C.discIn.land + 1.5) * FPS), Math.ceil(C.finalStill * FPS) + 3, N - 1], hold: [Math.ceil(C.finalStill * FPS) + 3, N - 15]};
+if (process.argv.includes('--stills')) { console.log([...new Set([...STILLS.disc, ...STILLS.hold])].join(',')); process.exit(0); }
 const ok = (name, pass, detail) => { R.checks.push({name, pass, detail}); console.log(`${pass === true ? 'PASS' : pass === false ? 'FAIL' : 'NOTE'}  ${name}: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`); };
 mkdirSync('out/v5/ocr', {recursive: true});
 
@@ -66,7 +68,7 @@ ok('disclaimer absent before the end card', stats.panelEarly.length === 0, stats
 ok('disclaimer held on the end card (ENCODED file)', null, `max channel diff vs its first risen frame = ${stats.panelMax} (H.264 noise; identity checked on renderer output below)`);
 // price -> qualification: on every 2D frame that draws the price, measure the ink of each against its settled value
 {
-  const ref = stats.rows.find(r => r.i === Math.round(16.2 * FPS)), bad = []; let whole = 0;
+  const ref = stats.rows.find(r => r.i === Math.round((16.2 + S) * FPS)), bad = []; let whole = 0;
   for (const r of stats.rows) {
     if (r.p < ref.p * .97) continue;                  // the price is not wholly on screen (rising, leaving, or under the wipe)
     whole++; if (r.q < ref.q * .95) bad.push(r.i);
@@ -82,10 +84,10 @@ ok('logo colors (last frame) vs logo file', R.lastFrameLogo.navyOk && R.lastFram
 const still = i => execFileSync('ffmpeg', ['-v', 'error', '-i', `out/v5/stills/f${String(i).padStart(4, '0')}.png`, '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], {maxBuffer: 1 << 28});
 try {
   const region = (buf, [x0, y0, x1, y1]) => { const o = []; for (let y = y0; y < y1; y++) o.push(buf.subarray((y * W + x0) * 3, (y * W + x1) * 3)); return Buffer.concat(o); };
-  const ids = [600, 650, 720, 764], p0 = region(still(ids[0]), panel), same = ids.map(i => region(still(i), panel).equals(p0));
+  const ids = STILLS.disc, p0 = region(still(ids[0]), panel), same = ids.map(i => region(still(i), panel).equals(p0));
   ok('disclaimer byte-identical on the end card (renderer output)', same.every(Boolean), `frames ${ids.join(', ')}: ${same.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
-  const e = still(N - 1), holds = [720, 740].map(i => still(i).equals(e));
-  ok('final hold byte-identical (renderer output)', holds.every(Boolean), `frames 720, 740 vs ${N - 1}: ${holds.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
+  const e = still(N - 1), holds = STILLS.hold.map(i => still(i).equals(e));
+  ok('final hold byte-identical (renderer output)', holds.every(Boolean), `frames ${STILLS.hold.join(', ')} vs ${N - 1}: ${holds.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
 } catch (e) { ok('lossless checks', false, 'stills missing - see the header (' + String(e).slice(0, 80) + ')'); }
 
 // ---------- 4. OCR ----------
@@ -117,24 +119,24 @@ const P = L.pill.c, F = L.frame, cw = (y0, h) => [820, h, 100, y0];   // full sa
 const dc = [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4];
 const lineCrop = (ys, px) => cw(ys[0] - Math.round(px * .95), ys[ys.length - 1] - ys[0] + Math.round(px * 1.25));
 const expect = [
-  ['head1', 5.75, lineCrop(L.head1Y, L.px.head1), false, COPY.head1.join(' ')],
-  ['head2', 6.7, lineCrop(L.head2Y, L.px.head2), false, COPY.head2.join(' ')],
-  ['toggle', 8.1, cw(L.toggleLabelY - 42, 56), false, COPY.toggle, 7],
-  ['head3', 8.1, lineCrop(L.head2Y, L.px.head2), false, COPY.head3.join(' ')],
-  ['button', 10.3, [460, 90, 230, L.btn.c[1] - 45], false, COPY.button, 7],
-  ['head4', 10.3, lineCrop(L.head4Y, L.px.head4), false, COPY.head4.join(' ')],
-  ['covers', 12.6, lineCrop([L.coversY], L.px.covers), false, COPY.covers, 7],
-  ['label_provider', 12.8, lineCrop([L.labelY], L.px.label), false, COPY.labels[0], 7],
-  ['label_medication', 13.7, lineCrop([L.labelY], L.px.label), false, COPY.labels[1], 7],
-  ['label_shipping', 14.3, lineCrop([L.labelY], L.px.label), false, COPY.labels[2], 7],
-  ['price_starting', 16.2, [320, 56, P[0] - 160, P[1] - 110], false, COPY.startingAt, 7],
-  ['price_69', 16.2, [L.priceBox[2] - L.priceBox[0] + 24, L.priceBox[3] - L.priceBox[1] + 24, L.priceBox[0] - 12, L.priceBox[1] - 12], false, COPY.price, 7],
-  ['price_qual', 16.2, [L.qualBox[2] - L.qualBox[0], L.qualBox[3] - L.qualBox[1], L.qualBox[0], L.qualBox[1]], false, COPY.qual.join(' ')],
-  ['dose_line', 18.2, lineCrop(L.doseLineY, 46), false, COPY.doseLine.join(' ')],
-  ['tag', 21.0, [860, 180, 80, L.tagY[0] - 66], false, COPY.tag.join(' ')],
-  ['cta', 22.6, [560, 80, 230, L.cta.c[1] - 40], true, COPY.cta, 7],
-  ['url', 23.0, [820, 70, 100, L.urlY - 54], false, COPY.url, 7],
-  ['disclaimer', 21.0, dc, true, COPY.disclaimer],
+  ['head1', 5.75 + S, lineCrop(L.head1Y, L.px.head1), false, COPY.head1.join(' ')],
+  ['head2', 6.7 + S, lineCrop(L.head2Y, L.px.head2), false, COPY.head2.join(' ')],
+  ['toggle', 8.1 + S, cw(L.toggleLabelY - 42, 56), false, COPY.toggle, 7],
+  ['head3', 8.1 + S, lineCrop(L.head2Y, L.px.head2), false, COPY.head3.join(' ')],
+  ['button', 10.3 + S, [460, 90, 230, L.btn.c[1] - 45], false, COPY.button, 7],
+  ['head4', 10.3 + S, lineCrop(L.head4Y, L.px.head4), false, COPY.head4.join(' ')],
+  ['covers', 12.6 + S, lineCrop([L.coversY], L.px.covers), false, COPY.covers, 7],
+  ['label_provider', 12.8 + S, lineCrop([L.labelY], L.px.label), false, COPY.labels[0], 7],
+  ['label_medication', 13.7 + S, lineCrop([L.labelY], L.px.label), false, COPY.labels[1], 7],
+  ['label_shipping', 14.3 + S, lineCrop([L.labelY], L.px.label), false, COPY.labels[2], 7],
+  ['price_starting', 16.2 + S, [320, 56, P[0] - 160, P[1] - 110], false, COPY.startingAt, 7],
+  ['price_69', 16.2 + S, [L.priceBox[2] - L.priceBox[0] + 24, L.priceBox[3] - L.priceBox[1] + 24, L.priceBox[0] - 12, L.priceBox[1] - 12], false, COPY.price, 7],
+  ['price_qual', 16.2 + S, [L.qualBox[2] - L.qualBox[0], L.qualBox[3] - L.qualBox[1], L.qualBox[0], L.qualBox[1]], false, COPY.qual.join(' ')],
+  ['dose_line', 18.2 + S, lineCrop(L.doseLineY, 46), false, COPY.doseLine.join(' ')],
+  ['tag', 21.0 + S, [860, 180, 80, L.tagY[0] - 66], false, COPY.tag.join(' ')],
+  ['cta', 22.6 + S, [560, 80, 230, L.cta.c[1] - 40], true, COPY.cta, 7],
+  ['url', 23.0 + S, [820, 70, 100, L.urlY - 54], false, COPY.url, 7],
+  ['disclaimer', 21.0 + S, dc, true, COPY.disclaimer],
   ['disclaimer_last', TL.DURATION - .05, dc, true, COPY.disclaimer],
 ];
 const strip = s => s.toLowerCase().replace(/[^a-z0-9$\-;., ']/g, '').replace(/\s+/g, ' ').trim();

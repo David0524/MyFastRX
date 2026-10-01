@@ -45,10 +45,10 @@ export const L = {
   coversY: 350, frame: {c: [510, 780], half: [380, 350], r: 46}, labelY: 1208,
   pill: {c: [510, 640], half: [250, 140], r: 140},
   slider: {c: [510, 1004], half: [300, 20], r: 20}, knobSR: 40, doseY: 1076, doseLineY: [1150, 1206],
-  // end card, packed up so the vial fits under the badge and the disclaimer keeps its place (bottom at y 1236)
-  logo: {c: [510, 368], scale: .36}, tagY: [548, 618], tagPx: 66,
-  cta: {c: [510, 702], half: [300, 58], r: 58}, ctaPx: 46, urlY: 824, urlPx: 48, badge: {cx: 510, y: 850, w: 220},
-  endVial: {c: [510, 1013], s: .30},                   // lying on its side: 364 x 134 px, clear of the logo
+  logo: {c: [510, 400], scale: .5}, tagY: [606, 682], tagPx: 72,
+  cta: {c: [510, 790], half: [330, 70], r: 70}, ctaPx: 50, urlY: 930, urlPx: 52, badge: {cx: 510, y: 956, w: 280},
+  endVial: {cx: 510, base: 1634, s: .30},              // standing under the disclaimer (134 x 364 px, top ~y 1270), clear of the logo
+  pulseY: 1470,                                       // the resident glass heartbeat, in the otherwise empty bottom band
 };
 // price block, relative to the pill's center (as v3)
 const PRICE = {start: -66, price: 88, qual: [186, 228, 270]};
@@ -89,7 +89,9 @@ export async function init() {
   img.badge = await load('../../images/badge_bbb_a_rating_horizontal.jpg');
   for (const k of ['member_card', 'ship_box', 'rx_pad', 'vial_lying', 'twine']) img[k] = await load(`../../plates/${k}.png`);
   for (const k of ['table_top', 'room_back']) img[k] = await load(`../../plates/${k}.jpg`);
-  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height)};
+  img.heart = await load('../../images/heartbeat_glass.png');                 // the client's glass heartbeat, cut by tools/prep-heartbeat.py
+  HB.meta = await (await fetch('../../images/heartbeat_glass.json')).json();
+  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), heart: mk(W, 700)};
   for (const k of ['bg', 'content', 'fg', 'hud', 'out', 'decor', 'grid', 'vial']) cv[k].getContext('2d', {willReadFrequently: true});
   G = createGlass(cv.gl);
   const lines = wrap(COPY.disclaimer, DISC.size, 500, DISC.w - 2 * DISC.pad), lh = Math.round(DISC.size * DISC.lh), h = lines.length * lh + 2 * DISC.pad + 4;
@@ -109,12 +111,45 @@ const SH = (amt = .16, col = [.70, .74, .82]) => ({off: [5, 12], blur: 18, amt, 
 const CLEAR = {sigma: [.02, .013, .006], refr: 24, disp: .22, rim: .9, spec: 1, glow: .03, glowCol: [.4, .6, 1], lift: .02, shadow: SH()};
 const TEAL = {...CLEAR, sigma: [.19, .01, 0], refr: 30, glow: .05, glowCol: [.25, .85, .95], lift: .012, shadow: SH(.18, [.60, .80, .84]), caustic: .35, sheenAmt: .10};
 const LOCKTEAL = {...TEAL, sigma: [.45, .12, .10], lift: 0};   // the 3D pill's tint at the lock (sampled ~RGB 157,219,224 on #F7F7F7)
-const PULSE = {sigma: [1.6, .8, .08], refr: 9, disp: .2, rim: .8, spec: 1, glow: .08, glowCol: [.3, .55, 1], lift: .02, shadow: SH(.16, [.62, .70, .92])};
+const PULSE = {sigma: [2.3, 1.05, .07], refr: 14, disp: .25, rim: 1.1, spec: 1.3, glow: .14, glowCol: [.4, .65, 1], lift: .035, shadow: {off: [0, 16], blur: 22, amt: .30, col: [.55, .68, 1]}};   // deep blue glass, bright rim, a blue shadow
 const lerpMat = (a, z, m) => ({...z, sigma: lerp3(a.sigma, z.sigma, m), refr: lerp(a.refr, z.refr, m), caustic: lerp(a.caustic || 0, z.caustic || 0, m), sheenAmt: lerp(a.sheenAmt || 0, z.sheenAmt || 0, m), glowCol: lerp3(a.glowCol, z.glowCol, m), shadow: {...z.shadow, col: lerp3(a.shadow.col, z.shadow.col, m), amt: lerp(a.shadow.amt, z.shadow.amt, m)}});
 const glass = o => G.glass({...o, bevel: o.bevel ?? o.r, shadow: o.shadow || SH()});
 
 // ---------- heartbeat paths ----------
-const wipePts = y => [[-120, y], [360, y], [390, y - 30], [420, y + 34], [458, y - 92], [496, y + 44], [526, y], [1200, y]];
+// the heartbeat: the client's glass heartbeat render (images/heartbeat_glass.png), animated. It beats once a second on
+// the beat (a resting heart): the spike swells (the plate is redrawn in thin columns, each stretched about the flat
+// line, so only the spike grows and the tube keeps its thickness) and a soft light runs along the tube.
+const HB = {meta: null, len: 860, cx: 510};
+function beatA(t) { const d = ((t - TL.OPEN.dive) % 1 + 1) % 1; return 1 + .10 * (d < .07 ? d / .07 : Math.exp(-(d - .07) / .2)); }
+function drawHeart(ctx, y, t, amp = beatA(t), light = true) {
+  const M = HB.meta, im = img.heart, s = HB.len / (M.tube[1] - M.tube[0]), base = M.baseline;
+  const x0 = HB.cx - (M.tube[0] + M.tube[1]) / 2 * s, hc = cv.heart.getContext('2d'), oy = 300;   // the work canvas: flat line at y 300
+  hc.setTransform(1, 0, 0, 1, 0, 0); hc.globalCompositeOperation = 'source-over'; hc.clearRect(0, 0, W, 700); hc.imageSmoothingQuality = 'high';
+  const sp = [M.path[1][0] - 30, M.path[5][0] + 30], STEP = 6;
+  for (let sx = 0; sx < im.width; sx += STEP) {
+    const u = clamp((sx - sp[0]) / (sp[1] - sp[0])), bump = Math.sin(Math.PI * u) ** 2, A = 1 + (amp - 1) * bump;
+    hc.drawImage(im, sx, 0, STEP + 1, im.height, x0 + sx * s, oy - base * s * A, (STEP + 1) * s, im.height * s * A);
+  }
+  if (light) {   // the light along the tube, launched on each beat
+    const d = ((t - TL.OPEN.dive) % 1 + 1) % 1;
+    if (d < .75) {
+      const P = M.path.map(([px, py]) => [x0 + px * s, oy + (py - base) * s * (px > sp[0] && px < sp[1] ? amp : 1)]);
+      const L2 = []; let tot = 0; for (let i = 0; i < P.length - 1; i++) { const l = Math.hypot(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]); L2.push(l); tot += l; }
+      let q = lerp(.12, .88, eIO(d / .75)) * tot, i = 0; while (i < L2.length - 1 && q > L2[i]) { q -= L2[i]; i++; }
+      const u = q / L2[i], lx = lerp(P[i][0], P[i + 1][0], u), ly = lerp(P[i][1], P[i + 1][1], u), a = .55 * Math.sin(Math.PI * d / .75);
+      const g = hc.createRadialGradient(lx, ly, 0, lx, ly, 60); g.addColorStop(0, `rgba(255,255,255,${a.toFixed(3)})`); g.addColorStop(.4, `rgba(190,220,255,${(a * .5).toFixed(3)})`); g.addColorStop(1, 'rgba(190,220,255,0)');
+      hc.globalCompositeOperation = 'source-atop'; hc.fillStyle = g; hc.fillRect(lx - 60, ly - 60, 120, 120); hc.globalCompositeOperation = 'source-over';
+    }
+  }
+  ctx.drawImage(cv.heart, 0, y - oy);
+}
+// the resident heartbeat in the bottom band (aside from the hook and the end card); it lifts off to make wipes B and C
+function residents(t) {
+  const out = [], rise = (cue) => lerp(H + 70, L.pulseY, eOut(prog(t, cue.t0, cue.land)));
+  if (t >= C.pulseIn.t0 && t < C.wipeB.t0) out.push(rise(C.pulseIn));
+  if (t >= C.pulseBack.t0 && t < C.wipeC.t0) out.push(rise(C.pulseBack));
+  return out;
+}
 
 // ---------- background system (src/v5/backdrop.mjs: the same light is printed on the 3D hook's table) ----------
 function calmZones(t, sec) {
@@ -124,7 +159,7 @@ function calmZones(t, sec) {
   if (sec === 'control') z.push([100, 880, 920, 1110, 50, 1], [180, 370, 840, 440, 30, by(C.toggleIn.t0)]);
   if (sec === 'covers') z.push([110, 262, 910, 380, 40, by(C.coversIn.t0)], [130, 1146, 890, 1232, 40, by(C.labels[0].t0)],
     [380, 560, 640, 750, 40, by(C.priceIn.t0)], [200, 770, 820, 922, 40, by(C.priceIn.t0)], [180, 1050, 840, 1095, 30, by(C.sliderIn.t0)], [100, 1100, 920, 1225, 40, by(C.doseLine.t0)]);
-  if (sec === 'end') z.push([40, 240, 980, 490, 60, 1], [100, 470, 920, 640, 50, by(C.tag[0].t0)], [140, 750, 880, 1090, 50, by(C.urlIn.t0)]);
+  if (sec === 'end') z.push([40, 240, 980, 560, 70, 1], [100, 550, 920, 710, 50, by(C.tag[0].t0)], [140, 860, 880, 1090, 50, by(C.urlIn.t0)]);
   return z.filter(q => q[5] > 0);
 }
 function punch(d, zones, strength, featherK) {   // feathered holes, cast as a shadow from an off-canvas shape
@@ -264,7 +299,7 @@ function sceneControl(t, cl, ops, top, bg, fg) {
       line(fg, COPY.toggle, CX, L.toggleLabelY, 40, 600, COLORS.navy, {enter: eOut(prog(t, C.toggleIn.t0 + .05, C.toggleIn.land + .05)), exit: eIn(prog(t, C.morphBtn.t0, C.morphBtn.t0 + .14))});
       if (mm >= 1) { fg.save(); fg.beginPath(); fg.roundRect(c[0] - half[0] * s0, c[1] - half[1] * s0, 2 * half[0] * s0, 2 * half[1] * s0, r * s0); fg.clip();
         line(fg, COPY.button, c[0] - 26 * s0, c[1] + 18, 52, 600, COLORS.navy, {enter: eOut(prog(t, C.morphBtn.land - .1, C.morphBtn.land + .18))}); fg.restore(); }
-      COPY.head4.forEach((s, i) => line(fg, s, CX, L.head4Y[i], L.px.head4, 700, COLORS.navy, {enter: eOut(prog(t, [WORDS.you, 9.68][i] - .05, [WORDS.you, 9.68][i] + .22))}));
+      COPY.head4.forEach((s, i) => line(fg, s, CX, L.head4Y[i], L.px.head4, 700, COLORS.navy, {enter: eOut(prog(t, [WORDS.you, WORDS.when][i] - .05, [WORDS.you, WORDS.when][i] + .22))}));
     });
     const ck = spring(t, C.checkPop, .3, .07);   // the check that pops when you press it
     if (ck > 0) { const cc = [B.c[0] + 226, B.c[1]]; top.push(() => glass({type: 'rect', ...TEAL, c: cc, half: [36, 36], r: 36, bevel: 26, scale: [ck, ck], anchor: cc, refr: 14, clip: cl})); clipped(fg, cl, () => drawCheck(fg, cc, ck, 6)); }
@@ -355,19 +390,18 @@ function sceneEnd(t, cl, ops, top, bg, fg) {
     if (t >= C.urlIn.t0) line(fg, COPY.url, CX, L.urlY, L.urlPx, 600, COLORS.navy, {enter: eOut(prog(t, C.urlIn.t0, C.urlIn.land))});
     if (t >= C.badgePop - .35) { const s = t >= C.finalStill - .1 ? 1 : spring(t, C.badgePop - .35, .36, .09), bw = L.badge.w, bh = Math.round(img.badge.height * bw / img.badge.width), cx = L.badge.cx, cy = L.badge.y + bh / 2;
       fg.save(); fg.imageSmoothingQuality = 'high'; if (Math.abs(s - 1) < 1e-4) fg.drawImage(img.badge, Math.round(cx - bw / 2), L.badge.y, bw, bh); else { fg.translate(cx, cy); fg.scale(s, s); fg.drawImage(img.badge, -bw / 2, -bh / 2, bw, bh); } fg.restore(); }
-    // the vial, lying under the badge: slides in from the right on a spring, one glint across its glass, then still
+    // the vial, standing under the disclaimer: rises out of a line at its base on a spring, one glint across it, then still
     if (t >= C.vialIn.t0) {
       const V = L.endVial, v = img.vial_lying, u = t >= C.finalStill - .1 ? 1 : spring(t, C.vialIn.t0, .42, .1), w = v.width * V.s, h = v.height * V.s;
-      const x = V.c[0] + (1 - u) * 640, rot = -Math.PI / 2 + (1 - u) * .22;            // slides in, settling level
       const vc = cv.vial.getContext('2d'); vc.setTransform(1, 0, 0, 1, 0, 0); vc.globalCompositeOperation = 'source-over'; vc.clearRect(0, 0, v.width, v.height); vc.drawImage(v, 0, 0);
       const gu = prog(t, ...C.vialGlint);
-      if (gu > 0 && gu < 1) { vc.globalCompositeOperation = 'source-atop'; const gy = lerp(v.height + 200, -200, eIO(gu)), lg = vc.createLinearGradient(0, gy - 110, 0, gy + 110);
+      if (gu > 0 && gu < 1) { vc.globalCompositeOperation = 'source-atop'; const gx = lerp(-200, v.width + 200, eIO(gu)), lg = vc.createLinearGradient(gx - 90, 0, gx + 90, 0);
         lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(.5, 'rgba(255,255,255,0.40)'); lg.addColorStop(1, 'rgba(255,255,255,0)'); vc.fillStyle = lg; vc.fillRect(0, 0, v.width, v.height); }
-      fg.save(); fg.beginPath(); fg.rect(0, 940, W, 1088 - 940); fg.clip();
-      const sg = fg.createRadialGradient(x + 6, V.c[1] + w / 2 - 4, 0, x + 6, V.c[1] + w / 2 - 4, h * .62);   // contact shadow
-      sg.addColorStop(0, 'rgba(0,29,69,0.20)'); sg.addColorStop(1, 'rgba(0,29,69,0)');
-      fg.save(); fg.translate(0, V.c[1] + w / 2 - 4); fg.scale(1, .12); fg.translate(0, -(V.c[1] + w / 2 - 4)); fg.fillStyle = sg; fg.fillRect(x - h, V.c[1] + w / 2 - 4 - h, 2 * h, 2 * h); fg.restore();
-      fg.translate(x, V.c[1]); fg.rotate(rot); fg.imageSmoothingQuality = 'high'; fg.drawImage(cv.vial, -w / 2, -h / 2, w, h); fg.restore();
+      const sg = fg.createRadialGradient(V.cx + 6, V.base, 0, V.cx + 6, V.base, w * .9);   // contact shadow on the line it stands on
+      sg.addColorStop(0, `rgba(0,29,69,${(.22 * Math.min(1, u)).toFixed(3)})`); sg.addColorStop(1, 'rgba(0,29,69,0)');
+      fg.save(); fg.translate(0, V.base); fg.scale(1, .14); fg.translate(0, -V.base); fg.fillStyle = sg; fg.fillRect(V.cx - w, V.base - w, 2 * w, 2 * w); fg.restore();
+      fg.save(); fg.beginPath(); fg.rect(0, V.base - h - 40, W, h + 40); fg.clip();
+      fg.imageSmoothingQuality = 'high'; fg.drawImage(cv.vial, V.cx - w / 2, V.base - h + (1 - u) * (h + 20), w, h); fg.restore();
     }
   });
   if (t >= C.ctaIn.t0) {
@@ -375,13 +409,13 @@ function sceneEnd(t, cl, ops, top, bg, fg) {
     clipped(bg, cl, () => { bg.fillStyle = COLORS.blue; bg.beginPath(); bg.roundRect(Q.c[0] - (Q.half[0] - 6) * s, Q.c[1] - (Q.half[1] - 6) * s, 2 * (Q.half[0] - 6) * s, 2 * (Q.half[1] - 6) * s, Math.max(0, (Q.r - 6) * s)); bg.fill(); });
     ops.push(() => glass({type: 'rect', ...CLEAR, c: Q.c, half: Q.half, r: Q.r, bevel: 40, scale: [s, s], anchor: Q.c, sigma: [.02, .01, 0], refr: 14, rim: .7, shadow: SH(.13, [.55, .64, .84]), clip: cl}));   // light: the badge file below sits on flat #F7F7F7
     clipped(fg, cl, () => { fg.save(); fg.beginPath(); fg.roundRect(Q.c[0] - Q.half[0] * s, Q.c[1] - Q.half[1] * s, 2 * Q.half[0] * s, 2 * Q.half[1] * s, Q.r * s); fg.clip();
-      line(fg, COPY.cta, Q.c[0], Q.c[1] + 16, L.ctaPx, 600, COLORS.white, {enter: eOut(prog(t, C.ctaIn.t0 + .15, C.ctaIn.land + .15))}); fg.restore(); });
+      line(fg, COPY.cta, Q.c[0], Q.c[1] + 18, L.ctaPx, 600, COLORS.white, {enter: eOut(prog(t, C.ctaIn.t0 + .15, C.ctaIn.land + .15))}); fg.restore(); });
   }
 }
 
 // ---------- frame ----------
 const SPANS = [   // scene, the time it is on screen, its backdrop zones
-  {id: 'strings', fn: sceneStrings, t0: 3.0,           t1: C.wipeA.t1},
+  {id: 'strings', fn: sceneStrings, t0: TL.OPEN.dive,   t1: C.wipeA.t1},
   {id: 'control', fn: sceneControl, t0: C.wipeA.t0,    t1: C.wipeB.t1},
   {id: 'covers',  fn: sceneCovers,  t0: C.wipeB.t0,    t1: C.wipeC.t1},
   {id: 'end',     fn: sceneEnd,     t0: C.wipeC.t0,    t1: 1e9},
@@ -397,7 +431,7 @@ export async function render(t) {
   if (wp) {
     const u = eIO(prog(t, wp.t0, wp.t1));
     if (wp.kind === 'bar') { wy = lerp(-120, H + 120, u); splitNew = [-1e6, wy]; splitOld = [wy, 1e6]; }
-    else { wy = lerp(H + 120, -140, u); splitNew = [wy, 1e6]; splitOld = [-1e6, wy]; }
+    else { wy = lerp(L.pulseY, -140, u); splitNew = [wy, 1e6]; splitOld = [-1e6, wy]; }   // the resident heartbeat lifts off
   }
   const live = SPANS.filter(s => t >= s.t0 && t < s.t1);
   for (const s of live) {
@@ -406,7 +440,8 @@ export async function render(t) {
     s.fn(t, cl, ops, top, bg, fg, M);
   }
   if (wp?.kind === 'bar') top.push(() => glass({type: 'rect', ...CLEAR, c: [W / 2, wy], half: [W / 2 + 80, 46], r: 46, bevel: 40, refr: 34, rim: 1, spec: 1.2, sheenAmt: .15, sheen: 0, shadow: SH(.14)}));
-  if (wp?.kind === 'pulse') top.push(() => glass({type: 'tube', ...PULSE, c: [0, 0], pts: wipePts(wy), r: 12, bevel: 12, refr: 16, shadow: SH(.14, [.62, .70, .92])}));
+  for (const y of residents(t)) drawHeart(fg, y, t);
+  if (wp?.kind === 'pulse') drawHeart(fg, wy, t, lerp(beatA(wp.t0), 1, eIO(prog(t, wp.t0, wp.t0 + .2))), false);   // it lifts off: the wipe
 
   const cur = cursorAt(t); if (cur) drawCursor(fg, cur);
   captions(hud, t);

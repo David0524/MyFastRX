@@ -4,7 +4,7 @@
     {
       "name": "video spec",
       "pass": true,
-      "detail": "h264 High 1080x1920 30/1 yuv420p frames=765/765 bt709/bt709/bt709 range=tv"
+      "detail": "h264 High 1080x1920 30/1 yuv420p frames=795/795 bt709/bt709/bt709 range=tv"
     },
     {
       "name": "Rec.709 tagged",
@@ -27,46 +27,46 @@
       "detail": "aac 48000 Hz 2 ch"
     },
     {
-      "name": "duration 25.5 s",
+      "name": "duration 26.5 s",
       "pass": true,
-      "detail": "25.500000"
+      "detail": "26.500000"
     },
     {
       "name": "audio: -16 LUFS integrated (+-0.5)",
       "pass": true,
-      "detail": "-16 LUFS"
+      "detail": "-15.9 LUFS"
     },
     {
       "name": "audio: true peak <= -1.5 dBTP (+0.2 tolerance for AAC)",
       "pass": true,
-      "detail": "-1.5 dBTP"
+      "detail": "-1.3 dBTP"
     },
     {
       "name": "disclaimer absent before the end card",
       "pass": true,
-      "detail": "no panel before 19.3s"
+      "detail": "no panel before 20.3s"
     },
     {
       "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 12 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max channel diff vs its first risen frame = 15 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "134 frames draw the price, 103 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22022 px, qualification 5467 px, frame 486)"
+      "detail": "134 frames draw the price, 103 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22043 px, qualification 5458 px, frame 516)"
     },
     {
       "name": "final hold in the ENCODED file",
       "pass": null,
-      "detail": "max frame-to-frame diff from 23.9s to end = 5 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max frame-to-frame diff from 24.9s to end = 5 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "no visible box around the logo / badge files",
       "pass": true,
       "detail": {
-        "logo": 0.04,
-        "badge": 2
+        "logo": 0.39,
+        "badge": 0.67
       }
     },
     {
@@ -74,12 +74,12 @@
       "pass": true,
       "detail": {
         "dominant": [
-          "#021A42",
-          "#021A46",
-          "#026EFE",
           "#021E46",
-          "#026EFA",
-          "#0272FE"
+          "#021A42",
+          "#026EFE",
+          "#0272FE",
+          "#021A46",
+          "#026EFA"
         ],
         "fileNavy": "#001C44",
         "fileBlue": "#0070FC",
@@ -90,115 +90,115 @@
     {
       "name": "disclaimer byte-identical on the end card (renderer output)",
       "pass": true,
-      "detail": "frames 600, 650, 720, 764: identical, identical, identical, identical"
+      "detail": "frames 622, 663, 750, 794: identical, identical, identical, identical"
     },
     {
       "name": "final hold byte-identical (renderer output)",
       "pass": true,
-      "detail": "frames 720, 740 vs 764: identical, identical"
+      "detail": "frames 750, 780 vs 794: identical, identical"
     },
     {
       "name": "3D hook: the whole qualification is in frame whenever the whole \"$69\" is (projected boxes)",
       "pass": true,
-      "detail": "90/90 frames measured, 48 show the whole price; without the whole qualification: none"
+      "detail": "120/120 frames measured, 72 show the whole price; without the whole qualification: none"
     },
     {
       "name": "3D hook: qualification read wherever \"$69\" is read (OCR every 3rd frame)",
       "pass": true,
-      "detail": "\"$69\" read in frames 78,81,84,87; qualification not read in: none (one printed texture: a miss is OCR on a perspective view; check by eye)"
+      "detail": "\"$69\" read in frames 108,111,114,117; qualification not read in: none (one printed texture: a miss is OCR on a perspective view; check by eye)"
     },
     {
-      "name": "OCR \"head1\" @5.75s",
+      "name": "OCR \"head1\" @6.75s",
+      "pass": null,
+      "detail": "read: \"GLP-1 care. with no strings attached.\" | expected: \"GLP-1 care, with no strings attached.\""
+    },
+    {
+      "name": "OCR \"head2\" @7.7s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"head2\" @6.7s",
+      "name": "OCR \"toggle\" @9.1s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"toggle\" @8.1s",
+      "name": "OCR \"head3\" @9.1s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"head3\" @8.1s",
+      "name": "OCR \"button\" @11.3s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"button\" @10.3s",
-      "pass": true,
-      "detail": "matches exactly"
-    },
-    {
-      "name": "OCR \"head4\" @10.3s",
+      "name": "OCR \"head4\" @11.3s",
       "pass": null,
       "detail": "read: \"You request each one when youre ready.\" | expected: \"You request each one when you're ready.\""
     },
     {
-      "name": "OCR \"covers\" @12.6s",
+      "name": "OCR \"covers\" @13.6s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"label_provider\" @12.8s",
+      "name": "OCR \"label_provider\" @13.8s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"label_medication\" @13.7s",
+      "name": "OCR \"label_medication\" @14.7s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"label_shipping\" @14.3s",
+      "name": "OCR \"label_shipping\" @15.3s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"price_starting\" @16.2s",
+      "name": "OCR \"price_starting\" @17.2s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"price_69\" @16.2s",
+      "name": "OCR \"price_69\" @17.2s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"price_qual\" @16.2s",
+      "name": "OCR \"price_qual\" @17.2s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"dose_line\" @18.2s",
+      "name": "OCR \"dose_line\" @19.2s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"tag\" @21s",
+      "name": "OCR \"tag\" @22s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"cta\" @22.6s",
-      "pass": null,
-      "detail": "read: \"y See if you qualify\" | expected: \"See if you qualify\""
-    },
-    {
-      "name": "OCR \"url\" @23s",
+      "name": "OCR \"cta\" @23.6s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"disclaimer\" @21s",
+      "name": "OCR \"url\" @24s",
       "pass": true,
       "detail": "matches exactly"
     },
     {
-      "name": "OCR \"disclaimer_last\" @25.45s",
+      "name": "OCR \"disclaimer\" @22s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"disclaimer_last\" @26.45s",
       "pass": true,
       "detail": "matches exactly"
     },
@@ -225,7 +225,7 @@
     {
       "name": "VO in the final file says the script (speech-to-text)",
       "pass": true,
-      "detail": "\"GLP -1 care with no strings attached, no membership fees, no automatic refills. You request each one when you're ready. One price covers your provider review, medication and shipping, starting at $69. Clear pricing, clear care. See if you qualify at MyFastRx .com.\""
+      "detail": "\"GLP -1 care with no strings attached, no membership fees, no automatic refills. You request each one when you're ready. One price covers your provider review, medication and shipping starting at $69. Clear pricing. Clear care. See if you qualify at MyFastRX .com.\""
     },
     {
       "name": "on-screen VO lines are word-for-word VO",
@@ -235,12 +235,12 @@
   ],
   "lastFrameLogo": {
     "dominant": [
-      "#021A42",
-      "#021A46",
-      "#026EFE",
       "#021E46",
-      "#026EFA",
-      "#0272FE"
+      "#021A42",
+      "#026EFE",
+      "#0272FE",
+      "#021A46",
+      "#026EFA"
     ],
     "fileNavy": "#001C44",
     "fileBlue": "#0070FC",
@@ -248,7 +248,7 @@
     "blueOk": true
   },
   "boxEdges": {
-    "logo": 0.04,
-    "badge": 2
+    "logo": 0.39,
+    "badge": 0.67
   }
 }

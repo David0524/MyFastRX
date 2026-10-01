@@ -1,16 +1,17 @@
 // The v5 background light: a few large, very soft teal/blue pools (#14A3B8, #0071FE) drifting on the gradient.
 // Shared by the 2D film (src/v5/scene.mjs) and the 3D hook's printed tabletop (src/v5/opening3d.mjs), so the
 // match-cut at 3.0 s has the same light in the same place. Screen coordinates (1080 x 1920).
+import {SHIFT} from './timeline.mjs';
 const clamp = (v, a = 0, z = 1) => Math.min(z, Math.max(a, v));
 const lerp = (a, z, t) => a + (z - a) * t;
 const eIO = u => u < .5 ? 4 * u ** 3 : 1 - (-2 * u + 2) ** 3 / 2;
 export const GRID = {step: 60, x0: 30, y0: 40};     // lines through the hook pill's centre (510, 820), 60 px = 0.12 m
 export const BLOBS = [   // [x, y, r, color, alpha]: big radii + gaussian falloff, so they read as light, not spots
   {t: 0,     b: [[900, 520, 640, 'teal', .17], [120, 1240, 620, 'blue', .14], [980, 1500, 520, 'teal', .10]]},
-  {t: 6.0,   b: [[940, 360, 620, 'teal', .16], [100, 900, 640, 'blue', .15], [900, 1420, 540, 'teal', .10]]},
-  {t: 11.1,  b: [[980, 300, 600, 'teal', .16], [80, 880, 620, 'blue', .14], [960, 1300, 520, 'teal', .10]]},
-  {t: 15.0,  b: [[900, 600, 620, 'teal', .16], [140, 1140, 620, 'blue', .14], [960, 1500, 520, 'teal', .09]]},
-  {t: 19.2,  b: [[1000, 1000, 640, 'blue', .12], [90, 760, 600, 'teal', .12], [1000, 260, 520, 'teal', .08]]},
+  {t: 6.0 + SHIFT,   b: [[940, 360, 620, 'teal', .16], [100, 900, 640, 'blue', .15], [900, 1420, 540, 'teal', .10]]},
+  {t: 11.1 + SHIFT,  b: [[980, 300, 600, 'teal', .16], [80, 880, 620, 'blue', .14], [960, 1300, 520, 'teal', .10]]},
+  {t: 15.0 + SHIFT,  b: [[900, 600, 620, 'teal', .16], [140, 1140, 620, 'blue', .14], [960, 1500, 520, 'teal', .09]]},
+  {t: 19.2 + SHIFT,  b: [[1000, 1000, 640, 'blue', .12], [90, 760, 600, 'teal', .12], [1000, 260, 520, 'teal', .08]]},
 ];
 export function blobsAt(t, tStill = 1e9) {
   let i = 0; while (i < BLOBS.length - 1 && t >= BLOBS[i + 1].t) i++;

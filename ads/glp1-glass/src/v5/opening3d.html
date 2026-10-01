@@ -13,6 +13,7 @@ window.__render = async (t) => { const gl = op.render(t); ctx2d.drawImage(gl, 0,
 window.__post = async (i) => { const d = ctx2d.getImageData(0, 0, TL.W, TL.H).data; return (await fetch('/frame?i=' + i, {method: 'POST', body: d})).status; };
 window.__png = () => out.toDataURL('image/png');
 window.__meta = () => op.frameMeta();
+window.__pose = (t) => op.pose(t);
 window.__ready = true;
 </script>
 </body></html>
