@@ -103,7 +103,7 @@ export async function init() {
   const load = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
   img.logo = await load('../../images/logo_myfastrx_official.jpg');
   img.badge = await load('../../images/badge_bbb_a_rating_horizontal.jpg');
-  for (const k of ['ship_box', 'rx_pad', 'vial_lying', 'twine']) img[k] = await load(`../../plates/${k}.png`);
+  for (const k of ['ship_box_v6', 'rx_clipboard', 'vial_lying', 'twine_v6']) img[k] = await load(`../../plates/${k}.png`);   // v6 cut-outs: tools/prep-plates-v6.py
   img.heart = await load('../../images/heartbeat_glass.png');                 // the client's glass heartbeat, cut by tools/prep-heartbeat.py
   HB.meta = await (await fetch('../../images/heartbeat_glass.json')).json();
   cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), heart: mk(W, 700), frost: mk(108, 192), world: mk()};
@@ -259,7 +259,7 @@ function sceneStrings(t, cl, ops, top, bg, fg, M) {
   clipped(fg, cl, () => COPY.head1.forEach((s, i) => line(fg, s, CX, L.head1Y[i], L.px.head1, 700, COLORS.navy, {enter: eOut(prog(t, C.head1[i].t0, C.head1[i].land))})));
   // the string: drawn across under the title, a glass bead on its middle; on "attached" it snaps and both halves whip away
   if (t >= C.twineIn.t0) {
-    const tw = img.twine, s = .46, len = tw.width * s, th = tw.height * s, y = L.twineY;
+    const tw = img.twine_v6, s = 606 / tw.width, len = tw.width * s, th = tw.height * s, y = L.twineY;
     const grow = eOut(prog(t, C.twineIn.t0, C.twineIn.land)), fly = eOut(snapU);
     clipped(bg, cl, () => {
       bg.save(); bg.beginPath(); bg.rect(-10, -4000, (W + 20) * grow, 9000); bg.clip();
@@ -343,8 +343,8 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
           lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(.5, 'rgba(255,255,255,0.42)'); lg.addColorStop(1, 'rgba(255,255,255,0)'); vc.fillStyle = lg; vc.fillRect(0, 0, v.width, v.height); }
         bg.imageSmoothingQuality = 'high'; bg.drawImage(cv.vial, vx, vy, v.width * s, v.height * s);
       } else {
-        if (id === 'rx') plate(bg, img.rx_pad, cx, cy, .62, .05, 1.2);
-        if (id === 'box') plate(bg, img.ship_box, cx, cy + 10, .72, -.06, 1.2);
+        if (id === 'rx') plate(bg, img.rx_clipboard, cx, cy, 720 / img.rx_clipboard.height, .02, 1.2);
+        if (id === 'box') plate(bg, img.ship_box_v6, cx, cy + 10, 780 / img.ship_box_v6.width, 0, 1.2);
       }
       bg.restore();
     };
