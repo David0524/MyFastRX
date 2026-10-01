@@ -51,3 +51,13 @@ Credits used for footage: ~33.5 (stills ~8.5, two Seedance 2.0 fast takes 25).
 | open_take1.mp4 | f78199b2-9ebe-49fc-9a40-17ff2988081f | slow push-in; she reaches for the phone ~1.7 s, picks it up ~2.1-2.9 s, looks at it smiling; v6 uses it from 1.3 s for 2.4 s. The phone back shows a multi-lens camera bump (no logo visible) |
 
 Credits used for footage so far: ~46 (stills ~8.5, three Seedance 2.0 fast takes 37.5).
+
+## 1080p upscales (Higgsfield ByteDance upscaler, preset "aigc", 1080p, 24 fps; ~0.1 credits each)
+
+| File | Higgsfield job | Source |
+|---|---|---|
+| open_take1_1080p.mp4 | 3de83d5d-c0f7-4750-8ed7-5f12974ae8ac | open_take1.mp4 |
+| tap_take1_1080p.mp4 | 62f36ac5-1e9b-43ba-b67f-7f7f4e6a2ad8 | tap_take1.mp4 |
+| walk_take1_1080p.mp4 | 008a4cf9-3971-48a3-9e3f-985f0867e657 | walk_take1.mp4 |
+
+Same frames and timing as the sources (121 frames, 24 fps); v6 is built from these.

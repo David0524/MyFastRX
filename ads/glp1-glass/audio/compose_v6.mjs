@@ -126,8 +126,7 @@ for (let t0 = D0; t0 < END - 1e-6; t0 += BAR) {
     if (b % 2 === 1) add(music, snapHit(.32), tb, 1, .1);
     for (let s = 0; s < 4; s++) add(music, hat(s === 2 ? .07 : .035, s === 2 && b === 3), tb + s * BT / 4, 1, .35);
   }
-  // glass-key motif above 3.5 kHz, every other bar
-  if (Math.round((t0 - D0) / BAR) % 2 === 0) [[0, 105], [1.5, 107], [2.5, 109], [4, 105], [5.5, 104], [6.5, 102]].forEach(([bt, m], k) => { const tt = t0 + bt * BT; if (tt < END - .1 && !brk(tt)) add(music, onePoleLP(glassKey(midi(m), .8, .035), 6000), tt, 1, k % 2 ? .4 : -.4); });
+  // (no glass-key melody: the client found it chime-y; the piano, pad, bass and drums carry the bed)
 }
 // fills: snaps on 16ths rising into the next section
 for (const [f0, f1] of TL.MUSIC.fill) for (let tt = f0, k = 0; tt < f1 - 1e-6; tt += BT / 4, k++) add(music, snapHit(.12 + .2 * (tt - f0) / (f1 - f0)), tt, 1, k % 2 ? .3 : -.3);

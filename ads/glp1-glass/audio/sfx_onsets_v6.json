@@ -1,20 +1,20 @@
 {
   "onsets_s": {
     "tap_glass": 0.0001,
-    "tap_low": 0.0002,
-    "slide_soft": 0.0227,
-    "slide_long": 0.0035,
-    "glide": 0.0037,
+    "tap_low": 0.0001,
+    "slide_soft": 0.0242,
+    "slide_long": 0.002,
+    "glide": 0.0035,
     "press": 0,
     "click": 0,
     "toggle": 0,
-    "chime_end": 0.009,
-    "impact": 0.0005,
-    "whoosh": 0.0314,
-    "swish": 0.0114,
+    "chime_end": 0.0097,
+    "impact": 0.0003,
+    "whoosh": 0.0327,
+    "swish": 0.0124,
     "snap": 0,
     "tick": 0,
-    "shimmer": 0.0601,
+    "shimmer": 0.0616,
     "heart": 0.0007
   },
   "placements": [
@@ -40,7 +40,7 @@
       "id": "swish",
       "at": 2.34,
       "gain": -28,
-      "file_start": 2.3286
+      "file_start": 2.3276
     },
     {
       "id": "tap_glass",
@@ -52,25 +52,25 @@
       "id": "whoosh",
       "at": 3.3299999999999996,
       "gain": -21,
-      "file_start": 3.2986
+      "file_start": 3.2973
     },
     {
       "id": "shimmer",
       "at": 3.42,
       "gain": -25,
-      "file_start": 3.3599
+      "file_start": 3.3584
     },
     {
       "id": "slide_soft",
       "at": 3.76,
       "gain": -22,
-      "file_start": 3.7373
+      "file_start": 3.7358
     },
     {
       "id": "tap_low",
       "at": 4.52,
       "gain": -16,
-      "file_start": 4.5198
+      "file_start": 4.5199
     },
     {
       "id": "tap_glass",
@@ -82,13 +82,13 @@
       "id": "impact",
       "at": 5.1,
       "gain": -12,
-      "file_start": 5.0995
+      "file_start": 5.0997
     },
     {
       "id": "slide_soft",
       "at": 5.16,
       "gain": -22,
-      "file_start": 5.1373
+      "file_start": 5.1358
     },
     {
       "id": "tap_glass",
@@ -112,25 +112,25 @@
       "id": "whoosh",
       "at": 7.71,
       "gain": -21,
-      "file_start": 7.6786
+      "file_start": 7.6773
     },
     {
       "id": "tap_low",
       "at": 8.4,
       "gain": -18,
-      "file_start": 8.3998
+      "file_start": 8.3999
     },
     {
       "id": "swish",
       "at": 8.96,
       "gain": -18,
-      "file_start": 8.9486
+      "file_start": 8.9476
     },
     {
       "id": "tap_low",
       "at": 9.46,
       "gain": -19,
-      "file_start": 9.4598
+      "file_start": 9.4599
     },
     {
       "id": "toggle",
@@ -142,7 +142,7 @@
       "id": "slide_soft",
       "at": 10.4,
       "gain": -22,
-      "file_start": 10.3773
+      "file_start": 10.3758
     },
     {
       "id": "press",
@@ -160,25 +160,25 @@
       "id": "whoosh",
       "at": 12.6,
       "gain": -19,
-      "file_start": 12.5686
+      "file_start": 12.5673
     },
     {
       "id": "tap_low",
       "at": 13.32,
       "gain": -18,
-      "file_start": 13.3198
+      "file_start": 13.3199
     },
     {
       "id": "shimmer",
       "at": 15.02,
       "gain": -25,
-      "file_start": 14.9599
+      "file_start": 14.9584
     },
     {
       "id": "shimmer",
       "at": 15.879999999999999,
       "gain": -25,
-      "file_start": 15.8199
+      "file_start": 15.8184
     },
     {
       "id": "tick",
@@ -202,13 +202,13 @@
       "id": "slide_soft",
       "at": 16.52,
       "gain": -21,
-      "file_start": 16.4973
+      "file_start": 16.4958
     },
     {
       "id": "impact",
       "at": 17.1,
       "gain": -14,
-      "file_start": 17.0995
+      "file_start": 17.0997
     },
     {
       "id": "tap_glass",
@@ -220,13 +220,13 @@
       "id": "tap_low",
       "at": 18.95,
       "gain": -19,
-      "file_start": 18.9498
+      "file_start": 18.9499
     },
     {
       "id": "slide_long",
       "at": 19.25,
       "gain": -27,
-      "file_start": 19.2465
+      "file_start": 19.248
     },
     {
       "id": "tap_glass",
@@ -238,19 +238,19 @@
       "id": "whoosh",
       "at": 20.65,
       "gain": -20,
-      "file_start": 20.6186
+      "file_start": 20.6173
     },
     {
       "id": "whoosh",
       "at": 22.82,
       "gain": -21,
-      "file_start": 22.7886
+      "file_start": 22.7873
     },
     {
       "id": "tap_low",
       "at": 23.56,
       "gain": -18,
-      "file_start": 23.5598
+      "file_start": 23.5599
     },
     {
       "id": "click",
@@ -262,19 +262,19 @@
       "id": "chime_end",
       "at": 25.05,
       "gain": -24,
-      "file_start": 25.041
+      "file_start": 25.0403
     },
     {
       "id": "tap_low",
       "at": 25.5,
       "gain": -21,
-      "file_start": 25.4998
+      "file_start": 25.4999
     },
     {
       "id": "shimmer",
       "at": 25.55,
       "gain": -28,
-      "file_start": 25.4899
+      "file_start": 25.4884
     }
   ]
 }

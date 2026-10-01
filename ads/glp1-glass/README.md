@@ -13,13 +13,13 @@ woman (AI-generated footage, Higgsfield: Soul 2.0 / Nano Banana Pro stills, Seed
 
 **Build**
 ```
-tools/extract-gen.sh open_take1 open && tools/extract-gen.sh tap_take1 tap && tools/extract-gen.sh walk_take1 walk   # graded 1080x1920 frames (footage/frames/, regenerated)
+tools/extract-gen.sh open_take1_1080p open && tools/extract-gen.sh tap_take1_1080p tap && tools/extract-gen.sh walk_take1_1080p walk   # graded 1080x1920 frames (footage/frames/, regenerated)
 ./render-v6.sh && node audio/compose_v6.mjs && ./mix_v6.sh
 node render.mjs --tl src/v6/timeline.mjs --page v6/film --stills v6/stills --layout v6/layout.json --only $(node verify_v6.mjs --stills)
 node verify_v6.mjs
 ```
 Sound: muted UI sounds (soft taps, low thocks, dry clicks, air moves; nothing that rings), a heartbeat under the
-opening, the music bed 2 dB up on v5. Compliance: she is a lifestyle character only (no implied medication use, no testimonial, she never speaks). The
+opening, the music bed 2 dB up on v5, no glass-key melody. Compliance: she is a lifestyle character only (no implied medication use, no testimonial, she never speaks). The
 disclaimer's "Actor portrayal" vs an AI-imagery disclosure is for counsel.
 
 ---
