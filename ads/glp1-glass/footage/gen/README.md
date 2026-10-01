@@ -35,3 +35,11 @@ counsel.
 |---|---|
 | walkframe_0.png | a929795d-d68b-4cf6-ab91-cf518181ee04 |
 | walkframe_1.png | 55448bfd-400f-4a5e-9254-22042859f786 |
+
+## Walk take (Seedance 2.0 fast, 720p, 5 s, start frame walkframe_1.png)
+
+| File | Higgsfield job | Notes |
+|---|---|---|
+| walk_take1.mp4 | 349b80bb-a05d-491c-a794-3cf9468a998a | 720x1280, 24 fps; phone into the tote ~2.1-2.9 s, looks up and smiles from ~3.3 s; v6 uses it from 2.35 s |
+
+Credits used for footage: ~33.5 (stills ~8.5, two Seedance 2.0 fast takes 25).

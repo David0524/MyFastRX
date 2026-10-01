@@ -29,7 +29,8 @@ precision highp float; uniform sampler2D uSrc; uniform vec2 uRes; out vec4 o;
 void main(){ o = vec4(texture(uSrc, gl_FragCoord.xy / uRes).rgb, 1.); }`;
 
 const FS_GLASS = COMMON + `
-uniform int uType;            // 0 rounded rect, 1 capsule polyline
+uniform int uType;            // 0 rounded rect, 1 capsule polyline, 2 ring (radius uHalf.x, tube radius uRad)
+uniform float uOneSided;      // ring only: refract just the inside (the outside may be footage with a person in it)
 uniform vec2 uC;              // center (px)
 uniform vec2 uHalf;           // half size (rect)
 uniform float uRad;           // corner radius (rect) / tube radius (polyline)
@@ -52,6 +53,7 @@ float shape(vec2 p){
   vec2 q = (p - uAnchor) / uScale + uAnchor;
   float d;
   if (uType == 0) d = sdRR(q - uC, uHalf, uRad);
+  else if (uType == 2) d = abs(length(q - uC) - uHalf.x) - uRad;
   else { d = 1e9; for (int i = 0; i < 9; i++) { if (i + 1 >= uN) break; d = min(d, sdSeg(q, uC + uPts[i], uC + uPts[i + 1])); } d -= uRad; }
   return d * min(uScale.x, uScale.y);
 }
@@ -92,6 +94,7 @@ void main(){
   vec2 cS = (uC - uAnchor) * uScale + uAnchor;       // lens center follows the squish
   off += (cS - p) * (1. - 1. / uMag) * nz;           // the flat top is a magnifying lens (uMag = 1: plain slab)
   if (p.x > uProtect.x && p.x < uProtect.z && p.y > uProtect.y && p.y < uProtect.w) off = vec2(0.);
+  if (uType == 2 && uOneSided > .5 && length(p - uC) > uHalf.x) off = vec2(0.);
   float k = uDisp * q;
   vec3 refr = vec3(srcAt(p + off * (1. + k)).r, srcAt(p + off).g, srcAt(p + off * (1. - k)).b);
   float thick = .25 + .75 * nz;
@@ -260,13 +263,14 @@ export function createGlass(canvas) {
     const sc = o.scale || [1, 1], an = o.anchor || o.c;
     let ext;
     if (o.type === 'tube') { const xs = o.pts.map(p => p[0]), ys = o.pts.map(p => p[1]); ext = [o.c[0] + Math.min(...xs) - o.r, o.c[1] + Math.min(...ys) - o.r, o.c[0] + Math.max(...xs) + o.r, o.c[1] + Math.max(...ys) + o.r]; }
+    else if (o.type === 'ring') { const R = o.half[0] + o.r; ext = [o.c[0] - R, o.c[1] - R, o.c[0] + R, o.c[1] + R]; }
     else ext = [o.c[0] - o.half[0], o.c[1] - o.half[1], o.c[0] + o.half[0], o.c[1] + o.half[1]];
     const sxf = v => (v - an[0]) * sc[0] + an[0], syf = v => (v - an[1]) * sc[1] + an[1];
     const sh = o.shadow || {off: [5, 12], blur: 18, amt: .16, col: [.70, .74, .82]};
     const m = 12 + sh.blur * 3.4 + Math.hypot(...sh.off) * 2.8;
     const bounds = [sxf(ext[0]) - m, syf(ext[1]) - m, sxf(ext[2]) + m, syf(ext[3]) + m];
     pass(P.glass, bounds, L => {
-      gl.uniform1i(L.uType, o.type === 'tube' ? 1 : 0);
+      gl.uniform1i(L.uType, o.type === 'tube' ? 1 : o.type === 'ring' ? 2 : 0); gl.uniform1f(L.uOneSided, o.oneSided ? 1 : 0);
       gl.uniform2f(L.uC, ...o.c); gl.uniform2f(L.uHalf, ...(o.half || [0, 0]));
       gl.uniform1f(L.uRad, o.r); gl.uniform1f(L.uBevel, o.bevel ?? o.r);
       gl.uniform2f(L.uScale, ...sc); gl.uniform2f(L.uAnchor, ...an);

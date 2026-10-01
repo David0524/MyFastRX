@@ -1,4 +1,28 @@
-# MyFastRx "Liquid Glass" - v5 "Hype" (26.5 s, 1080x1920) - current
+# MyFastRx "Liquid Glass" - v6 "Touch" (25.5 s, 1080x1920) - current
+
+`out/MyFastRx_Touch_v6.mp4` (review copy `previews/v6_review_copy.mp4`). v5's glass film, opened and closed by a real
+woman (AI-generated footage, Higgsfield: Soul 2.0 / Nano Banana Pro stills, Seedance 2.0 video; see `footage/gen/README.md`).
+
+| Time | VO | Picture |
+|---|---|---|
+| 0-3.0 | none | **Real:** close on her hand over her phone in a bright kitchen. She taps the black screen at 1.2 s and a liquid-glass ring spreads from her fingertip: inside it the glass world, outside it her kitchen (the ring refracts only its inside, never her). A teal drop left at the touch point glides up and grows into the price pill; "$69" rises in it with its qualification. |
+| 3.0-18.6 | the body | v5's glass film unchanged, with the glass heartbeat in the bottom band. |
+| 18.6-21.2 | "Clear pricing, clear care." | **Real:** the heartbeat lifts off to reveal her walking outdoors; the two lines on frosted glass in the sky above her. A heartbeat sweeps up into the end card. |
+| 21.2-25.5 | "See if you qualify at MyFastRx.com." | The end card: logo, tagline, CTA, URL, BBB badge, disclaimer (bottom y 1236), the vial under it. |
+
+**Build**
+```
+tools/extract-gen.sh tap_take1 tap && tools/extract-gen.sh walk_take1 walk   # graded 1080x1920 frames (footage/frames/, regenerated)
+./render-v6.sh && node audio/compose_v6.mjs && ./mix_v6.sh
+node render.mjs --tl src/v6/timeline.mjs --page v6/film --stills v6/stills --layout v6/layout.json --only $(node verify_v6.mjs --stills)
+node verify_v6.mjs
+```
+Compliance: she is a lifestyle character only (no implied medication use, no testimonial, she never speaks). The
+disclaimer's "Actor portrayal" vs an AI-imagery disclosure is for counsel.
+
+---
+
+# MyFastRx "Liquid Glass" - v5 "Hype" (26.5 s, 1080x1920)
 
 `out/MyFastRx_Hype_v5.mp4` (review copy `previews/v5_review_copy.mp4`). A SaaS-launch-style cut on the existing VO
 (`vo/body_v2.wav`), 120 BPM, cuts on the downbeats and on the words.
