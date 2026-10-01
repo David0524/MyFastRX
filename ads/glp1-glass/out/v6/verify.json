@@ -49,17 +49,17 @@
     {
       "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 14 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max channel diff vs its first risen frame = 18 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "153 frames draw the price, 117 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22042 px, qualification 5464 px, frame 549)"
+      "detail": "153 frames draw the price, 117 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22041 px, qualification 5460 px, frame 549)"
     },
     {
       "name": "final hold in the ENCODED file",
       "pass": null,
-      "detail": "max frame-to-frame diff from 26s to end = 4 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max frame-to-frame diff from 26s to end = 5 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "no visible box around the logo / badge files",
@@ -109,8 +109,8 @@
     },
     {
       "name": "OCR \"head1\" @7.85s",
-      "pass": true,
-      "detail": "matches exactly"
+      "pass": null,
+      "detail": "read: \"GLP-1 care. with no strings attached.\" | expected: \"GLP-1 care, with no strings attached.\""
     },
     {
       "name": "OCR \"head2\" @8.8s",
