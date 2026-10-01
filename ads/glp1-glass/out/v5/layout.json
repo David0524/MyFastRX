@@ -1,0 +1,232 @@
+{
+  "disc": {
+    "lines": [
+      "Compounded medication. Not FDA-approved. Results may vary. Not all",
+      "patients qualify. Prescription issued only if medically appropriate following",
+      "provider review. MyFastRx does not manufacture medications; product",
+      "appearance and labeling may vary. Actor portrayal."
+    ],
+    "lh": 28,
+    "h": 144,
+    "w": 820,
+    "x": 100,
+    "y": 1092
+  },
+  "L": {
+    "pane": {
+      "c": [
+        510,
+        800
+      ],
+      "half": [
+        440,
+        268
+      ],
+      "r": 72
+    },
+    "head1Y": [
+      712,
+      842,
+      972
+    ],
+    "twineY": 1152,
+    "card": {
+      "c": [
+        510,
+        560
+      ],
+      "w": 640
+    },
+    "head2Y": [
+      966,
+      1080
+    ],
+    "track": {
+      "c": [
+        510,
+        590
+      ],
+      "half": [
+        210,
+        104
+      ],
+      "r": 104
+    },
+    "knobR": 86,
+    "toggleLabelY": 420,
+    "btn": {
+      "c": [
+        510,
+        600
+      ],
+      "half": [
+        300,
+        84
+      ],
+      "r": 84
+    },
+    "head4Y": [
+      946,
+      1040
+    ],
+    "coversY": 350,
+    "frame": {
+      "c": [
+        510,
+        780
+      ],
+      "half": [
+        380,
+        350
+      ],
+      "r": 46
+    },
+    "labelY": 1208,
+    "pill": {
+      "c": [
+        510,
+        640
+      ],
+      "half": [
+        250,
+        140
+      ],
+      "r": 140
+    },
+    "slider": {
+      "c": [
+        510,
+        1004
+      ],
+      "half": [
+        300,
+        20
+      ],
+      "r": 20
+    },
+    "knobSR": 40,
+    "doseY": 1076,
+    "doseLineY": [
+      1150,
+      1206
+    ],
+    "logo": {
+      "c": [
+        510,
+        400
+      ],
+      "scale": 0.5
+    },
+    "tagY": [
+      606,
+      682
+    ],
+    "cta": {
+      "c": [
+        510,
+        790
+      ],
+      "half": [
+        330,
+        70
+      ],
+      "r": 70
+    },
+    "urlY": 930,
+    "badge": {
+      "cx": 510,
+      "y": 956,
+      "w": 280
+    },
+    "px": {
+      "head1": 112,
+      "head2": 108,
+      "head4": 78,
+      "covers": 92,
+      "label": 68
+    },
+    "knobX": [
+      220,
+      800
+    ],
+    "targets": {
+      "btn": [
+        700,
+        634
+      ],
+      "knob0": [
+        232,
+        1018
+      ],
+      "knob1": [
+        812,
+        1018
+      ],
+      "cta": [
+        772,
+        820
+      ]
+    },
+    "priceBox": [
+      344,
+      600,
+      676,
+      734
+    ],
+    "qualBox": [
+      362,
+      796,
+      658,
+      919
+    ]
+  },
+  "COPY": {
+    "disclaimer": "Compounded medication. Not FDA-approved. Results may vary. Not all patients qualify. Prescription issued only if medically appropriate following provider review. MyFastRx does not manufacture medications; product appearance and labeling may vary. Actor portrayal.",
+    "qual": [
+      "Introductory offer.",
+      "Regular pricing",
+      "varies by plan."
+    ],
+    "startingAt": "Starting at",
+    "price": "$69",
+    "head1": [
+      "GLP-1 care,",
+      "with no strings",
+      "attached."
+    ],
+    "head2": [
+      "No membership",
+      "fees."
+    ],
+    "head3": [
+      "No automatic",
+      "refills."
+    ],
+    "toggle": "Automatic refills",
+    "button": "Request refill",
+    "head4": [
+      "You request each one",
+      "when you're ready."
+    ],
+    "covers": "One price covers",
+    "labels": [
+      "Provider review",
+      "Medication",
+      "Shipping"
+    ],
+    "dose": [
+      "Lower dose",
+      "Higher dose"
+    ],
+    "doseLine": [
+      "Your price doesn't climb",
+      "as your dose does."
+    ],
+    "tag": [
+      "Clear pricing.",
+      "Clear care."
+    ],
+    "cta": "See if you qualify",
+    "url": "MyFastRx.com"
+  }
+}

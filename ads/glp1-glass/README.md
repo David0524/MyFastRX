@@ -1,4 +1,33 @@
-# MyFastRx "Liquid Glass" - Version A v3 "No strings attached" (27 s, 1080x1920)
+# MyFastRx "Liquid Glass" - v5 "Hype" (25.5 s, 1080x1920) - current
+
+`out/MyFastRx_Hype_v5.mp4` (review copy `previews/v5_review_copy.mp4`). A SaaS-launch-style cut on the existing VO
+(`vo/body_v2.wav`), 120 BPM, cuts on the downbeats and on the words.
+
+| Time | VO | Picture |
+|---|---|---|
+| 0-3.0 | none | **Hook (three.js, the v3 shot, faster):** a teal glass pill taps down on frame 1, glides, settles on the printed "$69" + qualification, a glint crosses it, the camera whips overhead and dives into the glass. |
+| 3.0-5.9 | "GLP-1 care, with no strings attached," | On the drop the glass we dived into contracts into a teal title pane; the three lines rise on their words. A taut string under it snaps on "attached". |
+| 5.9-8.5 | "no membership fees, no automatic refills." | A clear glass bar sweeps down. The navy card plate slides in and is flicked away; a glass "Automatic refills" toggle flicks OFF on "refills". |
+| 8.5-10.5 | "You request each one when you're ready." | The toggle becomes the "Request refill" button; the cursor presses it; the line is set as kinetic type. |
+| 10.5-14.6 | "One price covers your provider review, medication, and shipping," | Heartbeat wipe. "One price covers" over a glass product frame: Rx pad, vial, box (photo plates on the oak / room plates), push-ins, glint swaps on each word, a label per word. |
+| 14.6-18.9 | "starting at $69." | The frame contracts into the teal pill on the downbeat (15.0); "Starting at $69" with its qualification; the dose slider and the on-screen "Your price doesn't climb / as your dose does." |
+| 18.9-25.5 | "Clear pricing, clear care. See if you qualify at MyFastRx.com." | Heartbeat wipe into the v3 end card; the disclaimer is held byte-identical from 19.6 s, the whole card from 23.6 s. |
+
+**Build**
+```
+./render-v5.sh                  # 0-89 three.js hook (src/v5/opening3d.html), 90-764 2D film (src/v5/film.html) -> out/v5/video_only.mp4
+node audio/compose_v5.mjs       # music + SFX stems (coded), timed from src/v5/timeline.mjs
+./mix_v5.sh                     # VO stem per VO_EDIT, -16 LUFS / -1.5 dBTP, H.264 12.5 Mbps CBR -> out/MyFastRx_Hype_v5.mp4
+node render.mjs --tl src/v5/timeline.mjs --page v5/film --stills v5/stills --layout v5/layout.json --only 590,650,700,710,740,764
+node verify_v5.mjs              # -> out/v5/verify.json (42 checks: 38 pass, 0 fail, 4 notes = OCR punctuation / encoder noise)
+TIMES="1.3 5.6 10.3 13.5 16.2 18.2 24.0" tools/preview.sh out/MyFastRx_Hype_v5.mp4 v5
+```
+Files: `src/v5/timeline.mjs` (all timing, VO edit, word times, SFX), `src/v5/scene.mjs` (2D film), `src/v5/opening3d.mjs`
+(hook), `src/glass.mjs` (shared shader). Tools need `faster-whisper` (pip) and `tesseract` (apt) for the verifier.
+
+---
+
+# MyFastRx "Liquid Glass" - Version A v3 (previous) "No strings attached" (27 s, 1080x1920)
 
 **0-4.25 s, 3D opening (three.js):** an "oddly satisfying" shot with no pitch and no logo. A teal glass pill touches
 down on a modern tabletop with a glass tap on frame 1. It glides with a slow breathing squeeze while the camera follows,

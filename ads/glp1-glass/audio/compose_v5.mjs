@@ -1,5 +1,5 @@
 // v5 "Hype": original music bed + glass/UI sound effects, composed in code. 48 kHz stereo.
-//   node audio/compose_v5.mjs  ->  audio/stems/v5_music.wav, audio/stems/v5_sfx.wav, audio/sfx/*.wav, audio/sfx_onsets_v5.json
+//   node audio/compose_v5.mjs  ->  audio/stems/v5_music.wav, audio/stems/v5_sfx.wav, audio/sfx_v5/*.wav, audio/sfx_onsets_v5.json
 // Tempo, arrangement marks and cue times come from src/v5/timeline.mjs, so every hit sits on its picture.
 //
 // A launch-sizzle bed at 120 BPM that still leaves the voice room: four-on-the-floor kick and sub bass (pumping off the
@@ -14,7 +14,7 @@ import * as TL from '../src/v5/timeline.mjs';
 
 const SR = 48000, DUR = TL.DURATION, N = Math.round(SR * DUR);
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
-mkdirSync(path.join(ROOT, 'stems'), {recursive: true}); mkdirSync(path.join(ROOT, 'sfx'), {recursive: true});
+mkdirSync(path.join(ROOT, 'stems'), {recursive: true}); mkdirSync(path.join(ROOT, 'sfx_v5'), {recursive: true});
 let seed = 12345; const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
 const midi = m => 440 * 2 ** ((m - 69) / 12);
 const db = d => 10 ** (d / 20);
@@ -224,7 +224,7 @@ for (const [id, fn] of Object.entries(LIB)) {
   const x = fn(); let pk = 0; for (const v of x) pk = Math.max(pk, Math.abs(v));
   const th = pk * db(-30); let k = 0; while (k < x.length && Math.abs(x[k]) < th) k++;
   onsets[id] = +(k / SR).toFixed(4);
-  writeWav(path.join(ROOT, 'sfx', id + '.wav'), [x, x]);
+  writeWav(path.join(ROOT, 'sfx_v5', id + '.wav'), [x, x]);
 }
 const sfx = [new Float32Array(N), new Float32Array(N)];
 seed = 777;

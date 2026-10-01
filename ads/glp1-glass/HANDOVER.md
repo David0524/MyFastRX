@@ -4,7 +4,9 @@ The project moves to a new chat. The new direction is a **modern hype video with
 **hook-first opening**: the first seconds should stop the scroll without reading as a pharma ad.
 
 - Repo: `david0524/myfastrx`. Branch: `claude/relaxed-archimedes-fiuecm`. Work folder: `ads/glp1-glass/`.
-- Last shipped, verified cut: **v3**, commit `cbd39d2`. File: `out/MyFastRx_LiquidGlass_A.mp4` (27 s, 1080×1920).
+- **Current cut: v5 "Hype"** (25.5 s): `out/MyFastRx_Hype_v5.mp4`, review copy `previews/v5_review_copy.mp4`, sources
+  `src/v5/`, build steps in `README.md`, verifier `verify_v5.mjs` (38 pass, 0 fail, 4 notes).
+- Previous shipped cut: **v3**, commit `cbd39d2`. File: `out/MyFastRx_LiquidGlass_A.mp4` (27 s, 1080×1920).
   Review copy: `previews/A_review_copy.mp4`.
 
 ---

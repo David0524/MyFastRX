@@ -7,7 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 IN=$1; V=$2; mkdir -p previews
 F=assets/fonts/Geist-SemiBold.ttf
-TIMES=(3.5 7.5 13.8 17.4 23.0)
+read -r -a TIMES <<< "${TIMES:-3.5 7.5 13.8 17.4 23.0}"   # override: TIMES="1 5 9" tools/preview.sh ...
 for mode in reels stories; do
   inputs=(); filt=""
   for i in "${!TIMES[@]}"; do inputs+=(-ss "${TIMES[$i]}" -i "$IN"); done

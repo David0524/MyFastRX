@@ -26,3 +26,5 @@ ads/glp1-glass/out/v5/ocr/
 ads/glp1-glass/out/v5/x264*
 ads/glp1-glass/out/v5/frame_meta.json
 ads/glp1-glass/out/stems/v5_vo_raw.wav
+ads/glp1-glass/out/v5/redo_*
+ads/glp1-glass/out/v5/rev/

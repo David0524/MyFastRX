@@ -1,0 +1,249 @@
+{
+  "file": "out/MyFastRx_Hype_v5.mp4",
+  "checks": [
+    {
+      "name": "video spec",
+      "pass": true,
+      "detail": "h264 High 1080x1920 30/1 yuv420p frames=765/765 bt709/bt709/bt709 range=tv"
+    },
+    {
+      "name": "Rec.709 tagged",
+      "pass": true,
+      "detail": "bt709/bt709/bt709"
+    },
+    {
+      "name": "video bitrate 10-15 Mbps",
+      "pass": true,
+      "detail": "12.45 Mbps"
+    },
+    {
+      "name": "progressive",
+      "pass": true,
+      "detail": "progressive"
+    },
+    {
+      "name": "audio spec",
+      "pass": true,
+      "detail": "aac 48000 Hz 2 ch"
+    },
+    {
+      "name": "duration 25.5 s",
+      "pass": true,
+      "detail": "25.500000"
+    },
+    {
+      "name": "audio: -16 LUFS integrated (+-0.5)",
+      "pass": true,
+      "detail": "-16 LUFS"
+    },
+    {
+      "name": "audio: true peak <= -1.5 dBTP (+0.2 tolerance for AAC)",
+      "pass": true,
+      "detail": "-1.4 dBTP"
+    },
+    {
+      "name": "disclaimer absent before the end card",
+      "pass": true,
+      "detail": "no panel before 19.3s"
+    },
+    {
+      "name": "disclaimer held on the end card (ENCODED file)",
+      "pass": null,
+      "detail": "max channel diff vs its first risen frame = 8 (H.264 noise; identity checked on renderer output below)"
+    },
+    {
+      "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
+      "pass": true,
+      "detail": "125 frames draw the price, 100 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22020 px, qualification 5450 px, frame 486)"
+    },
+    {
+      "name": "final hold in the ENCODED file",
+      "pass": null,
+      "detail": "max frame-to-frame diff from 23.6s to end = 4 (H.264 noise; identity checked on renderer output below)"
+    },
+    {
+      "name": "no visible box around the logo / badge files",
+      "pass": true,
+      "detail": {
+        "logo": 0.13,
+        "badge": 0
+      }
+    },
+    {
+      "name": "logo colors (last frame) vs logo file",
+      "pass": true,
+      "detail": {
+        "dominant": [
+          "#021E46",
+          "#021A42",
+          "#026EFE",
+          "#0272FE",
+          "#021A46",
+          "#026EFA"
+        ],
+        "fileNavy": "#001C44",
+        "fileBlue": "#0070FC",
+        "navyOk": true,
+        "blueOk": true
+      }
+    },
+    {
+      "name": "disclaimer byte-identical on the end card (renderer output)",
+      "pass": true,
+      "detail": "frames 590, 650, 700, 764: identical, identical, identical, identical"
+    },
+    {
+      "name": "final hold byte-identical (renderer output)",
+      "pass": true,
+      "detail": "frames 710, 740 vs 764: identical, identical"
+    },
+    {
+      "name": "3D hook: qualification read wherever \"$69\" is read (OCR every 3rd frame)",
+      "pass": true,
+      "detail": "\"$69\" read in frames 72; qualification not read in: none (one printed texture: a miss is OCR on a perspective view; check by eye)"
+    },
+    {
+      "name": "OCR \"head1\" @5.75s",
+      "pass": null,
+      "detail": "read: \"GLP-1 care. with no strings attached.\" | expected: \"GLP-1 care, with no strings attached.\""
+    },
+    {
+      "name": "OCR \"head2\" @6.7s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"toggle\" @8.1s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"head3\" @8.1s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"button\" @10.3s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"head4\" @10.3s",
+      "pass": null,
+      "detail": "read: \"You request each one when youre ready.\" | expected: \"You request each one when you're ready.\""
+    },
+    {
+      "name": "OCR \"covers\" @12.6s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"label_provider\" @12.8s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"label_medication\" @13.7s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"label_shipping\" @14.3s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_starting\" @16.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_69\" @16.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_qual\" @16.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"dose_line\" @18.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"tag\" @21s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"cta\" @22.6s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"url\" @23s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"disclaimer\" @21s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"disclaimer_last\" @25.45s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "banned wording absent from all on-screen copy",
+      "pass": true,
+      "detail": "trial, /month, first month, 1st month, tirzepatide, $129, apple, ios, unlike"
+    },
+    {
+      "name": "only price shown is $69",
+      "pass": true,
+      "detail": "$69"
+    },
+    {
+      "name": "disclaimer text is the exact approved text",
+      "pass": true,
+      "detail": "string compare"
+    },
+    {
+      "name": "disclaimer panel geometry",
+      "pass": true,
+      "detail": "x 100-920, bottom 1236"
+    },
+    {
+      "name": "VO in the final file says the script (speech-to-text)",
+      "pass": true,
+      "detail": "\"GLP -1 care with no strings attached, no membership fees, no automatic refills. You request each one when you're ready. One price covers your provider review, medication and shipping, starting at $69. Clear pricing, clear care. See if you qualify at MyFastRX .com.\""
+    },
+    {
+      "name": "on-screen VO lines are word-for-word VO",
+      "pass": true,
+      "detail": "GLP-1 care, with no strings attached. | No membership fees. | No automatic refills. | You request each one when you're ready. | One price covers | Provider review | Medication | Shipping | Clear pricing. | Clear care."
+    }
+  ],
+  "lastFrameLogo": {
+    "dominant": [
+      "#021E46",
+      "#021A42",
+      "#026EFE",
+      "#0272FE",
+      "#021A46",
+      "#026EFA"
+    ],
+    "fileNavy": "#001C44",
+    "fileBlue": "#0070FC",
+    "navyOk": true,
+    "blueOk": true
+  },
+  "boxEdges": {
+    "logo": 0.13,
+    "badge": 0
+  }
+}

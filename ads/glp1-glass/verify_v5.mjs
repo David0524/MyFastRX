@@ -182,7 +182,7 @@ function sampleLogo(f) {
   const lw = 800, lh = 266, x0 = Math.round(L.logo.c[0] - lw / 2), y0 = Math.round(L.logo.c[1] - lh / 2);
   const hist = new Map();
   for (let y = y0; y < y0 + lh; y++) for (let x = x0; x < x0 + lw; x++) { const [r, g, b] = px(f, x, y); if (r > 200 && g > 200 && b > 200) continue; const k = `${r >> 2},${g >> 2},${b >> 2}`; hist.set(k, (hist.get(k) || 0) + 1); }
-  const top = [...hist].sort((p, q) => q[1] - p[1]).slice(0, 2).map(([k]) => k.split(',').map(v => v * 4 + 2));
+  const top = [...hist].sort((p, q) => q[1] - p[1]).slice(0, 6).map(([k]) => k.split(',').map(v => v * 4 + 2));   // the wordmark is mostly navy: look past the top two bins for the blue
   const hex = c => '#' + c.map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
   const near = (c, ref) => Math.max(...c.map((v, i) => Math.abs(v - ref[i]))) <= 8;
   const navy = top.find(c => c[2] < 110), blue = top.find(c => c[2] > 200);
