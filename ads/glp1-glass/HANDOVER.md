@@ -25,6 +25,12 @@ The project moves to a new chat. The new direction is a **modern hype video with
     and timing.
   - Motion-graphic glass (section 6) is the house style for type and UI moments.
 
+**Rendering decision (client-confirmed):** no more 3D renderings, aside from the Liquid Glass pill. No 3D tables,
+vials, boxes, cards, twine or rooms. Physical things come from photos (`plates/`) or generative video. Keep:
+- the **2D Liquid Glass shader** (`src/glass.mjs`, section 6a), which isn't 3D, for type, UI, wipes and the price
+  pill;
+- optionally the **three.js glass pill** (section 6c), the only 3D element, for the hook.
+
 ## 2. Brand and compliance rules (non-negotiable; they applied to every cut)
 
 **Audience, tone and positioning**
