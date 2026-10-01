@@ -15,3 +15,10 @@ expression, gentle half smile, shallow depth of field, shot on a full-frame came
 
 AI-generated people: lifestyle character only (no implied medication use, no testimonial); disclosure wording is with
 counsel.
+
+## Tap-shot first frame (Nano Banana Pro, reference: char_2.png = option 3)
+
+| File | Higgsfield job |
+|---|---|
+| tapframe_0.png | acbeb4ed-5113-4ca0-b20d-31a70c1ffe6f |
+| tapframe_1.png | 0be4f976-82a3-4339-babb-2ef657b04f11 |
