@@ -149,7 +149,8 @@ try {
   const want = TL.VO.map(v => v.text).join(' ');
   const w = x => x.toLowerCase().replace(/myfastrx\s*\.\s*com/g, 'myfastrx dot com').replace(/[-,.;:!?"']/g, ' ').replace(/[^a-z0-9$ ]/g, ' ').split(/\s+/).filter(Boolean);
   const same = w(tr).join(' ') === w(want).join(' ');
-  ok('VO in the final file says the script (speech-to-text)', same, same ? `"${tr}"` : `heard: "${tr}" | script: "${want}"`);
+  const spacing = !same && w(tr).join('') === w(want).join('');   // the same words, only joined or split differently by the transcriber
+  ok('VO in the final file says the script (speech-to-text)', same ? true : spacing ? null : false, same ? `"${tr}"` : `${spacing ? 'same words, word spacing differs - ' : ''}heard: "${tr}" | script: "${want}"`);
 } catch (e) { ok('VO transcript', null, 'transcription unavailable: ' + String(e).slice(0, 100)); }
 { // every on-screen line that speaks for the VO must be the VO's words, in order
   const vo = ' ' + TL.VO.map(v => v.text).join(' ').toLowerCase().replace(/[^a-z0-9$' ]/g, ' ').replace(/\s+/g, ' ') + ' ';

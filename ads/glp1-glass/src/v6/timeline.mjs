@@ -164,5 +164,11 @@ export const SFX = [
   {id: 'tap_low',    at: CUES.vialIn.land, gain: -21},
   {id: 'shimmer',    at: CUES.vialGlint[0] + .05, gain: -28},
 ];
-// music arrangement marks (audio/compose_v5.mjs)
+// the music: the client's track (audio/src/music_user.flac, from their 36.4 s screen recording; tools/music-from-track.py).
+// 120 BPM on the film's own grid; its drop (a big kick after a riser, 21.10 s in the file) lands as the frame snaps into
+// the "$69" pill (morphPill.land). So the file plays from `offset` = 21.10 - 17.10 = 4.00 s at film 0.
+export const MUSIC_TRACK = {src: 'audio/src/music_user.flac', drop: 21.10, at: CUES.morphPill.land, duckDb: -7, lufs: -24.1, fadeOut: 1.1,
+  lift: [[0, 10], [6, 9], [13, 0]],   // dB over film time: the file's build starts very soft, so its head is lifted under the tap and the first lines
+  endDuckDb: -12};                    // under the close ("See if you qualify ..."), deeper than elsewhere: the track is at full groove there
+// music arrangement marks (audio/compose_v6.mjs - the coded bed, kept for reference)
 export const MUSIC = {riser: [TAP.at + .2, OPEN.dive], drop: OPEN.dive, ...shiftT({fill: [[10.25, 11.0], [14.55, 15.0]], breakAt: 14.6, endAt: 19.0})};

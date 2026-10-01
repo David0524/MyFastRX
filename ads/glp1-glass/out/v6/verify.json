@@ -34,7 +34,7 @@
     {
       "name": "audio: -16 LUFS integrated (+-0.5)",
       "pass": true,
-      "detail": "-16.1 LUFS"
+      "detail": "-16.2 LUFS"
     },
     {
       "name": "audio: true peak <= -1.5 dBTP (+0.2 tolerance for AAC)",
@@ -49,12 +49,12 @@
     {
       "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 18 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max channel diff vs its first risen frame = 16 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "153 frames draw the price, 117 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22041 px, qualification 5460 px, frame 549)"
+      "detail": "153 frames draw the price, 117 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22043 px, qualification 5458 px, frame 549)"
     },
     {
       "name": "final hold in the ENCODED file",
@@ -179,8 +179,8 @@
     },
     {
       "name": "OCR \"walk_tag\" @22.700000000000003s",
-      "pass": null,
-      "detail": "read: \", Clear pricing. Clear care.\" | expected: \"Clear pricing. Clear care.\""
+      "pass": true,
+      "detail": "matches exactly"
     },
     {
       "name": "OCR \"tag\" @24.1s",
@@ -229,8 +229,8 @@
     },
     {
       "name": "VO in the final file says the script (speech-to-text)",
-      "pass": true,
-      "detail": "\"GLP -1 care with no strings attached, no membership fees, no automatic refills. You request each one when you're ready. One price covers your provider review, medication and shipping, starting at $69. Clear pricing, clear care. See if you qualify at MyFastRX .com.\""
+      "pass": null,
+      "detail": "same words, word spacing differs - heard: \"GLP1Care with no strings attached, no membership fees, no automatic refills. You request each one when you're ready. One price covers your provider review, medication, and shipping, starting at $69. Clear pricing, clear care. See if you qualify at MyFastRX .com.\" | script: \"GLP-1 care, with no strings attached, no membership fees, no automatic refills. You request each one when you're ready. One price covers your provider review, medication, and shipping, starting at $69. Clear pricing, clear care. See if you qualify at MyFastRx.com.\""
     },
     {
       "name": "on-screen VO lines are word-for-word VO",

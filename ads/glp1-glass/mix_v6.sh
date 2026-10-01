@@ -3,7 +3,8 @@
 # VO placed per src/v6/timeline.mjs VO_EDIT (tools/build-vo.mjs); two-pass loudnorm to -16 LUFS / -1.5 dBTP; H.264 12.5 Mbps CBR.
 set -euo pipefail
 cd "$(dirname "$0")"
-V=out/v6/video_only.mp4; M=audio/stems/v6_music.wav; S=audio/stems/v6_sfx.wav
+V=out/v6/video_only.mp4; M=audio/stems/v6_music_track.wav;   # the client track (tools/music-from-track.py); the coded bed stays in v6_music.wav
+ S=audio/stems/v6_sfx.wav
 OUT=out/MyFastRx_Touch_v6.mp4; TLF=src/v6/timeline.mjs
 mkdir -p out/stems
 cp "$M" out/stems/v6_music.wav; cp "$S" out/stems/v6_sfx.wav
