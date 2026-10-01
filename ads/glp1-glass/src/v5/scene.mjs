@@ -13,6 +13,7 @@
 // (end-card disclaimer). Screen coordinates throughout (no camera).
 import * as TL from './timeline.mjs';
 import {createGlass} from '../glass.mjs';
+import {blobsAt, drawBlobs, drawGradient, makeDither, GRID} from './backdrop.mjs';
 
 const {W, H, CUES: C, CAPTIONS, CURSOR, WORDS} = TL;
 export const COLORS = {navy: '#001D45', blue: '#0071FE', teal: '#14A3B8', white: '#FFFFFF'};
@@ -36,6 +37,7 @@ export const COPY = {
 const CX = 510;                                    // visual center of the safe area (x 100..920)
 const DISC = {w: 820, pad: 14, size: 22, lh: 1.25, bottom: 1236, r: 12};
 export const L = {
+  pill1: {c: [510, 820], half: [250, 140], r: 140},   // where the 3D hook leaves its pill (the lock framing)
   pane: {c: [510, 800], half: [440, 268], r: 72}, head1Y: [712, 842, 972], twineY: 1152,
   card: {c: [510, 560], w: 640}, head2Y: [966, 1080],
   track: {c: [510, 590], half: [210, 104], r: 104}, knobR: 86, toggleLabelY: 420,
@@ -43,8 +45,10 @@ export const L = {
   coversY: 350, frame: {c: [510, 780], half: [380, 350], r: 46}, labelY: 1208,
   pill: {c: [510, 640], half: [250, 140], r: 140},
   slider: {c: [510, 1004], half: [300, 20], r: 20}, knobSR: 40, doseY: 1076, doseLineY: [1150, 1206],
-  logo: {c: [510, 400], scale: .5}, tagY: [606, 682],
-  cta: {c: [510, 790], half: [330, 70], r: 70}, urlY: 930, badge: {cx: 510, y: 956, w: 280},
+  // end card, packed up so the vial fits under the badge and the disclaimer keeps its place (bottom at y 1236)
+  logo: {c: [510, 368], scale: .36}, tagY: [548, 618], tagPx: 66,
+  cta: {c: [510, 702], half: [300, 58], r: 58}, ctaPx: 46, urlY: 824, urlPx: 48, badge: {cx: 510, y: 850, w: 220},
+  endVial: {c: [510, 1013], s: .30},                   // lying on its side: 364 x 134 px, clear of the logo
 };
 // price block, relative to the pill's center (as v3)
 const PRICE = {start: -66, price: 88, qual: [186, 228, 270]};
@@ -85,8 +89,8 @@ export async function init() {
   img.badge = await load('../../images/badge_bbb_a_rating_horizontal.jpg');
   for (const k of ['member_card', 'ship_box', 'rx_pad', 'vial_lying', 'twine']) img[k] = await load(`../../plates/${k}.png`);
   for (const k of ['table_top', 'room_back']) img[k] = await load(`../../plates/${k}.jpg`);
-  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), vial: mk(img.vial_lying.width, img.vial_lying.height)};
-  for (const k of ['bg', 'content', 'fg', 'hud', 'out', 'decor', 'vial']) cv[k].getContext('2d', {willReadFrequently: true});
+  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height)};
+  for (const k of ['bg', 'content', 'fg', 'hud', 'out', 'decor', 'grid', 'vial']) cv[k].getContext('2d', {willReadFrequently: true});
   G = createGlass(cv.gl);
   const lines = wrap(COPY.disclaimer, DISC.size, 500, DISC.w - 2 * DISC.pad), lh = Math.round(DISC.size * DISC.lh), h = lines.length * lh + 2 * DISC.pad + 4;
   disc = {lines, lh, h, w: DISC.w, x: CX - DISC.w / 2, y: DISC.bottom - h};
@@ -104,7 +108,7 @@ export async function init() {
 const SH = (amt = .16, col = [.70, .74, .82]) => ({off: [5, 12], blur: 18, amt, col});
 const CLEAR = {sigma: [.02, .013, .006], refr: 24, disp: .22, rim: .9, spec: 1, glow: .03, glowCol: [.4, .6, 1], lift: .02, shadow: SH()};
 const TEAL = {...CLEAR, sigma: [.19, .01, 0], refr: 30, glow: .05, glowCol: [.25, .85, .95], lift: .012, shadow: SH(.18, [.60, .80, .84]), caustic: .35, sheenAmt: .10};
-const DEEP = {...TEAL, sigma: [.28, .016, 0]};      // inside the 3D pill at the end of the dive (sampled ~RGB 187,243,249)
+const LOCKTEAL = {...TEAL, sigma: [.45, .12, .10], lift: 0};   // the 3D pill's tint at the lock (sampled ~RGB 157,219,224 on #F7F7F7)
 const PULSE = {sigma: [1.6, .8, .08], refr: 9, disp: .2, rim: .8, spec: 1, glow: .08, glowCol: [.3, .55, 1], lift: .02, shadow: SH(.16, [.62, .70, .92])};
 const lerpMat = (a, z, m) => ({...z, sigma: lerp3(a.sigma, z.sigma, m), refr: lerp(a.refr, z.refr, m), caustic: lerp(a.caustic || 0, z.caustic || 0, m), sheenAmt: lerp(a.sheenAmt || 0, z.sheenAmt || 0, m), glowCol: lerp3(a.glowCol, z.glowCol, m), shadow: {...z.shadow, col: lerp3(a.shadow.col, z.shadow.col, m), amt: lerp(a.shadow.amt, z.shadow.amt, m)}});
 const glass = o => G.glass({...o, bevel: o.bevel ?? o.r, shadow: o.shadow || SH()});
@@ -112,53 +116,40 @@ const glass = o => G.glass({...o, bevel: o.bevel ?? o.r, shadow: o.shadow || SH(
 // ---------- heartbeat paths ----------
 const wipePts = y => [[-120, y], [360, y], [390, y - 30], [420, y + 34], [458, y - 92], [496, y + 44], [526, y], [1200, y]];
 
-// ---------- background system ----------
-const BLOBS = [   // [x, y, r, color, alpha]; teal #14A3B8, blue #0071FE
-  {t: 3.0,   b: [[860, 560, 330, 'teal', .22], [160, 1080, 320, 'blue', .17], [920, 1250, 260, 'teal', .12]]},
-  {t: 6.0,   b: [[900, 380, 320, 'teal', .20], [150, 760, 300, 'blue', .18], [880, 1200, 280, 'teal', .12]]},
-  {t: 11.1,  b: [[940, 280, 300, 'teal', .20], [110, 760, 300, 'blue', .17], [920, 1150, 260, 'teal', .12]]},
-  {t: 15.0,  b: [[850, 640, 320, 'teal', .20], [190, 1010, 300, 'blue', .17], [900, 1180, 260, 'teal', .10]]},
-  {t: 19.2,  b: [[980, 1000, 320, 'blue', .15], [110, 760, 280, 'teal', .14], [990, 250, 240, 'teal', .09]]},
-];
-function blobsAt(t) {
-  let i = 0; while (i < BLOBS.length - 1 && t >= BLOBS[i + 1].t) i++;
-  let set = BLOBS[i].b;
-  if (i < BLOBS.length - 1) { const nx = BLOBS[i + 1], m = eIO(prog(t, nx.t - .6, nx.t)); if (m > 0) set = set.map((bb, j) => bb.map((v, q) => typeof v === 'number' ? lerp(v, nx.b[j][q], m) : v)); }
-  const td = Math.min(t, C.finalStill);
-  return set.map(([x, y, r, c, a], j) => [x + 30 * Math.sin(td * .7 + j * 2.1), y + 22 * Math.cos(td * .55 + j * 1.3), r, c, a]);
-}
+// ---------- background system (src/v5/backdrop.mjs: the same light is printed on the 3D hook's table) ----------
 function calmZones(t, sec) {
   // [x0, y0, x1, y1, feather, a]: each zone clears just before its text arrives
   const z = [], by = t0 => clamp((t - t0 + .45) / .4);
-  if (sec === 'strings') z.push([100, 560, 920, 1040, 60, 1]);
+  if (sec === 'strings') z.push([100, 560, 920, 1040, 60, by(C.head1[0].t0)]);
   if (sec === 'control') z.push([100, 880, 920, 1110, 50, 1], [180, 370, 840, 440, 30, by(C.toggleIn.t0)]);
   if (sec === 'covers') z.push([110, 262, 910, 380, 40, by(C.coversIn.t0)], [130, 1146, 890, 1232, 40, by(C.labels[0].t0)],
     [380, 560, 640, 750, 40, by(C.priceIn.t0)], [200, 770, 820, 922, 40, by(C.priceIn.t0)], [180, 1050, 840, 1095, 30, by(C.sliderIn.t0)], [100, 1100, 920, 1225, 40, by(C.doseLine.t0)]);
-  if (sec === 'end') z.push([60, 240, 960, 560, 70, 1], [120, 550, 900, 710, 50, by(C.tag[0].t0)], [160, 880, 860, 945, 40, by(C.urlIn.t0)], [220, 930, 800, 1100, 50, by(C.urlIn.t0)]);
+  if (sec === 'end') z.push([40, 240, 980, 490, 60, 1], [100, 470, 920, 640, 50, by(C.tag[0].t0)], [140, 750, 880, 1090, 50, by(C.urlIn.t0)]);
   return z.filter(q => q[5] > 0);
 }
-function backdrop(bg, t, sec) {
-  const g = bg.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#F7F7F7'); g.addColorStop(.55, '#F7F7F7'); g.addColorStop(1, '#EEF3FA');
-  bg.fillStyle = g; bg.fillRect(0, 0, W, H);
-  const d = cv.decor.getContext('2d'); d.setTransform(1, 0, 0, 1, 0, 0); d.clearRect(0, 0, W, H);
-  for (const [x, y, r, c, a] of blobsAt(t)) {
-    const rg = d.createRadialGradient(x, y, 0, x, y, r), col = c === 'teal' ? '20,163,184' : '0,113,254';
-    rg.addColorStop(0, `rgba(${col},${a})`); rg.addColorStop(.55, `rgba(${col},${a * .55})`); rg.addColorStop(1, `rgba(${col},0)`);
-    d.fillStyle = rg; d.fillRect(x - r, y - r, 2 * r, 2 * r);
-  }
-  // faint graph-paper grid (it curves through every glass piece)
-  d.strokeStyle = 'rgba(0,29,69,0.075)'; d.lineWidth = 1.5; d.beginPath();
-  for (let x = 30; x <= W; x += 60) { d.moveTo(x, 0); d.lineTo(x, H); }
-  for (let y = 20; y <= H; y += 60) { d.moveTo(0, y); d.lineTo(W, y); }
-  d.stroke();
-  d.globalCompositeOperation = 'destination-out';
-  // feathered with a shadow cast from an off-canvas shape (canvas filters are unreliable in the headless renderer)
-  for (const [x0, y0, x1, y1, f, a] of calmZones(t, sec)) {
-    d.shadowColor = `rgba(0,0,0,${a})`; d.shadowBlur = f * 1.1; d.shadowOffsetX = 20000; d.fillStyle = '#000';
+function punch(d, zones, strength, featherK) {   // feathered holes, cast as a shadow from an off-canvas shape
+  d.globalCompositeOperation = 'destination-out'; d.fillStyle = '#000';
+  for (const [x0, y0, x1, y1, f, a] of zones) {
+    d.shadowColor = `rgba(0,0,0,${a * strength})`; d.shadowBlur = f * featherK; d.shadowOffsetX = 20000;
     d.beginPath(); d.roundRect(x0 - 20000, y0, x1 - x0, y1 - y0, f * .6); d.fill();
   }
   d.shadowColor = 'transparent'; d.shadowOffsetX = 0; d.shadowBlur = 0; d.globalCompositeOperation = 'source-over';
+}
+function backdrop(bg, t, sec) {
+  drawGradient(bg);
+  const zones = calmZones(t, sec);
+  // the light: a few big, soft pools (gaussian falloff), only gently lifted behind text, so it never reads as blotches
+  const d = cv.decor.getContext('2d'); d.setTransform(1, 0, 0, 1, 0, 0); d.clearRect(0, 0, W, H);
+  drawBlobs(d, blobsAt(t, C.finalStill)); punch(d, zones, sec === 'end' ? 1 : .45, sec === 'end' ? .9 : 2.2);   // end card: flat #F7F7F7 behind the logo/badge files
   bg.drawImage(cv.decor, 0, 0);
+  // faint graph-paper grid (it curves through every glass piece), fully cleared behind text
+  const g = cv.grid.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(0,29,69,0.075)'; g.lineWidth = 1.5; g.beginPath();
+  for (let x = GRID.x0; x <= W; x += GRID.step) { g.moveTo(x, 0); g.lineTo(x, H); }
+  for (let y = GRID.y0 - GRID.step; y <= H; y += GRID.step) { g.moveTo(0, y); g.lineTo(W, y); }
+  g.stroke(); punch(g, zones, 1, 1.1);
+  bg.drawImage(cv.grid, 0, 0);
+  bg.save(); bg.globalCompositeOperation = 'overlay'; bg.drawImage(cv.dither, 0, 0); bg.restore();   // zero-mean dither: no banding
 }
 
 // ---------- cursor ----------
@@ -204,12 +195,19 @@ function priceBlock(ctx, cx, cy, {enter = 1, qEnter = 1, exit = 0, qExit = 0} = 
 
 // ===================== scenes =====================
 // each draws into bg/fg and queues glass passes; `cl` = the y range it owns while a wipe passes
-function sceneStrings(t, cl, ops, top, bg, fg) {
-  const P = L.pane, m = spring(t, C.paneForm.t0, .40, .09), me = eOut(prog(t, C.paneForm.t0, C.paneForm.land));
-  // from frame-filling (we are inside the 3D pill's glass) to the title pane
-  const half = [lerp(W * .78, P.half[0], m), lerp(H * .62, P.half[1], m)], r = lerp(260, P.r, me);
-  const snapU = prog(t, C.snap, C.snap + .3), kick = squish(t, C.snap + .02, .05);
-  ops.push(() => glass({type: 'rect', ...lerpMat(DEEP, TEAL, me), c: [P.c[0], lerp(H / 2, P.c[1], me)], half, r, bevel: lerp(60, 34, me), scale: [1 - kick * .4, 1 + kick], anchor: [P.c[0], P.c[1] + P.half[1]], clip: cl}));
+const shiftBox = (b, dy) => [b[0], b[1] + dy, b[2], b[3] + dy];
+function sceneStrings(t, cl, ops, top, bg, fg, M) {
+  const P = L.pane, Q = L.pill1, m = spring(t, C.paneForm.t0, .40, .09), me = eOut(prog(t, C.paneForm.t0, C.paneForm.land));
+  // the match-cut: the 3D hook's last frame, redrawn - the pill on its price. The price leaves through its mask line
+  // (then its qualification), and the pill grows into the title pane as the headline rises in it.
+  const c = [Q.c[0], lerp(Q.c[1], P.c[1], m)], half = lerp2(Q.half, P.half, m), r = lerp(Q.r, P.r, me);
+  const kick = squish(t, C.snap + .02, .05), snapU = prog(t, C.snap, C.snap + .3);
+  ops.push(() => glass({type: 'rect', ...lerpMat(LOCKTEAL, TEAL, me), c, half, r, bevel: lerp(40, 34, me), scale: [1 - kick * .4, 1 + kick], anchor: [P.c[0], P.c[1] + P.half[1]], clip: cl}));
+  if (t < C.qualOut0.t1) {
+    const ex = eIn(prog(t, C.priceOut0.t0, C.priceOut0.t1)), qx = eIn(prog(t, C.qualOut0.t0, C.qualOut0.t1));
+    clipped(fg, cl, () => priceBlock(fg, Q.c[0], Q.c[1], {exit: ex, qExit: qx}));
+    M.price = {box: shiftBox(L.priceBox, Q.c[1] - L.pill.c[1]), qbox: shiftBox(L.qualBox, Q.c[1] - L.pill.c[1]), exit: ex, qExit: qx};
+  }
   clipped(fg, cl, () => COPY.head1.forEach((s, i) => line(fg, s, CX, L.head1Y[i], L.px.head1, 700, COLORS.navy, {enter: eOut(prog(t, C.head1[i].t0, C.head1[i].land))})));
   // the string: drawn across under the title, a glass bead on its middle; on "attached" it snaps and both halves whip away
   if (t >= C.twineIn.t0) {
@@ -329,7 +327,7 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
     const en = eOut(prog(t, C.priceIn.t0, C.priceIn.land)), qe = eOut(prog(t, C.priceIn.t0 - .06, C.priceIn.land - .06));
     const ex = eIn(prog(t, C.priceOut.t0, C.priceOut.t1)), qx = eIn(prog(t, C.qualOut.t0, C.qualOut.t1));
     clipped(fg, cl, () => priceBlock(fg, P.c[0], P.c[1], {enter: en, qEnter: qe, exit: ex, qExit: qx}));
-    M.price = {enter: en, exit: ex, qEnter: qe, qExit: qx, clip: cl};
+    M.price = {box: L.priceBox, qbox: L.qualBox, enter: en, exit: ex, qEnter: qe, qExit: qx};
   }
   // the dose slider (the cursor drags the dose up; the price holds still)
   if (t >= C.sliderIn.t0) {
@@ -353,17 +351,31 @@ function sceneEnd(t, cl, ops, top, bg, fg) {
   clipped(fg, cl, () => {
     if (t >= C.logoIn.t0) { const u = eOut(prog(t, C.logoIn.t0, C.logoIn.land)), lw = Math.round(img.logo.width * L.logo.scale), lh = Math.round(img.logo.height * L.logo.scale), x = Math.round(L.logo.c[0] - lw / 2), y = Math.round(L.logo.c[1] - lh / 2);
       fg.save(); fg.beginPath(); fg.rect(x, y, lw, lh); fg.clip(); fg.imageSmoothingQuality = 'high'; fg.drawImage(img.logo, x, y + Math.round((1 - u) * lh * .75), lw, lh); fg.restore(); }
-    COPY.tag.forEach((s, i) => line(fg, s, CX, L.tagY[i], 72, 700, COLORS.navy, {enter: eOut(prog(t, C.tag[i].t0, C.tag[i].land))}));
-    if (t >= C.urlIn.t0) line(fg, COPY.url, CX, L.urlY, 52, 600, COLORS.navy, {enter: eOut(prog(t, C.urlIn.t0, C.urlIn.land))});
+    COPY.tag.forEach((s, i) => line(fg, s, CX, L.tagY[i], L.tagPx, 700, COLORS.navy, {enter: eOut(prog(t, C.tag[i].t0, C.tag[i].land))}));
+    if (t >= C.urlIn.t0) line(fg, COPY.url, CX, L.urlY, L.urlPx, 600, COLORS.navy, {enter: eOut(prog(t, C.urlIn.t0, C.urlIn.land))});
     if (t >= C.badgePop - .35) { const s = t >= C.finalStill - .1 ? 1 : spring(t, C.badgePop - .35, .36, .09), bw = L.badge.w, bh = Math.round(img.badge.height * bw / img.badge.width), cx = L.badge.cx, cy = L.badge.y + bh / 2;
       fg.save(); fg.imageSmoothingQuality = 'high'; if (Math.abs(s - 1) < 1e-4) fg.drawImage(img.badge, Math.round(cx - bw / 2), L.badge.y, bw, bh); else { fg.translate(cx, cy); fg.scale(s, s); fg.drawImage(img.badge, -bw / 2, -bh / 2, bw, bh); } fg.restore(); }
+    // the vial, lying under the badge: slides in from the right on a spring, one glint across its glass, then still
+    if (t >= C.vialIn.t0) {
+      const V = L.endVial, v = img.vial_lying, u = t >= C.finalStill - .1 ? 1 : spring(t, C.vialIn.t0, .42, .1), w = v.width * V.s, h = v.height * V.s;
+      const x = V.c[0] + (1 - u) * 640, rot = -Math.PI / 2 + (1 - u) * .22;            // slides in, settling level
+      const vc = cv.vial.getContext('2d'); vc.setTransform(1, 0, 0, 1, 0, 0); vc.globalCompositeOperation = 'source-over'; vc.clearRect(0, 0, v.width, v.height); vc.drawImage(v, 0, 0);
+      const gu = prog(t, ...C.vialGlint);
+      if (gu > 0 && gu < 1) { vc.globalCompositeOperation = 'source-atop'; const gy = lerp(v.height + 200, -200, eIO(gu)), lg = vc.createLinearGradient(0, gy - 110, 0, gy + 110);
+        lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(.5, 'rgba(255,255,255,0.40)'); lg.addColorStop(1, 'rgba(255,255,255,0)'); vc.fillStyle = lg; vc.fillRect(0, 0, v.width, v.height); }
+      fg.save(); fg.beginPath(); fg.rect(0, 940, W, 1088 - 940); fg.clip();
+      const sg = fg.createRadialGradient(x + 6, V.c[1] + w / 2 - 4, 0, x + 6, V.c[1] + w / 2 - 4, h * .62);   // contact shadow
+      sg.addColorStop(0, 'rgba(0,29,69,0.20)'); sg.addColorStop(1, 'rgba(0,29,69,0)');
+      fg.save(); fg.translate(0, V.c[1] + w / 2 - 4); fg.scale(1, .12); fg.translate(0, -(V.c[1] + w / 2 - 4)); fg.fillStyle = sg; fg.fillRect(x - h, V.c[1] + w / 2 - 4 - h, 2 * h, 2 * h); fg.restore();
+      fg.translate(x, V.c[1]); fg.rotate(rot); fg.imageSmoothingQuality = 'high'; fg.drawImage(cv.vial, -w / 2, -h / 2, w, h); fg.restore();
+    }
   });
   if (t >= C.ctaIn.t0) {
     const Q = L.cta, s = t >= C.finalStill - .1 ? 1 : spring(t, C.ctaIn.t0, .34, .08) * (1 - pressAt(t, C.ctaClick, .03));
     clipped(bg, cl, () => { bg.fillStyle = COLORS.blue; bg.beginPath(); bg.roundRect(Q.c[0] - (Q.half[0] - 6) * s, Q.c[1] - (Q.half[1] - 6) * s, 2 * (Q.half[0] - 6) * s, 2 * (Q.half[1] - 6) * s, Math.max(0, (Q.r - 6) * s)); bg.fill(); });
-    ops.push(() => glass({type: 'rect', ...CLEAR, c: Q.c, half: Q.half, r: Q.r, bevel: 40, scale: [s, s], anchor: Q.c, sigma: [.02, .01, 0], refr: 14, rim: .7, shadow: SH(.2, [.55, .64, .84]), clip: cl}));
+    ops.push(() => glass({type: 'rect', ...CLEAR, c: Q.c, half: Q.half, r: Q.r, bevel: 40, scale: [s, s], anchor: Q.c, sigma: [.02, .01, 0], refr: 14, rim: .7, shadow: SH(.13, [.55, .64, .84]), clip: cl}));   // light: the badge file below sits on flat #F7F7F7
     clipped(fg, cl, () => { fg.save(); fg.beginPath(); fg.roundRect(Q.c[0] - Q.half[0] * s, Q.c[1] - Q.half[1] * s, 2 * Q.half[0] * s, 2 * Q.half[1] * s, Q.r * s); fg.clip();
-      line(fg, COPY.cta, Q.c[0], Q.c[1] + 18, 50, 600, COLORS.white, {enter: eOut(prog(t, C.ctaIn.t0 + .15, C.ctaIn.land + .15))}); fg.restore(); });
+      line(fg, COPY.cta, Q.c[0], Q.c[1] + 16, L.ctaPx, 600, COLORS.white, {enter: eOut(prog(t, C.ctaIn.t0 + .15, C.ctaIn.land + .15))}); fg.restore(); });
   }
 }
 

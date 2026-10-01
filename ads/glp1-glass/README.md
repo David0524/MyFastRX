@@ -5,25 +5,25 @@
 
 | Time | VO | Picture |
 |---|---|---|
-| 0-3.0 | none | **Hook (three.js, the v3 shot, faster):** a teal glass pill taps down on frame 1, glides, settles on the printed "$69" + qualification, a glint crosses it, the camera whips overhead and dives into the glass. |
-| 3.0-5.9 | "GLP-1 care, with no strings attached," | On the drop the glass we dived into contracts into a teal title pane; the three lines rise on their words. A taut string under it snaps on "attached". |
+| 0-3.0 | none | **Hook (three.js action shot):** a teal glass pill taps down on frame 1 and races across the table, swerving; a low handheld chase camera swings round it and it lands on the printed "$69" + qualification at 2.5 s. A glint crosses it and the camera cranes up to a locked overhead that is the 2D film's first frame exactly (same framing, tint, light and grid). |
+| 3.0-5.9 | "GLP-1 care, with no strings attached," | Match-cut on the drop. The price leaves through its mask line (then the qualification) and the pill grows into the teal title pane; the three lines rise on their words. A taut string under it snaps on "attached". |
 | 5.9-8.5 | "no membership fees, no automatic refills." | A clear glass bar sweeps down. The navy card plate slides in and is flicked away; a glass "Automatic refills" toggle flicks OFF on "refills". |
 | 8.5-10.5 | "You request each one when you're ready." | The toggle becomes the "Request refill" button; the cursor presses it; the line is set as kinetic type. |
 | 10.5-14.6 | "One price covers your provider review, medication, and shipping," | Heartbeat wipe. "One price covers" over a glass product frame: Rx pad, vial, box (photo plates on the oak / room plates), push-ins, glint swaps on each word, a label per word. |
 | 14.6-18.9 | "starting at $69." | The frame contracts into the teal pill on the downbeat (15.0); "Starting at $69" with its qualification; the dose slider and the on-screen "Your price doesn't climb / as your dose does." |
-| 18.9-25.5 | "Clear pricing, clear care. See if you qualify at MyFastRx.com." | Heartbeat wipe into the v3 end card; the disclaimer is held byte-identical from 19.6 s, the whole card from 23.6 s. |
+| 18.9-25.5 | "Clear pricing, clear care. See if you qualify at MyFastRx.com." | Heartbeat wipe into the end card (v3's, packed up): logo, tagline, CTA, URL, BBB badge, and the vial lying under the badge; the disclaimer stays at the safe-zone edge (bottom y 1236), held byte-identical from 19.6 s, the whole card from 23.9 s. |
 
 **Build**
 ```
 ./render-v5.sh                  # 0-89 three.js hook (src/v5/opening3d.html), 90-764 2D film (src/v5/film.html) -> out/v5/video_only.mp4
 node audio/compose_v5.mjs       # music + SFX stems (coded), timed from src/v5/timeline.mjs
 ./mix_v5.sh                     # VO stem per VO_EDIT, -16 LUFS / -1.5 dBTP, H.264 12.5 Mbps CBR -> out/MyFastRx_Hype_v5.mp4
-node render.mjs --tl src/v5/timeline.mjs --page v5/film --stills v5/stills --layout v5/layout.json --only 590,650,700,710,740,764
-node verify_v5.mjs              # -> out/v5/verify.json (42 checks: 38 pass, 0 fail, 4 notes = OCR punctuation / encoder noise)
-TIMES="1.3 5.6 10.3 13.5 16.2 18.2 24.0" tools/preview.sh out/MyFastRx_Hype_v5.mp4 v5
+node render.mjs --tl src/v5/timeline.mjs --page v5/film --stills v5/stills --layout v5/layout.json --only 600,650,720,740,764
+node verify_v5.mjs              # -> out/v5/verify.json (43 checks: 39 pass, 0 fail, 4 notes = OCR punctuation / encoder noise)
+TIMES="0.8 2.5 3.3 13.5 16.2 18.2 24.0" tools/preview.sh out/MyFastRx_Hype_v5.mp4 v5
 ```
 Files: `src/v5/timeline.mjs` (all timing, VO edit, word times, SFX), `src/v5/scene.mjs` (2D film), `src/v5/opening3d.mjs`
-(hook), `src/glass.mjs` (shared shader). Tools need `faster-whisper` (pip) and `tesseract` (apt) for the verifier.
+(hook), `src/v5/backdrop.mjs` (the soft background light, shared by the 2D film and the 3D table so the match-cut holds), `src/glass.mjs` (shared shader). Tools need `faster-whisper` (pip) and `tesseract` (apt) for the verifier.
 
 ---
 

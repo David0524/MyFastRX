@@ -214,7 +214,7 @@ function snapString(vel = .7) {   // a taut string letting go: a sharp crack, a 
 function tick(vel = .5) { const n = Math.round(SR * .06), x = new Float32Array(n); for (let i = 0; i < SR * .003; i++) x[i] += (rnd() * 2 - 1) * vel * Math.exp(-i / (SR * .0006)); const g = glassKey(midi(100), .06, vel * .25); for (let i = 0; i < n && i < g.length; i++) x[i] += g[i]; return onePoleHP(x, 1800); }
 function shimmer(vel = .3) { const n = Math.round(SR * .9), x = new Float32Array(n); [98, 102, 105, 110].forEach((m, k) => { const g = glassKey(midi(m), .7, vel * (1 - k * .15)); const o = Math.round(k * .045 * SR); for (let i = 0; i < g.length && o + i < n; i++) x[o + i] += g[i]; }); return x; }
 const LIB = {
-  tap_glass: () => tapGlass(.6), tap_low: () => tapLow(.6), slide_soft: () => slide(.55, 700, 2600, .35), slide_long: () => glide(1.4),
+  tap_glass: () => tapGlass(.6), tap_low: () => tapLow(.6), slide_soft: () => slide(.55, 700, 2600, .35), slide_long: () => glide(1.4), glide: () => glide(2.5),
   press: () => press(.65), click: () => click(.7), toggle: () => toggle(.75), chime_end: () => chime(.35),
   impact: () => impact(.8), whoosh: () => whoosh(.5, .4), swish: () => swish(.4), snap: () => snapString(.7), tick: () => tick(.5), shimmer: () => shimmer(.3),
 };

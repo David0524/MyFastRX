@@ -2,9 +2,10 @@
 // (src/v5/scene.mjs), the audio build (audio/compose_v5.mjs, tools/build-vo.mjs) and verify_v5.mjs.
 // (v3 = commit cbd39d2, sources in src/v2/*_v3.mjs; v4 = the 3D tabletop, src/t3/.)
 //
-// 0.00 - 3.00  HOOK (three.js): a teal glass pill taps down on frame 1, glides, settles over the printed "$69" (its
-//              qualification printed beneath it), a glint crosses it, the camera whips overhead and dives into the glass.
-//              No VO, no logo, no pitch.
+// 0.00 - 3.00  HOOK (three.js): an action shot. A teal glass pill taps down on frame 1 and races across the table in a
+//              low tracking shot that swings round it; it lands on the printed "$69" (qualification printed beneath it)
+//              at 2.5 s, a glint crosses it, and the camera cranes up to a locked overhead that matches the 2D film's
+//              layout exactly at 3.0 s (a match-cut). No VO, no logo, no pitch.
 // 3.00 - end   2D Liquid Glass film on the beat (120 BPM): kinetic type, glass UI, the photo plates as product shots.
 //
 // VO: vo/body_v2.wav (ElevenLabs read at 1.15x), cut only in its pauses (speech edges: tools/vo-env.mjs) and placed on
@@ -12,7 +13,7 @@
 export const FPS = 30, DURATION = 25.5, W = 1080, H = 1920;
 export const BPM = 120, BEAT = 60 / BPM;          // a bar = 2 s; downbeats at 3, 5, 7 ... (hook ends on one)
 
-export const OPEN = {touch: 0, land: 1.45, startX: 1.15, glint: [1.70, 2.25], crane: [2.15, 2.62], dive: 3.0};
+export const OPEN = {touch: 0, land: 2.5, startX: 2.3, glint: [2.4, 2.8], crane: [2.3, 3.0], dive: 3.0};   // dive = the handoff to 2D
 
 export const SCENES = [
   {id: 'hook',    t0: 0,     t1: 3.0},
@@ -53,8 +54,10 @@ export const CAPTIONS = [];
 const Wd = WORDS;
 export const CUES = {
   // strings
-  paneForm:   {t0: 3.00, land: 3.42},             // the glass we dived into contracts into the title pane
-  head1:      [{t0: 3.04, land: 3.30}, {t0: Wd.noStrings - .06, land: Wd.noStrings + .20}, {t0: Wd.attached - .06, land: Wd.attached + .20}],
+  priceOut0:  {t0: 3.02, t1: 3.16},               // the hook's "$69" leaves first, then its qualification
+  qualOut0:   {t0: 3.14, t1: 3.28},
+  paneForm:   {t0: 3.06, land: 3.50},             // the price pill grows into the title pane
+  head1:      [{t0: 3.26, land: 3.52}, {t0: Wd.noStrings - .06, land: Wd.noStrings + .20}, {t0: Wd.attached - .06, land: Wd.attached + .20}],
   twineIn:    {t0: 4.40, land: 4.80},             // a taut string under the title
   snap:       5.42,                               // ...snaps at the end of "attached"
   wipeA:      {t0: 5.66, t1: 6.00},               // a glass bar sweeps across: new scene left of it (cut on the downbeat... 6.0)
@@ -95,7 +98,9 @@ export const CUES = {
   ctaClick:   21.86,
   urlIn:      {t0: 22.20, land: 22.52},           // "MyFastRx.com" (22.26)
   badgePop:   22.95,
-  finalStill: 23.60,
+  vialIn:     {t0: 23.02, land: 23.40},           // the vial, lying under the BBB badge, with one glint across it
+  vialGlint:  [23.40, 23.85],
+  finalStill: 23.90,
 };
 
 // cursor: [t, x, y, pressed, target?] (screen coords; targets resolved in scene.mjs)
@@ -107,12 +112,14 @@ export const CURSOR = [
 
 export const SFX = [
   {id: 'tap_glass',  at: 0.0, gain: -7},           // the glass tap, heard on frame 1
-  {id: 'slide_long', at: 0.04, gain: -25},         // gliding on the table
+  {id: 'glide',      at: 0.04, gain: -23},         // racing across the table
   {id: 'tap_low',    at: OPEN.land, gain: -16},    // it settles on the price
   {id: 'tap_glass',  at: OPEN.land + .02, gain: -23},
   {id: 'shimmer',    at: OPEN.glint[0] + .1, gain: -27},
-  {id: 'whoosh',     at: OPEN.crane[0], gain: -19},  // whip overhead, dive
-  {id: 'impact',     at: 3.0, gain: -11},          // the drop: into the glass
+  {id: 'swish',      at: .55, gain: -24},          // the camera swings round it
+  {id: 'whoosh',     at: OPEN.crane[0], gain: -20},  // crane up to overhead
+  {id: 'impact',     at: 3.0, gain: -12},          // the drop
+  {id: 'slide_soft', at: CUES.paneForm.t0, gain: -22},
   {id: 'tap_glass',  at: CUES.paneForm.land, gain: -22},
   {id: 'tick',       at: CUES.twineIn.land, gain: -24},
   {id: 'snap',       at: CUES.snap, gain: -13},
@@ -141,6 +148,8 @@ export const SFX = [
   {id: 'tap_low',    at: CUES.ctaIn.land, gain: -18},
   {id: 'click',      at: CUES.ctaClick, gain: -14},
   {id: 'chime_end',  at: CUES.badgePop, gain: -24},
+  {id: 'tap_low',    at: CUES.vialIn.land, gain: -21},
+  {id: 'shimmer',    at: CUES.vialGlint[0] + .05, gain: -28},
 ];
 // music arrangement marks (audio/compose_v5.mjs)
 export const MUSIC = {riser: [1.9, 3.0], drop: 3.0, fill: [[10.25, 11.0], [14.55, 15.0]], breakAt: 14.6, endAt: 19.0};

@@ -39,7 +39,7 @@
     {
       "name": "audio: true peak <= -1.5 dBTP (+0.2 tolerance for AAC)",
       "pass": true,
-      "detail": "-1.4 dBTP"
+      "detail": "-1.5 dBTP"
     },
     {
       "name": "disclaimer absent before the end card",
@@ -49,24 +49,24 @@
     {
       "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 8 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max channel diff vs its first risen frame = 12 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "125 frames draw the price, 100 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22020 px, qualification 5450 px, frame 486)"
+      "detail": "134 frames draw the price, 103 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22022 px, qualification 5467 px, frame 486)"
     },
     {
       "name": "final hold in the ENCODED file",
       "pass": null,
-      "detail": "max frame-to-frame diff from 23.6s to end = 4 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max frame-to-frame diff from 23.9s to end = 5 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "no visible box around the logo / badge files",
       "pass": true,
       "detail": {
-        "logo": 0.13,
-        "badge": 0
+        "logo": 0.04,
+        "badge": 2
       }
     },
     {
@@ -74,12 +74,12 @@
       "pass": true,
       "detail": {
         "dominant": [
-          "#021E46",
           "#021A42",
-          "#026EFE",
-          "#0272FE",
           "#021A46",
-          "#026EFA"
+          "#026EFE",
+          "#021E46",
+          "#026EFA",
+          "#0272FE"
         ],
         "fileNavy": "#001C44",
         "fileBlue": "#0070FC",
@@ -90,22 +90,27 @@
     {
       "name": "disclaimer byte-identical on the end card (renderer output)",
       "pass": true,
-      "detail": "frames 590, 650, 700, 764: identical, identical, identical, identical"
+      "detail": "frames 600, 650, 720, 764: identical, identical, identical, identical"
     },
     {
       "name": "final hold byte-identical (renderer output)",
       "pass": true,
-      "detail": "frames 710, 740 vs 764: identical, identical"
+      "detail": "frames 720, 740 vs 764: identical, identical"
+    },
+    {
+      "name": "3D hook: the whole qualification is in frame whenever the whole \"$69\" is (projected boxes)",
+      "pass": true,
+      "detail": "90/90 frames measured, 48 show the whole price; without the whole qualification: none"
     },
     {
       "name": "3D hook: qualification read wherever \"$69\" is read (OCR every 3rd frame)",
       "pass": true,
-      "detail": "\"$69\" read in frames 72; qualification not read in: none (one printed texture: a miss is OCR on a perspective view; check by eye)"
+      "detail": "\"$69\" read in frames 78,81,84,87; qualification not read in: none (one printed texture: a miss is OCR on a perspective view; check by eye)"
     },
     {
       "name": "OCR \"head1\" @5.75s",
-      "pass": null,
-      "detail": "read: \"GLP-1 care. with no strings attached.\" | expected: \"GLP-1 care, with no strings attached.\""
+      "pass": true,
+      "detail": "matches exactly"
     },
     {
       "name": "OCR \"head2\" @6.7s",
@@ -179,8 +184,8 @@
     },
     {
       "name": "OCR \"cta\" @22.6s",
-      "pass": true,
-      "detail": "matches exactly"
+      "pass": null,
+      "detail": "read: \"y See if you qualify\" | expected: \"See if you qualify\""
     },
     {
       "name": "OCR \"url\" @23s",
@@ -220,7 +225,7 @@
     {
       "name": "VO in the final file says the script (speech-to-text)",
       "pass": true,
-      "detail": "\"GLP -1 care with no strings attached, no membership fees, no automatic refills. You request each one when you're ready. One price covers your provider review, medication and shipping, starting at $69. Clear pricing, clear care. See if you qualify at MyFastRX .com.\""
+      "detail": "\"GLP -1 care with no strings attached, no membership fees, no automatic refills. You request each one when you're ready. One price covers your provider review, medication and shipping, starting at $69. Clear pricing, clear care. See if you qualify at MyFastRx .com.\""
     },
     {
       "name": "on-screen VO lines are word-for-word VO",
@@ -230,12 +235,12 @@
   ],
   "lastFrameLogo": {
     "dominant": [
-      "#021E46",
       "#021A42",
-      "#026EFE",
-      "#0272FE",
       "#021A46",
-      "#026EFA"
+      "#026EFE",
+      "#021E46",
+      "#026EFA",
+      "#0272FE"
     ],
     "fileNavy": "#001C44",
     "fileBlue": "#0070FC",
@@ -243,7 +248,7 @@
     "blueOk": true
   },
   "boxEdges": {
-    "logo": 0.13,
-    "badge": 0
+    "logo": 0.04,
+    "badge": 2
   }
 }

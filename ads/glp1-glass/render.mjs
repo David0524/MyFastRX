@@ -47,7 +47,8 @@ if (only) {
     await page.evaluate(t => window.__render(t), i / TL.FPS);
     const d = await page.evaluate(() => window.__png());
     writeFileSync(path.join(stillDir, `f${String(i).padStart(4, '0')}.png`), Buffer.from(d.split(',')[1], 'base64'));
-    console.log('still', i);
+    const mt = await page.evaluate(() => window.__meta ? window.__meta() : null);
+    console.log('still', i, mt ? JSON.stringify(mt).slice(0, 160) : '');
   }
 } else {
   const file = path.join(outDir, flag('--from') || flag('--to') ? `${flag('--prefix') || 'part'}_${String(from).padStart(4, '0')}_${to}.mp4` : (flag('--out') || 'A_video_only.mp4'));

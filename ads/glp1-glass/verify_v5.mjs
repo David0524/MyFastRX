@@ -1,6 +1,6 @@
 // v5 "Hype": measures the FINAL file (not the plan).  node verify_v5.mjs [out/MyFastRx_Hype_v5.mp4]  ->  out/v5/verify.json
 // needs: ./render-v5.sh (out/v5/frame_meta.json, out/v5/layout.json), ./mix_v5.sh, and renderer stills for the lossless checks:
-//   node render.mjs --tl src/v5/timeline.mjs --page v5/film --stills v5/stills --layout v5/layout.json --only 590,650,700,710,740,764
+//   node render.mjs --tl src/v5/timeline.mjs --page v5/film --stills v5/stills --layout v5/layout.json --only 600,650,720,740,764
 import {execFileSync, spawn} from 'node:child_process';
 import {readFileSync, writeFileSync, mkdirSync} from 'node:fs';
 import * as TL from './src/v5/timeline.mjs';
@@ -51,10 +51,10 @@ await new Promise((res, rej) => {
         for (let y = panel[1]; y < panel[3]; y++) { f.copy(cur, k, (y * W + panel[0]) * 3, (y * W + panel[2]) * 3); k += (panel[2] - panel[0]) * 3; }
         if (!panel0) panel0 = cur; else { let mx = 0; for (let j = 0; j < cur.length; j++) mx = Math.max(mx, Math.abs(cur[j] - panel0[j])); stats.panelMax = Math.max(stats.panelMax, mx); } }
       const m = META[idx];
-      if (m?.price) stats.rows.push({i: idx, p: navyCount(f, L.priceBox), q: navyCount(f, L.qualBox)});
+      if (m?.price) stats.rows.push({i: idx, p: navyCount(f, m.price.box), q: navyCount(f, m.price.qbox)});
       if (idx >= Math.ceil(C.finalStill * FPS)) { if (last) { let mx = 0; for (let j = 0; j < f.length; j += 7) mx = Math.max(mx, Math.abs(f[j] - last[j])); stats.stillMax = Math.max(stats.stillMax, mx); } last = Buffer.from(f); }
       if (idx === N - 1) { R.lastFrameLogo = sampleLogo(f);
-        const lw = 800, lh = 266, bw = L.badge.w, bh = Math.round(638 * bw / 1600);
+        const lw = Math.round(1600 * L.logo.scale), lh = Math.round(532 * L.logo.scale), bw = L.badge.w, bh = Math.round(638 * bw / 1600);
         R.boxEdges = {logo: boxEdge(f, [Math.round(L.logo.c[0] - lw / 2), Math.round(L.logo.c[1] - lh / 2), lw, lh]), badge: badgeCorners(f, [Math.round(L.badge.cx - bw / 2), L.badge.y, bw, bh])}; }
       idx++;
     }
@@ -82,10 +82,10 @@ ok('logo colors (last frame) vs logo file', R.lastFrameLogo.navyOk && R.lastFram
 const still = i => execFileSync('ffmpeg', ['-v', 'error', '-i', `out/v5/stills/f${String(i).padStart(4, '0')}.png`, '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], {maxBuffer: 1 << 28});
 try {
   const region = (buf, [x0, y0, x1, y1]) => { const o = []; for (let y = y0; y < y1; y++) o.push(buf.subarray((y * W + x0) * 3, (y * W + x1) * 3)); return Buffer.concat(o); };
-  const ids = [590, 650, 700, 764], p0 = region(still(ids[0]), panel), same = ids.map(i => region(still(i), panel).equals(p0));
+  const ids = [600, 650, 720, 764], p0 = region(still(ids[0]), panel), same = ids.map(i => region(still(i), panel).equals(p0));
   ok('disclaimer byte-identical on the end card (renderer output)', same.every(Boolean), `frames ${ids.join(', ')}: ${same.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
-  const e = still(N - 1), holds = [710, 740].map(i => still(i).equals(e));
-  ok('final hold byte-identical (renderer output)', holds.every(Boolean), `frames 710, 740 vs ${N - 1}: ${holds.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
+  const e = still(N - 1), holds = [720, 740].map(i => still(i).equals(e));
+  ok('final hold byte-identical (renderer output)', holds.every(Boolean), `frames 720, 740 vs ${N - 1}: ${holds.map(v => v ? 'identical' : 'DIFFERENT').join(', ')}`);
 } catch (e) { ok('lossless checks', false, 'stills missing - see the header (' + String(e).slice(0, 80) + ')'); }
 
 // ---------- 4. OCR ----------
@@ -95,7 +95,13 @@ function ocr(name, t, crop, invert = false, psm = 6) {
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-ss', String(t), '-i', FILE, '-frames:v', '1', '-vf', `crop=${crop.join(':')},scale=iw*2:ih*2:flags=lanczos${invert ? ',negate' : ''},format=gray`, png]);
   return norm(execFileSync('tesseract', [png, '-', '--psm', String(psm)], {stdio: ['ignore', 'pipe', 'ignore']}).toString());
 }
-// the 3D hook: whenever OCR reads the price, it must also read the qualification (one printed texture)
+// the 3D hook, geometrically: the renderer projects the printed price and qualification boxes on every frame
+{
+  const f3 = Object.entries(META).filter(([i]) => +i < HAND), whole = f3.filter(([, m]) => m.priceWhole), bad = whole.filter(([, m]) => !m.qualWhole).map(([i]) => i);
+  ok('3D hook: the whole qualification is in frame whenever the whole "$69" is (projected boxes)', f3.length === HAND && bad.length === 0,
+    `${f3.length}/${HAND} frames measured, ${whole.length} show the whole price; without the whole qualification: ${bad.join(',') || 'none'}`);
+}
+// ...and by OCR: whenever OCR reads the price, it must also read the qualification (one printed texture)
 {
   const bad = [], seen = [];
   for (let i = 0; i < HAND; i += 3) {
@@ -179,7 +185,7 @@ function badgeCorners(f, [x0, y0, w, h]) {
   return +worst.toFixed(2);
 }
 function sampleLogo(f) {
-  const lw = 800, lh = 266, x0 = Math.round(L.logo.c[0] - lw / 2), y0 = Math.round(L.logo.c[1] - lh / 2);
+  const lw = Math.round(1600 * L.logo.scale), lh = Math.round(532 * L.logo.scale), x0 = Math.round(L.logo.c[0] - lw / 2), y0 = Math.round(L.logo.c[1] - lh / 2);
   const hist = new Map();
   for (let y = y0; y < y0 + lh; y++) for (let x = x0; x < x0 + lw; x++) { const [r, g, b] = px(f, x, y); if (r > 200 && g > 200 && b > 200) continue; const k = `${r >> 2},${g >> 2},${b >> 2}`; hist.set(k, (hist.get(k) || 0) + 1); }
   const top = [...hist].sort((p, q) => q[1] - p[1]).slice(0, 6).map(([k]) => k.split(',').map(v => v * 4 + 2));   // the wordmark is mostly navy: look past the top two bins for the blue

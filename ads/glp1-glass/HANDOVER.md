@@ -5,7 +5,8 @@ The project moves to a new chat. The new direction is a **modern hype video with
 
 - Repo: `david0524/myfastrx`. Branch: `claude/relaxed-archimedes-fiuecm`. Work folder: `ads/glp1-glass/`.
 - **Current cut: v5 "Hype"** (25.5 s): `out/MyFastRx_Hype_v5.mp4`, review copy `previews/v5_review_copy.mp4`, sources
-  `src/v5/`, build steps in `README.md`, verifier `verify_v5.mjs` (38 pass, 0 fail, 4 notes).
+  `src/v5/`, build steps in `README.md`, verifier `verify_v5.mjs` (39 pass, 0 fail, 4 notes). Revision 2: chase-camera hook landing at 2.5 s, match-cut into
+  the 2D film, smoother background light, vial on the end card (disclaimer kept at the safe-zone edge).
 - Previous shipped cut: **v3**, commit `cbd39d2`. File: `out/MyFastRx_LiquidGlass_A.mp4` (27 s, 1080×1920).
   Review copy: `previews/A_review_copy.mp4`.
 

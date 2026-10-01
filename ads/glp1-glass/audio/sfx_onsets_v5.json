@@ -4,13 +4,14 @@
     "tap_low": 0.0001,
     "slide_soft": 0.0237,
     "slide_long": 0.0021,
+    "glide": 0.003,
     "press": 0.0002,
     "click": 0,
     "toggle": 0,
     "chime_end": 0.0001,
     "impact": 0,
-    "whoosh": 0.0227,
-    "swish": 0.0098,
+    "whoosh": 0.0241,
+    "swish": 0.0075,
     "snap": 0,
     "tick": 0,
     "shimmer": 0.0003
@@ -23,46 +24,58 @@
       "file_start": 0
     },
     {
-      "id": "slide_long",
+      "id": "glide",
       "at": 0.04,
-      "gain": -25,
-      "file_start": 0.0379
+      "gain": -23,
+      "file_start": 0.037
     },
     {
       "id": "tap_low",
-      "at": 1.45,
+      "at": 2.5,
       "gain": -16,
-      "file_start": 1.4499
+      "file_start": 2.4999
     },
     {
       "id": "tap_glass",
-      "at": 1.47,
+      "at": 2.52,
       "gain": -23,
-      "file_start": 1.47
+      "file_start": 2.52
     },
     {
       "id": "shimmer",
-      "at": 1.8,
+      "at": 2.5,
       "gain": -27,
-      "file_start": 1.7997
+      "file_start": 2.4997
+    },
+    {
+      "id": "swish",
+      "at": 0.55,
+      "gain": -24,
+      "file_start": 0.5425
     },
     {
       "id": "whoosh",
-      "at": 2.15,
-      "gain": -19,
-      "file_start": 2.1273
+      "at": 2.3,
+      "gain": -20,
+      "file_start": 2.2759
     },
     {
       "id": "impact",
       "at": 3,
-      "gain": -11,
+      "gain": -12,
       "file_start": 3
     },
     {
-      "id": "tap_glass",
-      "at": 3.42,
+      "id": "slide_soft",
+      "at": 3.06,
       "gain": -22,
-      "file_start": 3.42
+      "file_start": 3.0363
+    },
+    {
+      "id": "tap_glass",
+      "at": 3.5,
+      "gain": -22,
+      "file_start": 3.5
     },
     {
       "id": "tick",
@@ -80,7 +93,7 @@
       "id": "whoosh",
       "at": 5.61,
       "gain": -21,
-      "file_start": 5.5873
+      "file_start": 5.5859
     },
     {
       "id": "tap_low",
@@ -92,7 +105,7 @@
       "id": "swish",
       "at": 6.86,
       "gain": -18,
-      "file_start": 6.8502
+      "file_start": 6.8525
     },
     {
       "id": "tap_low",
@@ -128,7 +141,7 @@
       "id": "whoosh",
       "at": 10.5,
       "gain": -19,
-      "file_start": 10.4773
+      "file_start": 10.4759
     },
     {
       "id": "tap_low",
@@ -206,7 +219,7 @@
       "id": "whoosh",
       "at": 18.55,
       "gain": -20,
-      "file_start": 18.5273
+      "file_start": 18.5259
     },
     {
       "id": "tap_low",
@@ -225,6 +238,18 @@
       "at": 22.95,
       "gain": -24,
       "file_start": 22.9499
+    },
+    {
+      "id": "tap_low",
+      "at": 23.4,
+      "gain": -21,
+      "file_start": 23.3999
+    },
+    {
+      "id": "shimmer",
+      "at": 23.45,
+      "gain": -28,
+      "file_start": 23.4497
     }
   ]
 }
