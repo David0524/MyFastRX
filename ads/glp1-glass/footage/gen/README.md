@@ -22,3 +22,16 @@ counsel.
 |---|---|
 | tapframe_0.png | acbeb4ed-5113-4ca0-b20d-31a70c1ffe6f |
 | tapframe_1.png | 0be4f976-82a3-4339-babb-2ef657b04f11 |
+
+## Tap take (Seedance 2.0 fast, 720p, 5 s, start frame tapframe_0.png)
+
+| File | Higgsfield job | Notes |
+|---|---|---|
+| tap_take1.mp4 | 70654c0a-d959-46fa-9e9d-e6103efe31f1 | 720x1280, 24 fps; fingertip touches the screen at frame 41 (1.71 s), at about (271, 657) in the 720p frame; camera locked, screen stays black |
+
+## Walk-shot first frame (Nano Banana Pro, reference: char_2.png)
+
+| File | Higgsfield job |
+|---|---|
+| walkframe_0.png | a929795d-d68b-4cf6-ab91-cf518181ee04 |
+| walkframe_1.png | 55448bfd-400f-4a5e-9254-22042859f786 |
