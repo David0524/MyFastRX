@@ -18,7 +18,7 @@
 // Footage: Higgsfield (Seedance 2.0) clips in footage/gen/, frames by tools/extract-gen.sh. Lifestyle character only:
 // she never uses the app or any medication on screen.
 export const SHIFT = 0;
-export const FPS = 30, DURATION = 28.0, W = 1080, H = 1920;
+export const FPS = 30, DURATION = 28.8, W = 1080, H = 1920;
 export const BPM = 120, BEAT = 60 / BPM;
 
 export const OPEN = {cut: 2.9, dive: 7.0};                // dive: the glass world takes over (the UI section starts)
@@ -30,32 +30,43 @@ export const TEA = {dir: 'tea', fps: 24, n: 121, from: 2.55};   // the cutaway f
 
 export const SCENES = [
   {id: 'hook',     t0: 0,     t1: 7.3},
-  {id: 'control',  t0: 7.0,   t1: 13.0},
-  {id: 'tea',      t0: 12.6,  t1: 14.4},
-  {id: 'covers',   t0: 14.0,  t1: 21.3},
-  {id: 'walk',     t0: 20.8,  t1: 23.9},
-  {id: 'end',      t0: 23.4,  t1: DURATION},
+  {id: 'control',  t0: 7.0,   t1: 12.75},
+  {id: 'tea',      t0: 12.3,  t1: 13.87},
+  {id: 'covers',   t0: 13.45, t1: 21.8},
+  {id: 'walk',     t0: 21.3,  t1: 24.4},
+  {id: 'end',      t0: 23.9,  t1: DURATION},
 ];
 
-// the VO (vo/body_v3.wav, one take; vo/ELEVENLABS_PROMPT_v3.md). Until it arrives these are the planned windows: the
-// picture is cut to them, and VO_EDIT stays empty (silent placeholder). On delivery each line is cut at its pause and
-// placed at its `at`; the windows below are then re-measured.
+// the VO: vo/body_v3.wav (ElevenLabs, Susan Kathleen, one take, 2026-10-02; vo/ELEVENLABS_PROMPT_v3.md), cut at its
+// measured pauses (silencedetect -42 dB) and placed line by line. `src` = file time, `at` = film time of src[0].
 export const VO_FILE = 'vo/body_v3.wav';
-export const VO_EDIT = [];
-export const VO = [
-  {t0: 0.30,  t1: 2.45,  text: 'GLP-1 care, without the strings.'},
-  {t0: 4.40,  t1: 5.90,  text: 'Starting at $69.'},
-  {t0: 7.10,  t1: 12.40, text: "No membership fees. No automatic refills. You request treatment when you're ready."},
-  {t0: 14.20, t1: 17.00, text: 'One price covers your provider review, medication, and shipping.'},
-  {t0: 18.00, t1: 20.60, text: "And your price doesn't increase as your dose does."},
-  {t0: 24.20, t1: 26.40, text: 'See if you qualify at MyFastRx.com.'},
+const VOL = [   // [src0, src1, at]  speech inside each cut: src0 + ~.04 .. src1 - ~.05
+  [0.00, 2.75, 0.10],     // "GLP-1 care, without the strings."
+  [3.05, 4.90, 4.25],     // "Starting at $69."
+  [5.13, 6.42, 7.05],     // "No membership fees."
+  [6.48, 8.05, 8.62],     // "No automatic refills."
+  [8.38, 10.35, 10.30],   // "You request treatment when you're ready."
+  [10.74, 14.52, 13.75],  // "One price covers your provider review, medication, and shipping." (starts over her cutaway)
+  [14.63, 17.20, 18.35],  // "And your price doesn't increase as your dose does."
+  [17.49, 20.62, 24.55],  // "See if you qualify at MyFastRx.com."
 ];
-// word onsets the picture cuts on (planned; re-measured from the take)
+export const VO_EDIT = VOL.map(([a, b, at]) => ({file: VO_FILE, src: [a, b], at}));
+const sp = (k, a, b) => +(VOL[k][2] + (a - VOL[k][0])).toFixed(2), win = (k, a, b, text) => ({t0: sp(k, a), t1: sp(k, b), text});
+export const VO = [   // measured speech windows (the music ducks under these)
+  win(0, 0.02, 2.70, 'GLP-1 care, without the strings.'),
+  win(1, 3.09, 4.85, 'Starting at $69.'),
+  {t0: sp(2, 5.17), t1: sp(4, 10.30), text: "No membership fees. No automatic refills. You request treatment when you're ready."},
+  win(5, 10.79, 14.47, 'One price covers your provider review, medication, and shipping.'),
+  win(6, 14.68, 17.15, "And your price doesn't increase as your dose does."),
+  win(7, 17.54, 20.56, 'See if you qualify at MyFastRx.com.'),
+];
+// word onsets (film time; faster-whisper word times, onsets snapped to the measured pauses)
 export const WORDS = {
-  glp: 0.30, without: 1.30, starting: 4.40, price69: 5.05,
-  noFees: 7.10, membership: 7.30, fees: 7.80, noAuto: 8.70, refills: 9.55, you: 10.30, when: 11.30,
-  one: 14.20, provider: 14.95, medication: 15.80, shipping: 16.55,
-  andYour: 18.00, asYourDose: 19.30, see: 24.20, url: 25.30,
+  glp: sp(0, .02), without: sp(0, 1.76), starting: sp(1, 3.09), price69: sp(1, 3.62),
+  noFees: sp(2, 5.17), membership: sp(2, 5.42), fees: sp(2, 5.78), noAuto: sp(3, 6.53), refills: sp(3, 7.32),
+  you: sp(4, 8.43), when: sp(4, 9.38),
+  one: sp(5, 10.79), provider: sp(5, 11.84), medication: sp(5, 12.98), shipping: sp(5, 13.90),
+  andYour: sp(6, 14.68), asYourDose: sp(6, 16.06), see: sp(7, 17.54), qualify: sp(7, 17.98), url: sp(7, 18.82),
 };
 export const CAPTIONS = [];
 const Wd = WORDS;
@@ -63,7 +74,7 @@ const Wd = WORDS;
 export const CUES = {
   // hook
   head0:      [{t0: 0.12, land: 0.40}, {t0: 0.24, land: 0.52}],   // "GLP-1 care," / "without the strings."
-  head0Out:   {t0: 2.74, t1: 2.88},
+  head0Out:   {t0: 2.76, t1: 2.89},
   scrim:      [0.0, 0.25],
   priceOut0:  {t0: 6.86, t1: 7.00},
   qualOut0:   {t0: 6.98, t1: 7.12},
@@ -74,42 +85,42 @@ export const CUES = {
   toggleIn:   {t0: 8.56, land: 8.92},
   head3:      [{t0: Wd.noAuto - .04, land: Wd.noAuto + .24}],
   toggleOff:  {t0: Wd.refills, t1: Wd.refills + .2},
-  head3Out:   {t0: 10.06, t1: 10.22},
-  morphBtn:   {t0: 10.06, land: 10.42},
-  btnPress:   10.80,
-  checkPop:   10.86,
-  wipe1:      {t0: 12.55, t1: 13.0},           // a glass bar sweeps down: her (tea) above it
+  head3Out:   {t0: 10.04, t1: 10.20},
+  morphBtn:   {t0: 10.04, land: 10.40},
+  btnPress:   10.92,                              // once the button has settled, on "you request ..."
+  checkPop:   10.98,
+  wipe1:      {t0: 12.30, t1: 12.75},          // a glass bar sweeps down: her (tea) above it
   // her
-  wipe2:      {t0: 14.0, t1: 14.42},           // and up: the covers scene below it
+  wipe2:      {t0: 13.45, t1: 13.87},          // and up: the covers scene below it ("One price covers" starts over her)
   // includes
-  coversIn:   {t0: 14.16, land: 14.42},
-  frameIn:    {t0: 14.0, land: 14.4},
-  shots:      [{t0: 14.20, id: 'rx'}, {t0: Wd.medication - .12, id: 'vial'}, {t0: Wd.shipping - .12, id: 'box'}],
+  coversIn:   {t0: 13.72, land: 13.98},
+  frameIn:    {t0: 13.45, land: 13.85},
+  shots:      [{t0: 13.75, id: 'rx'}, {t0: Wd.medication - .12, id: 'vial'}, {t0: Wd.shipping - .12, id: 'box'}],
   labels:     [{t0: Wd.provider - .06, land: Wd.provider + .20}, {t0: Wd.medication - .06, land: Wd.medication + .20}, {t0: Wd.shipping - .06, land: Wd.shipping + .20}],
-  coversOut:  {t0: 17.00, t1: 17.16},
+  coversOut:  {t0: 17.50, t1: 17.66},
   // proof
-  morphPill:  {t0: 17.02, land: 17.60},          // the frame snaps into the pill on the music's drop
-  priceIn:    {t0: 17.66, land: 17.92},
-  sliderIn:   {t0: 17.80, land: 18.16},
+  morphPill:  {t0: 17.52, land: 18.10},          // the frame snaps into the pill on the music's drop
+  priceIn:    {t0: 18.16, land: 18.42},
+  sliderIn:   {t0: 18.24, land: 18.60},
   doseLine:   [{t0: Wd.andYour - .04, land: Wd.andYour + .24}, {t0: Wd.asYourDose - .04, land: Wd.asYourDose + .24}],
-  drag:       {t0: 18.40, t1: 20.20},            // four detents, lower -> higher dose; the price holds on each
+  drag:       {t0: 18.90, t1: 20.70},            // four detents, lower -> higher dose; the price holds on each
   detents:    4,
-  priceOut:   {t0: 20.74, t1: 20.87},
-  qualOut:    {t0: 20.87, t1: 21.00},
-  wipe3:      {t0: 20.80, t1: 21.30},            // a glass bar sweeps down: her walk above it
+  priceOut:   {t0: 21.24, t1: 21.37},
+  qualOut:    {t0: 21.37, t1: 21.50},
+  wipe3:      {t0: 21.30, t1: 21.80},            // a glass bar sweeps down: her walk above it
   // payoff
-  wipe4:      {t0: 23.40, t1: 23.90},            // up: the end card below it
+  wipe4:      {t0: 23.90, t1: 24.40},            // up: the end card below it
   // end card
-  logoIn:     {t0: 23.62, land: 23.94},
-  tag:        [{t0: 23.70, land: 24.00}, {t0: 23.80, land: 24.10}],   // "GLP-1 care" / "without the strings."
-  discIn:     {t0: 23.92, land: 24.22},
-  ctaIn:      {t0: 23.78, land: 24.14},          // "See if you qualify" (24.2)
-  ctaClick:   24.62,
+  logoIn:     {t0: 24.12, land: 24.44},
+  tag:        [{t0: 24.20, land: 24.50}, {t0: 24.30, land: 24.60}],   // "GLP-1 care" / "without the strings."
+  discIn:     {t0: 24.42, land: 24.72},
+  ctaIn:      {t0: 24.28, land: 24.64},          // "See if you qualify" (24.59)
+  ctaClick:   25.12,
   urlIn:      {t0: Wd.url - .06, land: Wd.url + .26},
-  badgePop:   25.70,
-  vialIn:     {t0: 25.76, land: 26.14},
-  vialGlint:  [26.14, 26.56],
-  finalStill: 26.60,
+  badgePop:   26.60,
+  vialIn:     {t0: 26.66, land: 27.04},
+  vialGlint:  [27.04, 27.46],
+  finalStill: 27.70,
 };
 CUES.pulseIn = {t0: 1e9, land: 1e9};          // (v6 heartbeat cues, unused)
 CUES.wipeA = CUES.wipe1;
@@ -117,7 +128,7 @@ CUES.wipeA = CUES.wipe1;
 // touches: a glass fingertip disc lands, presses, and leaves a glass ripple - the request button, each dose detent
 // (held through the drag), the CTA
 export const TOUCHES = [{at: CUES.btnPress, target: 'btn'}, {at: CUES.drag.t0, hold: CUES.drag.t1, target: 'knob'}, {at: CUES.ctaClick, target: 'cta'}];
-const detentT = k => +(CUES.drag.t0 + (CUES.drag.t1 - CUES.drag.t0) * k / (CUES.detents - 1)).toFixed(3);
+const detentT = k => +(CUES.drag.t0 + (CUES.drag.t1 - CUES.drag.t0) / (CUES.detents - 1) * (k === 0 ? 0 : k - 1 + .6)).toFixed(3);   // arrivals (scene.mjs: each step travels 60% of its slot)
 export const DETENTS = Array.from({length: CUES.detents}, (_, k) => detentT(k));
 
 export const SFX = [
