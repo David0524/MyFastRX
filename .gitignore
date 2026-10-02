@@ -53,3 +53,13 @@ ads/glp1-glass/out/music_track_raw.wav
 ads/glp1-glass/out/v7/plate_layout.json
 ads/glp1-glass/out/v7/patch_*
 ads/glp1-glass/out/v7/video_new.mp4
+ads/glp1-glass/out/v8/part_*
+ads/glp1-glass/out/v8/*.log
+ads/glp1-glass/out/v8/list.txt
+ads/glp1-glass/out/v8/video_only.mp4
+ads/glp1-glass/out/v8/*mix.wav
+ads/glp1-glass/out/v8/frame_meta.json
+ads/glp1-glass/out/v8/x264*
+ads/glp1-glass/out/v8/patch_*
+ads/glp1-glass/out/v8/video_new.mp4
+ads/glp1-glass/out/v8s/
