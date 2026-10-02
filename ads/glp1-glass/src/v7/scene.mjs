@@ -39,23 +39,23 @@ export const L = {
   pill1: {c: [510, 820], half: [250, 140], r: 140},   // where the 3D hook leaves its pill (the lock framing)
   head0Y: [1078, 1188],                                         // over her, on a soft navy scrim (the island; clear of her face)
   head2Y: [640, 820, 1000],                                    // "No / membership / fees.", big, a word a line
-  head3Y: [430, 548],                                          // the headlines sit up top, phone-UI style, over the row
+  head3Y: [466, 584],                                          // the headlines sit up top, phone-UI style, over the row
   row: {c: [510, 860], half: [400, 112], r: 56}, rowLabelX: 156,   // the "Automatic refills" settings row (a glass card)
   track: {c: [750, 860], half: [104, 60], r: 60}, knobR: 50,   // its switch, at the row's right
-  btn: {c: [510, 860], half: [340, 100], r: 100}, head4Y: [430, 538],
+  btn: {c: [510, 860], half: [340, 100], r: 100}, head4Y: [466, 574],
   frame: {c: [540, 960], half: [600, 1020], r: 80},             // the product shots, full bleed (the rim sits off screen)
-  coversPane: {c: [510, 400], half: [380, 80], r: 40}, coversY: 428,   // frosted glass panes (below the persistent mark)
+  coversPane: {c: [510, 440], half: [380, 80], r: 40}, coversY: 468,   // frosted glass panes (below the persistent mark)
   labelPane: {c: [510, 1178], half: [300, 58], r: 58}, labelY: 1199,   // clear of the heartbeat band (spike top ~y 1266)
-  pill: {c: [510, 670], half: [250, 140], r: 140},
-  slider: {c: [510, 1084], half: [320, 22], r: 22}, knobSR: 42, doseY: 1222, doseLineY: [412, 500],
-  dose: {x0: 170, w: 140, gap: 40, base: 1176, h: [60, 110, 160, 206]},   // the four dose steps (lower -> higher)
-  lock: {c: [834, 670], r: 58},                                            // the padlock pinning the price
+  pill: {c: [510, 705], half: [250, 140], r: 140},
+  slider: {c: [510, 1084], half: [320, 22], r: 22}, knobSR: 42, doseY: 1222, doseLineY: [450, 530],
+  dose: {x0: 170, w: 140, gap: 40, base: 1176, h: [50, 90, 130, 170]},   // the four dose steps (lower -> higher)
+  lock: {c: [834, 705], r: 58},                                            // the padlock pinning the price
   logo: {c: [510, 372], scale: .5}, tagY: [570, 656],
   cta: {c: [510, 790], half: [330, 70], r: 70}, ctaPx: 50, urlY: 930, urlPx: 52, badge: {cx: 510, y: 956, w: 280},
   endVial: {cx: 510, base: 1634, s: .30},              // standing under the disclaimer (134 x 364 px, top ~y 1270), clear of the logo
   pulseY: 1470,
   splashLogo: {c: [510, 520], scale: .42}, splashY: [780, 872],   // the phone's first screen: logo over the headline
-  mark: {x: 100, y: 284, h: 40, pad: [28, 12], r: 20},             // the persistent wordmark chip (top-left, safe zone)
+  mark: {x: 100, y: 276, h: 34, pad: [24, 11], r: 18},             // the persistent wordmark chip (top-left, safe zone)
 };
 // price block, relative to the pill's center (as v3)
 const PRICE = {start: -66, price: 88, qual: [186, 228, 270]};
@@ -113,7 +113,7 @@ export async function init() {
   G = createGlass(cv.gl);
   const lines = wrap(COPY.disclaimer, DISC.size, 500, DISC.w - 2 * DISC.pad), lh = Math.round(DISC.size * DISC.lh), h = lines.length * lh + 2 * DISC.pad + 4;
   disc = {lines, lh, h, w: DISC.w, x: CX - DISC.w / 2, y: DISC.bottom - h};
-  L.px = {head0: fit(COPY.head0, 104, 700, 820), splash: fit(COPY.head0, 80, 700, 760), tag: fit(COPY.tag, 74, 700, 820), dose: fit(COPY.doseLine, 80, 700, 840), head2: fit(COPY.head2, 176, 700, 840), head3: fit([...COPY.head3, ...COPY.head4], 104, 700, 820), covers: fit([COPY.covers], 78, 700, 720), label: fit(COPY.labels, 60, 700, 560)};
+  L.px = {head0: fit(COPY.head0, 104, 700, 820), splash: fit(COPY.head0, 80, 700, 760), tag: fit(COPY.tag, 74, 700, 820), dose: fit(COPY.doseLine, 72, 700, 820), head2: fit(COPY.head2, 176, 700, 840), head3: fit([...COPY.head3, ...COPY.head4], 104, 700, 820), covers: fit([COPY.covers], 78, 700, 720), label: fit(COPY.labels, 60, 700, 560)};
   L.px.head4 = L.px.head3;
   L.knobX = [L.slider.c[0] - L.slider.half[0] + 10, L.slider.c[0] + L.slider.half[0] - 10];
   L.touch = {btn: [L.btn.c[0] + 120, L.btn.c[1] + 8], cta: [L.cta.c[0] + 150, L.cta.c[1] + 6]};
@@ -138,8 +138,8 @@ function calmZones(t, sec) {
   // [x0, y0, x1, y1, feather, a]: each zone clears just before its text arrives
   const z = [], by = t0 => clamp((t - t0 + .45) / .4);
   if (sec === 'hook') z.push([100, 560, 920, 1130, 60, 1], [0, 290, 1080, 770, 70, 1]);   // the price, and the logo (flat #F7F7F7 under the file)
-  if (sec === 'control') z.push([90, 480, 930, 1060, 60, by(C.head2[0].t0)], [100, 330, 920, 590, 50, by(C.head3[0].t0)], [110, 748, 910, 972, 40, by(C.toggleIn.t0)]);
-  if (sec === 'covers') z.push([330, 560, 690, 770, 40, by(C.priceIn.t0)], [200, 816, 820, 954, 40, by(C.priceIn.t0)], [150, 950, 870, 1186, 30, by(C.sliderIn.t0)], [100, 1182, 920, 1236, 30, by(C.sliderIn.t0)], [756, 592, 912, 748, 30, by(C.sliderIn.t0)], [100, 330, 920, 526, 50, by(C.doseLine[0].t0)]);
+  if (sec === 'control') z.push([90, 480, 930, 1060, 60, by(C.head2[0].t0)], [100, 370, 920, 630, 50, by(C.head3[0].t0)], [110, 748, 910, 972, 40, by(C.toggleIn.t0)]);
+  if (sec === 'covers') z.push([330, 595, 690, 805, 40, by(C.priceIn.t0)], [200, 851, 820, 989, 40, by(C.priceIn.t0)], [150, 985, 870, 1186, 30, by(C.sliderIn.t0)], [100, 1182, 920, 1236, 30, by(C.sliderIn.t0)], [756, 627, 912, 783, 30, by(C.sliderIn.t0)], [100, 370, 920, 560, 50, by(C.doseLine[0].t0)]);
   if (sec === 'end') z.push([40, 240, 980, 560, 70, 1], [80, 490, 940, 690, 50, by(C.tag[0].t0)], [140, 860, 880, 1090, 50, by(C.urlIn.t0)]);
   return z.filter(q => q[5] > 0);
 }
@@ -266,7 +266,7 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
   const mp = eIO(prog(t, C.morphPill.t0, C.morphPill.land)), sq = squish(t, C.morphPill.land, .06);
   const c = lerp2(F.c, P.c, mp), half = lerp2(F.half, P.half, mp), r = lerp(F.r, P.r, mp), sc = [1 + sq, 1 - sq], anchor = [c[0], c[1] + half[1]];
   if (mp < 1) clipped(bg, cl, () => {
-    const cx = W / 2, cy = 800;
+    const cx = W / 2, cy = 845;
     bg.save(); bg.beginPath(); bg.roundRect(c[0] - half[0], c[1] - half[1], 2 * half[0], 2 * half[1], r); bg.clip();
     const drop = eIn(prog(t, C.morphPill.t0, C.morphPill.t0 + .35)) * 900;   // the last shot drops out as the frame contracts
     const shot = (id, x0, x1) => {
@@ -274,7 +274,7 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
       bg.save(); bg.beginPath(); bg.rect(x0, -4000, x1 - x0, 9000); bg.clip(); bg.translate(0, drop);
       bg.translate(cx, cy); bg.scale(zoom, zoom); bg.translate(-cx, -cy);
       if (id === 'vial') {
-        const v = img.vial_lying, s = .5, base = 1110, vx = cx - v.width * s / 2, vy = base - v.height * s;
+        const v = img.vial_lying, s = .46, base = 1110, vx = cx - v.width * s / 2, vy = base - v.height * s;
         const sg = bg.createRadialGradient(cx + 8, base, 0, cx + 8, base, v.width * s * .8);   // contact shadow
         sg.addColorStop(0, 'rgba(0,29,69,0.30)'); sg.addColorStop(1, 'rgba(0,29,69,0)');
         bg.save(); bg.translate(0, base); bg.scale(1, .16); bg.translate(0, -base); bg.fillStyle = sg; bg.fillRect(cx - 400, base - 400, 800, 800); bg.restore();
@@ -284,7 +284,7 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
           lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(.5, 'rgba(255,255,255,0.42)'); lg.addColorStop(1, 'rgba(255,255,255,0)'); vc.fillStyle = lg; vc.fillRect(0, 0, v.width, v.height); }
         bg.imageSmoothingQuality = 'high'; bg.drawImage(cv.vial, vx, vy, v.width * s, v.height * s);
       } else {
-        if (id === 'rx') plate(bg, img.rx_clipboard, cx, cy, 620 / img.rx_clipboard.height, .02, 1.2);
+        if (id === 'rx') plate(bg, img.rx_clipboard, cx, cy, 560 / img.rx_clipboard.height, .02, 1.2);
         if (id === 'box') plate(bg, img.ship_box_v6, cx, cy + 10, 740 / img.ship_box_v6.width, 0, 1.2);
       }
       bg.restore();
