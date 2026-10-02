@@ -49,12 +49,12 @@
     {
       "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 17 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max channel diff vs its first risen frame = 18 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "169 frames draw the price, 139 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22023 px, qualification 5445 px, frame 570)"
+      "detail": "169 frames draw the price, 139 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22022 px, qualification 5455 px, frame 570)"
     },
     {
       "name": "final hold in the ENCODED file",
@@ -65,7 +65,7 @@
       "name": "no visible box around the logo / badge files",
       "pass": true,
       "detail": {
-        "logo": 0.54,
+        "logo": 0.55,
         "badge": 0.67
       }
     },
@@ -75,8 +75,8 @@
       "detail": {
         "dominant": [
           "#021E46",
-          "#021A42",
           "#0272FE",
+          "#021A42",
           "#026EFE",
           "#021A46",
           "#026EFA"
@@ -246,8 +246,8 @@
   "lastFrameLogo": {
     "dominant": [
       "#021E46",
-      "#021A42",
       "#0272FE",
+      "#021A42",
       "#026EFE",
       "#021A46",
       "#026EFA"
@@ -258,7 +258,7 @@
     "blueOk": true
   },
   "boxEdges": {
-    "logo": 0.54,
+    "logo": 0.55,
     "badge": 0.67
   }
 }

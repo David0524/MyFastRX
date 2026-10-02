@@ -140,6 +140,8 @@ const glass = o => G.glass({...o, bevel: o.bevel ?? o.r, shadow: o.shadow || SH(
 // the heartbeat: the client's glass heartbeat render (images/heartbeat_glass.png), animated. It beats once a second on
 // the beat (a resting heart): the spike swells (the plate is redrawn in thin columns, each stretched about the flat
 // line, so only the spike grows and the tube keeps its thickness) and a soft light runs along the tube.
+// the wipe's heartbeat: a full-width glass tube, the spike left of centre (the first cut's wipe)
+const wipePts = y => [[-120, y], [360, y], [390, y - 30], [420, y + 34], [458, y - 92], [496, y + 44], [526, y], [1200, y]];
 const HB = {meta: null, len: 860, cx: 510};
 function beatA(t) { const d = ((t - TL.OPEN.dive) % 1 + 1) % 1; return 1 + .10 * (d < .07 ? d / .07 : Math.exp(-(d - .07) / .2)); }
 function drawHeart(ctx, y, t, amp = beatA(t), light = true) {
@@ -634,7 +636,7 @@ async function compose(t, mode, only = null) {
     s.fn(t, cl, ops, top, bg, fg, M, mode);
   }
   if (wp && wp.kind !== 'pulseUp') top.push(() => glass({type: 'rect', ...CLEAR, c: [W / 2, wy], half: [W / 2 + 80, 46], r: 46, bevel: 40, refr: 34, rim: 1, spec: 1.2, sheenAmt: .15, sheen: 0, shadow: SH(.14)}));
-  if (wp?.kind === 'pulseUp') drawHeart(fg, wy, t, lerp(1.12, 1, eIO(prog(t, wp.t0, wp.t1))), true);   // it beats once as it rises (an image of glass: nothing refracts her)
+  if (wp?.kind === 'pulseUp') top.push(() => glass({type: 'tube', ...PULSE, c: [0, 0], pts: wipePts(wy), r: 12, bevel: 12, refr: 16, shadow: SH(.14, [.62, .70, .92]), protect: [0, 0, W, H]}));   // the full-width glass heartbeat (as in the first cut); no refraction, so nothing distorts her
 
   if (mode !== 'ui') { touches(t, top); captions(hud, t); drawDisclaimer(hud, t); }
 
