@@ -127,8 +127,8 @@ CUES.wipeA = CUES.wipe1;
 
 // touches: a glass fingertip disc lands, presses, and leaves a glass ripple - the request button, each dose detent
 // (held through the drag), the CTA
-export const TOUCHES = [{at: CUES.btnPress, target: 'btn'}, {at: CUES.drag.t0, hold: CUES.drag.t1, target: 'knob'}, {at: CUES.ctaClick, target: 'cta'}];
-const detentT = k => +(CUES.drag.t0 + (CUES.drag.t1 - CUES.drag.t0) / (CUES.detents - 1) * (k === 0 ? 0 : k - 1 + .6)).toFixed(3);   // arrivals (scene.mjs: each step travels 60% of its slot)
+export const TOUCHES = [{at: CUES.btnPress, target: 'btn'}, {at: CUES.ctaClick, target: 'cta'}];   // (the dose steps light on their own)
+const detentT = k => +(CUES.drag.t0 + (CUES.drag.t1 - CUES.drag.t0) * k / (CUES.detents - 1)).toFixed(3);   // each step lights at its slot
 export const DETENTS = Array.from({length: CUES.detents}, (_, k) => detentT(k));
 
 export const SFX = [
@@ -162,6 +162,7 @@ export const SFX = [
   {id: 'slide_soft', at: CUES.morphPill.t0, gain: -21},
   {id: 'tap_glass',  at: CUES.morphPill.land + .01, gain: -15},
   {id: 'tap_low',    at: CUES.sliderIn.land, gain: -20},
+  {id: 'toggle',     at: CUES.drag.t0 - .06, gain: -12},       // the padlock clicks shut on the price
   ...DETENTS.slice(1).map(t => ({id: 'tick', at: t, gain: -15})),   // each dose step clicks; the price doesn't move
   {id: 'tap_glass',  at: CUES.drag.t1 + .02, gain: -17},
   {id: 'whoosh',     at: CUES.wipe3.t0, gain: -21},

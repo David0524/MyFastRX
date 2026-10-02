@@ -101,8 +101,8 @@ function ocr(name, t, crop, invert = false, psm = 6) {
 {
   const hookPrice = stats.rows.filter(r => r.i < HAND).length;
   ok('hook: the price pill frames are measured by the 2D price check', hookPrice > 0, `${hookPrice} hook frames draw the price`);
-  const ringFrames = Object.entries(META).filter(([i, m]) => +i < HAND && m.ring > 0).length;
-  ok('hook: the glass ring refracts only its inside (never the footage with her in it)', null, `one-sided ring in src/glass.mjs (uOneSided); ${ringFrames} hook frames carry the ring`);
+  const phoneFrames = Object.entries(META).filter(([i, m]) => +i < HAND && m.phone > 0 && m.phone < 1).length;
+  ok('hook: the UI is composited onto her phone screen only (no glass over her)', null, `${phoneFrames} push-in frames; the UI takes only the dark screen pixels inside the tracked quad, so her finger and thumb stay in front`);
 }
 const P = L.pill.c, F = L.frame, cw = (y0, h) => [820, h, 100, y0];   // full safe-area width crop at y0
 const dc = [disc.w - 12, Math.round(disc.h) - 8, Math.round(disc.x) + 6, Math.round(disc.y) + 4];

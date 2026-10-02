@@ -46,8 +46,10 @@ export const L = {
   frame: {c: [540, 960], half: [600, 1020], r: 80},             // the product shots, full bleed (the rim sits off screen)
   coversPane: {c: [510, 280], half: [380, 80], r: 40}, coversY: 308,   // frosted glass panes on the photo
   labelPane: {c: [510, 1178], half: [300, 58], r: 58}, labelY: 1199,   // clear of the heartbeat band (spike top ~y 1266)
-  pill: {c: [510, 700], half: [250, 140], r: 140},
-  slider: {c: [510, 1084], half: [320, 22], r: 22}, knobSR: 42, doseY: 1162, doseLineY: [372, 462],
+  pill: {c: [510, 640], half: [250, 140], r: 140},
+  slider: {c: [510, 1084], half: [320, 22], r: 22}, knobSR: 42, doseY: 1222, doseLineY: [372, 462],
+  dose: {x0: 170, w: 140, gap: 40, base: 1176, h: [64, 118, 172, 226]},   // the four dose steps (lower -> higher)
+  lock: {c: [834, 640], r: 58},                                            // the padlock pinning the price
   logo: {c: [510, 372], scale: .5}, tagY: [570, 656],
   cta: {c: [510, 790], half: [330, 70], r: 70}, ctaPx: 50, urlY: 930, urlPx: 52, badge: {cx: 510, y: 956, w: 280},
   endVial: {cx: 510, base: 1634, s: .30},              // standing under the disclaimer (134 x 364 px, top ~y 1270), clear of the logo
@@ -100,7 +102,10 @@ export async function init() {
   img.logo = await load('../../images/logo_myfastrx_official.jpg');
   img.badge = await load('../../images/badge_bbb_a_rating_horizontal.jpg');
   for (const k of ['ship_box_v6', 'rx_clipboard', 'vial_lying', 'twine_v6']) img[k] = await load(`../../plates/${k}.png`);   // v6 cut-outs: tools/prep-plates-v6.py
-  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), frost: mk(108, 192), world: mk()};
+  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), frost: mk(108, 192), world: mk(), phone: mk(), phw: mk(), pmask: mk()};
+  for (const k of ['phw', 'pmask']) cv[k].getContext('2d', {willReadFrequently: true});
+  PH.quad = (await (await fetch('../../footage/tap_screen_quad.json')).json()).quad;   // tools/track-phone.py
+  { const q0 = screenQuad(TAP.contact), Hui = homography(uiCrop(q0, 0), q0); PH.fingerUI = applyH(invert3(Hui), TAP.finger); }
   for (const k of ['bg', 'content', 'fg', 'hud', 'out', 'decor', 'grid', 'vial']) cv[k].getContext('2d', {willReadFrequently: true});
   G = createGlass(cv.gl);
   const lines = wrap(COPY.disclaimer, DISC.size, 500, DISC.w - 2 * DISC.pad), lh = Math.round(DISC.size * DISC.lh), h = lines.length * lh + 2 * DISC.pad + 4;
@@ -131,7 +136,7 @@ function calmZones(t, sec) {
   const z = [], by = t0 => clamp((t - t0 + .45) / .4);
   if (sec === 'hook') z.push([100, 560, 920, 1130, 60, 1]);
   if (sec === 'control') z.push([90, 480, 930, 1060, 60, by(C.head2[0].t0)], [100, 330, 920, 590, 50, by(C.head3[0].t0)], [110, 748, 910, 972, 40, by(C.toggleIn.t0)]);
-  if (sec === 'covers') z.push([330, 590, 690, 800, 40, by(C.priceIn.t0)], [200, 846, 820, 984, 40, by(C.priceIn.t0)], [170, 1052, 850, 1116, 30, by(C.sliderIn.t0)], [100, 1124, 920, 1176, 30, by(C.sliderIn.t0)], [100, 290, 920, 486, 50, by(C.doseLine[0].t0)]);
+  if (sec === 'covers') z.push([330, 530, 690, 740, 40, by(C.priceIn.t0)], [200, 786, 820, 924, 40, by(C.priceIn.t0)], [150, 930, 870, 1186, 30, by(C.sliderIn.t0)], [100, 1182, 920, 1236, 30, by(C.sliderIn.t0)], [756, 562, 912, 718, 30, by(C.sliderIn.t0)], [100, 290, 920, 486, 50, by(C.doseLine[0].t0)]);
   if (sec === 'end') z.push([40, 240, 980, 560, 70, 1], [80, 490, 940, 690, 50, by(C.tag[0].t0)], [140, 860, 880, 1090, 50, by(C.urlIn.t0)]);
   return z.filter(q => q[5] > 0);
 }
@@ -303,28 +308,39 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
     clipped(fg, cl, () => priceBlock(fg, P.c[0], P.c[1], {enter: en, qEnter: qe, exit: ex, qExit: qx}));
     M.price = {box: L.priceBox, qbox: L.qualBox, enter: en, exit: ex, qEnter: qe, qExit: qx};
   }
-  // the dose slider (a fingertip drags the dose up; the price holds still)
+  // the proof point: four dose steps rise, then light one by one (lower -> higher dose) while "$69" stays pinned under
+  // a padlock that clicks shut as the steps begin; each step sends a pulse from the lock and a glint across the price
   if (t >= C.sliderIn.t0) {
-    const S = L.slider, s = spring(t, C.sliderIn.t0, .34, .08), kx = knobXAt(t);
-    clipped(bg, cl, () => {
-      const x0 = S.c[0] - (S.half[0] - 8) * s;
-      bg.fillStyle = '#DDE4EC'; bg.beginPath(); bg.roundRect(x0, S.c[1] - 9, 2 * (S.half[0] - 8) * s, 18, 9); bg.fill();
-      bg.fillStyle = COLORS.blue; bg.beginPath(); bg.roundRect(x0, S.c[1] - 9, Math.max(18, (kx - x0) * s), 18, 9); bg.fill();
-    });
-    ops.push(() => glass({type: 'rect', ...CLEAR, c: S.c, half: S.half, r: S.r, bevel: 18, scale: [s, s], anchor: S.c, refr: 12, clip: cl}));
-    // detent marks on the track (the dose steps)
-    clipped(bg, cl, () => { for (let k = 0; k < C.detents; k++) { const x = lerp(L.knobX[0], L.knobX[1], k / (C.detents - 1));
-      bg.fillStyle = x <= kx + 1 ? '#FFFFFF' : '#AFC0D4'; bg.beginPath(); bg.arc(x, S.c[1], 5 * s, 0, 2 * Math.PI); bg.fill(); } });
+    const D = L.dose, n = C.detents, ox = eIn(prog(t, C.priceOut.t0, C.qualOut.t1));
+    const lit = k => k === 0 ? (t >= C.drag.t0 ? 1 : 0) : (t >= TL.DETENTS[k] ? 1 : 0);
+    for (let k = 0; k < n; k++) {
+      const x = D.x0 + k * (D.w + D.gap) + D.w / 2, hh = D.h[k], up = spring(t, C.sliderIn.t0 + k * .07, .36, .08), on = lit(k);
+      const pop = k === 0 ? squish(t, C.drag.t0, .12) : squish(t, TL.DETENTS[k], .12), h2 = hh * up * (1 + pop), cy = D.base - h2 / 2;
+      if (up <= .01) continue;
+      clipped(bg, cl, () => { const a = on ? eOut(clamp((t - (k ? TL.DETENTS[k] : C.drag.t0)) / .18)) : 0;
+        bg.fillStyle = `rgb(${Math.round(lerp(221, 20, a))},${Math.round(lerp(228, 163, a))},${Math.round(lerp(236, 184, a))})`;
+        bg.beginPath(); bg.roundRect(x - D.w / 2 + 6, cy - h2 / 2 + 6, D.w - 12, Math.max(0, h2 - 12), 16); bg.fill(); });
+      ops.push(() => glass({type: 'rect', ...CLEAR, c: [x, cy], half: [D.w / 2, h2 / 2], r: 22, bevel: 20, refr: 14, sigma: [.02, .015, .008], shadow: SH(.14), clip: cl}));
+    }
+    // the padlock, right of the price: open, then shut as the dose starts to climb
+    const K = L.lock, ks = spring(t, C.sliderIn.t0 + .1, .34, .08), shut = eIO(prog(t, C.drag.t0 - .3, C.drag.t0 - .05));
+    if (ks > .01) {
+      ops.push(() => glass({type: 'rect', ...CLEAR, c: K.c, half: [K.r, K.r], r: K.r, bevel: K.r, scale: [ks, ks], anchor: K.c, refr: 18, sigma: [.03, .02, .01], shadow: SH(.18), clip: cl}));
+      clipped(fg, cl, () => { fg.save(); fg.translate(K.c[0], K.c[1] + 6); fg.scale(ks * 1.45, ks * 1.45); fg.strokeStyle = COLORS.navy; fg.fillStyle = COLORS.navy; fg.lineWidth = 6; fg.lineCap = 'round';
+        const lift = lerp(-12, 0, shut);
+        fg.beginPath(); fg.moveTo(-11, -4); fg.lineTo(-11, -12 + lift); fg.arc(0, -12 + lift, 11, Math.PI, 0); fg.lineTo(11, -4 + (1 - shut) * -8); fg.stroke();
+        fg.beginPath(); fg.roundRect(-17, -6, 34, 26, 6); fg.fill(); fg.restore(); });
+      for (const td of [C.drag.t0, ...TL.DETENTS.slice(1)]) { const pu = prog(t, td, td + .5);   // a pulse from the lock on every step
+        if (pu > 0 && pu < 1) { const R = lerp(K.r, K.r + 70, eOut(pu)), w = 7 * (1 - pu) ** 1.4;
+          if (w > .5) top.push(() => glass({type: 'ring', ...CLEAR, c: K.c, half: [R, 0], r: w, bevel: w, refr: 20, rim: 1.1, spec: 1.2, sigma: [.04, .02, .01], glow: .08, glowCol: [.3, .8, .9], shadow: SH(0)})); } }
+    }
     // on each step the price holds: a light glint crosses the pill, the figure never moves
     for (const td of TL.DETENTS.slice(1)) { const gu = prog(t, td, td + .32); if (gu > 0 && gu < 1) { const gx = lerp(P.c[0] - P.half[0] + 20, P.c[0] + P.half[0] - 20, eIO(gu));
       top.push(() => glass({type: 'rect', ...CLEAR, c: [gx, P.c[1]], half: [16, P.half[1] - 14], r: 16, bevel: 16, refr: 16, rim: .9, spec: 1.2, sheenAmt: .2, sheen: 0, shadow: SH(0), clip: [P.c[1] - P.half[1], P.c[1] + P.half[1]]})); } }
-    const ksq = squish(t, C.drag.t1, .08);
-    ops.push(() => glass({type: 'rect', ...CLEAR, c: [kx, S.c[1]], half: [L.knobSR, L.knobSR], r: L.knobSR, bevel: L.knobSR, scale: [s * (1 + ksq), s * (1 - ksq)], anchor: [kx, S.c[1]], refr: 26, disp: .25, shadow: SH(.24), clip: cl}));
     clipped(fg, cl, () => { const e = eOut(prog(t, C.sliderIn.t0 + .1, C.sliderIn.land + .1));
       const dx = eIO(prog(t, C.drag.t0, C.drag.t1)), mix = (a, z) => `rgb(${[0, 1, 2].map(j => Math.round(lerp(a[j], z[j], dx))).join(',')})`;
-      line(fg, COPY.dose[0].toUpperCase(), S.c[0] - S.half[0], L.doseY, 34, 600, mix([0, 29, 69], [120, 138, 160]), {align: 'left', enter: e});
-      line(fg, COPY.dose[1].toUpperCase(), S.c[0] + S.half[0], L.doseY, 34, 600, mix([120, 138, 160], [0, 29, 69]), {align: 'right', enter: e});
-      const ox = eIn(prog(t, C.priceOut.t0, C.qualOut.t1));
+      line(fg, COPY.dose[0].toUpperCase(), D.x0, L.doseY, 34, 600, mix([0, 29, 69], [120, 138, 160]), {align: 'left', enter: e});
+      line(fg, COPY.dose[1].toUpperCase(), D.x0 + n * D.w + (n - 1) * D.gap, L.doseY, 34, 600, mix([120, 138, 160], [0, 29, 69]), {align: 'right', enter: e});
       COPY.doseLine.forEach((q, i) => line(fg, q, CX, L.doseLineY[i], L.px.dose, 700, COLORS.navy, {enter: eOut(prog(t, C.doseLine[i].t0, C.doseLine[i].land)), exit: ox})); });
   }
 }
@@ -364,41 +380,106 @@ function sceneEnd(t, cl, ops, top, bg, fg) {
 // ===================== the hook: her tap, and the ring =====================
 // Footage outside the ring, the glass world inside it. The ring is glass that refracts only its inside (the glass world),
 // never the footage with her in it. A teal drop left at the touch point glides up and grows into the price pill.
-const RMAX = Math.hypot(Math.max(TAP.finger[0], W - TAP.finger[0]), Math.max(TAP.finger[1], H - TAP.finger[1])) + 90;
-function sceneHook(t, cl, ops, top, bg, fg, M) {
-  const F = TAP.finger, u = prog(t, ...HOOK.ring), R = t < TAP.at ? 0 : RMAX * (1 - (1 - u) ** 2.6);
-  if (R < RMAX - 1) bg.drawImage(img.tapFrame, 0, 0, W, H);
-  if (t < TL.OPEN.cut) {   // the proposition, from the first frames: over a soft navy scrim on the island, clear of her face
-    const a = eOut(prog(t, ...C.scrim)), g = bg.createLinearGradient(0, 860, 0, 1420);
-    g.addColorStop(0, 'rgba(0,29,69,0)'); g.addColorStop(.45, `rgba(0,29,69,${(.50 * a).toFixed(3)})`); g.addColorStop(1, `rgba(0,29,69,${(.62 * a).toFixed(3)})`);
-    bg.fillStyle = g; bg.fillRect(0, 860, W, 1060);
-    const ex = eIn(prog(t, C.head0Out.t0, C.head0Out.t1));
-    clipped(fg, cl, () => COPY.head0.forEach((q, i) => line(fg, q, CX, L.head0Y[i], L.px.head0, 700, COLORS.white, {enter: eOut(prog(t, C.head0[i].t0, C.head0[i].land)), exit: ex})));
+// Her phone screen is tracked (tools/track-phone.py -> footage/tap_screen_quad.json). On the tap the screen wakes with the
+// MyFastRx UI composited onto it in perspective (her finger and thumb stay on top: only the dark screen pixels take the
+// UI), then the camera pushes into the screen until the UI is the frame. No glass ever lies over her.
+const PH = {quad: null, fingerUI: null, push: [3.56, 4.24], wake: [3.30, 3.52]};
+function homography(src, dst) {   // 4 point pairs -> 3x3 (row-major, h33 = 1)
+  const A = [], b = [];
+  for (let k = 0; k < 4; k++) { const [x, y] = src[k], [u, v] = dst[k];
+    A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u); A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v); }
+  for (let c = 0; c < 8; c++) { let m = c; for (let r = c + 1; r < 8; r++) if (Math.abs(A[r][c]) > Math.abs(A[m][c])) m = r;
+    [A[c], A[m]] = [A[m], A[c]]; [b[c], b[m]] = [b[m], b[c]];
+    for (let r = 0; r < 8; r++) if (r !== c) { const f = A[r][c] / A[c][c]; for (let k = c; k < 8; k++) A[r][k] -= f * A[c][k]; b[r] -= f * b[c]; } }
+  return [...b.map((v, k) => v / A[k][k]), 1];
+}
+const applyH = (h, [x, y]) => { const w = h[6] * x + h[7] * y + h[8]; return [(h[0] * x + h[1] * y + h[2]) / w, (h[3] * x + h[4] * y + h[5]) / w]; };
+function invert3(m) { const [a, b, c, d, e, f, g, h, i] = m, A = e * i - f * h, B = -(d * i - f * g), Cc = d * h - e * g, det = a * A + b * B + c * Cc;
+  return [A, -(b * i - c * h), b * f - c * e, B, a * i - c * g, -(a * f - c * d), Cc, -(a * h - b * g), a * e - b * d].map(v => v / det); }
+// draw `im` (its px rect `src` = [x0, y0, x1, y1]) warped by homography h, as a mesh of small affine triangles
+function drawWarped(ctx, im, src, h, nx = 14, ny = 24) {
+  const [x0, y0, x1, y1] = src, P = (i, j) => [x0 + (x1 - x0) * i / nx, y0 + (y1 - y0) * j / ny];
+  ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  const tri = (s0, s1, s2) => { const d0 = applyH(h, s0), d1 = applyH(h, s1), d2 = applyH(h, s2);
+    const cx = (d0[0] + d1[0] + d2[0]) / 3, cy = (d0[1] + d1[1] + d2[1]) / 3, g = p => [p[0] + (p[0] - cx) * .02 + Math.sign(p[0] - cx) * .6, p[1] + (p[1] - cy) * .02 + Math.sign(p[1] - cy) * .6];   // a hair of overlap: no seams
+    const e0 = g(d0), e1 = g(d1), e2 = g(d2);
+    ctx.save(); ctx.beginPath(); ctx.moveTo(...e0); ctx.lineTo(...e1); ctx.lineTo(...e2); ctx.closePath(); ctx.clip();
+    const sx1 = s1[0] - s0[0], sy1 = s1[1] - s0[1], sx2 = s2[0] - s0[0], sy2 = s2[1] - s0[1], dx1 = d1[0] - d0[0], dy1 = d1[1] - d0[1], dx2 = d2[0] - d0[0], dy2 = d2[1] - d0[1];
+    const det = sx1 * sy2 - sx2 * sy1, a = (dx1 * sy2 - dx2 * sy1) / det, c = (dx2 * sx1 - dx1 * sx2) / det, b = (dy1 * sy2 - dy2 * sy1) / det, d = (dy2 * sx1 - dy1 * sx2) / det;
+    ctx.setTransform(a, b, c, d, d0[0] - a * s0[0] - c * s0[1], d0[1] - b * s0[0] - d * s0[1]); ctx.drawImage(im, 0, 0); ctx.restore(); };
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { tri(P(i, j), P(i + 1, j), P(i + 1, j + 1)); tri(P(i, j), P(i + 1, j + 1), P(i, j + 1)); }
+  ctx.restore();
+}
+// the screen quad (TL, TR, BR, BL) at clip frame i: the tracked phone outline, inset to the glass
+function screenQuad(i) {
+  const q = PH.quad[clamp(Math.round(i), 0, PH.quad.length - 1)], c = q.reduce((a, p) => [a[0] + p[0] / 4, a[1] + p[1] / 4], [0, 0]);
+  return q.map(p => [lerp(p[0], c[0], .06), lerp(p[1], c[1], .035)]);
+}
+// the UI area that lands on the phone: a centred crop matching the phone's shape, widening to the full frame by the end
+function uiCrop(q, u) {
+  const w = Math.hypot(q[1][0] - q[0][0], q[1][1] - q[0][1]), h = Math.hypot(q[3][0] - q[0][0], q[3][1] - q[0][1]);
+  const cw = lerp(Math.min(W, H * w / h), W, u), x0 = CX - cw / 2;
+  return [[x0, 0], [x0 + cw, 0], [x0 + cw, H], [x0, H]];
+}
+const FULL = [[0, 0], [W, 0], [W, H], [0, H]];
+// the price screen (drawn full-frame: on the phone in the 'ui' pass, then as the frame once the push lands)
+function hookUI(t, cl, ops, bg, fg, M, full) {
+  backdrop(bg, t, 'hook');
+  if (t < HOOK.bead.t0) return;
+  const F = PH.fingerUI, Q = L.pill1, g = eIO(prog(t, ...HOOK.glide)), b = spring(t, HOOK.bead.t0, .34, .08), sq = squish(t, HOOK.glide[1], .07);
+  const out = eIn(prog(t, C.pillOut.t0, C.pillOut.t1));   // after the price has left, the pill shrinks away into the UI section
+  const rb = 66 * b, c = lerp2(F, Q.c, g), half = [lerp(rb, Q.half[0], g), lerp(rb, Q.half[1], g)], r = lerp(rb, Q.r, g);
+  if (rb > .5 && out < 1) ops.push(() => glass({type: 'rect', ...LOCKTEAL, c, half, r, bevel: Math.min(40, r), scale: [(1 + sq) * (1 - out), (1 - sq) * (1 - out)], anchor: c, clip: cl}));
+  if (t >= HOOK.qualIn[0] && t < C.qualOut0.t1) {
+    const qe = eOut(prog(t, ...HOOK.qualIn)), en = eOut(prog(t, ...HOOK.priceIn));
+    const ex = eIn(prog(t, C.priceOut0.t0, C.priceOut0.t1)), qx = eIn(prog(t, C.qualOut0.t0, C.qualOut0.t1));
+    clipped(fg, cl, () => priceBlock(fg, Q.c[0], Q.c[1], {enter: en, qEnter: qe, exit: ex, qExit: qx}));
+    if (full) M.price = {box: shiftBox(L.priceBox, Q.c[1] - L.pill.c[1]), qbox: shiftBox(L.qualBox, Q.c[1] - L.pill.c[1]), enter: en, qEnter: qe, exit: ex, qExit: qx};
   }
-  if (R > 0) {
-    // the glass world on its own canvas, masked to the circle, then laid over the footage (a clip region + the dither's
-    // 'overlay' blend directly on bg left the footage black outside the clip's bounding box on some frames)
-    const wc = cv.world.getContext('2d'); wc.setTransform(1, 0, 0, 1, 0, 0); wc.globalCompositeOperation = 'source-over'; wc.clearRect(0, 0, W, H);
-    backdrop(wc, t, 'hook');
-    wc.globalCompositeOperation = 'destination-in'; wc.fillStyle = '#000'; wc.beginPath(); wc.arc(F[0], F[1], R, 0, 2 * Math.PI); wc.fill();
-    wc.globalCompositeOperation = 'source-over'; bg.drawImage(cv.world, 0, 0);
-    if (R < RMAX - 1) { const w = lerp(12, 34, Math.min(1, u * 3)) * (1 - .35 * u);
-      ops.push(() => glass({type: 'ring', ...CLEAR, c: F, half: [R, 0], r: w, bevel: w, refr: 46, disp: .32, rim: 1.15, spec: 1.35, sigma: [.05, .02, .01], glow: .1, glowCol: [.35, .8, 1], oneSided: true, shadow: SH(.10)})); }
-  }
-  // the drop -> the price pill (it only ever sits inside the ring, on the glass world)
-  if (t >= HOOK.bead.t0) {
-    const Q = L.pill1, g = eIO(prog(t, ...HOOK.glide)), b = spring(t, HOOK.bead.t0, .34, .08), sq = squish(t, HOOK.glide[1], .07);
-    const out = eIn(prog(t, C.pillOut.t0, C.pillOut.t1));   // after the price has left, the pill shrinks away into the UI section
-    const rb = 66 * b, c = lerp2(F, Q.c, g), half = [lerp(rb, Q.half[0], g), lerp(rb, Q.half[1], g)], r = lerp(rb, Q.r, g);
-    if (rb > .5 && out < 1) ops.push(() => glass({type: 'rect', ...LOCKTEAL, c, half, r, bevel: Math.min(40, r), scale: [(1 + sq) * (1 - out), (1 - sq) * (1 - out)], anchor: c, clip: cl}));
-    if (t >= HOOK.qualIn[0] && t < C.qualOut0.t1) {
-      const qe = eOut(prog(t, ...HOOK.qualIn)), en = eOut(prog(t, ...HOOK.priceIn));
-      const ex = eIn(prog(t, C.priceOut0.t0, C.priceOut0.t1)), qx = eIn(prog(t, C.qualOut0.t0, C.qualOut0.t1));
-      clipped(fg, cl, () => priceBlock(fg, Q.c[0], Q.c[1], {enter: en, qEnter: qe, exit: ex, qExit: qx}));
-      M.price = {box: shiftBox(L.priceBox, Q.c[1] - L.pill.c[1]), qbox: shiftBox(L.qualBox, Q.c[1] - L.pill.c[1]), enter: en, qEnter: qe, exit: ex, qExit: qx};
+}
+function sceneHook(t, cl, ops, top, bg, fg, M, mode) {
+  const u = t < TAP.at ? 0 : eIO(prog(t, ...PH.push));
+  if (mode === 'ui' || u >= 1) { hookUI(t, cl, ops, bg, fg, M, mode !== 'ui'); M.phone = mode === 'ui' ? M.phone : 1; return; }
+  if (t < TL.OPEN.cut || t < TAP.at) {
+    bg.drawImage(img.tapFrame, 0, 0, W, H);
+    if (t < TL.OPEN.cut) {   // the proposition, from the first frames: over a soft navy scrim on the island, clear of her face
+      const a = eOut(prog(t, ...C.scrim)), g = bg.createLinearGradient(0, 860, 0, 1420);
+      g.addColorStop(0, 'rgba(0,29,69,0)'); g.addColorStop(.45, `rgba(0,29,69,${(.50 * a).toFixed(3)})`); g.addColorStop(1, `rgba(0,29,69,${(.62 * a).toFixed(3)})`);
+      bg.fillStyle = g; bg.fillRect(0, 860, W, 1060);
+      const ex = eIn(prog(t, C.head0Out.t0, C.head0Out.t1));
+      clipped(fg, cl, () => COPY.head0.forEach((q, i) => line(fg, q, CX, L.head0Y[i], L.px.head0, 700, COLORS.white, {enter: eOut(prog(t, C.head0[i].t0, C.head0[i].land)), exit: ex})));
     }
+    return;
   }
-  M.ring = R;
+  // the phone stage: the footage pushed in (homography q0 -> qu), the UI frame (cv.phone, from the 'ui' pass) on her screen
+  const fi = TAP.contact + (t - TAP.at) * TAP.fps, q0 = screenQuad(fi), qu = q0.map((p, k) => lerp2(p, FULL[k], u));
+  const Hf = homography(q0, qu);
+  bg.fillStyle = '#000'; bg.fillRect(0, 0, W, H);
+  drawWarped(bg, img.tapFrame, [0, 0, W, H], Hf, 10, 18);
+  // where her screen is dark, the UI shows; her finger and thumb (lighter) stay in front - fading out as the push takes over
+  const xs = qu.map(p => p[0]), ys = qu.map(p => p[1]);
+  const bx0 = Math.max(0, Math.floor(Math.min(...xs)) - 2), by0 = Math.max(0, Math.floor(Math.min(...ys)) - 2), bx1 = Math.min(W, Math.ceil(Math.max(...xs)) + 2), by1 = Math.min(H, Math.ceil(Math.max(...ys)) + 2);
+  const pw = cv.phw.getContext('2d'), mk2 = cv.pmask.getContext('2d');
+  pw.setTransform(1, 0, 0, 1, 0, 0); pw.globalCompositeOperation = 'source-over'; pw.clearRect(0, 0, W, H);
+  pw.save(); pw.beginPath(); pw.moveTo(...qu[0]); for (const p of qu.slice(1)) pw.lineTo(...p); pw.closePath(); pw.clip();
+  const crop = uiCrop(q0, u), Hu = homography(crop, qu);
+  drawWarped(pw, cv.phone, [crop[0][0], 0, crop[1][0], H], Hu);
+  const wake = eOut(prog(t, ...PH.wake));
+  if (wake < 1) { pw.fillStyle = `rgba(0,0,0,${(1 - wake).toFixed(3)})`; pw.fillRect(0, 0, W, H); }
+  if (u < .9) { const gl = pw.createLinearGradient(qu[0][0], qu[0][1], qu[2][0], qu[2][1]);   // the cover glass: a soft reflection
+    gl.addColorStop(0, `rgba(255,255,255,${(.16 * (1 - u)).toFixed(3)})`); gl.addColorStop(.45, 'rgba(255,255,255,0)'); gl.addColorStop(1, `rgba(255,255,255,${(.05 * (1 - u)).toFixed(3)})`);
+    pw.fillStyle = gl; pw.fillRect(bx0, by0, bx1 - bx0, by1 - by0); }
+  pw.restore();
+  const occ = 1 - eIO(clamp(u / .55));   // occlusion strength
+  if (occ > 0 && bx1 > bx0 && by1 > by0) {
+    const src = bg.getImageData(bx0, by0, bx1 - bx0, by1 - by0), m = mk2.createImageData(bx1 - bx0, by1 - by0);
+    for (let k = 0; k < src.data.length; k += 4) { const Y = .3 * src.data[k] + .59 * src.data[k + 1] + .11 * src.data[k + 2];
+      m.data[k + 3] = Math.round(255 * lerp(1, clamp((78 - Y) / 30), occ)); }
+    mk2.setTransform(1, 0, 0, 1, 0, 0); mk2.clearRect(0, 0, W, H); mk2.putImageData(m, bx0, by0);
+    pw.globalCompositeOperation = 'destination-in'; pw.drawImage(cv.pmask, 0, 0); pw.globalCompositeOperation = 'source-over';
+  }
+  bg.drawImage(cv.phw, 0, 0);
+  M.phone = +u.toFixed(3);
 }
 
 // ===================== the outro: her walk, the tagline on frosted glass =====================
@@ -424,6 +505,12 @@ const SPANS = [   // scene, the time it is on screen (footage scenes draw their 
 // wipes: a clear glass bar sweeping down (new scene above it) or up (new scene below it)
 const WIPES = [{...C.wipe1, kind: 'bar'}, {...C.wipe2, kind: 'barUp'}, {...C.wipe3, kind: 'bar'}, {...C.wipe4, kind: 'barUp'}];
 export async function render(t) {
+  if (t >= TAP.at && t < PH.push[1]) {   // the phone stage: render the price screen first (it is composited onto her phone)
+    await compose(t, 'ui'); const pc = cv.phone.getContext('2d'); pc.setTransform(1, 0, 0, 1, 0, 0); pc.clearRect(0, 0, W, H); pc.drawImage(cv.out, 0, 0);
+  }
+  return compose(t, 'main');
+}
+async function compose(t, mode) {
   const bg = cv.bg.getContext('2d'), fg = cv.fg.getContext('2d'), hud = cv.hud.getContext('2d');
   for (const c of [bg, fg, hud, cv.content.getContext('2d')]) { c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, W, H); }
   const ops = [], top = [], M = {t, price: null};
@@ -434,7 +521,7 @@ export async function render(t) {
     if (wp.kind === 'bar') { wy = lerp(-120, H + 120, u); splitNew = [-1e6, wy]; splitOld = [wy, 1e6]; }
     else { wy = lerp(H + 120, -120, u); splitNew = [wy, 1e6]; splitOld = [-1e6, wy]; }
   }
-  const live = SPANS.filter(s => t >= s.t0 && t < s.t1);
+  const live = mode === 'ui' ? SPANS.filter(s => s.id === 'hook') : SPANS.filter(s => t >= s.t0 && t < s.t1);
   if (live.some(s => s.id === 'hook')) img.tapFrame = t < TL.OPEN.cut   // the opening shot, then (cut on the action) the tap close-up
     ? await footFrame(TL.OPENING.dir, (TL.OPENING.from + t) * TL.OPENING.fps, TL.OPENING.n)
     : await footFrame(TAP.dir, TAP.contact + (t - TAP.at) * TAP.fps, TAP.n);
@@ -443,13 +530,11 @@ export async function render(t) {
   for (const s of live) {
     const cl = live.length > 1 && wp ? (s === live[live.length - 1] ? splitNew : splitOld) : [-1e6, 1e6];   // (the hook's pill shrinks away over the UI's first frames: no split)
     if (!s.footage) clipped(bg, cl, () => backdrop(bg, t, s.id));
-    s.fn(t, cl, ops, top, bg, fg, M);
+    s.fn(t, cl, ops, top, bg, fg, M, mode);
   }
   if (wp) top.push(() => glass({type: 'rect', ...CLEAR, c: [W / 2, wy], half: [W / 2 + 80, 46], r: 46, bevel: 40, refr: 34, rim: 1, spec: 1.2, sheenAmt: .15, sheen: 0, shadow: SH(.14)}));
 
-  touches(t, top);
-  captions(hud, t);
-  drawDisclaimer(hud, t);
+  if (mode !== 'ui') { touches(t, top); captions(hud, t); drawDisclaimer(hud, t); }
 
   G.begin(cv.bg, cv.content);
   for (const op of ops) op();
@@ -457,7 +542,7 @@ export async function render(t) {
   G.finish();
   const out = cv.out.getContext('2d', {willReadFrequently: true});
   out.drawImage(cv.gl, 0, 0); out.drawImage(cv.fg, 0, 0); out.drawImage(cv.hud, 0, 0);
-  meta = M;
+  if (mode !== 'ui') meta = M;
   return cv.out;
 }
 
