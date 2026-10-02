@@ -448,8 +448,8 @@ const FULL = [[0, 0], [W, 0], [W, H], [0, H]];
 // the price screen (drawn full-frame: on the phone in the 'ui' pass, then as the frame once the push lands)
 function hookUI(t, cl, ops, bg, fg, M, full) {
   backdrop(bg, t, 'hook');
-  if (t >= HOOK.splashIn.t0 && t < C.pillOut.t1) {   // the official logo (on its own flat #F7F7F7), in on the splash, out with the pill
-    const S = L.splashLogo, u = eOut(prog(t, HOOK.splashIn.t0, HOOK.splashIn.land)), o = eIn(prog(t, C.pillOut.t0, C.pillOut.t1));
+  if (t >= HOOK.splashIn.t0 && t < C.priceOut0.t1) {   // the official logo (on its own flat #F7F7F7), in on the splash, out with the price - gone before "No" rises
+    const S = L.splashLogo, u = eOut(prog(t, HOOK.splashIn.t0, HOOK.splashIn.land)), o = eIn(prog(t, C.priceOut0.t0, C.priceOut0.t1));
     const lw = Math.round(img.logo.width * S.scale), lh = Math.round(img.logo.height * S.scale), x = Math.round(S.c[0] - lw / 2), y = Math.round(S.c[1] - lh / 2);
     fg.save(); fg.beginPath(); fg.rect(x, y, lw, lh); fg.clip(); fg.imageSmoothingQuality = 'high'; fg.drawImage(img.logo, x, y + Math.round(((1 - u) * .75 + o * .75) * lh), lw, lh); fg.restore();
     const ex = eIn(prog(t, HOOK.splashOut.t0, HOOK.splashOut.t1));

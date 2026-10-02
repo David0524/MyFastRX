@@ -120,7 +120,7 @@ const expect = [
   ['label_provider', 15.4, lineCrop([L.labelY], L.px.label), false, COPY.labels[0], 7],
   ['label_medication', 16.3, lineCrop([L.labelY], L.px.label), false, COPY.labels[1], 7],
   ['label_shipping', 17.3, lineCrop([L.labelY], L.px.label), false, COPY.labels[2], 7],
-  ['price_starting', 19.0, [320, 56, P[0] - 160, P[1] - 110], false, COPY.startingAt, 7],
+  ['price_starting', 19.0, [250, 56, P[0] - 92, P[1] - 110], false, COPY.startingAt, 7],   // the text after the heartbeat icon
   ['price_69', 19.0, [L.priceBox[2] - L.priceBox[0] + 24, L.priceBox[3] - L.priceBox[1] + 24, L.priceBox[0] - 12, L.priceBox[1] - 12], false, COPY.price, 7],
   ['price_qual', 19.0, [L.qualBox[2] - L.qualBox[0], L.qualBox[3] - L.qualBox[1], L.qualBox[0], L.qualBox[1]], false, COPY.qual.join(' ')],
   ['dose_line', 20.4, lineCrop(L.doseLineY, L.px.dose), false, COPY.doseLine.join(' ')],
