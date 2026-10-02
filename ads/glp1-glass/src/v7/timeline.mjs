@@ -41,7 +41,8 @@ export const SCENES = [
 // measured pauses (silencedetect -42 dB) and placed line by line. `src` = file time, `at` = film time of src[0].
 export const VO_FILE = 'vo/body_v3.wav';
 const VOL = [   // [src0, src1, at]  speech inside each cut: src0 + ~.04 .. src1 - ~.05
-  [0.00, 2.75, 0.10],     // "GLP-1 care, without the strings."
+  [0.00, 2.454, 0.40, 'vo/body_v3_l1.wav'],   // "GLP-1 care, without the strings." - the tightened "G-L-P-1" (tools/tighten-glp.py):
+                                              //   it starts 0.3 s later and "care" (0.85 s in this file) still lands at 1.25
   [3.05, 4.90, 4.25],     // "Starting at $69."
   [5.13, 6.42, 7.05],     // "No membership fees."
   [6.48, 8.05, 8.62],     // "No automatic refills."
@@ -50,10 +51,10 @@ const VOL = [   // [src0, src1, at]  speech inside each cut: src0 + ~.04 .. src1
   [14.63, 17.20, 18.35],  // "And your price doesn't increase as your dose does."
   [17.49, 20.62, 24.55],  // "See if you qualify at MyFastRx.com."
 ];
-export const VO_EDIT = VOL.map(([a, b, at]) => ({file: VO_FILE, src: [a, b], at}));
+export const VO_EDIT = VOL.map(([a, b, at, file]) => ({file: file || VO_FILE, src: [a, b], at}));
 const sp = (k, a, b) => +(VOL[k][2] + (a - VOL[k][0])).toFixed(2), win = (k, a, b, text) => ({t0: sp(k, a), t1: sp(k, b), text});
 export const VO = [   // measured speech windows (the music ducks under these)
-  win(0, 0.02, 2.70, 'GLP-1 care, without the strings.'),
+  win(0, 0.02, 2.40, 'GLP-1 care, without the strings.'),
   win(1, 3.09, 4.85, 'Starting at $69.'),
   {t0: sp(2, 5.17), t1: sp(4, 10.30), text: "No membership fees. No automatic refills. You request treatment when you're ready."},
   win(5, 10.79, 14.47, 'One price covers your provider review, medication, and shipping.'),
@@ -62,7 +63,7 @@ export const VO = [   // measured speech windows (the music ducks under these)
 ];
 // word onsets (film time; faster-whisper word times, onsets snapped to the measured pauses)
 export const WORDS = {
-  glp: sp(0, .02), without: sp(0, 1.76), starting: sp(1, 3.09), price69: sp(1, 3.62),
+  glp: sp(0, .02), without: sp(0, 1.46), starting: sp(1, 3.09), price69: sp(1, 3.62),
   noFees: sp(2, 5.17), membership: sp(2, 5.42), fees: sp(2, 5.78), noAuto: sp(3, 6.53), refills: sp(3, 7.32),
   you: sp(4, 8.43), when: sp(4, 9.38),
   one: sp(5, 10.79), provider: sp(5, 11.84), medication: sp(5, 12.98), shipping: sp(5, 13.90),
@@ -132,8 +133,8 @@ const detentT = k => +(CUES.drag.t0 + (CUES.drag.t1 - CUES.drag.t0) * k / (CUES.
 export const DETENTS = Array.from({length: CUES.detents}, (_, k) => detentT(k));
 
 export const SFX = [
-  {id: 'impact',     at: CUES.head0[0].t0 + .02, gain: -13},   // the hook's sonic cue as the headline lands
-  {id: 'whoosh',     at: CUES.head0[0].t0 - .04, gain: -24},
+  {id: 'impact',     at: 0.30, gain: -13},                 // the hook's sonic cue as the headline lands (not on the first frames)
+  {id: 'whoosh',     at: 0.24, gain: -24},
   {id: 'tap_glass',  at: CUES.head0[1].land - .04, gain: -24},
   {id: 'swish',      at: OPEN.cut - .06, gain: -28},          // the cut on the action
   {id: 'tap_glass',  at: TAP.at, gain: -9},                   // her fingertip touches the glass
