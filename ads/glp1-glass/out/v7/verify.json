@@ -54,7 +54,7 @@
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "197 frames draw the price, 168 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22019 px, qualification 5463 px, frame 570)"
+      "detail": "197 frames draw the price, 168 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22017 px, qualification 5461 px, frame 570)"
     },
     {
       "name": "final hold in the ENCODED file",
@@ -65,8 +65,8 @@
       "name": "no visible box around the logo / badge files",
       "pass": true,
       "detail": {
-        "logo": 0.54,
-        "badge": 1
+        "logo": 0.53,
+        "badge": 0.67
       }
     },
     {
@@ -258,7 +258,7 @@
     "blueOk": true
   },
   "boxEdges": {
-    "logo": 0.54,
-    "badge": 1
+    "logo": 0.53,
+    "badge": 0.67
   }
 }
