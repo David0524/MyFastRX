@@ -102,10 +102,12 @@ export async function init() {
   for (const [wt, f] of [[500, 'Medium'], [600, 'SemiBold'], [700, 'Bold']]) { const ff = new FontFace('G' + wt, `url(../../assets/fonts/Geist-${f}.ttf)`, {weight: String(wt)}); await ff.load(); document.fonts.add(ff); }
   const load = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
   img.logo = await load('../../images/logo_myfastrx_official.jpg');
-  for (const k of ['blue', 'white']) img['icon_' + k] = await load(`../../images/logo_icon_${k}.png`);   // the logo's heartbeat (tools/prep-logo-icon.py)
+  for (const k of ['blue', 'white']) img['icon_' + k] = await load(`../../images/logo_icon_${k}.png`);
+  img.heart = await load('../../images/heartbeat_glass.png');                 // the client's glass heartbeat (tools/prep-heartbeat.py): the tea -> products transition
+  HB.meta = await (await fetch('../../images/heartbeat_glass.json')).json();   // the logo's heartbeat (tools/prep-logo-icon.py)
   img.badge = await load('../../images/badge_bbb_a_rating_horizontal.jpg');
   for (const k of ['ship_box_v6', 'rx_clipboard', 'vial_lying', 'twine_v6']) img[k] = await load(`../../plates/${k}.png`);   // v6 cut-outs: tools/prep-plates-v6.py
-  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), frost: mk(108, 192), world: mk(), phone: mk(), phw: mk(), pmask: mk(), tA: mk(), tB: mk(), tS: mk(108, 192)};
+  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), frost: mk(108, 192), heart: mk(W, 700), world: mk(), phone: mk(), phw: mk(), pmask: mk(), tA: mk(), tB: mk(), tS: mk(108, 192)};
   for (const k of ['phw', 'pmask']) cv[k].getContext('2d', {willReadFrequently: true});
   PH.quad = (await (await fetch('../../footage/tap_screen_quad.json')).json()).quad;   // tools/track-phone.py
   { const q0 = screenQuad(TAP.contact), Hui = homography(uiCrop(q0, 0), q0); PH.fingerUI = applyH(invert3(Hui), TAP.finger); }
@@ -132,6 +134,35 @@ const LOCKTEAL = {...TEAL, sigma: [.45, .12, .10], lift: 0};   // the 3D pill's 
 const PULSE = {sigma: [2.3, 1.05, .07], refr: 14, disp: .25, rim: 1.1, spec: 1.3, glow: .14, glowCol: [.4, .65, 1], lift: .035, shadow: {off: [0, 16], blur: 22, amt: .30, col: [.55, .68, 1]}};   // deep blue glass, bright rim, a blue shadow
 const lerpMat = (a, z, m) => ({...z, sigma: lerp3(a.sigma, z.sigma, m), refr: lerp(a.refr, z.refr, m), caustic: lerp(a.caustic || 0, z.caustic || 0, m), sheenAmt: lerp(a.sheenAmt || 0, z.sheenAmt || 0, m), glowCol: lerp3(a.glowCol, z.glowCol, m), shadow: {...z.shadow, col: lerp3(a.shadow.col, z.shadow.col, m), amt: lerp(a.shadow.amt, z.shadow.amt, m)}});
 const glass = o => G.glass({...o, bevel: o.bevel ?? o.r, shadow: o.shadow || SH()});
+
+// ---------- the glass heartbeat (from v6) ----------
+// the heartbeat: the client's glass heartbeat render (images/heartbeat_glass.png), animated. It beats once a second on
+// the beat (a resting heart): the spike swells (the plate is redrawn in thin columns, each stretched about the flat
+// line, so only the spike grows and the tube keeps its thickness) and a soft light runs along the tube.
+const HB = {meta: null, len: 860, cx: 510};
+function beatA(t) { const d = ((t - TL.OPEN.dive) % 1 + 1) % 1; return 1 + .10 * (d < .07 ? d / .07 : Math.exp(-(d - .07) / .2)); }
+function drawHeart(ctx, y, t, amp = beatA(t), light = true) {
+  const M = HB.meta, im = img.heart, s = HB.len / (M.tube[1] - M.tube[0]), base = M.baseline;
+  const x0 = HB.cx - (M.tube[0] + M.tube[1]) / 2 * s, hc = cv.heart.getContext('2d'), oy = 300;   // the work canvas: flat line at y 300
+  hc.setTransform(1, 0, 0, 1, 0, 0); hc.globalCompositeOperation = 'source-over'; hc.clearRect(0, 0, W, 700); hc.imageSmoothingQuality = 'high';
+  const sp = [M.path[1][0] - 30, M.path[5][0] + 30], STEP = 6;
+  for (let sx = 0; sx < im.width; sx += STEP) {
+    const u = clamp((sx - sp[0]) / (sp[1] - sp[0])), bump = Math.sin(Math.PI * u) ** 2, A = 1 + (amp - 1) * bump;
+    hc.drawImage(im, sx, 0, STEP + 1, im.height, x0 + sx * s, oy - base * s * A, (STEP + 1) * s, im.height * s * A);
+  }
+  if (light) {   // the light along the tube, launched on each beat
+    const d = ((t - TL.OPEN.dive) % 1 + 1) % 1;
+    if (d < .75) {
+      const P = M.path.map(([px, py]) => [x0 + px * s, oy + (py - base) * s * (px > sp[0] && px < sp[1] ? amp : 1)]);
+      const L2 = []; let tot = 0; for (let i = 0; i < P.length - 1; i++) { const l = Math.hypot(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]); L2.push(l); tot += l; }
+      let q = lerp(.12, .88, eIO(d / .75)) * tot, i = 0; while (i < L2.length - 1 && q > L2[i]) { q -= L2[i]; i++; }
+      const u = q / L2[i], lx = lerp(P[i][0], P[i + 1][0], u), ly = lerp(P[i][1], P[i + 1][1], u), a = .55 * Math.sin(Math.PI * d / .75);
+      const g = hc.createRadialGradient(lx, ly, 0, lx, ly, 60); g.addColorStop(0, `rgba(255,255,255,${a.toFixed(3)})`); g.addColorStop(.4, `rgba(190,220,255,${(a * .5).toFixed(3)})`); g.addColorStop(1, 'rgba(190,220,255,0)');
+      hc.globalCompositeOperation = 'source-atop'; hc.fillStyle = g; hc.fillRect(lx - 60, ly - 60, 120, 120); hc.globalCompositeOperation = 'source-over';
+    }
+  }
+  ctx.drawImage(cv.heart, 0, y - oy);
+}
 
 // ---------- background system (src/v5/backdrop.mjs: the same light is printed on the 3D hook's table) ----------
 function calmZones(t, sec) {
@@ -328,10 +359,14 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
       const x = D.x0 + k * (D.w + D.gap) + D.w / 2, hh = D.h[k], up = spring(t, C.sliderIn.t0 + k * .07, .36, .08), on = lit(k);
       const pop = k === 0 ? squish(t, C.drag.t0, .12) : squish(t, TL.DETENTS[k], .12), h2 = hh * up * (1 + pop), cy = D.base - h2 / 2;
       if (up <= .01) continue;
-      clipped(bg, cl, () => { const a = on ? eOut(clamp((t - (k ? TL.DETENTS[k] : C.drag.t0)) / .18)) : 0;
-        bg.fillStyle = `rgb(${Math.round(lerp(221, 20, a))},${Math.round(lerp(228, 163, a))},${Math.round(lerp(236, 184, a))})`;
-        bg.beginPath(); bg.roundRect(x - D.w / 2 + 6, cy - h2 / 2 + 6, D.w - 12, Math.max(0, h2 - 12), 16); bg.fill(); });
-      ops.push(() => glass({type: 'rect', ...CLEAR, c: [x, cy], half: [D.w / 2, h2 / 2], r: 22, bevel: 20, refr: 14, sigma: [.02, .015, .008], shadow: SH(.14), clip: cl}));
+      // liquid glass, not blocks: clear glass when unlit; lit, it takes a teal tint (deeper at the bottom), like the pill
+      const a = on ? eOut(clamp((t - (k ? TL.DETENTS[k] : C.drag.t0)) / .22)) : 0;
+      clipped(bg, cl, () => { const y0 = cy - h2 / 2 + 6, y1 = cy + h2 / 2 - 6, g = bg.createLinearGradient(0, y0, 0, y1);
+        g.addColorStop(0, `rgba(20,163,184,${(.10 * a).toFixed(3)})`); g.addColorStop(1, `rgba(20,163,184,${(.34 * a).toFixed(3)})`);
+        bg.fillStyle = `rgba(214,224,234,${(.30 * (1 - a)).toFixed(3)})`; bg.beginPath(); bg.roundRect(x - D.w / 2 + 6, y0, D.w - 12, Math.max(0, y1 - y0), 18); bg.fill();
+        bg.fillStyle = g; bg.fill(); });
+      const mat = lerpMat({...CLEAR, rim: 1.05, spec: 1.15, sigma: [.02, .015, .008]}, {...TEAL, sigma: [.26, .05, .02], caustic: .45, sheenAmt: .14}, a);
+      ops.push(() => glass({type: 'rect', ...mat, c: [x, cy], half: [D.w / 2, h2 / 2], r: 30, bevel: 28, refr: 22, disp: .26, glow: .04 * a, shadow: SH(lerp(.12, .18, a), lerp3([.70, .74, .82], [.60, .80, .84], a)), clip: cl}));
     }
     // the padlock, right of the price: open, then shut as the dose starts to climb
     const K = L.lock, ks = spring(t, C.sliderIn.t0 + .1, .34, .08), shut = eIO(prog(t, C.drag.t0 - .3, C.drag.t0 - .05));
@@ -538,7 +573,7 @@ const SPANS = [   // scene, the time it is on screen (footage scenes draw their 
 // glass bar (the brand's glass move); proof -> her walk, an iris opening out of the price pill (the price leads to the
 // life; a soft edge, no glass over her); walk -> end card, the card rises over her as a sheet. All but the bar are
 // composited from two passes (the outgoing and the incoming scene rendered on their own).
-const WIPES = [{...C.wipe1, kind: 'defocus'}, {...C.wipe2, kind: 'barUp'}, {...C.wipe3, kind: 'iris'}, {...C.wipe4, kind: 'sheet'}];
+const WIPES = [{...C.wipe1, kind: 'defocus'}, {...C.wipe2, kind: 'pulseUp'}, {...C.wipe3, kind: 'iris'}, {...C.wipe4, kind: 'sheet'}];   // pulseUp: the glass heartbeat sweeps up, the products below it
 const POST = new Set(['defocus', 'iris', 'sheet']);
 export async function render(t) {
   const wp = WIPES.find(w => t >= w.t0 && t < w.t1);
@@ -573,7 +608,7 @@ async function compose(t, mode, only = null) {
   if (wp) {
     const u = eIO(prog(t, wp.t0, wp.t1));
     if (wp.kind === 'bar') { wy = lerp(-120, H + 120, u); splitNew = [-1e6, wy]; splitOld = [wy, 1e6]; }
-    else { wy = lerp(H + 120, -120, u); splitNew = [wy, 1e6]; splitOld = [-1e6, wy]; }
+    else { wy = lerp(H + 120, wp.kind === 'pulseUp' ? -160 : -120, u); splitNew = [wy, 1e6]; splitOld = [-1e6, wy]; }
   }
   const live = mode === 'ui' ? SPANS.filter(s => s.id === 'hook') : SPANS.filter(s => t >= s.t0 && t < s.t1 && (!only || s.id === only));
   if (live.some(s => s.id === 'hook')) img.tapFrame = t < TL.OPEN.cut   // the opening shot, then (cut on the action) the tap close-up
@@ -586,7 +621,8 @@ async function compose(t, mode, only = null) {
     if (!s.footage) clipped(bg, cl, () => backdrop(bg, t, s.id));
     s.fn(t, cl, ops, top, bg, fg, M, mode);
   }
-  if (wp) top.push(() => glass({type: 'rect', ...CLEAR, c: [W / 2, wy], half: [W / 2 + 80, 46], r: 46, bevel: 40, refr: 34, rim: 1, spec: 1.2, sheenAmt: .15, sheen: 0, shadow: SH(.14)}));
+  if (wp && wp.kind !== 'pulseUp') top.push(() => glass({type: 'rect', ...CLEAR, c: [W / 2, wy], half: [W / 2 + 80, 46], r: 46, bevel: 40, refr: 34, rim: 1, spec: 1.2, sheenAmt: .15, sheen: 0, shadow: SH(.14)}));
+  if (wp?.kind === 'pulseUp') drawHeart(fg, wy, t, lerp(1.12, 1, eIO(prog(t, wp.t0, wp.t1))), true);   // it beats once as it rises (an image of glass: nothing refracts her)
 
   if (mode !== 'ui') { touches(t, top); captions(hud, t); drawDisclaimer(hud, t); }
 

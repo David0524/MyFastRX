@@ -98,7 +98,7 @@ export const CUES = {
   checkPop:   10.98,
   wipe1:      {t0: 12.30, t1: 12.75},          // a glass bar sweeps down: her (tea) above it
   // her
-  wipe2:      {t0: 13.45, t1: 13.87},          // and up: the covers scene below it ("One price covers" starts over her)
+  wipe2:      {t0: 13.38, t1: 13.90},          // the glass heartbeat sweeps up: the covers scene below it ("One price covers" starts over her)
   // includes
   coversIn:   {t0: 13.72, land: 13.98},
   frameIn:    {t0: 13.45, land: 13.85},
@@ -160,6 +160,7 @@ export const SFX = [
   {id: 'tap_glass',  at: CUES.checkPop + .02, gain: -18},
   {id: 'whoosh',     at: CUES.wipe1.t0, gain: -22},
   {id: 'whoosh',     at: CUES.wipe2.t0, gain: -22},
+  {id: 'heart',      at: CUES.wipe2.t0 + .12, gain: -18},     // the heartbeat transition's one beat
   {id: 'tap_low',    at: CUES.coversIn.land, gain: -20},
   {id: 'shimmer',    at: CUES.shots[1].t0 - .06, gain: -25},
   {id: 'shimmer',    at: CUES.shots[2].t0 - .06, gain: -25},
