@@ -102,7 +102,7 @@ export async function init() {
   img.logo = await load('../../images/logo_myfastrx_official.jpg');
   img.badge = await load('../../images/badge_bbb_a_rating_horizontal.jpg');
   for (const k of ['ship_box_v6', 'rx_clipboard', 'vial_lying', 'twine_v6']) img[k] = await load(`../../plates/${k}.png`);   // v6 cut-outs: tools/prep-plates-v6.py
-  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), frost: mk(108, 192), world: mk(), phone: mk(), phw: mk(), pmask: mk()};
+  cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), frost: mk(108, 192), world: mk(), phone: mk(), phw: mk(), pmask: mk(), tA: mk(), tB: mk(), tS: mk(108, 192)};
   for (const k of ['phw', 'pmask']) cv[k].getContext('2d', {willReadFrequently: true});
   PH.quad = (await (await fetch('../../footage/tap_screen_quad.json')).json()).quad;   // tools/track-phone.py
   { const q0 = screenQuad(TAP.contact), Hui = homography(uiCrop(q0, 0), q0); PH.fingerUI = applyH(invert3(Hui), TAP.finger); }
@@ -499,26 +499,38 @@ const SPANS = [   // scene, the time it is on screen (footage scenes draw their 
   {id: 'walk',    fn: sceneFootage('walkFrame'), t0: C.wipe3.t0,  t1: C.wipe4.t1, footage: true},
   {id: 'end',     fn: sceneEnd,              t0: C.wipe4.t0,      t1: 1e9},
 ];
-// wipes: a clear glass bar sweeping down (new scene above it) or up (new scene below it)
-const WIPES = [{...C.wipe1, kind: 'bar'}, {...C.wipe2, kind: 'barUp'}, {...C.wipe3, kind: 'bar'}, {...C.wipe4, kind: 'barUp'}];
+// transitions, each with a reason: UI -> her, a defocus (the camera racks from the screen to her); her -> products, the
+// glass bar (the brand's glass move); proof -> her walk, an iris opening out of the price pill (the price leads to the
+// life; a soft edge, no glass over her); walk -> end card, the card rises over her as a sheet. All but the bar are
+// composited from two passes (the outgoing and the incoming scene rendered on their own).
+const WIPES = [{...C.wipe1, kind: 'defocus'}, {...C.wipe2, kind: 'barUp'}, {...C.wipe3, kind: 'iris'}, {...C.wipe4, kind: 'sheet'}];
+const POST = new Set(['defocus', 'iris', 'sheet']);
 export async function render(t) {
+  const wp = WIPES.find(w => t >= w.t0 && t < w.t1);
+  if (wp && POST.has(wp.kind)) {   // two passes, then the blend
+    const live = SPANS.filter(s => t >= s.t0 && t < s.t1), old = live[0], nu = live[live.length - 1];
+    await compose(t, 'main', old.id); const Mo = meta; copyTo(cv.tA);
+    await compose(t, 'main', nu.id); const Mn = meta; copyTo(cv.tB);
+    blend(t, wp); meta = {...Mn, price: Mo.price || Mn.price, transition: wp.kind};
+    return cv.out;
+  }
   if (t >= TAP.at && t < PH.push[1]) {   // the phone stage: render the price screen first (it is composited onto her phone)
     await compose(t, 'ui'); const pc = cv.phone.getContext('2d'); pc.setTransform(1, 0, 0, 1, 0, 0); pc.clearRect(0, 0, W, H); pc.drawImage(cv.out, 0, 0);
   }
   return compose(t, 'main');
 }
-async function compose(t, mode) {
+async function compose(t, mode, only = null) {
   const bg = cv.bg.getContext('2d'), fg = cv.fg.getContext('2d'), hud = cv.hud.getContext('2d');
   for (const c of [bg, fg, hud, cv.content.getContext('2d')]) { c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, W, H); }
   const ops = [], top = [], M = {t, price: null};
-  const wp = WIPES.find(w => t >= w.t0 && t < w.t1);
+  const wp = only ? null : WIPES.find(w => t >= w.t0 && t < w.t1);
   let wy = null, splitNew = null, splitOld = null;
   if (wp) {
     const u = eIO(prog(t, wp.t0, wp.t1));
     if (wp.kind === 'bar') { wy = lerp(-120, H + 120, u); splitNew = [-1e6, wy]; splitOld = [wy, 1e6]; }
     else { wy = lerp(H + 120, -120, u); splitNew = [wy, 1e6]; splitOld = [-1e6, wy]; }
   }
-  const live = mode === 'ui' ? SPANS.filter(s => s.id === 'hook') : SPANS.filter(s => t >= s.t0 && t < s.t1);
+  const live = mode === 'ui' ? SPANS.filter(s => s.id === 'hook') : SPANS.filter(s => t >= s.t0 && t < s.t1 && (!only || s.id === only));
   if (live.some(s => s.id === 'hook')) img.tapFrame = t < TL.OPEN.cut   // the opening shot, then (cut on the action) the tap close-up
     ? await footFrame(TL.OPENING.dir, (TL.OPENING.from + t) * TL.OPENING.fps, TL.OPENING.n)
     : await footFrame(TAP.dir, TAP.contact + (t - TAP.at) * TAP.fps, TAP.n);
@@ -541,6 +553,39 @@ async function compose(t, mode) {
   out.drawImage(cv.gl, 0, 0); out.drawImage(cv.fg, 0, 0); out.drawImage(cv.hud, 0, 0);
   if (mode !== 'ui') meta = M;
   return cv.out;
+}
+
+function copyTo(c) { const x = c.getContext('2d'); x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.clearRect(0, 0, W, H); x.drawImage(cv.out, 0, 0); }
+// a cheap soft focus: the frame drawn down to 1/10 and back up, mixed in by `b` (canvas filters don't run headless)
+function soft(ctx, src, b, a = 1) {
+  ctx.save(); ctx.globalAlpha = a * (1 - b); ctx.drawImage(src, 0, 0); ctx.restore(); if (b <= 0) return;
+  const s = cv.tS.getContext('2d'); s.imageSmoothingQuality = 'high'; s.clearRect(0, 0, 108, 192); s.drawImage(src, 0, 0, 108, 192);
+  ctx.save(); ctx.globalAlpha = a * b; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(cv.tS, 0, 0, W, H); ctx.restore();
+}
+const scaled = (ctx, k, cx, cy, fn) => { ctx.save(); ctx.translate(cx, cy); ctx.scale(k, k); ctx.translate(-cx, -cy); fn(); ctx.restore(); };
+function blend(t, wp) {
+  const o = cv.out.getContext('2d'), u = eIO(prog(t, wp.t0, wp.t1)), A = cv.tA, B = cv.tB;
+  o.setTransform(1, 0, 0, 1, 0, 0); o.globalAlpha = 1; o.globalCompositeOperation = 'source-over'; o.fillStyle = '#F7F7F7'; o.fillRect(0, 0, W, H);
+  if (wp.kind === 'defocus') {   // the UI pushes forward and goes soft; she comes up out of focus and sharpens
+    scaled(o, 1 + .14 * u, W / 2, H / 2, () => soft(o, A, clamp(u * 1.6), 1));
+    scaled(o, 1.08 - .08 * u, W / 2, H / 2, () => soft(o, B, clamp((1 - u) * 1.4), u));
+  } else if (wp.kind === 'iris') {   // out of the price pill, a soft-edged circle opens onto her walk
+    const c = L.pill.c, R = lerp(0, Math.hypot(Math.max(c[0], W - c[0]), Math.max(c[1], H - c[1])) + 40, u);
+    o.drawImage(A, 0, 0);
+    if (R > 1) {
+      o.save(); o.beginPath(); o.arc(c[0], c[1], R, 0, 2 * Math.PI); o.clip(); scaled(o, 1.1 - .1 * u, c[0], c[1], () => o.drawImage(B, 0, 0)); o.restore();
+      const g = o.createRadialGradient(c[0], c[1], Math.max(0, R - 26), c[0], c[1], R + 2);   // a soft white rim (light, not glass)
+      g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.8, `rgba(255,255,255,${(.55 * (1 - u)).toFixed(3)})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+      o.fillStyle = g; o.fillRect(c[0] - R - 4, c[1] - R - 4, 2 * R + 8, 2 * R + 8);
+    }
+  } else if (wp.kind === 'sheet') {   // the end card rises over her as a rounded sheet; her shot sinks back a touch
+    const y = H * (1 - eOut(prog(t, wp.t0, wp.t1))), r = 64 * (y / H) ** .5;
+    scaled(o, 1 - .05 * u, W / 2, H * .45, () => o.drawImage(A, 0, 0));
+    o.fillStyle = `rgba(0,29,69,${(.18 * u).toFixed(3)})`; o.fillRect(0, 0, W, H);
+    o.save(); o.shadowColor = 'rgba(0,29,69,0.28)'; o.shadowBlur = 40; o.shadowOffsetY = -6;
+    o.beginPath(); o.roundRect(0, y, W, H + r, [r, r, 0, 0]); o.fillStyle = '#F7F7F7'; o.fill(); o.restore();
+    o.save(); o.beginPath(); o.roundRect(0, y, W, H + r, [r, r, 0, 0]); o.clip(); o.drawImage(B, 0, y); o.restore();
+  }
 }
 
 function captions(ctx, t) {
