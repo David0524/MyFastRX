@@ -86,7 +86,7 @@ function measure(s, px, wt) { const c = cv.hud.getContext('2d'); setFont(c, px, 
 const fit = (lines, maxPx, wt, maxW = 800) => Math.floor(Math.min(maxPx, ...lines.map(s => maxPx * maxW / measure(s, maxPx, wt))));
 // a line of text that rises out of (enter) or leaves through (exit) a mask line under its baseline; no opacity changes
 function line(ctx, s, x, y, px, wt, color, {align = 'center', enter = 1, exit = 0, exitDir = -1} = {}) {
-  if (enter <= 0 || exit >= 1) return;
+  if (enter <= 0 || exit >= 1 || globalThis.NOTEXT) return;   // NOTEXT: text-free keyframes for the Higgsfield plates (src/v7/plate.html)
   ctx.save(); ctx.beginPath(); ctx.rect(-4000, y - px * 1.02, 9000, px * 1.32); ctx.clip();
   setFont(ctx, px, wt); ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
   ctx.fillText(s, x, y + (1 - enter) * px * 1.25 + exit * exitDir * px * 1.3); ctx.restore();
