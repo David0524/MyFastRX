@@ -199,22 +199,28 @@
       "file_start": 18.5998
     },
     {
-      "id": "tick",
-      "at": 19.26,
-      "gain": -15,
-      "file_start": 19.26
+      "id": "toggle",
+      "at": 18.84,
+      "gain": -12,
+      "file_start": 18.84
     },
     {
       "id": "tick",
-      "at": 19.86,
+      "at": 19.5,
       "gain": -15,
-      "file_start": 19.86
+      "file_start": 19.5
     },
     {
       "id": "tick",
-      "at": 20.46,
+      "at": 20.1,
       "gain": -15,
-      "file_start": 20.46
+      "file_start": 20.1
+    },
+    {
+      "id": "tick",
+      "at": 20.7,
+      "gain": -15,
+      "file_start": 20.7
     },
     {
       "id": "tap_glass",
