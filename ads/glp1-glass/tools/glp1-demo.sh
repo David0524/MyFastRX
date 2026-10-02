@@ -3,7 +3,7 @@
 # gentle tempo on "GLP-1", mixed with the v7 music + SFX for the first 4.6 s -> previews/glp1_demos/<name>.m4a
 #   tools/glp1-demo.sh <name> <extra pause s> <tempo>
 # $1 name, $2 extra pause (s) before "care", $3 tempo for "GLP-1" (1 = untouched)
-cd /home/user/MyFastRX/ads/glp1-glass; S=$(mktemp -d)
+cd "$(dirname "$0")/.."; S=$(mktemp -d)
 TEMPO=""; [ "$3" != "1" ] && TEMPO=",rubberband=tempo=$3:formant=preserved:pitchq=quality"
 # room tone for the extra pause: from a silence between takes (4.15-4.48 s)
 ffmpeg -v error -y -i vo/glp1_takes.wav -i vo/body_v3.wav -i vo/glp1_takes.wav -filter_complex "[0:a]atrim=4.52:5.64,asetpts=PTS-STARTPTS,volume=4.4dB,aresample=48000,aformat=channel_layouts=mono$TEMPO[a];[2:a]atrim=4.15:$(python3 -c "print(4.15+max(0.02,$2))"),asetpts=PTS-STARTPTS,volume=4.4dB,aresample=48000,aformat=channel_layouts=mono[r];[1:a]atrim=1.09:2.75,asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=mono[b];[a][r]acrossfade=d=0.01:c1=tri:c2=tri[ar];[ar][b]acrossfade=d=0.012:c1=tri:c2=tri[o]" -map "[o]" -ar 48000 $S/l1_$1.wav
