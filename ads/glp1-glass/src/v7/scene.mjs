@@ -48,7 +48,8 @@ export const L = {
   labelPane: {c: [510, 1178], half: [300, 58], r: 58}, labelY: 1199,   // clear of the heartbeat band (spike top ~y 1266)
   pill: {c: [510, 705], half: [250, 140], r: 140},
   slider: {c: [510, 1084], half: [320, 22], r: 22}, knobSR: 42, doseY: 1222, doseLineY: [450, 530],
-  dose: {x0: 170, w: 140, gap: 40, base: 1176, h: [50, 90, 130, 170]},   // the four dose steps (lower -> higher)
+  dose: {x0: 170, w: 140, gap: 40, base: 1176, h: [50, 90, 130, 170]},
+  tube: {c: [510, 1104], half: [340, 44]},                                 // the dose tube (lower -> higher), filled in steps
   lock: {c: [834, 705], r: 58},                                            // the padlock pinning the price
   logo: {c: [510, 372], scale: .5}, tagY: [570, 656],
   cta: {c: [510, 790], half: [330, 70], r: 70}, ctaPx: 50, urlY: 930, urlPx: 52, badge: {cx: 510, y: 956, w: 280},
@@ -355,18 +356,29 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
   if (t >= C.sliderIn.t0) {
     const D = L.dose, n = C.detents, ox = eIn(prog(t, C.priceOut.t0, C.qualOut.t1));
     const lit = k => k === 0 ? (t >= C.drag.t0 ? 1 : 0) : (t >= TL.DETENTS[k] ? 1 : 0);
-    for (let k = 0; k < n; k++) {
-      const x = D.x0 + k * (D.w + D.gap) + D.w / 2, hh = D.h[k], up = spring(t, C.sliderIn.t0 + k * .07, .36, .08), on = lit(k);
-      const pop = k === 0 ? squish(t, C.drag.t0, .12) : squish(t, TL.DETENTS[k], .12), h2 = hh * up * (1 + pop), cy = D.base - h2 / 2;
-      if (up <= .01) continue;
-      // liquid glass, not blocks: clear glass when unlit; lit, it takes a teal tint (deeper at the bottom), like the pill
-      const a = on ? eOut(clamp((t - (k ? TL.DETENTS[k] : C.drag.t0)) / .22)) : 0;
-      clipped(bg, cl, () => { const y0 = cy - h2 / 2 + 6, y1 = cy + h2 / 2 - 6, g = bg.createLinearGradient(0, y0, 0, y1);
-        g.addColorStop(0, `rgba(20,163,184,${(.10 * a).toFixed(3)})`); g.addColorStop(1, `rgba(20,163,184,${(.34 * a).toFixed(3)})`);
-        bg.fillStyle = `rgba(214,224,234,${(.30 * (1 - a)).toFixed(3)})`; bg.beginPath(); bg.roundRect(x - D.w / 2 + 6, y0, D.w - 12, Math.max(0, y1 - y0), 18); bg.fill();
-        bg.fillStyle = g; bg.fill(); });
-      const mat = lerpMat({...CLEAR, rim: 1.05, spec: 1.15, sigma: [.02, .015, .008]}, {...TEAL, sigma: [.26, .05, .02], caustic: .45, sheenAmt: .14}, a);
-      ops.push(() => glass({type: 'rect', ...mat, c: [x, cy], half: [D.w / 2, h2 / 2], r: 30, bevel: 28, refr: 22, disp: .26, glow: .04 * a, shadow: SH(lerp(.12, .18, a), lerp3([.70, .74, .82], [.60, .80, .84], a)), clip: cl}));
+    // a liquid-glass dose tube, lower -> higher: teal liquid fills it left to right in steps (a bright meniscus on its
+    // leading edge, a faint mark at each step), under a clear glass tube - no bar graph
+    const T = L.tube, sp = spring(t, C.sliderIn.t0, .36, .08), x0 = T.c[0] - T.half[0], x1 = T.c[0] + T.half[0];
+    const step = k => k === 0 ? C.drag.t0 : TL.DETENTS[k];
+    let f = 0, cur = -1; for (let k = 0; k < n; k++) if (t >= step(k)) { f = (k + eIO(clamp((t - step(k)) / .38))) / n; cur = k; }   // 0 .. 1 in n steps
+    const ins = 12, fx = x0 + ins + (2 * T.half[0] - 2 * ins) * f, wob = cur < 0 ? 0 : squish(t, step(cur) + .38, .5) * 6;   // the liquid settles with a small slosh
+    if (sp > .01) {
+      clipped(bg, cl, () => {
+        bg.save(); bg.translate(T.c[0], T.c[1]); bg.scale(sp, sp); bg.translate(-T.c[0], -T.c[1]);
+        bg.fillStyle = 'rgba(214,224,234,0.28)'; bg.beginPath(); bg.roundRect(x0 + ins, T.c[1] - T.half[1] + ins, 2 * T.half[0] - 2 * ins, 2 * (T.half[1] - ins), T.half[1] - ins); bg.fill();
+        if (f > 0) {   // the liquid
+          const g = bg.createLinearGradient(x0, 0, fx, 0); g.addColorStop(0, 'rgba(20,163,184,0.55)'); g.addColorStop(1, 'rgba(0,113,254,0.62)');
+          bg.save(); bg.beginPath(); bg.roundRect(x0 + ins, T.c[1] - T.half[1] + ins, Math.max(2 * (T.half[1] - ins), fx - x0 - ins + wob), 2 * (T.half[1] - ins), T.half[1] - ins); bg.clip();
+          bg.fillStyle = g; bg.fillRect(x0, T.c[1] - T.half[1], fx - x0 + 40, 2 * T.half[1]);
+          const m = bg.createLinearGradient(fx - 26 + wob, 0, fx + wob, 0); m.addColorStop(0, 'rgba(255,255,255,0)'); m.addColorStop(1, 'rgba(255,255,255,0.55)');
+          bg.fillStyle = m; bg.fillRect(fx - 26 + wob, T.c[1] - T.half[1], 26, 2 * T.half[1]);   // the meniscus
+          bg.restore();
+        }
+        for (let k = 1; k < n; k++) { const mx = x0 + ins + (2 * T.half[0] - 2 * ins) * k / n;   // the step marks
+          bg.fillStyle = mx <= fx ? 'rgba(255,255,255,0.55)' : 'rgba(0,29,69,0.16)'; bg.fillRect(mx - 1.5, T.c[1] - T.half[1] + ins + 8, 3, 2 * (T.half[1] - ins) - 16); }
+        bg.restore();
+      });
+      ops.push(() => glass({type: 'rect', ...CLEAR, c: T.c, half: T.half, r: T.half[1], bevel: T.half[1], scale: [sp, sp], anchor: T.c, refr: 20, disp: .26, rim: 1.1, spec: 1.25, sigma: [.02, .015, .008], sheenAmt: .12, shadow: SH(.16), clip: cl}));
     }
     // the padlock, right of the price: open, then shut as the dose starts to climb
     const K = L.lock, ks = spring(t, C.sliderIn.t0 + .1, .34, .08), shut = eIO(prog(t, C.drag.t0 - .3, C.drag.t0 - .05));
@@ -382,8 +394,8 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
       top.push(() => glass({type: 'rect', ...CLEAR, c: [gx, P.c[1]], half: [16, P.half[1] - 14], r: 16, bevel: 16, refr: 16, rim: .9, spec: 1.2, sheenAmt: .2, sheen: 0, shadow: SH(0), clip: [P.c[1] - P.half[1], P.c[1] + P.half[1]]})); } }
     clipped(fg, cl, () => { const e = eOut(prog(t, C.sliderIn.t0 + .1, C.sliderIn.land + .1));
       const dx = eIO(prog(t, C.drag.t0, C.drag.t1)), mix = (a, z) => `rgb(${[0, 1, 2].map(j => Math.round(lerp(a[j], z[j], dx))).join(',')})`;
-      line(fg, COPY.dose[0].toUpperCase(), D.x0, L.doseY, 34, 600, mix([0, 29, 69], [120, 138, 160]), {align: 'left', enter: e});
-      line(fg, COPY.dose[1].toUpperCase(), D.x0 + n * D.w + (n - 1) * D.gap, L.doseY, 34, 600, mix([120, 138, 160], [0, 29, 69]), {align: 'right', enter: e});
+      line(fg, COPY.dose[0].toUpperCase(), L.tube.c[0] - L.tube.half[0], L.doseY, 34, 600, mix([0, 29, 69], [120, 138, 160]), {align: 'left', enter: e});
+      line(fg, COPY.dose[1].toUpperCase(), L.tube.c[0] + L.tube.half[0], L.doseY, 34, 600, mix([120, 138, 160], [0, 29, 69]), {align: 'right', enter: e});
       COPY.doseLine.forEach((q, i) => line(fg, q, CX, L.doseLineY[i], L.px.dose, 700, COLORS.navy, {enter: eOut(prog(t, C.doseLine[i].t0, C.doseLine[i].land)), exit: ox})); });
   }
 }
