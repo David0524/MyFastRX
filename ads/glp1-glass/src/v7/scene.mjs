@@ -141,6 +141,7 @@ const glass = o => G.glass({...o, bevel: o.bevel ?? o.r, shadow: o.shadow || SH(
 // the beat (a resting heart): the spike swells (the plate is redrawn in thin columns, each stretched about the flat
 // line, so only the spike grows and the tube keeps its thickness) and a soft light runs along the tube.
 // the wipe's heartbeat: a full-width glass tube, the spike left of centre (the first cut's wipe)
+const pulseY = (t, wp) => lerp(H + 120, -160, eIO(prog(t, wp.t0, wp.t1)));
 const wipePts = y => [[-120, y], [360, y], [390, y - 30], [420, y + 34], [458, y - 92], [496, y + 44], [526, y], [1200, y]];
 const HB = {meta: null, len: 860, cx: 510};
 function beatA(t) { const d = ((t - TL.OPEN.dive) % 1 + 1) % 1; return 1 + .10 * (d < .07 ? d / .07 : Math.exp(-(d - .07) / .2)); }
@@ -588,7 +589,7 @@ const SPANS = [   // scene, the time it is on screen (footage scenes draw their 
 // life; a soft edge, no glass over her); walk -> end card, the card rises over her as a sheet. All but the bar are
 // composited from two passes (the outgoing and the incoming scene rendered on their own).
 const WIPES = [{...C.wipe1, kind: 'defocus'}, {...C.wipe2, kind: 'pulseUp'}, {...C.wipe3, kind: 'iris'}, {...C.wipe4, kind: 'sheet'}];   // pulseUp: the glass heartbeat sweeps up, the products below it
-const POST = new Set(['defocus', 'iris', 'sheet']);
+const POST = new Set(['defocus', 'iris', 'sheet', 'pulseUp']);
 export async function render(t) {
   const wp = WIPES.find(w => t >= w.t0 && t < w.t1);
   if (wp && POST.has(wp.kind)) {   // two passes, then the blend
@@ -596,6 +597,12 @@ export async function render(t) {
     await compose(t, 'main', old.id); const Mo = meta; copyTo(cv.tA);
     await compose(t, 'main', nu.id); const Mn = meta; copyTo(cv.tB);
     blend(t, wp); meta = {...Mn, price: Mo.price || Mn.price, transition: wp.kind};
+    if (wp.kind === 'pulseUp') {   // the glass heartbeat over the seam, on the blended frame
+      copyTo(cv.tA); const cc = cv.content.getContext('2d'); cc.setTransform(1, 0, 0, 1, 0, 0); cc.clearRect(0, 0, W, H);
+      G.begin(cv.tA, cv.content);
+      glass({type: 'tube', ...PULSE, c: [0, 0], pts: wipePts(pulseY(t, wp)), r: 12, bevel: 12, refr: 16, shadow: SH(.14, [.62, .70, .92]), protect: [0, 0, W, H]});   // no refraction: nothing distorts her
+      G.finish(); const o = cv.out.getContext('2d'); o.setTransform(1, 0, 0, 1, 0, 0); o.drawImage(cv.gl, 0, 0);
+    }
     drawMark(t); return cv.out;
   }
   if (t >= TAP.at && t < PH.push[1]) {   // the phone stage: render the price screen first (it is composited onto her phone)
@@ -636,7 +643,6 @@ async function compose(t, mode, only = null) {
     s.fn(t, cl, ops, top, bg, fg, M, mode);
   }
   if (wp && wp.kind !== 'pulseUp') top.push(() => glass({type: 'rect', ...CLEAR, c: [W / 2, wy], half: [W / 2 + 80, 46], r: 46, bevel: 40, refr: 34, rim: 1, spec: 1.2, sheenAmt: .15, sheen: 0, shadow: SH(.14)}));
-  if (wp?.kind === 'pulseUp') top.push(() => glass({type: 'tube', ...PULSE, c: [0, 0], pts: wipePts(wy), r: 12, bevel: 12, refr: 16, shadow: SH(.14, [.62, .70, .92]), protect: [0, 0, W, H]}));   // the full-width glass heartbeat (as in the first cut); no refraction, so nothing distorts her
 
   if (mode !== 'ui') { touches(t, top); captions(hud, t); drawDisclaimer(hud, t); }
 
@@ -673,6 +679,10 @@ function blend(t, wp) {
       g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.8, `rgba(255,255,255,${(.55 * (1 - u)).toFixed(3)})`); g.addColorStop(1, 'rgba(255,255,255,0)');
       o.fillStyle = g; o.fillRect(c[0] - R - 4, c[1] - R - 4, 2 * R + 8, 2 * R + 8);
     }
+  } else if (wp.kind === 'pulseUp') {   // the products come up under the heartbeat, filling its spike (the seam is the tube's centre line)
+    const P = wipePts(pulseY(t, wp));
+    o.drawImage(A, 0, 0);
+    o.save(); o.beginPath(); P.forEach(([x, y], i) => i ? o.lineTo(x, y) : o.moveTo(x, y)); o.lineTo(1200, H + 10); o.lineTo(-120, H + 10); o.closePath(); o.clip(); o.drawImage(B, 0, 0); o.restore();
   } else if (wp.kind === 'sheet') {   // the end card rises over her as a rounded sheet; her shot sinks back a touch
     const y = H * (1 - eOut(prog(t, wp.t0, wp.t1))), r = 64 * (y / H) ** .5;
     scaled(o, 1 - .05 * u, W / 2, H * .45, () => o.drawImage(A, 0, 0));
