@@ -397,6 +397,11 @@ function invert3(m) { const [a, b, c, d, e, f, g, h, i] = m, A = e * i - f * h, 
 function drawWarped(ctx, im, src, h, nx = 14, ny = 24) {
   const [x0, y0, x1, y1] = src, P = (i, j) => [x0 + (x1 - x0) * i / nx, y0 + (y1 - y0) * j / ny];
   ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  { // underlay: the whole image by the best single affine (three corners), so the mesh's anti-aliased seams show it, not a gap
+    const s0 = [x0, y0], s1 = [x1, y0], s2 = [x0, y1], d0 = applyH(h, s0), d1 = applyH(h, s1), d2 = applyH(h, s2);
+    const a = (d1[0] - d0[0]) / (x1 - x0), b = (d1[1] - d0[1]) / (x1 - x0), c = (d2[0] - d0[0]) / (y1 - y0), d = (d2[1] - d0[1]) / (y1 - y0);
+    ctx.save(); ctx.setTransform(a, b, c, d, d0[0] - a * x0 - c * y0, d0[1] - b * x0 - d * y0); ctx.drawImage(im, 0, 0); ctx.restore();
+  }
   const tri = (s0, s1, s2) => { const d0 = applyH(h, s0), d1 = applyH(h, s1), d2 = applyH(h, s2);
     const cx = (d0[0] + d1[0] + d2[0]) / 3, cy = (d0[1] + d1[1] + d2[1]) / 3, g = p => [p[0] + (p[0] - cx) * .02 + Math.sign(p[0] - cx) * .6, p[1] + (p[1] - cy) * .02 + Math.sign(p[1] - cy) * .6];   // a hair of overlap: no seams
     const e0 = g(d0), e1 = g(d1), e2 = g(d2);
@@ -407,15 +412,25 @@ function drawWarped(ctx, im, src, h, nx = 14, ny = 24) {
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { tri(P(i, j), P(i + 1, j), P(i + 1, j + 1)); tri(P(i, j), P(i + 1, j + 1), P(i, j + 1)); }
   ctx.restore();
 }
-// the screen quad (TL, TR, BR, BL) at clip frame i: the tracked phone outline, inset to the glass
+// the screen quad (TL, TR, BR, BL) at clip frame i: the tracked phone body (tools/track-phone.py), its bezel inset in the
+// phone's own plane (so it follows the perspective), sub-frame interpolated
+const UNIT = [[0, 0], [1, 0], [1, 1], [0, 1]], BEZEL = [.052, .03];
 function screenQuad(i) {
-  const q = PH.quad[clamp(Math.round(i), 0, PH.quad.length - 1)], c = q.reduce((a, p) => [a[0] + p[0] / 4, a[1] + p[1] / 4], [0, 0]);
-  return q.map(p => [lerp(p[0], c[0], .06), lerp(p[1], c[1], .035)]);
+  const n = PH.quad.length - 1, f = clamp(i, 0, n), a = Math.floor(f), b = Math.min(n, a + 1), k = f - a;
+  const body = PH.quad[a].map((p, j) => lerp2(p, PH.quad[b][j], k)), Hb = homography(UNIT, body);
+  return [[BEZEL[0], BEZEL[1]], [1 - BEZEL[0], BEZEL[1]], [1 - BEZEL[0], 1 - BEZEL[1]], [BEZEL[0], 1 - BEZEL[1]]].map(p => applyH(Hb, p));
+}
+// a rounded-rect outline in the unit square (radius rx across, scaled to stay round on the phone), as a polygon
+function roundedUnit(rx, aspect) {
+  const ry = rx * aspect, out = [], arc = (cx, cy, a0) => { for (let k = 0; k <= 6; k++) { const a = a0 + k * Math.PI / 12; out.push([cx + rx * Math.cos(a), cy + ry * Math.sin(a)]); } };
+  if (rx <= 1e-3) return UNIT.slice();
+  arc(1 - rx, ry, -Math.PI / 2); arc(1 - rx, 1 - ry, 0); arc(rx, 1 - ry, Math.PI / 2); arc(rx, ry, Math.PI);
+  return out;
 }
 // the UI area that lands on the phone: a centred crop matching the phone's shape, widening to the full frame by the end
 function uiCrop(q, u) {
   const w = Math.hypot(q[1][0] - q[0][0], q[1][1] - q[0][1]), h = Math.hypot(q[3][0] - q[0][0], q[3][1] - q[0][1]);
-  const cw = lerp(Math.min(W, H * w / h), W, u), x0 = CX - cw / 2;
+  const cw = lerp(Math.min(W, H * w / h), W, u), x0 = lerp(CX, W / 2, u) - cw / 2;   // lands on the frame's true centre: no snap
   return [[x0, 0], [x0 + cw, 0], [x0 + cw, H], [x0, H]];
 }
 const FULL = [[0, 0], [W, 0], [W, H], [0, H]];
@@ -458,7 +473,9 @@ function sceneHook(t, cl, ops, top, bg, fg, M, mode) {
   const bx0 = Math.max(0, Math.floor(Math.min(...xs)) - 2), by0 = Math.max(0, Math.floor(Math.min(...ys)) - 2), bx1 = Math.min(W, Math.ceil(Math.max(...xs)) + 2), by1 = Math.min(H, Math.ceil(Math.max(...ys)) + 2);
   const pw = cv.phw.getContext('2d'), mk2 = cv.pmask.getContext('2d');
   pw.setTransform(1, 0, 0, 1, 0, 0); pw.globalCompositeOperation = 'source-over'; pw.clearRect(0, 0, W, H);
-  pw.save(); pw.beginPath(); pw.moveTo(...qu[0]); for (const p of qu.slice(1)) pw.lineTo(...p); pw.closePath(); pw.clip();
+  { const Hs = homography(UNIT, qu), w0 = Math.hypot(q0[1][0] - q0[0][0], q0[1][1] - q0[0][1]), h0 = Math.hypot(q0[3][0] - q0[0][0], q0[3][1] - q0[0][1]);
+    const poly = roundedUnit(.13 * (1 - u), w0 / h0).map(p => applyH(Hs, p));   // the screen's rounded corners, square by the end
+    pw.save(); pw.beginPath(); pw.moveTo(...poly[0]); for (const p of poly.slice(1)) pw.lineTo(...p); pw.closePath(); pw.clip(); }
   const crop = uiCrop(q0, u), Hu = homography(crop, qu);
   drawWarped(pw, cv.phone, [crop[0][0], 0, crop[1][0], H], Hu);
   const wake = eOut(prog(t, ...PH.wake));
@@ -471,7 +488,7 @@ function sceneHook(t, cl, ops, top, bg, fg, M, mode) {
   if (occ > 0 && bx1 > bx0 && by1 > by0) {
     const src = bg.getImageData(bx0, by0, bx1 - bx0, by1 - by0), m = mk2.createImageData(bx1 - bx0, by1 - by0);
     for (let k = 0; k < src.data.length; k += 4) { const Y = .3 * src.data[k] + .59 * src.data[k + 1] + .11 * src.data[k + 2];
-      m.data[k + 3] = Math.round(255 * lerp(1, clamp((78 - Y) / 30), occ)); }
+      m.data[k + 3] = Math.round(255 * lerp(1, clamp((118 - Y) / 28), occ)); }   // only skin (bright) stays in front; reflections on the dark glass don't
     mk2.setTransform(1, 0, 0, 1, 0, 0); mk2.clearRect(0, 0, W, H); mk2.putImageData(m, bx0, by0);
     pw.globalCompositeOperation = 'destination-in'; pw.drawImage(cv.pmask, 0, 0); pw.globalCompositeOperation = 'source-over';
   }
