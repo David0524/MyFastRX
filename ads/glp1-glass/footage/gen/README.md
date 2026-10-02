@@ -72,3 +72,9 @@ Same frames and timing as the sources (121 frames, 24 fps); v6 is built from the
 | tea_take1_1080p.mp4 | 583bc57f-dfb3-48f9-8e6b-27beb563ef32 | ByteDance upscale, aigc, 1080p |
 
 Credits for the v7 cutaway: ~14.6 (two stills 2, Seedance 2.0 fast 12.5, upscale ~0.1).
+
+## v7 motion-plate test (Seedance 2.0 fast, start/end frames): rejected
+
+| File | Higgsfield job | Notes |
+|---|---|---|
+| ../plates/refill_switch_take1.mp4 | b1c46597-a97b-41ce-8dd5-bc2a442d6946 | start refill_on.png (media 99c16e48-...), end refill_off.png (media d94644da-...); 12.5 credits. The model turned the switch into a long progress-bar slider and never returned to the end frame: UI state changes stay coded (src/v7/scene.mjs). |
