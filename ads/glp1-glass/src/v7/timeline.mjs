@@ -25,7 +25,13 @@ export const OPEN = {cut: 2.9, dive: 7.0};                // dive: the glass wor
 export const OPENING = {dir: 'open', fps: 24, n: 121, from: 0.8};   // she reaches for the phone, picks it up, looks at it
 // the tap clip: 24 fps, her fingertip touches the screen on frame 41 (0-based) at (271, 657) in the 720p source
 export const TAP = {dir: 'tap', fps: 24, n: 121, contact: 41, at: 3.3, finger: [271 * 1.5, 657 * 1.5]};
-export const HOOK = {ring: [3.3, 4.25], bead: {t0: 3.34, land: 3.6}, glide: [3.6, 4.3], qualIn: [4.22, 4.48], priceIn: [4.28, 4.54]};
+// the phone wakes to a brand splash (logo over "GLP-1 care / without the strings."); the drop left by her tap then grows
+// into the price pill under the logo, as the VO reaches "Starting at $69"
+export const HOOK = {ring: [3.3, 4.25], bead: {t0: 3.34, land: 3.6}, glide: [4.45, 5.0], qualIn: [4.92, 5.18], priceIn: [4.98, 5.24],
+  splashIn: {t0: 3.40, land: 3.72}, splashOut: {t0: 4.30, t1: 4.46}};
+// the small persistent wordmark (top-left, inside the safe zone): in at 2.0 s, out while the full logo is on screen (the
+// splash/price screen), back after it, out as the end card arrives
+export const MARK = {in: 2.0, hide: [3.10, 3.28], back: 7.15, out: 23.90};
 export const TEA = {dir: 'tea', fps: 24, n: 121, from: 2.55};   // the cutaway from 2.55 s: the mug lowered, her smile widening
 
 export const SCENES = [
@@ -44,7 +50,7 @@ const VOL = [   // [src0, src1, at]  speech inside each cut: src0 + ~.04 .. src1
   [0.00, 2.795, 0.471, 'vo/body_v3_l1.wav'],  // "GLP-1 care, without the strings." - the client's re-recorded "GLP-1" (take 4,
                                               //   demo 8: +80 ms before "care", 4% faster, tone/level/room tone matched to the original, +0.8 semitone;
                                               //   tools/splice-glp.py); the voice starts at 0.5 s
-  [3.05, 4.90, 4.25],     // "Starting at $69."
+  [3.05, 4.90, 4.76],     // "Starting at $69." (later: the opening line now names the brand first)
   [5.13, 6.42, 7.05],     // "No membership fees."
   [6.48, 8.05, 8.62],     // "No automatic refills."
   [8.38, 10.35, 10.30],   // "You request treatment when you're ready."

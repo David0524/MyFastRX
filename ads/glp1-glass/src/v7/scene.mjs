@@ -44,16 +44,18 @@ export const L = {
   track: {c: [750, 860], half: [104, 60], r: 60}, knobR: 50,   // its switch, at the row's right
   btn: {c: [510, 860], half: [340, 100], r: 100}, head4Y: [430, 538],
   frame: {c: [540, 960], half: [600, 1020], r: 80},             // the product shots, full bleed (the rim sits off screen)
-  coversPane: {c: [510, 280], half: [380, 80], r: 40}, coversY: 308,   // frosted glass panes on the photo
+  coversPane: {c: [510, 400], half: [380, 80], r: 40}, coversY: 428,   // frosted glass panes (below the persistent mark)
   labelPane: {c: [510, 1178], half: [300, 58], r: 58}, labelY: 1199,   // clear of the heartbeat band (spike top ~y 1266)
-  pill: {c: [510, 640], half: [250, 140], r: 140},
-  slider: {c: [510, 1084], half: [320, 22], r: 22}, knobSR: 42, doseY: 1222, doseLineY: [372, 462],
-  dose: {x0: 170, w: 140, gap: 40, base: 1176, h: [64, 118, 172, 226]},   // the four dose steps (lower -> higher)
-  lock: {c: [834, 640], r: 58},                                            // the padlock pinning the price
+  pill: {c: [510, 670], half: [250, 140], r: 140},
+  slider: {c: [510, 1084], half: [320, 22], r: 22}, knobSR: 42, doseY: 1222, doseLineY: [412, 500],
+  dose: {x0: 170, w: 140, gap: 40, base: 1176, h: [60, 110, 160, 206]},   // the four dose steps (lower -> higher)
+  lock: {c: [834, 670], r: 58},                                            // the padlock pinning the price
   logo: {c: [510, 372], scale: .5}, tagY: [570, 656],
   cta: {c: [510, 790], half: [330, 70], r: 70}, ctaPx: 50, urlY: 930, urlPx: 52, badge: {cx: 510, y: 956, w: 280},
   endVial: {cx: 510, base: 1634, s: .30},              // standing under the disclaimer (134 x 364 px, top ~y 1270), clear of the logo
   pulseY: 1470,
+  splashLogo: {c: [510, 520], scale: .42}, splashY: [780, 872],   // the phone's first screen: logo over the headline
+  mark: {x: 100, y: 284, h: 40, pad: [28, 12], r: 20},             // the persistent wordmark chip (top-left, safe zone)
 };
 // price block, relative to the pill's center (as v3)
 const PRICE = {start: -66, price: 88, qual: [186, 228, 270]};
@@ -100,6 +102,7 @@ export async function init() {
   for (const [wt, f] of [[500, 'Medium'], [600, 'SemiBold'], [700, 'Bold']]) { const ff = new FontFace('G' + wt, `url(../../assets/fonts/Geist-${f}.ttf)`, {weight: String(wt)}); await ff.load(); document.fonts.add(ff); }
   const load = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
   img.logo = await load('../../images/logo_myfastrx_official.jpg');
+  for (const k of ['blue', 'white']) img['icon_' + k] = await load(`../../images/logo_icon_${k}.png`);   // the logo's heartbeat (tools/prep-logo-icon.py)
   img.badge = await load('../../images/badge_bbb_a_rating_horizontal.jpg');
   for (const k of ['ship_box_v6', 'rx_clipboard', 'vial_lying', 'twine_v6']) img[k] = await load(`../../plates/${k}.png`);   // v6 cut-outs: tools/prep-plates-v6.py
   cv = {bg: mk(), content: mk(), fg: mk(), hud: mk(), gl: mk(), out: mk(), decor: mk(), grid: mk(), dither: makeDither(document, W, H), vial: mk(img.vial_lying.width, img.vial_lying.height), frost: mk(108, 192), world: mk(), phone: mk(), phw: mk(), pmask: mk(), tA: mk(), tB: mk(), tS: mk(108, 192)};
@@ -110,7 +113,7 @@ export async function init() {
   G = createGlass(cv.gl);
   const lines = wrap(COPY.disclaimer, DISC.size, 500, DISC.w - 2 * DISC.pad), lh = Math.round(DISC.size * DISC.lh), h = lines.length * lh + 2 * DISC.pad + 4;
   disc = {lines, lh, h, w: DISC.w, x: CX - DISC.w / 2, y: DISC.bottom - h};
-  L.px = {head0: fit(COPY.head0, 104, 700, 820), tag: fit(COPY.tag, 74, 700, 820), dose: fit(COPY.doseLine, 80, 700, 840), head2: fit(COPY.head2, 176, 700, 840), head3: fit([...COPY.head3, ...COPY.head4], 104, 700, 820), covers: fit([COPY.covers], 78, 700, 720), label: fit(COPY.labels, 60, 700, 560)};
+  L.px = {head0: fit(COPY.head0, 104, 700, 820), splash: fit(COPY.head0, 80, 700, 760), tag: fit(COPY.tag, 74, 700, 820), dose: fit(COPY.doseLine, 80, 700, 840), head2: fit(COPY.head2, 176, 700, 840), head3: fit([...COPY.head3, ...COPY.head4], 104, 700, 820), covers: fit([COPY.covers], 78, 700, 720), label: fit(COPY.labels, 60, 700, 560)};
   L.px.head4 = L.px.head3;
   L.knobX = [L.slider.c[0] - L.slider.half[0] + 10, L.slider.c[0] + L.slider.half[0] - 10];
   L.touch = {btn: [L.btn.c[0] + 120, L.btn.c[1] + 8], cta: [L.cta.c[0] + 150, L.cta.c[1] + 6]};
@@ -134,9 +137,9 @@ const glass = o => G.glass({...o, bevel: o.bevel ?? o.r, shadow: o.shadow || SH(
 function calmZones(t, sec) {
   // [x0, y0, x1, y1, feather, a]: each zone clears just before its text arrives
   const z = [], by = t0 => clamp((t - t0 + .45) / .4);
-  if (sec === 'hook') z.push([100, 560, 920, 1130, 60, 1]);
+  if (sec === 'hook') z.push([100, 560, 920, 1130, 60, 1], [0, 290, 1080, 770, 70, 1]);   // the price, and the logo (flat #F7F7F7 under the file)
   if (sec === 'control') z.push([90, 480, 930, 1060, 60, by(C.head2[0].t0)], [100, 330, 920, 590, 50, by(C.head3[0].t0)], [110, 748, 910, 972, 40, by(C.toggleIn.t0)]);
-  if (sec === 'covers') z.push([330, 530, 690, 740, 40, by(C.priceIn.t0)], [200, 786, 820, 924, 40, by(C.priceIn.t0)], [150, 930, 870, 1186, 30, by(C.sliderIn.t0)], [100, 1182, 920, 1236, 30, by(C.sliderIn.t0)], [756, 562, 912, 718, 30, by(C.sliderIn.t0)], [100, 290, 920, 486, 50, by(C.doseLine[0].t0)]);
+  if (sec === 'covers') z.push([330, 560, 690, 770, 40, by(C.priceIn.t0)], [200, 816, 820, 954, 40, by(C.priceIn.t0)], [150, 950, 870, 1186, 30, by(C.sliderIn.t0)], [100, 1182, 920, 1236, 30, by(C.sliderIn.t0)], [756, 592, 912, 748, 30, by(C.sliderIn.t0)], [100, 330, 920, 526, 50, by(C.doseLine[0].t0)]);
   if (sec === 'end') z.push([40, 240, 980, 560, 70, 1], [80, 490, 940, 690, 50, by(C.tag[0].t0)], [140, 860, 880, 1090, 50, by(C.urlIn.t0)]);
   return z.filter(q => q[5] > 0);
 }
@@ -153,7 +156,7 @@ function backdrop(bg, t, sec) {
   const zones = calmZones(t, sec);
   // the light: a few big, soft pools (gaussian falloff), only gently lifted behind text, so it never reads as blotches
   const d = cv.decor.getContext('2d'); d.setTransform(1, 0, 0, 1, 0, 0); d.clearRect(0, 0, W, H);
-  drawBlobs(d, blobsAt(t, C.finalStill)); punch(d, zones, sec === 'end' ? 1 : .45, sec === 'end' ? .9 : 2.2);   // end card: flat #F7F7F7 behind the logo/badge files
+  drawBlobs(d, blobsAt(t, C.finalStill)); punch(d, zones, sec === 'end' || sec === 'hook' ? 1 : .45, sec === 'end' || sec === 'hook' ? .9 : 2.2);   // end card + the logo screen: flat #F7F7F7 behind the logo/badge files
   bg.drawImage(cv.decor, 0, 0);
   // faint graph-paper grid (it curves through every glass piece), fully cleared behind text
   const g = cv.grid.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
@@ -200,8 +203,16 @@ function cover(ctx, im, box, zoom = 1, dy = 0) {   // fill a box with a photo (c
   const [x0, y0, x1, y1] = box, bw = x1 - x0, bh = y1 - y0, s = Math.max(bw / im.width, bh / im.height) * zoom;
   ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, (x0 + x1) / 2 - im.width * s / 2, (y0 + y1) / 2 - im.height * s / 2 + dy, im.width * s, im.height * s);
 }
+// a line led by the logo's heartbeat icon (centred as a group), rising/leaving through the same mask as line()
+function iconLine(ctx, icon, s, x, y, px, wt, color, ih, o = {}) {
+  const iw = ih * icon.width / icon.height, gap = px * .32, tw = measure(s, px, wt), x0 = x - (iw + gap + tw) / 2, {enter = 1, exit = 0, exitDir = -1} = o;
+  line(ctx, s, x0 + iw + gap, y, px, wt, color, {...o, align: 'left'});
+  if (enter <= 0 || exit >= 1 || globalThis.NOTEXT) return;
+  ctx.save(); ctx.beginPath(); ctx.rect(-4000, y - px * 1.02, 9000, px * 1.32); ctx.clip(); ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(icon, x0, y - px * .36 - ih / 2 + (1 - enter) * px * 1.25 + exit * exitDir * px * 1.3, iw, ih); ctx.restore();
+}
 function priceBlock(ctx, cx, cy, {enter = 1, qEnter = 1, exit = 0, qExit = 0} = {}) {
-  line(ctx, COPY.startingAt, cx, cy + PRICE.start, 44, 500, COLORS.navy, {enter, exit, exitDir: 1});
+  iconLine(ctx, img.icon_blue, COPY.startingAt, cx, cy + PRICE.start, 44, 500, COLORS.navy, 30, {enter, exit, exitDir: 1});
   line(ctx, COPY.price, cx, cy + PRICE.price, 172, 700, COLORS.navy, {enter, exit, exitDir: 1});
   COPY.qual.forEach((q, i) => line(ctx, q, cx, cy + PRICE.qual[i], 34, 500, COLORS.navy, {enter: qEnter, exit: qExit, exitDir: 1}));
 }
@@ -241,7 +252,7 @@ function sceneControl(t, cl, ops, top, bg, fg) {
   clipped(fg, cl, () => {
     line(fg, COPY.toggle, L.rowLabelX + (c[0] - R0.c[0]), c[1] + 17, 48, 600, COLORS.navy, {align: 'left', enter: eOut(prog(t, C.toggleIn.t0 + .06, C.toggleIn.land + .06)), exit: eIn(prog(t, C.morphBtn.t0, C.morphBtn.t0 + .14))});
     if (mm >= 1) { fg.save(); fg.beginPath(); fg.roundRect(c[0] - half[0] * s0, c[1] - half[1] * s0, 2 * half[0] * s0, 2 * half[1] * s0, r * s0); fg.clip();
-      line(fg, COPY.button, c[0] - 30 * s0, c[1] + 20, 58, 600, COLORS.white, {enter: eOut(prog(t, C.morphBtn.land - .1, C.morphBtn.land + .18))}); fg.restore(); }
+      iconLine(fg, img.icon_white, COPY.button, c[0] - 34 * s0, c[1] + 20, 58, 600, COLORS.white, 36, {enter: eOut(prog(t, C.morphBtn.land - .1, C.morphBtn.land + .18))}); fg.restore(); }
     COPY.head4.forEach((q, i) => line(fg, q, CX, L.head4Y[i], L.px.head4, 700, COLORS.navy, {enter: eOut(prog(t, [WORDS.you, WORDS.when][i] - .05, [WORDS.you, WORDS.when][i] + .22))}));
   });
   const ck = spring(t, C.checkPop, .3, .07);   // the check that pops when it is pressed
@@ -255,7 +266,7 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
   const mp = eIO(prog(t, C.morphPill.t0, C.morphPill.land)), sq = squish(t, C.morphPill.land, .06);
   const c = lerp2(F.c, P.c, mp), half = lerp2(F.half, P.half, mp), r = lerp(F.r, P.r, mp), sc = [1 + sq, 1 - sq], anchor = [c[0], c[1] + half[1]];
   if (mp < 1) clipped(bg, cl, () => {
-    const cx = W / 2, cy = 742;
+    const cx = W / 2, cy = 800;
     bg.save(); bg.beginPath(); bg.roundRect(c[0] - half[0], c[1] - half[1], 2 * half[0], 2 * half[1], r); bg.clip();
     const drop = eIn(prog(t, C.morphPill.t0, C.morphPill.t0 + .35)) * 900;   // the last shot drops out as the frame contracts
     const shot = (id, x0, x1) => {
@@ -263,7 +274,7 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
       bg.save(); bg.beginPath(); bg.rect(x0, -4000, x1 - x0, 9000); bg.clip(); bg.translate(0, drop);
       bg.translate(cx, cy); bg.scale(zoom, zoom); bg.translate(-cx, -cy);
       if (id === 'vial') {
-        const v = img.vial_lying, s = .56, base = 1092, vx = cx - v.width * s / 2, vy = base - v.height * s;
+        const v = img.vial_lying, s = .5, base = 1110, vx = cx - v.width * s / 2, vy = base - v.height * s;
         const sg = bg.createRadialGradient(cx + 8, base, 0, cx + 8, base, v.width * s * .8);   // contact shadow
         sg.addColorStop(0, 'rgba(0,29,69,0.30)'); sg.addColorStop(1, 'rgba(0,29,69,0)');
         bg.save(); bg.translate(0, base); bg.scale(1, .16); bg.translate(0, -base); bg.fillStyle = sg; bg.fillRect(cx - 400, base - 400, 800, 800); bg.restore();
@@ -273,8 +284,8 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
           lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(.5, 'rgba(255,255,255,0.42)'); lg.addColorStop(1, 'rgba(255,255,255,0)'); vc.fillStyle = lg; vc.fillRect(0, 0, v.width, v.height); }
         bg.imageSmoothingQuality = 'high'; bg.drawImage(cv.vial, vx, vy, v.width * s, v.height * s);
       } else {
-        if (id === 'rx') plate(bg, img.rx_clipboard, cx, cy, 720 / img.rx_clipboard.height, .02, 1.2);
-        if (id === 'box') plate(bg, img.ship_box_v6, cx, cy + 10, 780 / img.ship_box_v6.width, 0, 1.2);
+        if (id === 'rx') plate(bg, img.rx_clipboard, cx, cy, 620 / img.rx_clipboard.height, .02, 1.2);
+        if (id === 'box') plate(bg, img.ship_box_v6, cx, cy + 10, 740 / img.ship_box_v6.width, 0, 1.2);
       }
       bg.restore();
     };
@@ -437,6 +448,13 @@ const FULL = [[0, 0], [W, 0], [W, H], [0, H]];
 // the price screen (drawn full-frame: on the phone in the 'ui' pass, then as the frame once the push lands)
 function hookUI(t, cl, ops, bg, fg, M, full) {
   backdrop(bg, t, 'hook');
+  if (t >= HOOK.splashIn.t0 && t < C.pillOut.t1) {   // the official logo (on its own flat #F7F7F7), in on the splash, out with the pill
+    const S = L.splashLogo, u = eOut(prog(t, HOOK.splashIn.t0, HOOK.splashIn.land)), o = eIn(prog(t, C.pillOut.t0, C.pillOut.t1));
+    const lw = Math.round(img.logo.width * S.scale), lh = Math.round(img.logo.height * S.scale), x = Math.round(S.c[0] - lw / 2), y = Math.round(S.c[1] - lh / 2);
+    fg.save(); fg.beginPath(); fg.rect(x, y, lw, lh); fg.clip(); fg.imageSmoothingQuality = 'high'; fg.drawImage(img.logo, x, y + Math.round(((1 - u) * .75 + o * .75) * lh), lw, lh); fg.restore();
+    const ex = eIn(prog(t, HOOK.splashOut.t0, HOOK.splashOut.t1));
+    COPY.head0.forEach((q, i) => line(fg, q, CX, L.splashY[i], L.px.splash, 700, COLORS.navy, {enter: eOut(prog(t, HOOK.splashIn.t0 + .06 + i * .08, HOOK.splashIn.land + .06 + i * .08)), exit: ex}));
+  }
   if (t < HOOK.bead.t0) return;
   const F = PH.fingerUI, Q = L.pill1, g = eIO(prog(t, ...HOOK.glide)), b = spring(t, HOOK.bead.t0, .34, .08), sq = squish(t, HOOK.glide[1], .07);
   const out = eIn(prog(t, C.pillOut.t0, C.pillOut.t1));   // after the price has left, the pill shrinks away into the UI section
@@ -529,12 +547,22 @@ export async function render(t) {
     await compose(t, 'main', old.id); const Mo = meta; copyTo(cv.tA);
     await compose(t, 'main', nu.id); const Mn = meta; copyTo(cv.tB);
     blend(t, wp); meta = {...Mn, price: Mo.price || Mn.price, transition: wp.kind};
-    return cv.out;
+    drawMark(t); return cv.out;
   }
   if (t >= TAP.at && t < PH.push[1]) {   // the phone stage: render the price screen first (it is composited onto her phone)
     await compose(t, 'ui'); const pc = cv.phone.getContext('2d'); pc.setTransform(1, 0, 0, 1, 0, 0); pc.clearRect(0, 0, W, H); pc.drawImage(cv.out, 0, 0);
   }
-  return compose(t, 'main');
+  await compose(t, 'main'); drawMark(t); return cv.out;
+}
+// the persistent wordmark: the official file (cropped to the mark, pixels untouched) on a chip of its own #F7F7F7
+function drawMark(t) {
+  const K = TL.MARK, s = t < K.in ? 0 : t < K.hide[0] ? spring(t, K.in, .36, .09) : t < K.back ? 1 - eIn(prog(t, ...K.hide)) : t < K.out ? spring(t, K.back, .36, .09) : 1 - eIn(prog(t, K.out, K.out + .15));
+  if (s <= .01) return;
+  const o = cv.out.getContext('2d'), Mk = L.mark, src = [136, 141, 1278, 261], lh = Mk.h, lw = lh * src[2] / src[3];
+  const w = lw + 2 * Mk.pad[0], h = lh + 2 * Mk.pad[1], cx = Mk.x + w / 2, cy = Mk.y + h / 2;
+  o.save(); o.setTransform(1, 0, 0, 1, 0, 0); o.translate(cx, cy); o.scale(s, s); o.translate(-cx, -cy);
+  o.shadowColor = 'rgba(0,29,69,0.16)'; o.shadowBlur = 14; o.shadowOffsetY = 3; o.fillStyle = '#F7F7F7'; o.beginPath(); o.roundRect(Mk.x, Mk.y, w, h, Mk.r); o.fill();
+  o.shadowColor = 'transparent'; o.imageSmoothingQuality = 'high'; o.drawImage(img.logo, ...src, Mk.x + Mk.pad[0], Mk.y + Mk.pad[1], lw, lh); o.restore();
 }
 async function compose(t, mode, only = null) {
   const bg = cv.bg.getContext('2d'), fg = cv.fg.getContext('2d'), hud = cv.hud.getContext('2d');
