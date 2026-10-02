@@ -27,8 +27,8 @@ export const OPENING = {dir: 'open', fps: 24, n: 121, from: 0.8};   // she reach
 export const TAP = {dir: 'tap', fps: 24, n: 121, contact: 41, at: 3.3, finger: [271 * 1.5, 657 * 1.5]};
 // the phone wakes to a brand splash (logo over "GLP-1 care / without the strings."); the drop left by her tap then grows
 // into the price pill under the logo, as the VO reaches "Starting at $69"
-export const HOOK = {ring: [3.3, 4.25], bead: {t0: 3.34, land: 3.6}, glide: [4.45, 5.0], qualIn: [4.92, 5.18], priceIn: [4.98, 5.24],
-  splashIn: {t0: 3.40, land: 3.72}, splashOut: {t0: 4.30, t1: 4.46}};
+export const HOOK = {ring: [3.3, 4.25], bead: {t0: 3.34, land: 3.6}, glide: [4.78, 5.25], qualIn: [5.17, 5.43], priceIn: [5.23, 5.49],
+  splashIn: {t0: 3.40, land: 3.72}, splashOut: {t0: 4.70, t1: 4.86}};   // the headline holds until "...without the strings" is said
 // the small persistent wordmark (top-left, inside the safe zone): in at 2.0 s, out while the full logo is on screen (the
 // splash/price screen), back after it, out as the end card arrives
 export const MARK = {in: 2.0, hide: [3.10, 3.28], back: 7.15, out: 23.90};
@@ -47,10 +47,9 @@ export const SCENES = [
 // measured pauses (silencedetect -42 dB) and placed line by line. `src` = file time, `at` = film time of src[0].
 export const VO_FILE = 'vo/body_v3.wav';
 const VOL = [   // [src0, src1, at]  speech inside each cut: src0 + ~.04 .. src1 - ~.05
-  [0.00, 2.795, 0.471, 'vo/body_v3_l1.wav'],  // "GLP-1 care, without the strings." - the client's re-recorded "GLP-1" (take 4,
-                                              //   demo 8: +80 ms before "care", 4% faster, tone/level/room tone matched to the original, +0.8 semitone;
-                                              //   tools/splice-glp.py); the voice starts at 0.5 s
-  [3.05, 4.90, 4.76],     // "Starting at $69." (later: the opening line now names the brand first)
+  [0.00, 4.741, 0.28, 'vo/body_v4_l1.wav'],   // "MyFastRx. GLP-1 care, without the strings." - the client's branded take
+                                              //   (vo/source_line1_brand_elevenlabs.mp3), only "GLP-1" 1.2x (tools/line1-brand.py)
+  [3.05, 4.90, 5.04],     // "Starting at $69." (later: the opening line now names the brand first)
   [5.13, 6.42, 7.05],     // "No membership fees."
   [6.48, 8.05, 8.62],     // "No automatic refills."
   [8.38, 10.35, 10.30],   // "You request treatment when you're ready."
@@ -61,7 +60,7 @@ const VOL = [   // [src0, src1, at]  speech inside each cut: src0 + ~.04 .. src1
 export const VO_EDIT = VOL.map(([a, b, at, file]) => ({file: file || VO_FILE, src: [a, b], at}));
 const sp = (k, a, b) => +(VOL[k][2] + (a - VOL[k][0])).toFixed(2), win = (k, a, b, text) => ({t0: sp(k, a), t1: sp(k, b), text});
 export const VO = [   // measured speech windows (the music ducks under these)
-  win(0, 0.029, 2.745, 'GLP-1 care, without the strings.'),
+  win(0, 0.02, 4.541, 'MyFastRx. GLP-1 care, without the strings.'),
   win(1, 3.09, 4.85, 'Starting at $69.'),
   {t0: sp(2, 5.17), t1: sp(4, 10.30), text: "No membership fees. No automatic refills. You request treatment when you're ready."},
   win(5, 10.79, 14.47, 'One price covers your provider review, medication, and shipping.'),
@@ -70,7 +69,7 @@ export const VO = [   // measured speech windows (the music ducks under these)
 ];
 // word onsets (film time; faster-whisper word times, onsets snapped to the measured pauses)
 export const WORDS = {
-  glp: sp(0, 0.029), without: sp(0, 1.805), starting: sp(1, 3.09), price69: sp(1, 3.62),
+  brand: sp(0, .02), glp: sp(0, 1.68), without: sp(0, 3.411), starting: sp(1, 3.09), price69: sp(1, 3.62),
   noFees: sp(2, 5.17), membership: sp(2, 5.42), fees: sp(2, 5.78), noAuto: sp(3, 6.53), refills: sp(3, 7.32),
   you: sp(4, 8.43), when: sp(4, 9.38),
   one: sp(5, 10.79), provider: sp(5, 11.84), medication: sp(5, 12.98), shipping: sp(5, 13.90),
