@@ -49,12 +49,12 @@
     {
       "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 12 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max channel diff vs its first risen frame = 13 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "197 frames draw the price, 168 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22017 px, qualification 5461 px, frame 570)"
+      "detail": "197 frames draw the price, 168 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22021 px, qualification 5463 px, frame 570)"
     },
     {
       "name": "final hold in the ENCODED file",
