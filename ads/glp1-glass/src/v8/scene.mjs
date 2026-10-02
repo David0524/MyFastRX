@@ -1,11 +1,11 @@
 // MyFastRx v8 "No strings" - the 10 s product-hero spot (src/v8/timeline.mjs has the beat map).
 // One locked shot, readable as a poster on frame 1: the wordmark, the headline, the price (with its qualification) on a
-// teal glass pane, and the client's vial standing on a sunlit counter, tied with two twine strings and tags
+// teal glass pane, and the client's vial standing in the brand's glass world (gradient, soft light, grid; no real-life setting), tied with two twine strings and tags
 // ("Membership fees", "Automatic refills"). As the VO says "No membership fees." / "No automatic refills." each string
 // lets go and falls out of frame; the headline says the line word for word. The vial, free, takes one light across its
 // glass; "$69" springs once on its word; the frosted end card rises with the logo, MyFastRx.com and the disclaimer.
-// Layers: plate (Higgsfield footage, slow push) + the strings' back halves -> WebGL (the photo-vial pass: the label is
-// copied pixel-exact, the clear glass refracts the live plate; the teal glass pane) -> strings, tags, text on top.
+// Layers: the brand backdrop (slow push) + the strings' back halves -> WebGL (the photo-vial pass: the label is
+// copied pixel-exact, the clear glass refracts the live backdrop and grid; the teal glass pane) -> strings, tags, text on top.
 import * as TL from './timeline.mjs';
 import {createGlass} from '../glass.mjs';
 import {drawBlobs, drawGradient, makeDither, GRID} from '../v7/backdrop.mjs';
@@ -27,7 +27,7 @@ export const L = {
   headY: [458, 548],
   pane: {c: [292, 842], half: [192, 186], r: 64},                    // the teal glass price pane (x 100..484)
   priceY: {start: 742, price: 884, qual: [936, 974, 1012]},
-  vial: {cx: 596, base: 1420, s: .68},                               // the hero: base on the counter (its surface runs y ~1220..1580)
+  vial: {cx: 596, base: 1420, s: .68},                               // the hero, standing on its own shadow
   tag: {w: 176},
   cam: {c: [596, 1150], k: .045},                                    // the slow push
   logo: {c: [510, 470], scale: .5}, url: {c: [510, 706], half: [300, 66], r: 66}, badge: {cx: 510, y: 820, w: 260},
@@ -62,17 +62,6 @@ function line(ctx, s, x, y, px, wt, color, {align = 'center', enter = 1, exit = 
 }
 function wrap(s, px, wt, maxW) { const out = []; let cur = ''; for (const w of s.split(' ')) { const tt = cur ? cur + ' ' + w : w; if (measure(tt, px, wt) <= maxW) cur = tt; else { out.push(cur); cur = w; } } if (cur) out.push(cur); return out; }
 
-// plate frames (tools/extract-gen.sh counter_take1_1080p counter): 121 frames at 24 fps, played at half speed with a
-// cross-blend between neighbours (the only motion is the light, so the blend reads as continuous)
-const PLATE = {dir: 'counter', n: 121, rate: 12};
-const plateCache = new Map();
-async function plateFrame(k) {
-  k = clamp(k, 0, PLATE.n - 1) + 1; if (plateCache.has(k)) return plateCache.get(k);
-  const im = await new Promise((res, rej) => { const m = new Image(); m.onload = () => res(m); m.onerror = rej; m.src = `../../footage/frames/${PLATE.dir}/${String(k).padStart(4, '0')}.jpg`; });
-  if (plateCache.size > 6) plateCache.delete(plateCache.keys().next().value);
-  plateCache.set(k, im); return im;
-}
-
 export async function init() {
   for (const [wt, f] of [[500, 'Medium'], [600, 'SemiBold'], [700, 'Bold']]) { const ff = new FontFace('G' + wt, `url(../../assets/fonts/Geist-${f}.ttf)`, {weight: String(wt)}); await ff.load(); document.fonts.add(ff); }
   const load = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
@@ -104,7 +93,7 @@ const CLEAR = {sigma: [.02, .013, .006], refr: 24, disp: .22, rim: .9, spec: 1, 
 const TEAL = {...CLEAR, sigma: [.19, .01, 0], refr: 30, glow: .05, glowCol: [.25, .85, .95], lift: .012, shadow: SH(.18, [.60, .80, .84]), caustic: .35, sheenAmt: .10};
 const glass = o => G.glass({...o, bevel: o.bevel ?? o.r, shadow: o.shadow || SH()});
 
-// ---------- camera (the plate, the vial and the strings share it; the text does not move) ----------
+// ---------- camera (the backdrop, the vial and the strings share it; the text does not move) ----------
 const camK = t => 1 + L.cam.k * eIO(prog(t, ...C.push));
 const toS = (p, k) => [L.cam.c[0] + (p[0] - L.cam.c[0]) * k, L.cam.c[1] + (p[1] - L.cam.c[1]) * k];
 
@@ -181,15 +170,26 @@ function markChip(ctx) {   // the official file, cropped to the wordmark (pixels
 async function scene(t) {
   const k = camK(t), bg = cv.bg.getContext('2d'), out = cv.out.getContext('2d');
   bg.setTransform(1, 0, 0, 1, 0, 0); bg.globalAlpha = 1;
-  // the plate at half speed (cross-blended), under the push
-  const f = Math.min(t, C.finalStill) * PLATE.rate, k0 = Math.floor(f), a = f - k0;
-  const A = await plateFrame(k0), B = await plateFrame(k0 + 1);
+  // the brand's own world (no real-life setting): the #F7F7F7 -> #EEF3FA gradient, slow teal/blue light pools and the
+  // faint grid, all under the push, so the grid curves through the vial's glass and the price pane
   bg.save(); bg.translate(L.cam.c[0], L.cam.c[1]); bg.scale(k, k); bg.translate(-L.cam.c[0], -L.cam.c[1]);
-  bg.drawImage(A, 0, 0, W, H); if (a > .001) { bg.globalAlpha = a; bg.drawImage(B, 0, 0, W, H); bg.globalAlpha = 1; }
-  // the vial's cast shadow on the counter, away from the window light (left): a long soft wedge to the right
-  const v = V(); bg.save(); bg.translate(L.vial.cx + v.w * .55, L.vial.base - 6); bg.scale(1, .16);
-  const sg = bg.createRadialGradient(0, 0, 0, 0, 0, v.w * 1.1); sg.addColorStop(0, 'rgba(60,72,80,0.20)'); sg.addColorStop(1, 'rgba(60,72,80,0)');
-  bg.fillStyle = sg; bg.fillRect(-v.w * 1.2, -v.w * 1.2, v.w * 2.4, v.w * 2.4); bg.restore();
+  drawGradient(bg, -200, W + 200);
+  const td = Math.min(t, C.finalStill), d = cv.decor.getContext('2d'); d.setTransform(1, 0, 0, 1, 0, 0); d.clearRect(0, 0, W, H);
+  drawBlobs(d, [[930 + 30 * Math.sin(td * .45), 980 + 24 * Math.cos(td * .35), 600, 'teal', .18], [120 + 30 * Math.sin(td * .4 + 2), 1300, 620, 'blue', .14], [1000, 300 + 20 * Math.cos(td * .3), 460, 'teal', .08]]);
+  d.strokeStyle = 'rgba(0,29,69,0.05)'; d.lineWidth = 1.5; d.beginPath();
+  for (let gx = GRID.x0 - 600; gx <= W + 600; gx += GRID.step) { d.moveTo(gx, -400); d.lineTo(gx, H + 400); }
+  for (let gy = GRID.y0 - 600; gy <= H + 600; gy += GRID.step) { d.moveTo(-400, gy); d.lineTo(W + 400, gy); }
+  d.stroke();
+  // calm zones: the light and the grid clear (feathered) behind the wordmark and the headline
+  d.globalCompositeOperation = 'destination-out'; d.shadowColor = '#000'; d.shadowBlur = 90; d.shadowOffsetX = 20000; d.fillStyle = '#000';
+  for (const [x0, y0, x1, y1] of [[180, 268, 840, 344], [110, 380, 910, 580]]) { d.beginPath(); d.roundRect(x0 - 20000, y0, x1 - x0, y1 - y0, 40); d.fill(); }
+  d.shadowColor = 'transparent'; d.shadowOffsetX = 0; d.globalCompositeOperation = 'source-over';
+  bg.drawImage(cv.decor, 0, 0);
+  bg.save(); bg.globalCompositeOperation = 'overlay'; bg.drawImage(cv.dither, 0, 0); bg.restore();
+  // the vial's shadow: soft, tinted by its teal glass (never grey), on the line it stands on
+  const v = V(); bg.save(); bg.translate(L.vial.cx + 8, L.vial.base - 4); bg.scale(1, .13);
+  const sg = bg.createRadialGradient(0, 0, 0, 0, 0, v.w * .95); sg.addColorStop(0, 'rgba(20,110,130,0.20)'); sg.addColorStop(1, 'rgba(20,110,130,0)');
+  bg.fillStyle = sg; bg.fillRect(-v.w, -v.w, v.w * 2, v.w * 2); bg.restore();
   // the strings' back halves (behind the neck: the vial's glass refracts them)
   for (const S of STR) if (t < S.drop) rope(bg, loopPts(S, 'back'), 9);
   bg.restore();
@@ -217,7 +217,7 @@ async function scene(t) {
   markChip(out); heads(out, t); priceText(out, t);
 }
 
-// ---------- the end card (a frosted sheet over the counter) ----------
+// ---------- the end card (a sheet rising over the shot) ----------
 function endCard(ctx, t) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   const lw = Math.round(img.logo.width * L.logo.scale), lh = Math.round(img.logo.height * L.logo.scale), x = Math.round(L.logo.c[0] - lw / 2), y = Math.round(L.logo.c[1] - lh / 2);
@@ -257,7 +257,7 @@ function endCard(ctx, t) {
 
 export async function render(t) {
   const o = cv.out.getContext('2d');
-  if (t < C.sheet[1]) {   // the counter (until the end card covers it)
+  if (t < C.sheet[1]) {   // the shot (until the end card covers it)
     await scene(t);
   }
   if (t >= C.sheet[0]) {

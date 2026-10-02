@@ -79,7 +79,7 @@ Credits for the v7 cutaway: ~14.6 (two stills 2, Seedance 2.0 fast 12.5, upscale
 |---|---|---|
 | ../plates/refill_switch_take1.mp4 | b1c46597-a97b-41ce-8dd5-bc2a442d6946 | start refill_on.png (media 99c16e48-...), end refill_off.png (media d94644da-...); 12.5 credits. The model turned the switch into a long progress-bar slider and never returned to the end frame: UI state changes stay coded (src/v7/scene.mjs). |
 
-## v8 10 s hero: the counter plate (no product in it; the client's vial is composited in code)
+## v8 10 s hero: the counter plate (NOT USED: the product is never shown in a real-life setting; v8 uses the brand backdrop)
 
 | File | Higgsfield job | Notes |
 |---|---|---|

@@ -1,6 +1,6 @@
 // v8 "No strings" - the 10 s product-hero spot (Mochi-style performance unit: the whole offer readable on frame 1).
-// One locked shot: the client's vial (images/vial_semaglutide.png, label pixel-exact) on a sunlit bathroom counter
-// (Higgsfield plate, footage/gen/counter_take1_1080p.mp4), tied with two twine "strings" whose tags read
+// One locked shot: the client's vial (images/vial_semaglutide.png, label pixel-exact) in the brand's glass world (the
+// v3-v7 gradient, light and grid; never a real-life setting), tied with two twine "strings" whose tags read
 // "Membership fees" and "Automatic refills". Each string falls away as the VO says "No ...", then the price lands and
 // the frosted end card rises with the logo, MyFastRx.com and the disclaimer.
 export const W = 1080, H = 1920, FPS = 30, DURATION = 10.0, INTRO = 0;
@@ -32,11 +32,11 @@ export const CUES = {
   chip2: {t0: WORDS.noAuto - .05, land: WORDS.noAuto + .35},
   glint: [WORDS.noAuto + .75, WORDS.noAuto + 1.45],            // the vial, free: one light across its glass
   pricePop: WORDS.price69,                                     // "$69" springs once (it is on screen from frame 0)
-  sheet: [7.64, 8.12],                                         // the frosted end card rises over the counter
+  sheet: [7.64, 8.12],                                         // the end card rises as a sheet
   logoIn: {t0: 7.86, land: 8.22}, urlIn: {t0: WORDS.brand - .05, land: WORDS.brand + .30},
   discIn: {t0: 7.96, land: 8.26},
   finalStill: 9.70,                                            // nothing moves after this
-  push: [0, 7.6],                                              // the slow camera push on the counter
+  push: [0, 7.6],                                              // the slow camera push
 };
 // the client's music track, its drop on the first string falling
 export const MUSIC_TRACK = {src: 'audio/src/music_user.flac', drop: 21.10, at: CUES.drop1, duckDb: -7, lufs: -24.1, fadeOut: .9,
