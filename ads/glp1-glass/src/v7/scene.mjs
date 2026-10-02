@@ -309,7 +309,7 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
     M.price = {box: L.priceBox, qbox: L.qualBox, enter: en, exit: ex, qEnter: qe, qExit: qx};
   }
   // the proof point: four dose steps rise, then light one by one (lower -> higher dose) while "$69" stays pinned under
-  // a padlock that clicks shut as the steps begin; each step sends a pulse from the lock and a glint across the price
+  // a padlock that clicks shut as the steps begin; each step sends a glint across the price
   if (t >= C.sliderIn.t0) {
     const D = L.dose, n = C.detents, ox = eIn(prog(t, C.priceOut.t0, C.qualOut.t1));
     const lit = k => k === 0 ? (t >= C.drag.t0 ? 1 : 0) : (t >= TL.DETENTS[k] ? 1 : 0);
@@ -330,9 +330,6 @@ function sceneCovers(t, cl, ops, top, bg, fg, M) {
         const lift = lerp(-12, 0, shut);
         fg.beginPath(); fg.moveTo(-11, -4); fg.lineTo(-11, -12 + lift); fg.arc(0, -12 + lift, 11, Math.PI, 0); fg.lineTo(11, -4 + (1 - shut) * -8); fg.stroke();
         fg.beginPath(); fg.roundRect(-17, -6, 34, 26, 6); fg.fill(); fg.restore(); });
-      for (const td of [C.drag.t0, ...TL.DETENTS.slice(1)]) { const pu = prog(t, td, td + .5);   // a pulse from the lock on every step
-        if (pu > 0 && pu < 1) { const R = lerp(K.r, K.r + 70, eOut(pu)), w = 7 * (1 - pu) ** 1.4;
-          if (w > .5) top.push(() => glass({type: 'ring', ...CLEAR, c: K.c, half: [R, 0], r: w, bevel: w, refr: 20, rim: 1.1, spec: 1.2, sigma: [.04, .02, .01], glow: .08, glowCol: [.3, .8, .9], shadow: SH(0)})); } }
     }
     // on each step the price holds: a light glint crosses the pill, the figure never moves
     for (const td of TL.DETENTS.slice(1)) { const gu = prog(t, td, td + .32); if (gu > 0 && gu < 1) { const gx = lerp(P.c[0] - P.half[0] + 20, P.c[0] + P.half[0] - 20, eIO(gu));
