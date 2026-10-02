@@ -56,21 +56,21 @@
     },
     {
       "id": "slide_soft",
-      "at": 3.6,
+      "at": 4.45,
       "gain": -22,
-      "file_start": 3.5669
+      "file_start": 4.4169
     },
     {
       "id": "impact",
-      "at": 4.3,
+      "at": 5,
       "gain": -15,
-      "file_start": 4.2997
+      "file_start": 4.9997
     },
     {
       "id": "tap_low",
-      "at": 4.31,
+      "at": 5.01,
       "gain": -16,
-      "file_start": 4.3098
+      "file_start": 5.0098
     },
     {
       "id": "swish",
