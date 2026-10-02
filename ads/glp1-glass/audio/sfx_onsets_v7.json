@@ -20,15 +20,15 @@
   "placements": [
     {
       "id": "impact",
-      "at": 0.13999999999999999,
+      "at": 0.3,
       "gain": -13,
-      "file_start": 0.1397
+      "file_start": 0.2997
     },
     {
       "id": "whoosh",
-      "at": 0.07999999999999999,
+      "at": 0.24,
       "gain": -24,
-      "file_start": 0.0529
+      "file_start": 0.2129
     },
     {
       "id": "tap_glass",

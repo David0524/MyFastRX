@@ -49,12 +49,12 @@
     {
       "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 13 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max channel diff vs its first risen frame = 11 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "197 frames draw the price, 168 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22019 px, qualification 5465 px, frame 570)"
+      "detail": "197 frames draw the price, 168 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22017 px, qualification 5467 px, frame 570)"
     },
     {
       "name": "final hold in the ENCODED file",
@@ -235,7 +235,7 @@
     {
       "name": "VO in the final file says the script (speech-to-text)",
       "pass": true,
-      "detail": "\"GLP -1 care, without the strings. Starting at $69. No membership fees, no automatic refills. You request treatment when you're ready. One price covers your provider review, medication and shipping. And your price doesn't increase as your dose does. See if you qualify at MyFastRx .com.\""
+      "detail": "\"GLP -1 care without the strings. Starting at $69. No membership fees, no automatic refills. You request treatment when you're ready. One price covers your provider review, medication and shipping. And your price doesn't increase as your dose does. See if you qualify at MyFastRx .com\""
     },
     {
       "name": "on-screen VO lines are word-for-word VO",
