@@ -56,21 +56,21 @@
     },
     {
       "id": "slide_soft",
-      "at": 4.45,
+      "at": 4.78,
       "gain": -22,
-      "file_start": 4.4169
+      "file_start": 4.7469
     },
     {
       "id": "impact",
-      "at": 5,
+      "at": 5.25,
       "gain": -15,
-      "file_start": 4.9997
+      "file_start": 5.2497
     },
     {
       "id": "tap_low",
-      "at": 5.01,
+      "at": 5.26,
       "gain": -16,
-      "file_start": 5.0098
+      "file_start": 5.2598
     },
     {
       "id": "swish",
@@ -140,9 +140,15 @@
     },
     {
       "id": "whoosh",
-      "at": 13.45,
+      "at": 13.38,
       "gain": -22,
-      "file_start": 13.4229
+      "file_start": 13.3529
+    },
+    {
+      "id": "heart",
+      "at": 13.5,
+      "gain": -18,
+      "file_start": 13.4993
     },
     {
       "id": "tap_low",

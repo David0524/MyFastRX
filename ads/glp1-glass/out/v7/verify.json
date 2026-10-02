@@ -49,12 +49,12 @@
     {
       "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 14 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max channel diff vs its first risen frame = 17 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "169 frames draw the price, 139 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22023 px, qualification 5448 px, frame 570)"
+      "detail": "169 frames draw the price, 139 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22023 px, qualification 5445 px, frame 570)"
     },
     {
       "name": "final hold in the ENCODED file",
@@ -75,8 +75,8 @@
       "detail": {
         "dominant": [
           "#021E46",
-          "#0272FE",
           "#021A42",
+          "#0272FE",
           "#026EFE",
           "#021A46",
           "#026EFA"
@@ -235,7 +235,7 @@
     {
       "name": "VO in the final file says the script (speech-to-text)",
       "pass": true,
-      "detail": "\"MyFastRx, GLP -1 care without the strings. Starting at $69, no membership fees, no automatic refills. You request treatment when you're ready. One price covers your provider review, medication, and shipping. And your price doesn't increase as your dose does. See if you qualify at MyFastRx .com.\""
+      "detail": "\"MyFastRx, GLP -1 care, without the strings. Starting at $69, no membership fees, no automatic refills. You request treatment when you're ready. One price covers your provider review, medication and shipping. And your price doesn't increase as your dose does. See if you qualify at MyFastRx .com.\""
     },
     {
       "name": "on-screen VO lines are word-for-word VO",
@@ -246,8 +246,8 @@
   "lastFrameLogo": {
     "dominant": [
       "#021E46",
-      "#0272FE",
       "#021A42",
+      "#0272FE",
       "#026EFE",
       "#021A46",
       "#026EFA"
