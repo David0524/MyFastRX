@@ -1,0 +1,264 @@
+{
+  "file": "out/MyFastRx_WithoutStrings_v7.mp4",
+  "checks": [
+    {
+      "name": "video spec",
+      "pass": true,
+      "detail": "h264 High 1080x1920 30/1 yuv420p frames=864/864 bt709/bt709/bt709 range=tv"
+    },
+    {
+      "name": "Rec.709 tagged",
+      "pass": true,
+      "detail": "bt709/bt709/bt709"
+    },
+    {
+      "name": "video bitrate 10-15 Mbps",
+      "pass": true,
+      "detail": "12.51 Mbps"
+    },
+    {
+      "name": "progressive",
+      "pass": true,
+      "detail": "progressive"
+    },
+    {
+      "name": "audio spec",
+      "pass": true,
+      "detail": "aac 48000 Hz 2 ch"
+    },
+    {
+      "name": "duration 28.8 s",
+      "pass": true,
+      "detail": "28.800000"
+    },
+    {
+      "name": "audio: -16 LUFS integrated (+-0.5)",
+      "pass": true,
+      "detail": "-16 LUFS"
+    },
+    {
+      "name": "audio: true peak <= -1.5 dBTP (+0.2 tolerance for AAC)",
+      "pass": true,
+      "detail": "-1.4 dBTP"
+    },
+    {
+      "name": "disclaimer absent before the end card",
+      "pass": true,
+      "detail": "no panel before 24.42s"
+    },
+    {
+      "name": "disclaimer held on the end card (ENCODED file)",
+      "pass": null,
+      "detail": "max channel diff vs its first risen frame = 10 (H.264 noise; identity checked on renderer output below)"
+    },
+    {
+      "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
+      "pass": true,
+      "detail": "198 frames draw the price, 168 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22020 px, qualification 5460 px, frame 570)"
+    },
+    {
+      "name": "final hold in the ENCODED file",
+      "pass": null,
+      "detail": "max frame-to-frame diff from 27.7s to end = 5 (H.264 noise; identity checked on renderer output below)"
+    },
+    {
+      "name": "no visible box around the logo / badge files",
+      "pass": true,
+      "detail": {
+        "logo": 0.54,
+        "badge": 1
+      }
+    },
+    {
+      "name": "logo colors (last frame) vs logo file",
+      "pass": true,
+      "detail": {
+        "dominant": [
+          "#021E46",
+          "#021A42",
+          "#026EFE",
+          "#0272FE",
+          "#021A46",
+          "#026EFA"
+        ],
+        "fileNavy": "#001C44",
+        "fileBlue": "#0070FC",
+        "navyOk": true,
+        "blueOk": true
+      }
+    },
+    {
+      "name": "disclaimer byte-identical on the end card (renderer output)",
+      "pass": true,
+      "detail": "frames 745, 787, 834, 863: identical, identical, identical, identical"
+    },
+    {
+      "name": "final hold byte-identical (renderer output)",
+      "pass": true,
+      "detail": "frames 834, 849 vs 863: identical, identical"
+    },
+    {
+      "name": "hook: the price pill frames are measured by the 2D price check",
+      "pass": true,
+      "detail": "83 hook frames draw the price"
+    },
+    {
+      "name": "hook: the glass ring refracts only its inside (never the footage with her in it)",
+      "pass": null,
+      "detail": "one-sided ring in src/glass.mjs (uOneSided); 110 hook frames carry the ring"
+    },
+    {
+      "name": "OCR \"head0\" @1.5s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_hook\" @5.6s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_qual_hook\" @5.6s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"head2\" @8.2s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"toggle\" @9.3s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"head3\" @9.3s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"button\" @11.9s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"head4\" @11.9s",
+      "pass": null,
+      "detail": "read: \"You request treatment when youre ready.\" | expected: \"You request treatment when you're ready.\""
+    },
+    {
+      "name": "OCR \"covers\" @15.4s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"label_provider\" @15.4s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"label_medication\" @16.3s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"label_shipping\" @17.3s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_starting\" @19s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_69\" @19s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"price_qual\" @19s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"dose_line\" @20.4s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"tag\" @25s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"cta\" @25.9s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"url\" @26s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"disclaimer\" @25s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "OCR \"disclaimer_last\" @28.75s",
+      "pass": true,
+      "detail": "matches exactly"
+    },
+    {
+      "name": "banned wording absent from all on-screen copy",
+      "pass": true,
+      "detail": "trial, /month, first month, 1st month, tirzepatide, $129, apple, ios, unlike"
+    },
+    {
+      "name": "only price shown is $69",
+      "pass": true,
+      "detail": "$69"
+    },
+    {
+      "name": "disclaimer text is the exact approved text",
+      "pass": true,
+      "detail": "string compare"
+    },
+    {
+      "name": "disclaimer panel geometry",
+      "pass": true,
+      "detail": "x 100-920, bottom 1236"
+    },
+    {
+      "name": "VO in the final file says the script (speech-to-text)",
+      "pass": true,
+      "detail": "\"GLP -1 care. Without the strings. Starting at $69. No membership fees. No automatic refills. You request treatment when you're ready. One price covers your provider review, medication and shipping. And your price doesn't increase as your dose does. See if you qualify at MyFastRx .com.\""
+    },
+    {
+      "name": "on-screen VO lines are word-for-word VO",
+      "pass": true,
+      "detail": "GLP-1 care without the strings. | No membership fees. | No automatic refills. | You request treatment when you're ready. | One price covers | Provider review | Medication | Shipping | Your price doesn't increase as your dose does. | GLP-1 care without the strings."
+    }
+  ],
+  "lastFrameLogo": {
+    "dominant": [
+      "#021E46",
+      "#021A42",
+      "#026EFE",
+      "#0272FE",
+      "#021A46",
+      "#026EFA"
+    ],
+    "fileNavy": "#001C44",
+    "fileBlue": "#0070FC",
+    "navyOk": true,
+    "blueOk": true
+  },
+  "boxEdges": {
+    "logo": 0.54,
+    "badge": 1
+  }
+}
