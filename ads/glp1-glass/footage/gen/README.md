@@ -61,3 +61,14 @@ Credits used for footage so far: ~46 (stills ~8.5, three Seedance 2.0 fast takes
 | walk_take1_1080p.mp4 | 008a4cf9-3971-48a3-9e3f-985f0867e657 | walk_take1.mp4 |
 
 Same frames and timing as the sources (121 frames, 24 fps); v6 is built from these.
+
+## v7 cutaway: tea at home (reference: char_2.png)
+
+| File | Higgsfield job | Notes |
+|---|---|---|
+| teaframe_0.png | 39959f62-1cf0-4849-8da2-76af1f18e9a1 | Nano Banana Pro first frame, living room (chosen) |
+| teaframe_1.png | 7de98be1-12c3-4574-abf4-025a6439ab83 | at the window (not used) |
+| tea_take1.mp4 | 44a8ea43-3421-41d7-88ac-352885ced9aa | Seedance 2.0 fast, 720p, 5 s, start frame teaframe_0; sips 0-2 s, lowers the mug, smile widens from ~3 s; v7 uses it from 2.55 s |
+| tea_take1_1080p.mp4 | 583bc57f-dfb3-48f9-8e6b-27beb563ef32 | ByteDance upscale, aigc, 1080p |
+
+Credits for the v7 cutaway: ~14.6 (two stills 2, Seedance 2.0 fast 12.5, upscale ~0.1).
