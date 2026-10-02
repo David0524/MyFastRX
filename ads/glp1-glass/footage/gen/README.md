@@ -78,3 +78,14 @@ Credits for the v7 cutaway: ~14.6 (two stills 2, Seedance 2.0 fast 12.5, upscale
 | File | Higgsfield job | Notes |
 |---|---|---|
 | ../plates/refill_switch_take1.mp4 | b1c46597-a97b-41ce-8dd5-bc2a442d6946 | start refill_on.png (media 99c16e48-...), end refill_off.png (media d94644da-...); 12.5 credits. The model turned the switch into a long progress-bar slider and never returned to the end frame: UI state changes stay coded (src/v7/scene.mjs). |
+
+## v8 10 s hero: the counter plate (no product in it; the client's vial is composited in code)
+
+| File | Higgsfield job | Notes |
+|---|---|---|
+| counter_0.png | 1e28b2bd-4792-4ab4-a8e6-503c8c160efd | Nano Banana Pro, bathroom vanity (not used) |
+| counter_1.png | 7afcb5e3-7b2c-4dde-962b-d167684289b4 | Nano Banana Pro, bathroom vanity, deeper back shelf (chosen) |
+| counter_take1.mp4 | cc0f9fe9-5bd7-443f-aeee-946094bd11f5 | Seedance 2.0 fast, 720p, 5 s, start frame counter_1; locked camera, only the leaf light moves |
+| counter_take1_1080p.mp4 | 38acdf5c-0bc0-4cab-b904-4b16a2c836dd | ByteDance upscale, aigc, 1080p; frames: tools/extract-gen.sh counter_take1_1080p counter |
+
+Credits for v8: ~14.6 (two stills 2, Seedance 2.0 fast 12.5, upscale ~0.1). Prompts: V8_10S_BRIEF.md.

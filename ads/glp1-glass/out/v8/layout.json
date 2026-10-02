@@ -1,0 +1,115 @@
+{
+  "W": 1080,
+  "H": 1920,
+  "L": {
+    "mark": {
+      "cy": 306,
+      "h": 46,
+      "pad": [
+        26,
+        13
+      ],
+      "r": 24
+    },
+    "headY": [
+      458,
+      548
+    ],
+    "pane": {
+      "c": [
+        292,
+        842
+      ],
+      "half": [
+        192,
+        186
+      ],
+      "r": 64
+    },
+    "priceY": {
+      "start": 742,
+      "price": 884,
+      "qual": [
+        936,
+        974,
+        1012
+      ]
+    },
+    "vial": {
+      "cx": 596,
+      "base": 1420,
+      "s": 0.68
+    },
+    "tag": {
+      "w": 176
+    },
+    "cam": {
+      "c": [
+        596,
+        1150
+      ],
+      "k": 0.045
+    },
+    "logo": {
+      "c": [
+        510,
+        470
+      ],
+      "scale": 0.5
+    },
+    "url": {
+      "c": [
+        510,
+        706
+      ],
+      "half": [
+        300,
+        66
+      ],
+      "r": 66
+    },
+    "badge": {
+      "cx": 510,
+      "y": 820,
+      "w": 260
+    },
+    "endVial": {
+      "cx": 510,
+      "base": 1660,
+      "s": 0.36
+    },
+    "px": {
+      "head": 89,
+      "price": 150,
+      "start": 40,
+      "qual": 32,
+      "tag": 27
+    },
+    "priceBox": [
+      146,
+      772,
+      438,
+      890
+    ],
+    "qualBox": [
+      152,
+      908,
+      432,
+      1021
+    ]
+  },
+  "disc": {
+    "x": 100,
+    "y": 1092,
+    "w": 820,
+    "h": 144,
+    "lines": [
+      "Compounded medication. Not FDA-approved. Results may vary. Not all",
+      "patients qualify. Prescription issued only if medically appropriate following",
+      "provider review. MyFastRx does not manufacture medications; product",
+      "appearance and labeling may vary. Actor portrayal."
+    ]
+  },
+  "priceW": 279.30023193359375,
+  "qualW": 268.00054931640625
+}

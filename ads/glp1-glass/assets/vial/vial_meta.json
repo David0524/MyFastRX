@@ -10,6 +10,10 @@
     "w": 230,
     "h": 509
   },
+  "full": {
+    "w": 460,
+    "h": 1018
+  },
   "centerX_src": 509,
   "zones_src_rows": {
     "capEnd": 415,

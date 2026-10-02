@@ -76,7 +76,17 @@ for (let j = 0; j < HH; j++) for (let i = 0; i < HW; i++) {
 mkdirSync('assets/vial', {recursive: true});
 writeFileSync('assets/vial/vial_color_half.rgba', color);
 writeFileSync('assets/vial/vial_mask_half.rgba', mask);
-const meta = {source: 'images/vial_semaglutide.png', crop: {x0: X0, y0: Y0, x1: X1, y1: Y1}, half: {w: HW, h: HH}, centerX_src: CX,
+// Full size too (the 10 s hero shows the vial large): the source crop itself, pixels copied, and the full-res mask.
+const colorF = Buffer.alloc(CW * CH * 4), maskF = Buffer.alloc(CW * CH * 4);
+for (let j = 0; j < CH; j++) for (let i = 0; i < CW; i++) {
+  const o = (j * CW + i) * 4, s = ((Y0 + j) * w + X0 + i) * 4;
+  for (let c = 0; c < 3; c++) colorF[o + c] = data[s + c]; colorF[o + 3] = 255;
+  maskF[o] = Math.round(full[o] * 255); maskF[o + 1] = Math.round(full[o + 1] * 255);
+  maskF[o + 2] = Math.round((full[o + 2] * .5 + .5) * 255); maskF[o + 3] = Math.round((full[o + 3] * .5 + .5) * 255);
+}
+writeFileSync('assets/vial/vial_color_full.rgba', colorF);
+writeFileSync('assets/vial/vial_mask_full.rgba', maskF);
+const meta = {source: 'images/vial_semaglutide.png', crop: {x0: X0, y0: Y0, x1: X1, y1: Y1}, half: {w: HW, h: HH}, full: {w: CW, h: CH}, centerX_src: CX,
   zones_src_rows: ZONES, zones_half_rows: Object.fromEntries(Object.entries(ZONES).map(([k, v]) => [k, (v - Y0) / 2])),
   srcBackdrop: [238, 242, 245], note: 'color = 2x2 box average of the source crop; no pixel edited. mask/normals derived from the silhouette.'};
 writeFileSync('assets/vial/vial_meta.json', JSON.stringify(meta, null, 2));
