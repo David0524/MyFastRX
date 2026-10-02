@@ -42,7 +42,8 @@ export const SCENES = [
 export const VO_FILE = 'vo/body_v3.wav';
 const VOL = [   // [src0, src1, at]  speech inside each cut: src0 + ~.04 .. src1 - ~.05
   [0.00, 2.795, 0.471, 'vo/body_v3_l1.wav'],  // "GLP-1 care, without the strings." - the client's re-recorded "GLP-1" (take 4,
-                                              //   demo 4: +80 ms before "care", 4% faster; tools/splice-glp.py); the voice starts at 0.5 s
+                                              //   demo 8: +80 ms before "care", 4% faster, tone/level/room tone matched to the original, +0.8 semitone;
+                                              //   tools/splice-glp.py); the voice starts at 0.5 s
   [3.05, 4.90, 4.25],     // "Starting at $69."
   [5.13, 6.42, 7.05],     // "No membership fees."
   [6.48, 8.05, 8.62],     // "No automatic refills."

@@ -12,7 +12,7 @@ So the two recordings read as one:
 then the original take from 60 ms before "care" (1.15 s). Prints where the speech starts, "care" lands, the speech ends."""
 import subprocess, json, sys, os, tempfile, numpy as np, wave
 args = sys.argv[1:]; OUT = args[args.index('--out') + 1] if '--out' in args else 'vo/body_v3_l1.wav'
-PITCH = float(args[args.index('--pitch') + 1]) if '--pitch' in args else 0.0
+PITCH = float(args[args.index('--pitch') + 1]) if '--pitch' in args else 0.8   # the client picked demo 8 (+0.8 semitone)
 TAKES, BODY, SR = 'vo/glp1_takes.wav', 'vo/body_v3.wav', 48000
 T4, TEMPO, PAUSE, RESUME, X1, X2, REF = (4.52, 5.64), 1.04, 0.08, 1.09, 0.010, 0.012, (0.02, 1.04)
 tmp = tempfile.mkdtemp()
