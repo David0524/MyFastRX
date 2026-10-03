@@ -47,8 +47,9 @@ export const SCENES = [
 // measured pauses (silencedetect -42 dB) and placed line by line. `src` = file time, `at` = film time of src[0].
 export const VO_FILE = 'vo/body_v3.wav';
 const VOL = [   // [src0, src1, at]  speech inside each cut: src0 + ~.04 .. src1 - ~.05
-  [0.00, 4.741, 0.28, 'vo/body_v4_l1.wav'],   // "MyFastRx. GLP-1 care, without the strings." - the client's branded take
-                                              //   (vo/source_line1_brand_elevenlabs.mp3), only "GLP-1" 1.2x (tools/line1-brand.py)
+  [0.00, 4.563, 0.28, 'vo/body_v5_l1.wav'],   // "MyFastRx. GLP-1 care, without the strings." - the client's new branded take
+                                              //   (2026-10-03, vo/source_line1_brand_v5_elevenlabs.mp3), only "GLP-1" (1.84-2.89 s)
+                                              //   at 1.2x, tempo only, no pitch/formant options (tools/line1-brand.py --plain)
   [3.05, 4.90, 5.04],     // "Starting at $69." (later: the opening line now names the brand first)
   [5.13, 6.42, 7.05],     // "No membership fees."
   [6.48, 8.05, 8.62],     // "No automatic refills."
@@ -69,7 +70,7 @@ export const VO = [   // measured speech windows (the music ducks under these)
 ];
 // word onsets (film time; faster-whisper word times, onsets snapped to the measured pauses)
 export const WORDS = {
-  brand: sp(0, .02), glp: sp(0, 1.68), without: sp(0, 3.411), starting: sp(1, 3.09), price69: sp(1, 3.62),
+  brand: sp(0, .02), glp: sp(0, 1.86), without: sp(0, 3.352), starting: sp(1, 3.09), price69: sp(1, 3.62),
   noFees: sp(2, 5.17), membership: sp(2, 5.42), fees: sp(2, 5.78), noAuto: sp(3, 6.53), refills: sp(3, 7.32),
   you: sp(4, 8.43), when: sp(4, 9.38),
   one: sp(5, 10.79), provider: sp(5, 11.84), medication: sp(5, 12.98), shipping: sp(5, 13.90),
