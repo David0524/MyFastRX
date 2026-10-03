@@ -89,3 +89,24 @@ Credits for the v7 cutaway: ~14.6 (two stills 2, Seedance 2.0 fast 12.5, upscale
 | counter_take1_1080p.mp4 | 38acdf5c-0bc0-4cab-b904-4b16a2c836dd | ByteDance upscale, aigc, 1080p; frames: tools/extract-gen.sh counter_take1_1080p counter |
 
 Credits for v8: ~14.6 (two stills 2, Seedance 2.0 fast 12.5, upscale ~0.1). Prompts: V8_10S_BRIEF.md.
+
+## Recast (v7): the actress, race-neutral (reads Afro-Latina / mixed Black and Hispanic), fuller build (Soul 2.0, 9:16)
+
+| File | Higgsfield job |
+|---|---|
+| cast2_a.png | 7f651504-59de-4188-8f04-49b379f153d4 |
+| cast2_b.png | c31cff41-fab2-44c6-aede-2c5aaa3d5238 |
+| cast2_c.png | d17ed6c3-e735-4386-9481-e93978f7e068 |
+| cast2_d.png | f142e666-258b-4af2-a4b6-740fb6c9d9e4 |
+| cast2_e.png | 0a146cfe-1251-45d4-a6e4-595baf5abc86 |
+
+Contact sheet: cast2_options.png. (Three takes from the first batch came back without trousers and were deleted; the
+second prompt specifies the wardrobe and a waist-up frame.) Prompt: "Photorealistic candid lifestyle photo, medium shot
+from the waist up, of a woman around 50 standing behind a light oak kitchen island in a bright, airy modern kitchen.
+Her look is ethnically ambiguous and could read as Afro-Latina or mixed Black and Hispanic heritage: warm medium-brown
+skin, natural dark curly hair with a few grey strands worn loose to the shoulders. She has a fuller, heavier, curvy
+build with a soft rounded face and full arms, healthy and comfortable, not obese. Fully and modestly dressed: a relaxed
+off-white linen button shirt with the sleeves rolled, worn over a soft pale blue knit top. Soft natural makeup, small
+gold hoop earrings. Soft morning window light from the side, pale blue and white palette, relaxed confident expression,
+gentle warm half smile, looking slightly off camera. Shallow depth of field, full-frame camera, 9:16. No text, no logos."
+Credits: ~2.
