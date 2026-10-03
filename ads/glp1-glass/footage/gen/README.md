@@ -110,3 +110,16 @@ off-white linen button shirt with the sleeves rolled, worn over a soft pale blue
 gold hoop earrings. Soft morning window light from the side, pale blue and white palette, relaxed confident expression,
 gentle warm half smile, looking slightly off camera. Shallow depth of field, full-frame camera, 9:16. No text, no logos."
 Credits: ~2.
+
+## Recast (v7) first frames, casting option B (Nano Banana Pro, 9:16, 2k, reference cast2_b.png uploaded as media 64aa1821-b82c-4e9a-bf0e-300deab2cb1f)
+
+Prompts: ../../RECAST_V7.md. Contact sheet: recast_frames_options.jpg. 2 credits each (12).
+
+| File | Higgsfield job | Notes |
+|---|---|---|
+| recast_tapframe_0.png | 7111726b-2cf9-41b7-9f07-79453ee915f8 | thumb already on the screen, finger lower |
+| recast_tapframe_1.png | 1da77f39-f7b0-4c51-b764-6493dfe78ac8 | finger raised just above the screen; closest to the old tapframe_0 (proposed pick) |
+| recast_teaframe_0.png | adb3ff9d-828e-4ddb-a496-99ccee82542d | living room, sofa behind, looking off (proposed pick) |
+| recast_teaframe_1.png | 2573c025-f03f-47ae-819e-c2b551fd9fa5 | at the window, closer |
+| recast_walkframe_0.png | cf985b09-de62-4d61-87ca-2fdd1b32f057 | tote on the shoulder, phone at chest (proposed pick) |
+| recast_walkframe_1.png | 2a5c9d70-e3c9-4f64-abad-b77a758120ec | further back, tote on the other side |
