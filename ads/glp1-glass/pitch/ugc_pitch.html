@@ -1,0 +1,560 @@
+<title>MyFastRx Creator Program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a long-read proposal. Navy "wall" bands carry the big claims; sand "floor" sections carry the working detail.
+   One committed look in both themes (the brand's own navy and sand), every color set explicitly. */
+:root {
+  color-scheme: light;
+  --navy: #001D45;
+  --navy-deep: #00142F;
+  --sand: #EFE6D8;
+  --sand-deep: #E2D5C1;
+  --clay: #A65F3F;
+  --cream: #F7F2EA;
+  --ink: #0B1B33;
+  --muted: #5B6476;
+  --line: rgba(0, 29, 69, 0.14);
+  --line-dark: rgba(247, 242, 234, 0.16);
+  --blue: #0071FE;
+  --teal: #14A3B8;
+  --display: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --body: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --wrap: 1120px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--sand); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.6; }
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+.wrap { max-width: var(--wrap); margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
+section { padding-block: clamp(56px, 8vw, 104px); }
+.band { background: linear-gradient(160deg, var(--navy-deep), var(--navy) 60%); color: var(--cream); }
+.band .muted { color: rgba(247, 242, 234, 0.72); }
+.floor { background: var(--sand); }
+.floor.alt { background: var(--sand-deep); }
+
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.03em; line-height: 1.02; }
+h1 { font-size: clamp(48px, 9vw, 112px); font-weight: 800; }
+h2 { font-size: clamp(34px, 5.2vw, 60px); font-weight: 700; }
+h3 { font-size: 22px; font-weight: 650; letter-spacing: -0.01em; line-height: 1.2; }
+p { margin: 0; max-width: 65ch; }
+.lede { font-size: clamp(19px, 2.1vw, 23px); line-height: 1.5; }
+.muted { color: var(--muted); }
+.eyebrow { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--clay); }
+.band .eyebrow { color: #D9A483; }
+.stack { display: grid; gap: 20px; }
+.stack-lg { display: grid; gap: 40px; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* hero */
+.hero { padding-block: clamp(40px, 6vw, 72px) clamp(56px, 8vw, 96px); }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-bottom: clamp(40px, 6vw, 72px); }
+.chip { background: #F7F7F7; border-radius: 999px; padding: 8px 16px; display: inline-flex; align-items: center; gap: 8px; color: var(--navy); font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+.chip .pulse { width: 22px; height: 12px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: clamp(32px, 5vw, 64px); align-items: end; }
+.hero h1 em { font-style: normal; color: #D9A483; }
+.hero-figure { background: var(--sand); border-radius: 18px; padding: 10px; box-shadow: 0 30px 80px rgba(0, 10, 30, 0.45); }
+.hero-figure img { border-radius: 10px; aspect-ratio: 4 / 5; width: 100%; object-fit: cover; }
+.hero-figure figcaption { color: var(--navy); font-size: 13px; padding: 10px 6px 4px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.thesis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: clamp(40px, 6vw, 64px); border-top: 1px solid var(--line-dark); }
+.thesis > div { padding: 22px 24px 0 0; display: grid; gap: 6px; }
+.thesis > div + div { padding-left: 24px; border-left: 1px solid var(--line-dark); }
+.thesis b { font-size: 18px; letter-spacing: -0.01em; }
+
+/* two-column text blocks */
+.split { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+.split > * { min-width: 0; }
+
+/* persona cards */
+.people { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.person { background: var(--cream); border: 1px solid var(--line); border-radius: 16px; padding: 28px; display: grid; gap: 14px; align-content: start; }
+.person .tag { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.person ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+
+/* site review */
+.audit { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.audit-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) minmax(0, 1fr); gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.audit-row > * { min-width: 0; }
+.pill { display: inline-block; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.pill.keep { background: rgba(20, 163, 184, 0.14); color: #0B6574; }
+.pill.fix { background: rgba(166, 95, 63, 0.14); color: #7A3F25; }
+.pill.add { background: rgba(0, 113, 254, 0.12); color: #0047A8; }
+.audit-row .found { font-size: 15.5px; }
+.audit-row .found q { font-style: normal; color: var(--navy); font-weight: 600; }
+.audit-row .do { font-size: 15.5px; color: var(--ink); }
+
+/* competitive */
+.versus { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.versus article { border-top: 2px solid var(--line-dark); padding-top: 18px; display: grid; gap: 10px; align-content: start; }
+.versus article.us { border-top-color: #D9A483; }
+.versus h3 { color: var(--cream); }
+
+/* formats */
+.formats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.format { background: var(--cream); border-radius: 16px; padding: 26px; display: grid; gap: 12px; align-content: start; border: 1px solid var(--line); }
+.format .meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.format .meta span { font-family: var(--mono); font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
+.format .script { font-size: 15px; color: var(--navy); border-left: 2px solid var(--clay); padding-left: 14px; }
+
+/* hooks */
+.hooks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; counter-reset: none; }
+.hook { padding: 16px 0; border-bottom: 1px solid var(--line-dark); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: baseline; }
+.hook span { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+.hook small { font-family: var(--mono); font-size: 11.5px; color: rgba(247, 242, 234, 0.6); white-space: nowrap; }
+
+/* sample ad */
+.sample { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+.sample > * { min-width: 0; }
+.sample img { border-radius: 14px; box-shadow: 0 24px 60px rgba(0, 29, 69, 0.22); }
+.notes { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.notes div { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 15.5px; }
+.notes dt, .notes b { font-weight: 600; color: var(--navy); }
+
+/* toolkit table */
+.table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--line); background: var(--cream); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 15px; }
+th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--sand); }
+tbody tr:last-child td { border-bottom: 0; }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td b { color: var(--navy); }
+
+/* budget */
+.budget { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.budget > * { min-width: 0; }
+.ledger { display: grid; border-top: 1px solid var(--line-dark); }
+.ledger div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--line-dark); }
+.ledger div.total { border-bottom: 0; font-weight: 700; font-size: 19px; }
+.ledger .mono { color: #D9A483; }
+.bar { height: 12px; border-radius: 999px; background: rgba(247, 242, 234, 0.12); overflow: hidden; display: flex; }
+.bar i { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 18px; font-size: 13px; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.out-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.out-grid div { border: 1px solid var(--line-dark); border-radius: 14px; padding: 18px; display: grid; gap: 4px; }
+.out-grid b { font-size: 34px; letter-spacing: -0.03em; line-height: 1; }
+
+/* testing timeline */
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.step { display: grid; gap: 10px; align-content: start; padding-top: 16px; border-top: 2px solid var(--navy); }
+.step .when { font-family: var(--mono); font-size: 12px; color: var(--clay); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* guardrails */
+.rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.rules ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.rules li { padding-left: 26px; position: relative; font-size: 15.5px; }
+.rules .yes li::before, .rules .no li::before { position: absolute; left: 0; top: 0; font-family: var(--mono); font-weight: 600; }
+.rules .yes li::before { content: "+"; color: #0B6574; }
+.rules .no li::before { content: "–"; color: var(--clay); }
+
+/* asks */
+.asks { display: grid; gap: 0; border-top: 1px solid var(--line-dark); }
+.asks label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line-dark); cursor: pointer; align-items: start; }
+.asks input { width: 18px; height: 18px; margin-top: 4px; accent-color: #D9A483; }
+.sources { font-size: 13.5px; display: grid; gap: 6px; }
+.sources a { color: rgba(247, 242, 234, 0.8); text-underline-offset: 3px; }
+footer { padding-block: 32px 48px; font-size: 13px; }
+
+@media (max-width: 900px) {
+  .hero-grid, .split, .sample, .budget { grid-template-columns: minmax(0, 1fr); }
+  .versus, .steps, .out-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero-figure { max-width: 460px; }
+}
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .thesis, .people, .formats, .hooks, .rules, .versus, .steps, .out-grid { grid-template-columns: minmax(0, 1fr); }
+  .thesis > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line-dark); margin-top: 18px; }
+  .audit-row { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .notes div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-figure { transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+  .hero-figure:hover { transform: translateY(-4px) rotate(-0.4deg); }
+}
+</style>
+
+<header class="band hero">
+  <div class="wrap">
+    <div class="top">
+      <span class="chip"><svg class="pulse" viewBox="0 0 22 12" aria-hidden="true"><path d="M1 7h5l2-5 3 9 2-6 1 2h7" fill="none" stroke="#0071FE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>MyFastRx</span>
+      <span class="eyebrow">Creator program proposal · October 2026</span>
+    </div>
+    <div class="hero-grid">
+      <div class="stack-lg">
+        <h1>Ads that feel like <em>advice</em>, not ads.</h1>
+        <p class="lede muted">A monthly engine of about 16 short videos and 12 statics for TikTok, Reels and Meta feed, built in Higgsfield with two recurring AI hosts. Every piece sells the same thing your site already promises: GLP-1 care with no subscription, no membership fees and no automatic refills.</p>
+      </div>
+      <figure class="hero-figure">
+        <img src="static_a_no_subscription.jpg" alt="Sample static ad: the headline 'No subscription.' on deep navy, three checks (no membership fees, no automatic refills, free express shipping), the semaglutide vial standing on a warm sand floor, 'Starting at $69' with 'Introductory offer. Regular pricing varies by plan.' beneath it, a 'See if you qualify' button and the full disclaimer.">
+        <figcaption><span><b>Sample A:</b> "No subscription." Meta feed, 4:5</span><span class="mono">0 credits</span></figcaption>
+      </figure>
+    </div>
+    <div class="thesis">
+      <div><span class="eyebrow">The goal</span><b>Conversions, not views</b><span class="muted">We optimize for started visits at checkout.myfastrx.com and qualified starts.</span></div>
+      <div><span class="eyebrow">The problem</span><b>People skip ads on reflex</b><span class="muted">Polished spots get scrolled past in the first second. Native-looking content gets watched.</span></div>
+      <div><span class="eyebrow">The answer</span><b>Presenters, not testimonials</b><span class="muted">Two familiar AI hosts explain the offer plainly. They never claim to be patients.</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="floor">
+  <div class="wrap split">
+    <div class="stack">
+      <span class="eyebrow">Who we're talking to</span>
+      <h2>Two buyers, one feeling: they want control.</h2>
+    </div>
+    <div class="stack">
+      <p class="lede">Your GLP-1 customer is mostly a woman between 35 and 64 paying out of pocket. She has seen the prices, the memberships and the auto-ship programs, and she reads fine print. The NAD+ customer is broader: someone curious about energy and healthy aging who would rather not deal with needles.</p>
+      <p class="muted">These are working profiles from the brand brief and your site. Week-one data will sharpen them.</p>
+    </div>
+  </div>
+  <div class="wrap" style="margin-top: 40px;">
+    <div class="people">
+      <article class="person">
+        <span class="tag">Semaglutide · primary</span>
+        <h3>"I don't want to be locked in."</h3>
+        <ul>
+          <li>Women 35–64, self-pay, comparison shopping</li>
+          <li>Tired of subscriptions that renew without asking</li>
+          <li>Wants the real price and what it includes, up front</li>
+          <li>Responds to calm, plain talk from someone her age</li>
+        </ul>
+        <p class="muted" style="font-size: 15px;"><b style="color: var(--navy);">Lead with:</b> no subscription, starting at $69, review, medication and shipping in one price.</p>
+      </article>
+      <article class="person">
+        <span class="tag">NAD+ · secondary</span>
+        <h3>"I want more energy, without a production."</h3>
+        <ul>
+          <li>Adults 35–60, wellness-curious, any gender</li>
+          <li>Interested in energy, focus and healthy aging</li>
+          <li>Needle-averse: the nasal spray is the hook</li>
+          <li>Values prepaid plans with no surprise billing</li>
+        </ul>
+        <p class="muted" style="font-size: 15px;"><b style="color: var(--navy);">Lead with:</b> energy support from home, needle-free option, from $99 a month, no automatic billing.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="floor alt">
+  <div class="wrap stack-lg">
+    <div class="split">
+      <div class="stack">
+        <span class="eyebrow">MyFastRx.com review</span>
+        <h2>The site already makes the promise. It just hides it.</h2>
+      </div>
+      <p class="lede">Ads will send people to the site as it is today, so the ads have to match what they find there word for word. Here is what we saw, and the small fixes that would lift every ad we run.</p>
+    </div>
+    <div class="audit">
+      <div class="audit-row">
+        <span><span class="pill keep">Keep</span></span>
+        <p class="found">The offer page leads with <q>GLP-1 Weight Loss Starting at $69</q>, says <q>Provider review, medication, and shipping included</q>, and lists no membership fees, no insurance required and cancel anytime.</p>
+        <p class="do">This is our message. Every ad repeats these exact phrases so the landing page feels like the ad continued.</p>
+      </div>
+      <div class="audit-row">
+        <span><span class="pill fix">Fix</span></span>
+        <p class="found">The homepage hero says <q>Healthcare, Simplified. Delivered to Your Door.</q> and its main button reads <q>Explore Treatment Options</q>. Nothing above the fold says no subscription.</p>
+        <p class="do">Point all paid traffic to /weight-loss/special/, whose button already says <q>See if I qualify</q>. Longer term, put "No subscription · No membership fees · No automatic refills" in the homepage hero.</p>
+      </div>
+      <div class="audit-row">
+        <span><span class="pill fix">Fix</span></span>
+        <p class="found">"No automatic refills" is true but is never stated on the GLP-1 pages. The NAD+ page says <q>No automatic billing</q>.</p>
+        <p class="do">Add one line near the GLP-1 price: "Nothing ships until you request it." It is the single biggest objection our ads answer.</p>
+      </div>
+      <div class="audit-row">
+        <span><span class="pill add">Add</span></span>
+        <p class="found">There are no reviews or ratings anywhere, only <q>Thousands of Customers</q>. Trust rests on the LegitScript, BBB and HIPAA badges.</p>
+        <p class="do">Start collecting real reviews on an independent platform. Until then the ads carry the BBB A rating and "Licensed U.S. providers" as proof. We will not invent testimonials.</p>
+      </div>
+      <div class="audit-row">
+        <span><span class="pill keep">Keep</span></span>
+        <p class="found"><q>24h Review</q> and <q>Most patients receive their order within a few days of approval</q>, plus free express shipping.</p>
+        <p class="do">Supporting proof in captions and end cards, never the headline.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap stack-lg">
+    <div class="split">
+      <div class="stack">
+        <span class="eyebrow">The category</span>
+        <h2>The big players went loud. We go plain.</h2>
+      </div>
+      <p class="lede muted">Ro and Hims &amp; Hers spend on celebrities, Super Bowl spots and testimonial volume. MyFastRx can't outspend them and shouldn't copy them. The opening is the one thing they don't lead with: no subscription.</p>
+    </div>
+    <div class="versus">
+      <article>
+        <span class="eyebrow">Ro</span>
+        <h3>"Healthier on Ro"</h3>
+        <p class="muted">Serena Williams in a Super Bowl debut, framed around health metrics ("vitals, not vanity") rather than looks. Clinical, premium, in-house creative.</p>
+      </article>
+      <article>
+        <span class="eyebrow">Hims &amp; Hers</span>
+        <h3>"Sick of the System"</h3>
+        <p class="muted">An anti-establishment tone and a very high volume of Meta ads, much of it testimonial-style UGC. Its GLP-1 Super Bowl ad drew criticism over risk disclosure.</p>
+      </article>
+      <article class="us">
+        <span class="eyebrow">MyFastRx</span>
+        <h3>"No subscription."</h3>
+        <p class="muted">Take the earthy, editorial calm from Ro and the native volume from Hims, and aim it at the frustration both leave open: being billed for something you didn't ask for. Full disclosure on every ad.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="floor">
+  <div class="wrap stack-lg">
+    <div class="split">
+      <div class="stack">
+        <span class="eyebrow">Sample ad</span>
+        <h2>Sample A: "No subscription."</h2>
+      </div>
+      <p class="lede">A Meta feed static built in code around your own vial file, so the label is exact. The navy is yours. The warm sand floor and the late light bring in the earthier, more human feel the category has moved toward.</p>
+    </div>
+    <div class="sample">
+      <img src="static_a_no_subscription.jpg" alt="Sample A: 'No subscription.' static ad, 1080 by 1350." loading="lazy">
+      <div class="notes">
+        <div><b>Hook</b><span>"No subscription." in the first glance. It answers the objection before the viewer has it.</span></div>
+        <div><b>Proof</b><span>No membership fees, no automatic refills, free express shipping: all three are on your site or confirmed by you.</span></div>
+        <div><b>Price</b><span>"Starting at $69" with "Introductory offer. Regular pricing varies by plan." directly beneath, as on every frame we ship.</span></div>
+        <div><b>Action</b><span>"See if you qualify", the same words as the offer page's button.</span></div>
+        <div><b>Product</b><span>Your vial on the brand's floor, never in a home, never in a hand. Clear glass picks up the scene's light.</span></div>
+        <div><b>Fine print</b><span>The approved disclaimer, verbatim. Counsel to confirm whether "Actor portrayal" applies when no actor appears.</span></div>
+        <div><b>Next sizes</b><span>9:16 for Stories and Reels, 1:1 for the right column, plus a semaglutide/NAD+ pair.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="floor alt">
+  <div class="wrap stack-lg">
+    <div class="split">
+      <div class="stack">
+        <span class="eyebrow">The formats</span>
+        <h2>Six formats that look like the feed.</h2>
+      </div>
+      <p class="lede">Four video formats and two static ones. Each is a template, so a new hook or host is a re-cut, not a reshoot. The hosts are presenters: they explain the service and never say they use it.</p>
+    </div>
+    <div class="formats">
+      <article class="format">
+        <div class="meta"><span>Video</span><span>15–20 s</span><span>Workhorse</span></div>
+        <h3>Kitchen explainer</h3>
+        <p class="muted">Host at her kitchen island, phone propped on the counter, captions burned in. Cut to a coded price card and end card.</p>
+        <p class="script">"Okay, the GLP-1 pricing thing nobody explains. It starts at sixty-nine dollars. No membership fees. Nothing refills automatically."</p>
+      </article>
+      <article class="format">
+        <div class="meta"><span>Video</span><span>10–15 s</span><span>Message match</span></div>
+        <h3>Site walk-through</h3>
+        <p class="muted">Host in front of real screenshots of /weight-loss/special/, pointing to the price, "No membership fees" and the qualify button. Viewers see the exact page they're about to land on.</p>
+        <p class="script">"This is the whole thing. Starting at sixty-nine. Review, medication and shipping. No subscription."</p>
+      </article>
+      <article class="format">
+        <div class="meta"><span>Video</span><span>10 s</span><span>Pattern break</span></div>
+        <h3>Street question</h3>
+        <p class="muted">Host with a handheld mic on a sunny sidewalk asks the camera one question; an answer card slides up.</p>
+        <p class="script">"Quick question: does your health care auto-ship stuff you didn't ask for?"</p>
+      </article>
+      <article class="format">
+        <div class="meta"><span>Video</span><span>10–15 s</span><span>Objection</span></div>
+        <h3>"What's the catch?"</h3>
+        <p class="muted">Text hook on screen, the host answers one objection in one line, the two facts stack as chips.</p>
+        <p class="script">"No membership fees. No automatic refills. That's it."</p>
+      </article>
+      <article class="format">
+        <div class="meta"><span>Static</span><span>4:5 · 9:16</span><span>Brand</span></div>
+        <h3>Editorial still</h3>
+        <p class="muted">Sample A's world: navy wall, sand floor, the vial, one big line. Rotates headlines: "No subscription." "One price. Three things." "Ask for it when you're ready."</p>
+      </article>
+      <article class="format">
+        <div class="meta"><span>Static</span><span>4:5</span><span>Native</span></div>
+        <h3>The itemized receipt</h3>
+        <p class="muted">A plain receipt on sand paper: provider review, medication, shipping, membership fee $0, automatic refills: off. Total "Starting at $69" with its qualification. Reads like a screenshot someone saved.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap stack-lg">
+    <div class="split">
+      <div class="stack">
+        <span class="eyebrow">Hooks to test</span>
+        <h2>The first two seconds decide everything.</h2>
+      </div>
+      <p class="lede muted">We test hooks before anything else. Each concept ships with two: the spoken line and a text-only variant. These are the first twelve.</p>
+    </div>
+    <div class="hooks">
+      <div class="hook"><span>No subscription.</span><small>Sema · static + video</small></div>
+      <div class="hook"><span>Okay, the GLP-1 pricing thing nobody explains.</span><small>Sema · explainer</small></div>
+      <div class="hook"><span>What does $69 actually cover?</span><small>Sema · explainer</small></div>
+      <div class="hook"><span>What's the catch?</span><small>Sema · objection</small></div>
+      <div class="hook"><span>Will they auto-ship me stuff?</span><small>Sema · objection</small></div>
+      <div class="hook"><span>Here's the whole page. That's the price.</span><small>Sema · site tour</small></div>
+      <div class="hook"><span>Does your health care renew without asking?</span><small>Sema · street</small></div>
+      <div class="hook"><span>Nothing ships until you ask for it.</span><small>Sema · static</small></div>
+      <div class="hook"><span>Energy support, no needles required.</span><small>NAD+ · explainer</small></div>
+      <div class="hook"><span>What is NAD+, in 10 seconds.</span><small>NAD+ · explainer</small></div>
+      <div class="hook"><span>From $99 a month. Nothing auto-bills.</span><small>NAD+ · static</small></div>
+      <div class="hook"><span>Three minutes, from your couch.</span><small>NAD+ · site tour</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="floor">
+  <div class="wrap stack-lg">
+    <div class="split">
+      <div class="stack">
+        <span class="eyebrow">Higgsfield, used well</span>
+        <h2>What we use, for what, and what it costs.</h2>
+      </div>
+      <div class="stack">
+        <p class="lede">Higgsfield now covers casting, consistent characters, talking video, ad statics and versioning. The trick is using the cheap tools for volume and saving the expensive ones for proven winners.</p>
+        <p class="muted">Credit prices were checked in the account on October 3, 2026. The Plus plan includes 1,000 credits a month.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tool</th><th>What we use it for</th><th>Credits</th><th>Call</th></tr></thead>
+        <tbody>
+          <tr><td><b>Kling 3.0</b></td><td>Every talking-host clip: 10 s, 9:16, with the voice generated in the clip so lips and words match.</td><td class="num">20 std · 25 pro</td><td>Volume engine</td></tr>
+          <tr><td><b>Seedance 2.5</b></td><td>Hero re-shoots of winning ads. Takes a voice sample as a reference, so a host can sound the same in every ad. Draft mode previews at 480p first.</td><td class="num">30 draft · 70 at 720p</td><td>Winners only</td></tr>
+          <tr><td><b>Nano Banana Pro</b></td><td>Casting stills and first frames for each set (kitchen, sofa, sidewalk), from the host's reference photo.</td><td class="num">2 per image</td><td>Every clip</td></tr>
+          <tr><td><b>Reference Elements</b></td><td>Locks each host's face across every model, from one image, instantly. Works with Kling 3.0 and Seedance.</td><td class="num">—</td><td>Both hosts</td></tr>
+          <tr><td><b>AI Influencer builder</b></td><td>Casting Host B as a full character sheet (angles, expressions) before she becomes a Reference Element.</td><td class="num">quoted</td><td>Once</td></tr>
+          <tr><td><b>UGC website format</b></td><td>The site walk-through: the host presents over real captures of your pages.</td><td class="num">per clip</td><td>Format 2</td></tr>
+          <tr><td><b>Ad Multiplier</b></td><td>Re-cast a winning ad with the other host, or a new set, keeping its timing and captions. Clean A/B tests of the host.</td><td class="num">quoted</td><td>After week 1</td></tr>
+          <tr><td><b>Ads Studio</b></td><td>Fast layout exploration for statics from the site's brand research. Its copy is rewritten to our approved lines before use, and the vial is always our exact file.</td><td class="num">quoted per batch</td><td>Explore only</td></tr>
+          <tr><td><b>Virality predictor</b></td><td>A pre-screen of hooks and cuts before paid spend.</td><td class="num">—</td><td>Every cut</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="font-size: 15px;">Statics like Sample A are built in code around your vial and cost no credits. Captions, price cards, end cards and the disclaimer are always coded, never generated, so the wording is exact on every frame.</p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap budget">
+    <div class="stack-lg">
+      <div class="stack">
+        <span class="eyebrow">One month, 1,000 credits</span>
+        <h2>About 890 credits for a full month of creative.</h2>
+        <p class="muted">Leaves roughly 110 in reserve for retakes or a second hero. Statics cost nothing beyond design time.</p>
+      </div>
+      <div class="out-grid">
+        <div><b>16</b><span class="muted">videos</span></div>
+        <div><b>12</b><span class="muted">statics</span></div>
+        <div><b>2</b><span class="muted">products</span></div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="bar" role="img" aria-label="Credit split: video clips 600, retakes 150, hero re-shoot 74, statics exploration 50, Host B casting 16, reserve 110">
+        <i style="width:60%;background:#D9A483"></i><i style="width:15%;background:#B8714F"></i><i style="width:7.4%;background:#14A3B8"></i><i style="width:5%;background:#5FA8FF"></i><i style="width:1.6%;background:#F7F2EA"></i>
+      </div>
+      <div class="legend muted">
+        <span><i style="background:#D9A483"></i>Clips</span><span><i style="background:#B8714F"></i>Retakes</span><span><i style="background:#14A3B8"></i>Hero</span><span><i style="background:#5FA8FF"></i>Statics</span><span><i style="background:#F7F2EA"></i>Casting</span>
+      </div>
+      <div class="ledger">
+        <div><span>24 talking clips, Kling 3.0 Pro, 10 s</span><span class="mono">600</span></div>
+        <div><span>Retakes, about one in four</span><span class="mono">150</span></div>
+        <div><span>One hero re-shoot of the month's winner, Seedance 2.5</span><span class="mono">74</span></div>
+        <div><span>Ads Studio static exploration</span><span class="mono">~50</span></div>
+        <div><span>Host B casting stills</span><span class="mono">16</span></div>
+        <div class="total"><span>Total</span><span class="mono">~890</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="floor">
+  <div class="wrap stack-lg">
+    <div class="split">
+      <div class="stack">
+        <span class="eyebrow">Testing</span>
+        <h2>Launch wide, then follow the money.</h2>
+      </div>
+      <p class="lede">Everything launches at once with even budgets on Meta and TikTok, one campaign per product. We read results in a fixed order: hook first, then host, then format.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="when">Days 1–5</span><h3>Launch</h3><p class="muted">All 16 videos and 12 statics live, even budgets, AI-content labels on.</p></div>
+      <div class="step"><span class="when">Days 5–7</span><h3>Read</h3><p class="muted">Hook rate (3-second views), hold rate, cost per click to the offer page, cost per started visit.</p></div>
+      <div class="step"><span class="when">Week 2</span><h3>Shift</h3><p class="muted">Budget moves to the top third. The winner's host is swapped with Ad Multiplier to test the host on its own.</p></div>
+      <div class="step"><span class="when">Each month</span><h3>Refresh</h3><p class="muted">Cut the bottom half, write new hooks for the winning concepts, re-shoot the best one as a hero.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="floor alt">
+  <div class="wrap stack-lg">
+    <div class="split">
+      <div class="stack">
+        <span class="eyebrow">Guardrails</span>
+        <h2>Authentic, and on the right side of the line.</h2>
+      </div>
+      <p class="lede">Native-looking ads in this category get scrutiny. These rules apply to every frame, and counsel signs off once per format before the first paid run.</p>
+    </div>
+    <div class="rules">
+      <div class="stack"><h3>Always</h3>
+        <ul class="yes">
+          <li>Hosts explain the service as presenters</li>
+          <li>"Introductory offer. Regular pricing varies by plan." directly beneath $69</li>
+          <li>The approved disclaimer on the end card or in the fine print</li>
+          <li>"See if you qualify", never a promise of a prescription</li>
+          <li>TikTok and Meta AI-generated content labels switched on</li>
+          <li>The client's vial file, label exact, in the brand's own setting</li>
+        </ul>
+      </div>
+      <div class="stack"><h3>Never</h3>
+        <ul class="no">
+          <li>"I've been on it", results, pounds, before and after</li>
+          <li>Needles, syringes, scales or body close-ups</li>
+          <li>A person holding or taking the medication</li>
+          <li>"Everyone qualifies" or "guaranteed"</li>
+          <li>Competitors, other brands or "unlike others"</li>
+          <li>Invented reviews, ratings or customers</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap split">
+    <div class="stack">
+      <span class="eyebrow">To start</span>
+      <h2>What we need from you.</h2>
+      <p class="muted">Tick them off as they land; the checklist is just for your reference.</p>
+    </div>
+    <div class="asks">
+      <label for="ask-1"><input id="ask-1" type="checkbox"><span><b>Approve the six formats and the two hosts.</b> <span class="muted">Host A is the woman from the new v7 film.</span></span></label>
+      <label for="ask-2"><input id="ask-2" type="checkbox"><span><b>Counsel review</b> <span class="muted">of each format, the "no subscription" line, and "Actor portrayal" on ads with no actor.</span></span></label>
+      <label for="ask-3"><input id="ask-3" type="checkbox"><span><b>Ad account access</b> <span class="muted">and the conversion event for started visits at checkout.myfastrx.com.</span></span></label>
+      <label for="ask-4"><input id="ask-4" type="checkbox"><span><b>One line on the GLP-1 pages:</b> <span class="muted">"Nothing ships until you request it."</span></span></label>
+      <label for="ask-5"><input id="ask-5" type="checkbox"><span><b>A real-review program</b> <span class="muted">so we can add genuine social proof later.</span></span></label>
+    </div>
+  </div>
+</section>
+
+<footer class="band">
+  <div class="wrap stack">
+    <div class="sources">
+      <span class="eyebrow">Sources</span>
+      <a href="https://myfastrx.com/" target="_blank" rel="noopener">MyFastRx.com, homepage</a>
+      <a href="https://myfastrx.com/weight-loss/special/" target="_blank" rel="noopener">MyFastRx.com, GLP-1 offer page</a>
+      <a href="https://myfastrx.com/nad/" target="_blank" rel="noopener">MyFastRx.com, NAD+ page</a>
+      <a href="https://ro.co/press/super-bowl-2026/" target="_blank" rel="noopener">Ro, "Healthier on Ro" Super Bowl campaign</a>
+      <a href="https://www.mmm-online.com/news/ro-makes-super-bowl-debut-serena-williams-glp-1/" target="_blank" rel="noopener">MM+M, Ro shifts GLP-1 from "vanity" to "vitals"</a>
+      <a href="https://www.adweek.com/brand-marketing/hims-hers-super-bowl-ad-2/" target="_blank" rel="noopener">Adweek, Hims &amp; Hers Super Bowl return</a>
+      <a href="https://en.wikipedia.org/wiki/Hims_%26_Hers_Health" target="_blank" rel="noopener">Hims &amp; Hers Health, "Sick of the System" and its reception</a>
+      <a href="https://www.enrichlabs.ai/case-study/hims-hers-health-marketing-strategy" target="_blank" rel="noopener">Enrich Labs, Hims &amp; Hers marketing case study</a>
+    </div>
+    <p class="muted">Compounded medication. Not FDA-approved. Results may vary. Not all patients qualify. Prescription issued only if medically appropriate following provider review.</p>
+  </div>
+</footer>
