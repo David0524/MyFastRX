@@ -49,23 +49,23 @@
     {
       "name": "disclaimer held on the end card (ENCODED file)",
       "pass": null,
-      "detail": "max channel diff vs its first risen frame = 17 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max channel diff vs its first risen frame = 14 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "169 frames draw the price, 139 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22021 px, qualification 5449 px, frame 570)"
+      "detail": "169 frames draw the price, 139 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22018 px, qualification 5451 px, frame 570)"
     },
     {
       "name": "final hold in the ENCODED file",
       "pass": null,
-      "detail": "max frame-to-frame diff from 27.7s to end = 6 (H.264 noise; identity checked on renderer output below)"
+      "detail": "max frame-to-frame diff from 27.7s to end = 4 (H.264 noise; identity checked on renderer output below)"
     },
     {
       "name": "no visible box around the logo / badge files",
       "pass": true,
       "detail": {
-        "logo": 0.54,
+        "logo": 0.55,
         "badge": 0.67
       }
     },
@@ -75,9 +75,9 @@
       "detail": {
         "dominant": [
           "#021E46",
-          "#0272FE",
-          "#021A42",
           "#026EFE",
+          "#021A42",
+          "#0272FE",
           "#021A46",
           "#026EFA"
         ],
@@ -109,8 +109,8 @@
     },
     {
       "name": "OCR \"head0\" @1.5s",
-      "pass": true,
-      "detail": "matches exactly"
+      "pass": null,
+      "detail": "read: \"' \"\"GLP-1 care without the strings.\" | expected: \"GLP-1 care without the strings.\""
     },
     {
       "name": "OCR \"price_hook\" @5.6s",
@@ -139,8 +139,8 @@
     },
     {
       "name": "OCR \"button\" @11.9s",
-      "pass": null,
-      "detail": "read: \"~- Request refill\" | expected: \"Request refill\""
+      "pass": true,
+      "detail": "matches exactly"
     },
     {
       "name": "OCR \"head4\" @11.9s",
@@ -233,9 +233,9 @@
       "detail": "x 100-920, bottom 1236"
     },
     {
-      "name": "VO in the final file says the script (speech-to-text)",
-      "pass": true,
-      "detail": "\"MyFastRx, GLP -1 care, without the strings. Starting at $69, no membership fees, no automatic refills. You request treatment when you're ready. One price covers your provider review, medication and shipping. And your price doesn't increase as your dose does. See if you qualify at MyFastRx .com.\""
+      "name": "VO transcript",
+      "pass": null,
+      "detail": "transcription unavailable: Error: Command failed: python3 tools/transcribe.py out/v7/ocr/final_audio.wav"
     },
     {
       "name": "on-screen VO lines are word-for-word VO",
@@ -246,9 +246,9 @@
   "lastFrameLogo": {
     "dominant": [
       "#021E46",
-      "#0272FE",
-      "#021A42",
       "#026EFE",
+      "#021A42",
+      "#0272FE",
       "#021A46",
       "#026EFA"
     ],
@@ -258,7 +258,7 @@
     "blueOk": true
   },
   "boxEdges": {
-    "logo": 0.54,
+    "logo": 0.55,
     "badge": 0.67
   }
 }

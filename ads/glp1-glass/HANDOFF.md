@@ -11,11 +11,16 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
 
 | Piece | State | Files |
 |---|---|---|
-| **v7 "Without the strings"** (28.8 s, the main film) | Approved cut, **but the actress must be recast** (next task) | `out/MyFastRx_WithoutStrings_v7.mp4`, review copy `previews/v7_review_copy.mp4`, source `src/v7/`, `./render-v7.sh && ./mix_v7.sh`, `node verify_v7.mjs` (41 pass, 0 fail, 4 notes at last full verify) |
+| **v7 "Without the strings"** (28.8 s, the main film) | **Recast done (casting option B), waiting on client review** | `out/MyFastRx_WithoutStrings_v7.mp4`, review copy `previews/v7_review_copy.mp4`, source `src/v7/`, `./render-v7.sh && ./mix_v7.sh`, `node verify_v7.mjs` (39 pass, 0 fail, 6 notes after the recast; the notes are OCR misreads, encoder noise, and no transcriber in this container) |
 | **v8 "No strings"** (10 s product-hero spot) | Done on a scratch VO; waiting for the client's dedicated read | `out/MyFastRx_NoStrings_10s_v8.mp4`, `previews/v8_review_copy.mp4`, `src/v8/`, `./render-v8.sh && ./mix_v8.sh`, brief `V8_10S_BRIEF.md`, VO script `vo/ELEVENLABS_PROMPT_10s.md` |
 | **UGC plan** (about 16 ads a month) | Drafted; the client is reviewing it | Summarised below. The full doc is a Claude Doc in the old account and may not be visible to the new one |
 
-## Next task: recast v7's actress
+## Done: recast v7's actress (Oct 3, 2026; see `RECAST_V7.md` and `footage/gen/README.md`)
+
+- New takes `footage/gen/recast_*`; ~102 credits spent (Seedance 2.0 std, the fast mode is not on this account).
+- Timings: OPENING.from 1.15, TAP.contact 15, TEA.from 2.8, WALK.from 0.3; phone re-tracked.
+
+### The original brief
 
 - **The client picked casting option B:** `footage/gen/cast2_b.png` (Higgsfield job `c31cff41-fab2-44c6-aede-2c5aaa3d5238`).
   - Race-neutral; reads Afro-Latina or mixed Black and Hispanic.
