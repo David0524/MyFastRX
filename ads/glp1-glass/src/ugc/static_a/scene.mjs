@@ -1,9 +1,10 @@
-// UGC pitch sample - static ad A, "No subscription." (Meta / Instagram feed, 1080 x 1350).
+// UGC pitch sample - static ad A, "Without the strings." (Meta / Instagram feed, 1080 x 1350). The brand line leads;
+// "No subscription" is one of the proof points (it is also tested as a hook on its own).
 // An editorial still in an earthier key than the films: the brand navy as a deep wall, a warm sand floor, late light
 // from the right. The client's vial (images/vial_semaglutide.png, label pixel-exact via the glass engine's photo-vial
 // pass; its clear glass shows this backdrop) stands on the floor; never a real-life setting. Type is Geist.
-// Copy is only what the site and the client have cleared: no subscription / membership fees / automatic refills, free
-// express shipping, "Starting at $69" with the qualification directly beneath, the approved disclaimer verbatim.
+// Copy is only what the site and the client have cleared: the brand line, no subscription / membership fees / automatic
+// refills, free express shipping, "Starting at $69" with the qualification directly beneath, the approved disclaimer verbatim.
 import * as TL from './timeline.mjs';
 import {createGlass} from '../../glass.mjs';
 import {makeDither} from '../../v7/backdrop.mjs';
@@ -11,9 +12,9 @@ import {makeDither} from '../../v7/backdrop.mjs';
 const {W, H} = TL;
 export const C = {navy: '#001D45', navyDeep: '#00142F', sand: '#E6D9C6', sandDeep: '#CDBBA2', clay: '#B8714F', cream: '#F6F0E6', blue: '#0071FE'};
 export const COPY = {
-  head: ['No', 'subscription.'],
+  head: ['Without', 'the strings.'],
   sub: ['GLP-1 care you request', "when you're ready."],
-  checks: ['No membership fees', 'No automatic refills', 'Free express shipping'],
+  checks: ['No subscription', 'No membership fees', 'No automatic refills', 'Free express shipping'],
   startingAt: 'Starting at', price: '$69', qual: 'Introductory offer. Regular pricing varies by plan.',
   cta: 'See if you qualify',
   disclaimer: 'Compounded medication. Not FDA-approved. Results may vary. Not all patients qualify. Prescription issued only if medically appropriate following provider review. MyFastRx does not manufacture medications; product appearance and labeling may vary. Actor portrayal.',
@@ -25,7 +26,7 @@ export const L = {
   mark: {x: X, y: 76, h: 34, pad: [20, 11], r: 20},
   headY: [300, 418], headPx: 124,
   subY: [500, 546], subPx: 34,
-  checkY: [650, 712, 774], checkPx: 34,
+  checkY: [636, 692, 748, 804], checkPx: 32,
   priceY: {start: 1010, price: 1128, qual: 1176}, pricePx: 128,
   cta: {x1: 1004, cy: 1112, h: 76},
   disc: {y0: 1222, size: 19, lh: 1.27, w: 928},
