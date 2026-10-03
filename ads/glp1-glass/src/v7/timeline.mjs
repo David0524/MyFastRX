@@ -22,9 +22,9 @@ export const FPS = 30, DURATION = 28.8, W = 1080, H = 1920;
 export const BPM = 120, BEAT = 60 / BPM;
 
 export const OPEN = {cut: 2.9, dive: 7.0};                // dive: the glass world takes over (the UI section starts)
-export const OPENING = {dir: 'open', fps: 24, n: 121, from: 0.8};   // she reaches for the phone, picks it up, looks at it
-// the tap clip: 24 fps, her fingertip touches the screen on frame 41 (0-based) at (271, 657) in the 720p source
-export const TAP = {dir: 'tap', fps: 24, n: 121, contact: 41, at: 3.3, finger: [271 * 1.5, 657 * 1.5]};
+export const OPENING = {dir: 'open', fps: 24, n: 121, from: 1.15};  // recast take: reaches at 1.67 s, phone up by ~3.5 s, looks at it
+// the tap clip (recast take): 24 fps, her fingertip touches the screen on frame 15 (0-based) at (275, 630) in the 720p source
+export const TAP = {dir: 'tap', fps: 24, n: 121, contact: 15, at: 3.3, finger: [275 * 1.5, 630 * 1.5]};
 // the phone wakes to a brand splash (logo over "GLP-1 care / without the strings."); the drop left by her tap then grows
 // into the price pill under the logo, as the VO reaches "Starting at $69"
 export const HOOK = {ring: [3.3, 4.25], bead: {t0: 3.34, land: 3.6}, glide: [4.78, 5.25], qualIn: [5.17, 5.43], priceIn: [5.23, 5.49],
@@ -32,7 +32,7 @@ export const HOOK = {ring: [3.3, 4.25], bead: {t0: 3.34, land: 3.6}, glide: [4.7
 // the small persistent wordmark (top-left, inside the safe zone): in at 2.0 s, out while the full logo is on screen (the
 // splash/price screen), back after it, out as the end card arrives
 export const MARK = {in: 2.0, hide: [3.10, 3.28], back: 7.15, out: 23.90};
-export const TEA = {dir: 'tea', fps: 24, n: 121, from: 2.55};   // the cutaway from 2.55 s: the mug lowered, her smile widening
+export const TEA = {dir: 'tea', fps: 24, n: 121, from: 2.8};    // the recast cutaway from 2.8 s: the mug lowered, her smile widening
 
 export const SCENES = [
   {id: 'hook',     t0: 0,     t1: 7.3},

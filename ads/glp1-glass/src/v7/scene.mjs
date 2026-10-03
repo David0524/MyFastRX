@@ -83,7 +83,7 @@ async function footFrame(dir, i, n) {
   const im = await new Promise((res, rej) => { const m = new Image(); m.onload = () => res(m); m.onerror = rej; m.src = `../../footage/frames/${dir}/${String(k).padStart(4, '0')}.jpg`; });
   footCache[dir] = {key, img: im}; return im;
 }
-const WALK = {dir: 'walk', fps: 24, n: 121, from: 1.0};      // the walk clip from 1.0 s: on her phone as the iris opens, it goes in her tote, she looks up and smiles
+const WALK = {dir: 'walk', fps: 24, n: 121, from: 0};        // the recast walk from 0 s: on her phone as the iris opens, it goes in her tote (0.5-2 s), she looks up and smiles (~2.5 s)
 const mk = (w = W, h = H) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 const font = (px, wt) => `${wt} ${px}px G${wt}`;
 function setFont(ctx, px, wt) { ctx.font = font(px, wt); ctx.letterSpacing = px >= 64 ? `${(-0.022 * px).toFixed(2)}px` : '0px'; }

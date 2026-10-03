@@ -131,3 +131,17 @@ Prompts: ../../RECAST_V7.md. Contact sheet: recast_frames_options.jpg. 2 credits
 | recast_open_take1.mp4 | a00bfda7-96e2-4d37-8d25-febe33a6ea9a | cast2_b.png | phone on the counter from frame 0; reaches ~2.0 s, picks it up ~2.3-3.5 s, looks at it smiling |
 | recast_tap_take1.mp4 | a7170f26-8d16-4cca-b15d-5e21c9afe799 | recast_tapframe_1.png | fingertip on the screen at ~frame 15 (0.63 s), ~(275, 630) in the 720p frame; screen stays black |
 | recast_tea_take1.mp4| c38fb553-fe5c-4074-ad63-3e9722e37d71 | recast_teaframe_0.png | sips 0-2.5 s, lowers the mug ~2.5-3 s, smile widens |
+| recast_walk_take1.mp4 | 14beb9d9-0da8-485e-94b3-a759f47b07fe | recast_walkframe_0.png | phone into the tote ~0.5-2.0 s, looks up and smiles from ~2.5 s |
+
+## Recast 1080p upscales (ByteDance, aigc, 1080p, 24 fps; 121 frames each)
+
+| File | Higgsfield job | Source |
+|---|---|---|
+| recast_open_take1_1080p.mp4 | c7959d58-3464-470d-aa72-4ee558a509a5 | recast_open_take1.mp4 |
+| recast_tap_take1_1080p.mp4 | f1a58ca5-1280-4a1b-992e-fe9859edc9a2 | recast_tap_take1.mp4 |
+| recast_tea_take1_1080p.mp4 | 69612d05-2ede-4edf-aebc-ba1e3de1121c | recast_tea_take1.mp4 |
+| recast_walk_take1_1080p.mp4 | e47fddec-00f2-4bab-821d-29b616ee75db | recast_walk_take1.mp4 |
+
+v7 now uses these (frames: `tools/extract-gen.sh recast_<shot>_take1_1080p <open|tap|tea|walk>`; the old takes stay
+here). Timings: OPENING.from 1.15 (reach at frame 40), TAP.contact 15 at (275, 630) 720p, TEA.from 2.8, WALK.from 0;
+`footage/tap_screen_quad.json` re-tracked. Recast credits: 12 stills + 90 takes + upscales.
