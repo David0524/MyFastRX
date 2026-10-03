@@ -14,18 +14,22 @@ Relaxed off-white linen button shirt, sleeves rolled, over a soft pale blue knit
 Small gold hoop earrings. Natural dark curly hair with a few grey strands, loose to the shoulders. Fuller, curvy build,
 soft rounded face, warm medium-brown skin.
 
-## Cost plan (estimates from past jobs; each one gets a `get_cost: true` preflight before it runs)
+## Cost plan (preflighted with `get_cost: true` on 2026-10-03; balance 1,000, Plus plan)
 
-| Step | Model | Est. credits |
+The reference is uploaded to this account as media `64aa1821-b82c-4e9a-bf0e-300deab2cb1f` (`cast2_b.png`).
+"Seedance 2.0 fast" is not offered on this account; only standard Seedance 2.0 (`seedance_2_0`, mode std).
+
+| Step | Model | Credits |
 |---|---|---|
 | Opening: start frame = `cast2_b.png` as is (no new still) | — | 0 |
-| Tap, tea, walk first frames: 2 options each | Nano Banana Pro, ref `cast2_b.png` | ~6 (about 1 per image) |
-| 4 takes, 720p, 5 s, `generate_audio: false` | Seedance 2.0 fast | 50 (12.5 each) |
-| 4 upscales to 1080p, preset aigc | ByteDance upscaler | ~0.4 |
-| **Total** | | **~56.4** |
+| Tap, tea, walk first frames: 2 options each | `nano_banana_pro`, 9:16, 2k (1k costs the same) | 12 (2 each) |
+| 4 takes, 720p, 5 s, `generate_audio: false` | `seedance_2_0` std | 90 (22.5 each) |
+| 4 upscales to 1080p, preset aigc | ByteDance upscaler (no preflight available) | ~0.4 |
+| **Total** | | **~102.4** |
 
-Retakes cost 12.5 each. With one first-frame option per shot instead of two, the total drops to ~53.4.
-Never pass `use_unlim: true` unless the client asks.
+Cheaper options, also preflighted: Seedance 2.0 at 480p is 15 per take; Kling 3.0 Turbo 720p 5 s is 7.5 per take
+(a different model from the current takes, so the look may not match). One first-frame option per shot saves 6.
+Retakes cost one take each. Never pass `use_unlim: true` unless the client asks.
 
 ## 1. Opening: she reaches for and picks up her phone (replaces `open_take1`)
 
