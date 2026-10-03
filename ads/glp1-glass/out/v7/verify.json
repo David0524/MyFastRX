@@ -54,7 +54,7 @@
     {
       "name": "2D: the whole qualification is on screen whenever the whole \"$69\" is",
       "pass": true,
-      "detail": "169 frames draw the price, 139 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22024 px, qualification 5454 px, frame 570)"
+      "detail": "169 frames draw the price, 139 show all of it; frames with < 95% of the qualification's ink: none (settled ink: price 22022 px, qualification 5452 px, frame 570)"
     },
     {
       "name": "final hold in the ENCODED file",
@@ -110,7 +110,7 @@
     {
       "name": "OCR \"head0\" @1.5s",
       "pass": null,
-      "detail": "read: \"\\ \"GLP care' without the strings.\" | expected: \"GLP-1 care without the strings.\""
+      "detail": "read: \"\\ \"\"GLP-1 care' without the strings.\" | expected: \"GLP-1 care without the strings.\""
     },
     {
       "name": "OCR \"price_hook\" @5.6s",
