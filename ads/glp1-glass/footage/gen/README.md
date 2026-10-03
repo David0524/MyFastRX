@@ -123,3 +123,11 @@ Prompts: ../../RECAST_V7.md. Contact sheet: recast_frames_options.jpg. 2 credits
 | recast_teaframe_1.png | 2573c025-f03f-47ae-819e-c2b551fd9fa5 | at the window, closer |
 | recast_walkframe_0.png | cf985b09-de62-4d61-87ca-2fdd1b32f057 | tote on the shoulder, phone at chest (proposed pick) |
 | recast_walkframe_1.png | 2a5c9d70-e3c9-4f64-abad-b77a758120ec | further back, tote on the other side |
+
+## Recast (v7) takes (Seedance 2.0 std, 720p, 5 s, 9:16, no audio; 22.5 credits each)
+
+| File | Higgsfield job | Start frame | Notes |
+|---|---|---|---|
+| recast_open_take1.mp4 | a00bfda7-96e2-4d37-8d25-febe33a6ea9a | cast2_b.png | phone on the counter from frame 0; reaches ~2.0 s, picks it up ~2.3-3.5 s, looks at it smiling |
+| recast_tap_take1.mp4 | a7170f26-8d16-4cca-b15d-5e21c9afe799 | recast_tapframe_1.png | fingertip on the screen at ~frame 15 (0.63 s), ~(275, 630) in the 720p frame; screen stays black |
+| recast_tea_take1.mp4| c38fb553-fe5c-4074-ad63-3e9722e37d71 | recast_teaframe_0.png | sips 0-2.5 s, lowers the mug ~2.5-3 s, smile widens |
