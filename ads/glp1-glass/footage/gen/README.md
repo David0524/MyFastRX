@@ -164,3 +164,11 @@ host is an average, healthy build, neither thin nor heavy). Each frame is the ca
 |---|---|---|
 | car_clipA_draft1.mp4 | 29917519-7846-4363-a6aa-c410c4fd5e5d | start_image car_cast_3, audio_references = clip A of the read (media 2e94c840). Picture very natural. Its soundtrack is its own generated speech, not the read (speech-band envelope correlation 0.36 at +0.65 s), so Seedance took the audio as a voice reference, not a lip-sync track; previews/car_rant/ has it with the read laid over for review |
 | car_clipB_draft1.mp4 | 1982d07c-44eb-455b-9ac2-0a17ff523c8a | start_image car_cast_3_punchin (media 24fcb698), audio_references = clip B of the read (media 7f2317e0). Says the script (whisper: "...read the whole page, no subscription, no membership fee, nothing auto-refills, you just ask when you're ready, 69 to start. I kind of love that."), ends on a smile. Client prefers Seedance's own voice and sync, so its generated audio is kept |
+
+| File | Higgsfield job | Notes |
+|---|---|---|
+| car_clipA_1080p.mp4 | 534bab01-9bcc-4e83-9666-7e0642331766 | ByteDance upscale (ugc preset, 1080p, 24 fps) of car_clipA_draft1 |
+| car_clipB_1080p.mp4 | 0bedeca4-2429-48b3-84d0-3779a01b85ed | ByteDance upscale (ugc preset, 1080p, 24 fps) of car_clipB_draft1 |
+
+Edit: `python3 tools/car-rant-edit.py` -> out/ugc/car_rant/MyFastRx_CarRant_v1.mp4 (24.4 s; -16.0 LUFS / -2.3 dBTP), review copy
+previews/car_rant/MyFastRx_CarRant_v1_review.mp4. Car-rant credits: casting 8 + drafts 66 + upscales ~0.2.
