@@ -58,8 +58,8 @@ def hook_png(path):   # the native text box: white rounded box, black text, uppe
 
 def endcard_png(path):
     """Logo chip, "See if you qualify", MyFastRx.com, the client's vial (small; label pixel-exact: the source pixels with
-    the prep-vial silhouette as alpha) beside the BBB A rating card, and the approved disclaimer below them (navy panel,
-    x 100-920, bottom at y 1236)."""
+    the prep-vial silhouette as alpha) beside the BBB A rating badge (larger, white surround keyed out), and the approved disclaimer
+    below them in black text, no card (bottom at y 1236)."""
     im = Image.new('RGB', (W, H)); px_ = im.load()   # the brand off-white: #F7F7F7 -> #EEF3FA top to bottom
     for y in range(H):
         u = max(0, (y / H - .55) / .45); c = tuple(round(a + (b - a) * u) for a, b in zip((247, 247, 247), (238, 243, 250)))
@@ -75,27 +75,35 @@ def endcard_png(path):
     vw, vh = 460, 1018
     col = Image.frombytes('RGBA', (vw, vh), open('assets/vial/vial_color_full.rgba', 'rb').read())
     msk = Image.frombytes('RGBA', (vw, vh), open('assets/vial/vial_mask_full.rgba', 'rb').read()).split()[0]
-    col.putalpha(msk); th = 240; tw = round(vw * th / vh); vial = col.resize((tw, th), Image.LANCZOS)
-    vx, vb = CX - 222, 1000
-    sh = Image.new('L', (W, H), 0); ImageDraw.Draw(sh).ellipse((vx - 10, vb - 10, vx + tw + 10, vb + 12), fill=70)
+    col.putalpha(msk); th = 190; tw = round(vw * th / vh); vial = col.resize((tw, th), Image.LANCZOS)
+    # the BBB A rating badge, larger, without its white surround: the white connected to the image border is keyed out
     from PIL import ImageFilter
-    im.paste((150, 165, 185), (0, 0), sh.filter(ImageFilter.GaussianBlur(10)))
+    bd = Image.open('images/badge_bbb_a_rating_horizontal.jpg').convert('RGB')
+    import numpy as np
+    arr = np.array(bd).astype(int); white = (arr.min(axis=2) > 228).astype(np.uint8) * 255
+    fill = Image.fromarray(white, 'L'); ImageDraw.floodfill(fill, (0, 0), 128); ImageDraw.floodfill(fill, (bd.width - 1, bd.height - 1), 128)
+    ImageDraw.floodfill(fill, (bd.width - 1, 0), 128); ImageDraw.floodfill(fill, (0, bd.height - 1), 128)
+    alpha = Image.fromarray(np.where(np.array(fill) == 128, 0, 255).astype(np.uint8), 'L').filter(ImageFilter.GaussianBlur(0.8))
+    badge = bd.convert('RGBA'); badge.putalpha(alpha); badge = badge.crop(alpha.point(lambda v: 255 if v > 8 else 0).getbbox())
+    bw = 420; bh = round(badge.height * bw / badge.width); badge = badge.resize((bw, bh), Image.LANCZOS)
+    gap = 34; gx = CX - (tw + gap + bw) // 2; vb = 960
+    vx = gx; bx, by = gx + tw + gap, vb - th // 2 - bh // 2
+    sh = Image.new('L', (W, H), 0); ImageDraw.Draw(sh).ellipse((vx - 8, vb - 8, vx + tw + 8, vb + 10), fill=70)
+    im.paste((150, 165, 185), (0, 0), sh.filter(ImageFilter.GaussianBlur(8)))
     im.paste(vial, (vx, vb - th), vial)
-    # the BBB A rating card to its right
-    badge = Image.open('images/badge_bbb_a_rating_horizontal.jpg').convert('RGB'); bw = 300; bh = round(badge.height * bw / badge.width)
-    badge = badge.resize((bw, bh), Image.LANCZOS); bx, by = CX - 66, vb - th // 2 - bh // 2 - 10
-    d.rounded_rectangle((bx - 16, by - 16, bx + bw + 16, by + bh + 16), 18, fill=WHITE, outline=(222, 228, 236), width=2); im.paste(badge, (bx, by))
+    im.paste(badge, (bx, by), badge)
+    # the approved disclaimer, verbatim: black text, no card, below the vial and badge (bottom at y 1236)
     disc = ('Compounded medication. Not FDA-approved. Results may vary. Not all patients qualify. Prescription issued only '
             'if medically appropriate following provider review. MyFastRx does not manufacture medications; product '
             'appearance and labeling may vary. Actor portrayal.')
     f = F('Medium', 22); words = disc.split(); lines = []; cur = ''
     for wd in words:
         t = (cur + ' ' + wd).strip()
-        if d.textlength(t, font=f) <= 820 - 28: cur = t
+        if d.textlength(t, font=f) <= 820: cur = t
         else: lines.append(cur); cur = wd
-    lines.append(cur); lh2 = 28; ph = len(lines) * lh2 + 28; top = 1236 - ph
-    d.rounded_rectangle((100, top, 920, 1236), 12, fill=NAVY)
-    for i, s_ in enumerate(lines): d.text((114, top + 14 + i * lh2), s_, font=f, fill=WHITE)
+    lines.append(cur); lh2 = 29; top = 1236 - len(lines) * lh2
+    for i, s_ in enumerate(lines):
+        w = d.textlength(s_, font=f); d.text((CX - w / 2, top + i * lh2), s_, font=f, fill=(17, 17, 17))
     im.save(path)
     return top
 
