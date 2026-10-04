@@ -157,3 +157,9 @@ host is an average, healthy build, neither thin nor heavy). Each frame is the ca
 | car_cast_2.png | 3f5b31a8-0148-4486-b5e3-6cab4b469dfd | ~50, blonde-brown hair in a claw clip, freckles, denim shirt over a white tee |
 | car_cast_3.png | c202c84c-dfba-40bf-bf85-b6833f9160b0 | ~47, short natural curls, deep brown skin, rust quarter-zip (**picked**) |
 | car_cast_4.png | 71c3ae2d-c5a0-47c8-8a83-a3acb39c8070 | ~50, East Asian, dark hair in a low ponytail, cream cardigan (a store sign is legible behind her: needs a cleanup if picked) |
+
+## UGC car rant, clip A draft (Seedance 2.5 omni_reference, draft 480p, 11 s; 33 credits)
+
+| File | Higgsfield job | Notes |
+|---|---|---|
+| car_clipA_draft1.mp4 | 29917519-7846-4363-a6aa-c410c4fd5e5d | start_image car_cast_3, audio_references = clip A of the read (media 2e94c840). Picture very natural. Its soundtrack is its own generated speech, not the read (speech-band envelope correlation 0.36 at +0.65 s), so Seedance took the audio as a voice reference, not a lip-sync track; previews/car_rant/ has it with the read laid over for review |
