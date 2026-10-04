@@ -155,5 +155,5 @@ host is an average, healthy build, neither thin nor heavy). Each frame is the ca
 |---|---|---|
 | car_cast_1.png | 5cefc74d-cd22-4786-b9eb-0241341974f1 | ~48, wavy brown hair with grey, olive skin, grey crewneck; parking lot |
 | car_cast_2.png | 3f5b31a8-0148-4486-b5e3-6cab4b469dfd | ~50, blonde-brown hair in a claw clip, freckles, denim shirt over a white tee |
-| car_cast_3.png | c202c84c-dfba-40bf-bf85-b6833f9160b0 | ~47, short natural curls, deep brown skin, rust quarter-zip |
+| car_cast_3.png | c202c84c-dfba-40bf-bf85-b6833f9160b0 | ~47, short natural curls, deep brown skin, rust quarter-zip (**picked**) |
 | car_cast_4.png | 71c3ae2d-c5a0-47c8-8a83-a3acb39c8070 | ~50, East Asian, dark hair in a low ponytail, cream cardigan (a store sign is legible behind her: needs a cleanup if picked) |

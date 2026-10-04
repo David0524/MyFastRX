@@ -51,6 +51,15 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
 - **Casting gotcha:** the first casting batch came back without trousers on 3 of 4 images. Always spell out the full
   wardrobe and the framing (waist-up).
 
+## Casting rules (client, Oct 2026)
+
+- **Every host is a Black or Hispanic woman** (or reads as mixed Black and Hispanic), about 45-55.
+- **Build: average and healthy, neither thin nor heavy.** The client's critique of casting option B (the v7 recast):
+  too heavy, so she reads as the "before" rather than the "after". This may also mean v7 needs another recast; ask
+  the client before touching it.
+- **The raw car-selfie format's host is `footage/gen/car_cast_3.png`** (job c202c84c-dfba-40bf-bf85-b6833f9160b0):
+  short natural curls, deep brown skin, rust quarter-zip, parked car in daylight. She is a new host, not Renee.
+
 ## Client feedback to remember (beyond HANDOVER section 2)
 
 - **Product placement:** the product is **never placed in a real-life setting.** The vial lives in the brand's glass
