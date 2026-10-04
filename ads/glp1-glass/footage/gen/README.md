@@ -145,3 +145,15 @@ Prompts: ../../RECAST_V7.md. Contact sheet: recast_frames_options.jpg. 2 credits
 v7 now uses these (frames: `tools/extract-gen.sh recast_<shot>_take1_1080p <open|tap|tea|walk>`; the old takes stay
 here). Timings: OPENING.from 1.15 (reach at frame 40), TAP.contact 15 at (275, 630) 720p, TEA.from 2.8, WALK.from 0;
 `footage/tap_screen_quad.json` re-tracked. Recast credits: 12 stills + 90 takes + upscales.
+
+## UGC car-selfie host casting (Nano Banana Pro, 9:16, 2k, text only; 2 credits each = 8)
+
+New host for the raw "car rant" format (client feedback on casting option B: too heavy, reads as the "before"; the new
+host is an average, healthy build, neither thin nor heavy). Each frame is the car-selfie first frame. Sheet: car_cast_options.jpg.
+
+| File | Higgsfield job | Look |
+|---|---|---|
+| car_cast_1.png | 5cefc74d-cd22-4786-b9eb-0241341974f1 | ~48, wavy brown hair with grey, olive skin, grey crewneck; parking lot |
+| car_cast_2.png | 3f5b31a8-0148-4486-b5e3-6cab4b469dfd | ~50, blonde-brown hair in a claw clip, freckles, denim shirt over a white tee |
+| car_cast_3.png | c202c84c-dfba-40bf-bf85-b6833f9160b0 | ~47, short natural curls, deep brown skin, rust quarter-zip |
+| car_cast_4.png | 71c3ae2d-c5a0-47c8-8a83-a3acb39c8070 | ~50, East Asian, dark hair in a low ponytail, cream cardigan (a store sign is legible behind her: needs a cleanup if picked) |
