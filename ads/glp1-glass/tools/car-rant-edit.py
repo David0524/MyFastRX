@@ -72,10 +72,9 @@ def endcard_png(path):
     for s_, px, wt, y in [('See if you qualify', 72, 'Bold', 530), ('MyFastRx.com', 46, 'SemiBold', 620)]:
         f = F(wt, px); w = d.textlength(s_, font=f); d.text((CX - w / 2, y), s_, font=f, fill=NAVY)
     # the vial, small (about a fifth of the frame height), standing on a soft contact shadow
-    vw, vh = 460, 1018
-    col = Image.frombytes('RGBA', (vw, vh), open('assets/vial/vial_color_full.rgba', 'rb').read())
-    msk = Image.frombytes('RGBA', (vw, vh), open('assets/vial/vial_mask_full.rgba', 'rb').read()).split()[0]
-    col.putalpha(msk); th = 190; tw = round(vw * th / vh); vial = col.resize((tw, th), Image.LANCZOS)
+    # the client's new vial (Oct 2026): images/vial_semaglutide_v2.png, white backdrop keyed out by tools/cutout-vial-v2.py
+    col = Image.open('images/vial_semaglutide_v2_cutout.png').convert('RGBA')
+    th = 190; tw = round(col.width * th / col.height); vial = col.resize((tw, th), Image.LANCZOS)
     # the BBB A rating badge, larger, without its white surround: the white connected to the image border is keyed out
     from PIL import ImageFilter
     bd = Image.open('images/badge_bbb_a_rating_horizontal.jpg').convert('RGB')

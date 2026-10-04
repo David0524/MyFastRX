@@ -65,7 +65,11 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
 - **Product placement:** the product is **never placed in a real-life setting.** The vial lives in the brand's glass
   world: the #F7F7F7 → #EEF3FA gradient, soft teal and blue light, the faint grid.
   - A bathroom-counter plate was tried for v8 and rejected; the unused files are `footage/gen/counter_*`.
-- **The vial:** use only the client's file `images/vial_semaglutide.png`, with the label pixel-exact.
+- **The vial (new shape, Oct 2026):** use only the client's new file `images/vial_semaglutide_v2.png` (white backdrop),
+  label pixel-exact. `tools/cutout-vial-v2.py` keys out the backdrop -> `images/vial_semaglutide_v2_cutout.png` (RGBA;
+  the clear glass keeps its photographed look, so place it on a light background). The old `vial_semaglutide.png` and
+  the glass-engine assets in `assets/vial/` (v7, v8, static A) are the previous shape and need redoing before reuse.
+- **The previous vial:** `images/vial_semaglutide.png`, with the label pixel-exact.
   - **Keep it small** (client, Oct 2026: "we've generally been making it too large"). The car-rant end card uses about
     300 px tall on a 1920 frame, beside the BBB A rating card, with the disclaimer below both.
   - `tools/prep-vial.mjs` writes half- and full-res assets.
