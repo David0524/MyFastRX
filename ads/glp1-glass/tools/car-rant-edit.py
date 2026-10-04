@@ -114,7 +114,7 @@ hook_png(f'{OV}/hook.png'); inputs.append((f'{OV}/hook.png', HOOK[1], HOOK[2]))
 endcard_png(f'{OV}/endcard.png')
 
 # ---- compose
-A, B = 'footage/gen/car_clipA_1080p.mp4', 'footage/gen/car_clipB_1080p.mp4'
+A, B = 'footage/gen/car_clipA_1080p_stab.mp4', 'footage/gen/car_clipB_1080p.mp4'   # clip A: drift from 6.7 s removed (tools/stabilize-clipA.py)
 A_aud, B_aud = 'footage/gen/car_clipA_draft1.mp4', 'footage/gen/car_clipB_draft1.mp4'   # the drafts carry the voice
 args = ['ffmpeg', '-v', 'error', '-y', '-i', A, '-i', B, '-i', A_aud, '-i', B_aud, '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png']
 for p, _, _ in inputs: args += ['-i', p]
