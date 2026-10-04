@@ -24,7 +24,7 @@ TOTAL = CUT_A + LEN_B + END
 CAPS = [
     ['Can we talk about', 0.00, 0.96], ["how everything's", 0.96, 1.90], ['a subscription now?', 1.90, 3.70],
     ['Like... everything.', 4.05, 5.70],
-    ['So I went looking', 6.74, 7.82], ['for the catch', 7.82, 8.40], ['with MyFastRx,', 8.40, 9.80], ['the GLP-1 one.', 9.84, CUT_A],
+    ['So I went looking', 6.74, 7.82], ['for the catch', 7.82, 8.40], ['with MyFastRx,', 8.40, 9.80], ['the GLP-1.', 9.84, CUT_A],
     ['Read the whole page.', CUT_A + 0.00, CUT_A + 1.40], ['No subscription.', CUT_A + 1.48, CUT_A + 2.60],
     ['No membership fee.', CUT_A + 2.68, CUT_A + 4.05], ['Nothing auto-refills,', CUT_A + 4.14, CUT_A + 5.40],
     ["you just ask when", CUT_A + 5.44, CUT_A + 5.95], ["you're ready.", CUT_A + 5.95, CUT_A + 6.90],
@@ -32,7 +32,8 @@ CAPS = [
 ]
 QUAL = 'Introductory offer. Regular pricing varies by plan.'
 HOOK = ['everything is a', 'subscription now'], 0.0, 4.0
-CAP_Y = 1120                  # caption baseline region (inside the Reels/TikTok safe zone, x 100-920, above y 1236)
+CAP_Y = 1236                  # caption bottom (client: lower); the $69 qualification beneath it reaches ~1290
+ZOOM = dict(t=7.82, k=1.0, cy=0.5)   # no punch-in: her hand sits right under her chin, so any zoom that hides it is an extreme close-up
 CX = 510                      # visual centre (right-hand button rail)
 
 def caption_png(text, path, qual=False):
@@ -56,13 +57,30 @@ def hook_png(path):   # the native text box: white rounded box, black text, uppe
     im.save(path)
 
 def endcard_png(path):
+    """Logo chip, "See if you qualify", MyFastRx.com, the client's vial (small; label pixel-exact: the source pixels with
+    the prep-vial silhouette as alpha) beside the BBB A rating card, and the approved disclaimer below them (navy panel,
+    x 100-920, bottom at y 1236)."""
     im = Image.new('RGB', (W, H), SAND); d = ImageDraw.Draw(im)
     logo = Image.open('images/logo_myfastrx_official.jpg').convert('RGB').crop((136, 141, 136 + 1278, 141 + 261))
-    lh = 92; lw = round(lh * logo.width / logo.height); logo = logo.resize((lw, lh), Image.LANCZOS)
-    cw, ch = lw + 80, lh + 48; x0, y0 = CX - cw // 2, 470
-    d.rounded_rectangle((x0, y0, x0 + cw, y0 + ch), 40, fill=(247, 247, 247)); im.paste(logo, (x0 + 40, y0 + 24))
-    for s, px, wt, y in [('See if you qualify', 72, 'Bold', 720), ('MyFastRx.com', 48, 'SemiBold', 812)]:
-        f = F(wt, px); w = d.textlength(s, font=f); d.text((CX - w / 2, y), s, font=f, fill=NAVY)
+    lh = 84; lw = round(lh * logo.width / logo.height); logo = logo.resize((lw, lh), Image.LANCZOS)
+    cw, ch = lw + 72, lh + 44; x0, y0 = CX - cw // 2, 330
+    d.rounded_rectangle((x0, y0, x0 + cw, y0 + ch), 38, fill=(247, 247, 247)); im.paste(logo, (x0 + 36, y0 + 22))
+    for s_, px, wt, y in [('See if you qualify', 72, 'Bold', 530), ('MyFastRx.com', 46, 'SemiBold', 620)]:
+        f = F(wt, px); w = d.textlength(s_, font=f); d.text((CX - w / 2, y), s_, font=f, fill=NAVY)
+    # the vial, small (about a fifth of the frame height), standing on a soft contact shadow
+    vw, vh = 460, 1018
+    col = Image.frombytes('RGBA', (vw, vh), open('assets/vial/vial_color_full.rgba', 'rb').read())
+    msk = Image.frombytes('RGBA', (vw, vh), open('assets/vial/vial_mask_full.rgba', 'rb').read()).split()[0]
+    col.putalpha(msk); th = 300; tw = round(vw * th / vh); vial = col.resize((tw, th), Image.LANCZOS)
+    vx, vb = CX - 236, 1010
+    sh = Image.new('L', (W, H), 0); ImageDraw.Draw(sh).ellipse((vx - 10, vb - 10, vx + tw + 10, vb + 12), fill=70)
+    from PIL import ImageFilter
+    im.paste((150, 120, 90), (0, 0), sh.filter(ImageFilter.GaussianBlur(10)))
+    im.paste(vial, (vx, vb - th), vial)
+    # the BBB A rating card to its right
+    badge = Image.open('images/badge_bbb_a_rating_horizontal.jpg').convert('RGB'); bw = 300; bh = round(badge.height * bw / badge.width)
+    badge = badge.resize((bw, bh), Image.LANCZOS); bx, by = CX - 66, vb - th // 2 - bh // 2 - 10
+    d.rounded_rectangle((bx - 16, by - 16, bx + bw + 16, by + bh + 16), 18, fill=WHITE); im.paste(badge, (bx, by))
     disc = ('Compounded medication. Not FDA-approved. Results may vary. Not all patients qualify. Prescription issued only '
             'if medically appropriate following provider review. MyFastRx does not manufacture medications; product '
             'appearance and labeling may vary. Actor portrayal.')
@@ -73,8 +91,9 @@ def endcard_png(path):
         else: lines.append(cur); cur = wd
     lines.append(cur); lh2 = 28; ph = len(lines) * lh2 + 28; top = 1236 - ph
     d.rounded_rectangle((100, top, 920, 1236), 12, fill=NAVY)
-    for i, s in enumerate(lines): d.text((114, top + 14 + i * lh2), s, font=f, fill=WHITE)
+    for i, s_ in enumerate(lines): d.text((114, top + 14 + i * lh2), s_, font=f, fill=WHITE)
     im.save(path)
+    return top
 
 # ---- overlays
 inputs, chain = [], []
@@ -88,7 +107,11 @@ A, B = 'footage/gen/car_clipA_1080p.mp4', 'footage/gen/car_clipB_1080p.mp4'
 A_aud, B_aud = 'footage/gen/car_clipA_draft1.mp4', 'footage/gen/car_clipB_draft1.mp4'   # the drafts carry the voice
 args = ['ffmpeg', '-v', 'error', '-y', '-i', A, '-i', B, '-i', A_aud, '-i', B_aud, '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png']
 for p, _, _ in inputs: args += ['-i', p]
-fc = [f'[0:v]trim=0:{CUT_A},setpts=PTS-STARTPTS,scale={W}:{H},fps=30,setsar=1[va]',
+Z = ZOOM; zw, zh = f'iw/{Z["k"]}', f'ih/{Z["k"]}'
+fc = [f'[0:v]split[a0][a1]',
+      f'[a0]trim=0:{Z["t"]},setpts=PTS-STARTPTS,scale={W}:{H},fps=30,setsar=1[va0]',
+      f'[a1]trim={Z["t"]}:{CUT_A},setpts=PTS-STARTPTS,crop={zw}:{zh}:(iw-{zw})/2:ih*{Z["cy"]}-{zh}/2,scale={W}:{H}:flags=lanczos,fps=30,setsar=1[va1]',
+      '[va0][va1]concat=n=2:v=1:a=0[va]',
       f'[1:v]trim=0:{LEN_B},setpts=PTS-STARTPTS,scale={W}:{H},fps=30,setsar=1[vb]',
       f'[4:v]scale={W}:{H},fps=30,format=yuv420p,setsar=1[ve]',
       '[va][vb][ve]concat=n=3:v=1:a=0[v0]']
