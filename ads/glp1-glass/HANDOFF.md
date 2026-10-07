@@ -1,6 +1,6 @@
 # Handoff: MyFastRx ad work (October 2026)
 
-Read this first, then `HANDOVER.md` **section 2**. Section 2 holds the brand and compliance rules, which still apply to
+Read this first, then `HANDOVER.md` **section 2**. For any UGC work, also read `UGC_PLAYBOOK.md`. Section 2 holds the brand and compliance rules, which still apply to
 everything. The rest of `HANDOVER.md` is history from v3–v5.
 
 - Repo: `david0524/myfastrx`. Branch: `claude/relaxed-archimedes-fiuecm`. Work folder: `ads/glp1-glass/`.
