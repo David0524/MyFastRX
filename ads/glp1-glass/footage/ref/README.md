@@ -58,3 +58,14 @@ daylight from the door's window. Relaxed, mid-shrug."
 | dana_vid1_door_2.png | 2f448f91-40f5-4c0a-b791-fb43ff7be2e8 | Good: closer, handheld-selfie feel, unimpressed shrug; more UGC. Same woman. |
 Lesson: say the frame IS the phone's view ("seen from her phone propped on the coffee table"), never "phone filming her".
 Contact sheet: dana_vid1_locations_contact.jpg.
+
+Sofa redo (4 credits), prompt: "Same woman, that evening, sitting on her living-room sofa with a warm lamp on beside her,
+holding her phone in one hand at chest height. The image is what her phone camera sees, propped on the coffee table in
+front of her; no other phone or tripod in the picture. Same grey sweatshirt, same hoops, glasses on her head, same black
+clip-on mic. Relaxed, half smile, looking at the camera."
+
+| File | Job | Notes |
+|---|---|---|
+| dana_vid1_sofa_3.png | b995a184-7c2a-4d0b-af9e-e02c0516f384 | REJECT: tripod phone in frame again. |
+| dana_vid1_sofa_4.png | 66715e2f-7f97-4363-b1bc-096759b35e92 | PICK: arm's-length selfie from the sofa, lamp, mug on the table. Same woman. Shot change: she holds the camera phone, so "This is My Fast Rx" cuts straight to the Screen shot instead of her turning a phone round. |
+Picked for Video 1: kitchen dana_v2_1, sofa dana_vid1_sofa_4, door dana_vid1_door_2.

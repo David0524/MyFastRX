@@ -21,7 +21,7 @@ Locations: **kitchen** (afternoon) → **sofa** (that evening) → **front door*
 |---|---|
 | "My group chat will NOT stop talking about GLP1s." | ☐ **AI UGC** kitchen, mid-task (wiping the counter), glances up at the camera (hook, 1.5 s) |
 | "And I just figured it was, like... crazy expensive." | ☐ **B-roll** her phone in her hand: group chat ("ok has anyone looked into the GLP-1 thing" / "isn't it like a fortune"), coded mock-up<br>☐ **AI UGC** back to her, small eye-roll |
-| "So I looked. This is My Fast Rx..." | ☐ **AI UGC** MOVE → sofa that evening, lamp on, she turns her phone to the camera<br>☐ **Screen** the real offer page |
+| "So I looked. This is My Fast Rx..." | ☐ **AI UGC** MOVE → sofa that evening, lamp on, arm's-length selfie (`dana_vid1_sofa_4`)<br>☐ **Screen** cut straight to the real offer page |
 | "...compounded GLP1, sixty-nine for the first month." | ☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
 | "Like... sixty-nine." | ☐ **AI UGC** beat of disbelief, small laugh |
 | "And that's the provider, the meds if they prescribe it, and shipping." | ☐ **B-roll** her thumb scrolling "what's included"<br>☐ **AI UGC** back to her, counting on her fingers |
@@ -65,7 +65,7 @@ Locations: **neighbourhood walk** → **home on the sofa**. Outfit: zip-up athle
 
 ## Shared assets (made once)
 ☑ Dana casting (`footage/ref/dana_v2_1.png`, kitchen)
-Location stills (2 options each, ~2 cr per image): ☐ V1 sofa evening ☐ V1 front door ☐ V2 car ☐ V2 office walk
+Location stills (2 options each, ~2 cr per image): ☑ V1 sofa evening (`dana_vid1_sofa_4`) ☑ V1 front door (`dana_vid1_door_2`) ☐ V2 car ☐ V2 office walk
 ☐ V3 neighbourhood walk ☐ V3 sofa (different outfit from V1). Walking shots: keep to ~2 s holds; if one will not animate
 cleanly, swap for a static shot.
 ☐ group-chat mock-up (coded) ☐ doorstep parcel still (client approval) ☐ real page captures: offer page, FAQ, intake start
