@@ -30,11 +30,6 @@ prospective customer, never a patient with results.
 **Idea:** she treats $69 like a store receipt and reads every line out loud. The payoff is the receipt with nothing
 hidden on it. Format people know from "girl math" and "what I spent" videos.
 
-Hook options (test 2):
-- A (spoken, A-roll): she holds up a long paper receipt to the lens: "Okay. Sixty-nine dollars. Let's read the receipt."
-- B (visual): black screen, a receipt-printer sound, the receipt rolls up into frame. Text: "a $69 GLP-1 receipt, line by
-  line" (not "my receipt": she is not a patient).
-- C (text hook over her face): "what does $69 actually cover?"
 
 | t | Picture | She says | On screen / sound |
 |---|---|---|---|
@@ -56,10 +51,6 @@ Why it converts: answers "what am I really paying for?" with a payoff people scr
 **Idea:** she is the friend who reads the terms and conditions so you don't have to. She hunts for the catch on the
 real offer page; each "gotcha" she checks for turns out fine. Detective energy, deadpan.
 
-Hook options:
-- A: in her car, phone right up to her face, squinting: "I read the fine print so you don't have to."
-- B: text: "reading the fine print on a $69 GLP-1 offer" over a fast zoom into tiny text.
-- C: "Every time something's sixty-nine dollars, there's a catch. Right?"
 
 | t | Picture | She says | On screen |
 |---|---|---|---|
@@ -82,10 +73,6 @@ named or implied.
 counter ticking on screen. Calm, cosy, a little self-deprecating ("the thing I kept putting off" energy without claiming
 she's a patient).
 
-Hook options:
-- A: on the sofa, mug in hand: "This is the part everyone thinks is complicated. It's three steps."
-- B: text "how to start GLP-1 care without leaving the couch" over her sinking into the sofa.
-- C: she holds up three fingers to the lens: "Three steps. That's it."
 
 | t | Picture | She says | On screen |
 |---|---|---|---|
@@ -102,12 +89,12 @@ Target metric: click-through and cost per started visit. Compliance: no speed pr
 contents shown (no vial count), box imagery sent to the client first.
 
 ## Edit language (all three)
-- Native TikTok captions (white, black outline), 2-4 words, one sticker-style text hook in the first 2 s.
+- Native TikTok captions (white, black outline), 2-4 words; the spoken hook is the first beat.
 - Cuts every 1.5-2.5 s; a 5-8% punch-in on the punchline line ("...None." / "Subscription... nope.").
 - Small real sounds only: receipt printer, pen click, car door, mug on the table. Music only on the end card, licensed.
 - The coded pieces (receipt, magnifier zooms of real site copy, 1-2-3 stickers, end card) are built in code: exact
   wording, free, and the price line always carries "Compounded" + "Introductory offer".
-- Every video: 2-3 hooks re-cut from the same takes, so 4 videos -> 10-12 ads.
+- One hook per video: the opening beat in each table.
 
 ## Production and credits (re-priced before every spend)
 | Step | Credits |
