@@ -1,4 +1,5 @@
-# Storyboards: three UGC videos (Oct 2026, v2: rewritten as real talk)
+# Storyboards: three UGC videos (Oct 2026, v2: rewritten as real talk, one location move per video)
+Three separate posts, same host. Each re-hooks with a change of place where the story turns (UGC_PLAYBOOK.md section 4).
 
 Format: the line she says | the shots for it (tick when generated / approved). **AI UGC** = Dana on camera talking (A-roll),
 **B-roll** = what she films around the line, **Screen** = real MyFastRx page captured in code, **Anim** = house-style
@@ -14,24 +15,26 @@ space, no hyphen) and **My Fast Rx**. Captions and on-screen text use the writte
 live on screen and on the end card, not in her mouth. No feature lists.
 
 ## Video 1: "The group chat" (approved Oct 7) ~18 s + end card
+Locations: **kitchen** (afternoon) → **sofa** (that evening) → **front door** (heading out). Outfit: grey sweatshirt; a jacket goes on for the door.
 
 | She says | Shots |
 |---|---|
 | "My group chat will NOT stop talking about GLP1s." | ☐ **AI UGC** kitchen, mid-task (wiping the counter), glances up at the camera (hook, 1.5 s) |
 | "And I just figured it was, like... crazy expensive." | ☐ **B-roll** her phone in her hand: group chat ("ok has anyone looked into the GLP-1 thing" / "isn't it like a fortune"), coded mock-up<br>☐ **AI UGC** back to her, small eye-roll |
-| "So I looked. This is My Fast Rx..." | ☐ **AI UGC** she picks up her phone and turns it to the camera<br>☐ **Screen** the real offer page |
+| "So I looked. This is My Fast Rx..." | ☐ **AI UGC** MOVE → sofa that evening, lamp on, she turns her phone to the camera<br>☐ **Screen** the real offer page |
 | "...compounded GLP1, sixty-nine for the first month." | ☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
 | "Like... sixty-nine." | ☐ **AI UGC** beat of disbelief, small laugh |
 | "And that's the provider, the meds if they prescribe it, and shipping." | ☐ **B-roll** her thumb scrolling "what's included"<br>☐ **AI UGC** back to her, counting on her fingers |
-| "No subscription either, which honestly was the part I liked." | ☐ **AI UGC** shrug, leaning on the counter |
-| "Anyway. Link's there if you wanna see if you qualify." | ☐ **AI UGC** already turning back to what she was doing |
+| "No subscription either, which honestly was the part I liked." | ☐ **AI UGC** MOVE → front door, jacket on, keys in hand, shrug |
+| "Anyway. Link's there if you wanna see if you qualify." | ☐ **AI UGC** already reaching for the door handle |
 | — | ☐ **End card** logo, Check if I qualify, MyFastRx.com, small vial, BBB badge, disclaimer + Rx line |
 
 Tirzepatide twin: only the price lines change ("...compounded GLP1, one twenty-nine for the first month." / "Like... one
 twenty-nine.") ☐ on-screen: Compounded Tirzepatide · $129 first month · Introductory offer ☐ end card without a vial.
 To check with the client: the group-chat mock-up (neutral text, no results, no other brands).
 
-## Video 2: "Lunch break" (trust; DRAFT, not yet approved) ~19 s + end card
+## Video 2: "Lunch break" (trust; approved Oct 7) ~19 s + end card
+Locations: **parked car** (lunch break) → **walking back into the office**. Outfit: work blouse + blazer.
 
 | She says | Shots |
 |---|---|
@@ -41,16 +44,17 @@ To check with the client: the group-chat mock-up (neutral text, no results, no o
 | "No membership. No subscription. No auto-refills." | ☐ **Screen** the real FAQ lines, her finger under each |
 | "A licensed provider actually reviews it first..." | ☐ **Anim** a provider reviewing an intake form (house style) |
 | "...and it's filled by U.S. pharmacies." | ☐ **AI UGC** nodding slowly, unconvinced-to-convinced |
-| "So... yeah. Didn't find one." | ☐ **AI UGC** glasses off, small laugh, takes a bite |
-| "It's sixty-nine for the first month if you qualify. Link's there." | ☐ **AI UGC** to camera<br>☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
+| "So... yeah. Didn't find one." | ☐ **AI UGC** MOVE → walking back into the office building, phone held up, glasses on her head, small laugh |
+| "It's sixty-nine for the first month if you qualify. Link's there." | ☐ **AI UGC** at the office door, to camera<br>☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
 | — | ☐ **End card** |
 
-## Video 3: "No office visit" (process; DRAFT, not yet approved) ~18 s + end card
+## Video 3: "No office visit" (process; approved Oct 7) ~18 s + end card
+Locations: **neighbourhood walk** → **home on the sofa**. Outfit: zip-up athleisure jacket, then the same with tea.
 
 | She says | Shots |
 |---|---|
-| "Okay, so you don't actually go into an office for this. I did NOT know that." | ☐ **AI UGC** sofa, mug, phone propped on the coffee table (hook, 1.5 s) |
-| "It's three steps. Like, three." | ☐ **AI UGC** holds up three fingers, laughs |
+| "Okay, so you don't actually go into an office for this. I did NOT know that." | ☐ **AI UGC** walking in her neighbourhood, phone held up, daylight (hook, 1.5 s) |
+| "It's three steps. Like, three." | ☐ **AI UGC** MOVE → home on the sofa, mug, phone propped on the coffee table; holds up three fingers, laughs |
 | "You fill out a form online... takes a few minutes, apparently." | ☐ **B-roll** over her shoulder, her phone on the real intake start screen (nothing filled in)<br>☐ **Screen** the screen itself, full frame |
 | "A licensed provider looks it over." | ☐ **Anim** provider reviewing (same as video 2) |
 | "And if they prescribe it, it just ships to your house." | ☐ **B-roll** plain parcel on a doorstep, no one in shot |
@@ -60,7 +64,10 @@ To check with the client: the group-chat mock-up (neutral text, no results, no o
 "Takes a few minutes": confirm with the client (the NAD+ page says 3 minutes; the GLP-1 intake length is not stated).
 
 ## Shared assets (made once)
-☑ Dana casting (`footage/ref/dana_v2_1.png`, kitchen) ☐ car still ☐ sofa still ☐ outfit per location
+☑ Dana casting (`footage/ref/dana_v2_1.png`, kitchen)
+Location stills (2 options each, ~2 cr per image): ☐ V1 sofa evening ☐ V1 front door ☐ V2 car ☐ V2 office walk
+☐ V3 neighbourhood walk ☐ V3 sofa (different outfit from V1). Walking shots: keep to ~2 s holds; if one will not animate
+cleanly, swap for a static shot.
 ☐ group-chat mock-up (coded) ☐ doorstep parcel still (client approval) ☐ real page captures: offer page, FAQ, intake start
 ☐ provider-review animation (house style) ☐ end card ×2 (with / without vial)
 ☐ client confirms "takes a few minutes" for the GLP-1 intake
