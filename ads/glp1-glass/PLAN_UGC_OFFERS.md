@@ -73,6 +73,17 @@ On screen: captions; the price + "Introductory offer" at 17.5 s.
   brief's intro-offer disclaimer + "Prescription required. Subject to provider approval."
 - Deliver 9:16 MP4 + editable source; 4:5 on request, re-laid out.
 
+## Pipeline (playbook section 8)
+1. **Reference frame:** 3-5 candidate stills from real creator videos (Facebook / Instagram for this age group): a woman
+   in her 40s, kitchen or sofa, muted even light (no blown-out highlights), background with some depth, hands visible,
+   phone at eye level and not too close. I screen them against the guide's criteria.
+2. **Dana avatar:** one Nano Banana Pro edit per candidate (new person per the casting rules, twist-out, gold hoops,
+   glasses on head, black clip-on mic, a plant behind), regenerated until right. Then the location variants (car, sofa)
+   from the approved Dana image, outfit changed in the same single edit.
+3. **Model A/B:** one line ("Okay so, sixty-nine dollars. I wanted to know what you actually get for that.") on Gemini
+   Omni Flash 1.1 vs Seedance 2.5, same image and same three-part prompt. Pick the winner; lock the prompt.
+4. **The rest of the script:** swap only the dialogue; capitalise stress words; pad lines to the model's lengths.
+
 ## Production (re-priced before every spend)
 | Step | Credits |
 |---|---|

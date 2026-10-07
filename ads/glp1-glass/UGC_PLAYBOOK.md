@@ -127,10 +127,12 @@ Rules:
 - **"The avatar has solved the problem" (guide):** for us that would imply a weight-loss result, which the brief bans.
   Dana's authority is that she did the homework (read the page, knows the price), not that she lost weight.
 - **High energy (guide):** our house rules and the brief win: relaxed, natural, no exaggerated reactions.
-- **Reference images from real creators:** the source starts from a real creator's frame and changes them "genetically"
-  to avoid a deepfake. We don't use a real person's image as a base without a licence: legal and likeness risk for a
-  regulated health brand. Use our own generated bases (as with car_cast_3) or licensed stock, and keep the casting rules
-  (Black or Hispanic women, 45-55, average healthy build).
+- **Reference images from real creators (decided Oct 7, 2026: we use the guide's method, with safeguards):**
+  a still from a real creator's video is the structural reference only (framing, light, phone texture). The avatar must
+  be a clearly different person (face shape, eyes, nose, skin), with nothing identifying left in the background (names,
+  logos, specific decor, captions), and must follow our casting rules. Keep a note of each source frame and the
+  transformation. We never use a medical professional's likeness. The residual copyright / likeness risk sits with the
+  client's decision; counsel can review before paid spend.
 - AI-content labels stay on (TikTok, Meta); the disclaimer and "$69" qualification rules are unchanged.
 
 ## Checklist for the next UGC ad
