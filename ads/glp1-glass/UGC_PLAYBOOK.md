@@ -76,11 +76,57 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
 - The creator says his "Omni" model beats Seedance on realism and price. Higgsfield lists a `gemini_omni` (Gemini Omni
   Flash: image references, native audio, 4-10 s, 720p). Worth one A/B test on the next ad before switching.
 
+## 8. Production method (Kristian Jennings workflow, Sept 2026; full text in references/kristian_jennings_ai_ugc_workflow.md)
+**Effort split 50 / 25 / 25:** 50% on the host reference image, 25% dialling in the video prompt on one line, 25% the
+rest of the script. Whatever quality we accept early becomes the standard for the whole ad.
+
+**Before anything:** the script is the main lever; storyboard it (script left, visuals right, "AI UGC" where her face
+shows); choose the host with intent.
+
+**Reference image (50%):** realism comes from a real phone photo's noise, pores and uneven light, which image models
+can't create from scratch. Screen it for:
+- framing chosen on purpose (sitting / standing, phone angle, distance from the lens);
+- no blown-out highlights (zoom in: if a bright patch has no detail, it will animate as waxy skin);
+- a background with some personality and depth, not cluttered (a plant, a lamp, shelves).
+
+**Avatar (one edit, in one prompt, regenerated until right):** stacked edits leave seams that show once animated.
+- a genuinely different person (eyes, nose, skin), never a real person's likeness;
+- background interest (greenery works);
+- one or two outlier accessories (one earbud in, gold hoops, glasses on her head);
+- audio logic: a visible clip-on mic, or the phone close to her face.
+- Image model: Nano Banana **Pro** (the original). Avoid GPT-Image-style models (too clean). Note: our Higgsfield
+  `nano_banana_pro` jobs report as `nano_banana_2` in job status; confirm which model actually runs before relying on it.
+
+**Video prompt (25%), three parts, then locked:**
+```
+[Camera movement: "Static, locked-off shot." or "Handheld UGC iPhone shot."]
+[Shot: "UGC iPhone footage."]
+[Scene: where she is, what's around her.]
+[Behaviour + energy: body mostly still, mouth moves naturally, eye contact with the camera, camera does not move.
+ Energy per our house rules: relaxed, warm, conversational (NOT the guide's "super high energy").]
+
+Dialogue: "[the exact line]"
+
+Rules:
+- [corrections stacked while iterating: e.g. smile a little more, a touch faster, more confident]
+- One continuous take, no jump cuts.
+```
+- Iterate on ONE line until energy, framing and pace are right; then change nothing but the dialogue.
+- **Stress:** capitalise the word she should lean on ("starting at SIXTY-NINE").
+- **Durations:** if a line falls between allowed lengths, pad it with throwaway words, pick the longer length, cut the
+  padding in the edit (stops her rushing or dragging).
+- About 1 in 10 references never animate well: after a few tries, rebuild the reference instead of fighting it.
+- Video model: the guide's pick is Gemini Omni (full, via Kie). Higgsfield offers Gemini Omni Flash / Flash 1.1 and
+  Seedance 2.5 (our car-rant recipe). A/B on one line before committing.
+
 ## Where we do NOT follow the source (MyFastRx rules win)
 - **No first-person patient content.** The source's examples ("I'm having more hair fallout... look at these baby hairs")
   are testimonials. Our hosts are presenters: no "I'm on it", no results, no progress, no before/after.
 - **No product in hand or in use**, no needles, scales or body close-ups. B-roll shows the *service* (her phone on the
   MyFastRx page, a parcel arriving, the coded price card), never the medication being taken.
+- **"The avatar has solved the problem" (guide):** for us that would imply a weight-loss result, which the brief bans.
+  Dana's authority is that she did the homework (read the page, knows the price), not that she lost weight.
+- **High energy (guide):** our house rules and the brief win: relaxed, natural, no exaggerated reactions.
 - **Reference images from real creators:** the source starts from a real creator's frame and changes them "genetically"
   to avoid a deepfake. We don't use a real person's image as a base without a licence: legal and likeness risk for a
   regulated health brand. Use our own generated bases (as with car_cast_3) or licensed stock, and keep the casting rules
