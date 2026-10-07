@@ -23,3 +23,21 @@ behind her."
 | dana_v1_3.png | 017743b0-1c6c-44ba-be92-9362a2a5af43 | Window light, closer; forehead/nose shine (0.90% blown, the most). Mic has fake glyphs. |
 | dana_v1_4.png | 7cf9c9cf-f5af-4cfc-8240-4e5942869ff2 | REJECT: the red bag from the source is still in frame (left edge). |
 Contact sheet: dana_v1_contact.jpg.
+
+## Dana avatar edit, round 2 (Oct 7, 2026): recast per client
+Client rejected round 1: "Keep the woman hispanic or race neutral. Make her more attractive. Maybe a 7/10 age adjusted.
+Not skinny but not heavy either." Same source and settings, 4 x 2 credits = 8. Prompt: "Turn this woman into a different
+woman: a Latina woman in her mid-40s, naturally pretty in an everyday way (not a model), warm olive skin, soft brown eyes
+and shoulder-length dark brown hair with loose soft waves. Fit, healthy, toned build, neither skinny nor heavy. Light
+everyday makeup, matte skin. A fitted heather-grey crewneck sweatshirt, small gold hoop earrings, reading glasses pushed
+up on her head, a small plain matte black clip-on mic with no logo or text on her collar. Calm, warm half smile, both
+hands resting on the counter. Remove the red bag, the caption, the tattoo and anything she is holding. Add a small potted
+plant on the counter behind her."
+
+| File | Job | Notes |
+|---|---|---|
+| dana_v2_1.png | 9cb12ba2-f8b6-4dd6-9d10-8b368fb55e45 | Soft smile, most even light (0.15% blown). Mic clean. |
+| dana_v2_2.png | e36d1dd7-d866-420b-addb-f9886e2464d9 | Big toothy smile, warmest. Mic has fake glyphs. Fine gold necklace. |
+| dana_v2_3.png | 8086f2c7-0105-41d2-9031-59a850eea54f | Slimmest face, heavier eye makeup. Mic has fake glyphs. |
+| dana_v2_4.png | 2f550ace-ad8c-4cb7-86e7-f26216f16a1d | Closest, hands clasped. Mic clean. |
+All four: same modern kitchen, no bag, caption or tattoo left; mic reads a little large. Contact sheet: dana_v2_contact.jpg.

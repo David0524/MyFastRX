@@ -77,6 +77,10 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
 - **Build: average and healthy, neither thin nor heavy.** The client's critique of casting option B (the v7 recast):
   too heavy, so she reads as the "before" rather than the "after". This may also mean v7 needs another recast; ask
   the client before touching it.
+- **UGC host Dana (Oct 7, 2026 update):** Hispanic or race-neutral, mid-40s, attractive in an everyday way ("a 7/10,
+  age-adjusted"), fit and toned, neither skinny nor heavy: the look of someone who has got in shape. The look only:
+  the ad never says or implies she lost weight or uses the product (no results, no before/after). Round 1 (Black,
+  twist-out) was rejected; round 2 is in `footage/ref/dana_v2_*`.
 - **The raw car-selfie format's host is `footage/gen/car_cast_3.png`** (job c202c84c-dfba-40bf-bf85-b6833f9160b0):
   short natural curls, deep brown skin, rust quarter-zip, parked car in daylight. She is a new host, not Renee.
 

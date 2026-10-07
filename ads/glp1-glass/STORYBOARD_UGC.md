@@ -3,7 +3,7 @@
 Format: the line she says | the shots for it (tick when generated / approved). **AI UGC** = Dana on camera talking (A-roll),
 **B-roll** = what she films around the line, **Screen** = real MyFastRx page captured in code, **Anim** = house-style
 animation. Rules: UGC_PLAYBOOK.md section 0 + the client brief. Hook shot ~1.5 s; every shot after holds 2 s or more.
-Dana: 46, shoulder-length dark brown twist-out, gold hoops, glasses on her head, black clip-on mic. Never a patient.
+Dana: 46, Latina, shoulder-length dark brown waves, fit, gold hoops, glasses on her head, black clip-on mic. Never a patient.
 
 ## Video 1: "What sixty-nine actually gets you" (Semaglutide; Tirzepatide twin) ~19 s + end card
 

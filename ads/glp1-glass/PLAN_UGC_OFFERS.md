@@ -18,7 +18,7 @@ UGC_PLAYBOOK.md. One hook per video. She is a presenter or a curious shopper, ne
 - Never her own order or medication: the delivery shot is a parcel on a doorstep, no hands, no "mine".
 
 ## Dana (host)
-46, Black (or Afro-Latina), shoulder-length dark brown hair (soft twist-out), average / mid-size build, small gold hoops,
+46, Latina (or race-neutral), naturally pretty, shoulder-length dark brown wavy hair, fit and toned (not skinny, not heavy), small gold hoops,
 reading glasses on her head, black clip-on mic. Office manager, two teens, practical, dry humour, hates fine print.
 Phone propped on the fridge, car dash or coffee table. Wardrobe changes per location; hoops, glasses, mic constant.
 Voice: her first approved take, then a locked prompt (only the words change).
