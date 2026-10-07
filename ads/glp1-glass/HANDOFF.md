@@ -1,6 +1,7 @@
 # Handoff: MyFastRx ad work (October 2026)
 
-Read this first, then `HANDOVER.md` **section 2**. For any UGC work, also read `UGC_PLAYBOOK.md`. Section 2 holds the brand and compliance rules, which still apply to
+Read this first. **Then `CLIENT_BRIEF_GLP1_2026-10.md`: the client's GLP-1 video brief, the top authority for all new
+videos (it overrides anything below that conflicts).** Then `HANDOVER.md` **section 2**; for UGC work, `UGC_PLAYBOOK.md`. Section 2 holds the brand and compliance rules, which still apply to
 everything. The rest of `HANDOVER.md` is history from v3–v5.
 
 - Repo: `david0524/myfastrx`. Branch: `claude/relaxed-archimedes-fiuecm`. Work folder: `ads/glp1-glass/`.
@@ -50,6 +51,25 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
   - Never pass `use_unlim: true` unless the client asks.
 - **Casting gotcha:** the first casting batch came back without trousers on 3 of 4 images. Always spell out the full
   wardrobe and the framing (waist-up).
+
+## What the client brief (Oct 7, 2026) changes
+- **Disclaimer text is new** (section 9 of the brief), plus "Prescription required. Subject to provider approval."
+  The old text ("...Not all patients qualify... Actor portrayal.") is retired. v7, v8, static A and the car rant still
+  carry the old text.
+- **"Compounded" must be in the main on-screen copy:** "Compounded Semaglutide starting at $69" with an "Introductory
+  offer" qualifier near the price.
+- **Tirzepatide is now allowed** ($129 intro). The old "no tirzepatide" rule is lifted.
+- **"No subscription or membership fees" is approved** (no longer a counsel question).
+- **CTA is "Check if I qualify"**, landing page https://www.myfastrx.com/weight-loss/special/.
+- **Logo:** the brief describes red "Fast" and pulse; our file `images/logo_myfastrx_official.jpg` has a blue "Fast" and
+  pulse. Ask the client for the current file; until then keep using the supplied file unaltered.
+- **AI-generated medication imagery needs client approval** (includes `images/vial_semaglutide_v2.png` unless it is the
+  client's own asset). Never a logo on a vial; no fixed bottle counts.
+- **Length 15–20 s** (the car rant is 24.4 s). Deliver MP4 + editable source; 4:5 on request, adapted not cropped.
+- **Preferred lead:** mid-40s, shoulder-length dark brown hair, average or mid-size build (combine with the casting rule
+  below).
+- **Music:** subtle and licensed for paid ads.
+- First concepts to produce: Semaglutide $69 offer, Tirzepatide $129 offer, three-step process.
 
 ## Casting rules (client, Oct 2026)
 
