@@ -41,3 +41,20 @@ plant on the counter behind her."
 | dana_v2_3.png | 8086f2c7-0105-41d2-9031-59a850eea54f | Slimmest face, heavier eye makeup. Mic has fake glyphs. |
 | dana_v2_4.png | 2f550ace-ad8c-4cb7-86e7-f26216f16a1d | Closest, hands clasped. Mic clean. |
 All four: same modern kitchen, no bag, caption or tattoo left; mic reads a little large. Contact sheet: dana_v2_contact.jpg.
+
+## Video 1 location stills (Oct 7, 2026)
+Input: dana_v2_1 (job 9cb12ba2-f8b6-4dd6-9d10-8b368fb55e45) only. nano_banana_pro 9:16 2k, 4 x 2 credits = 8.
+Sofa prompt: "Same woman, that evening, sitting on her living-room sofa with a warm lamp on beside her, holding her phone,
+phone propped on the coffee table filming her. Same grey sweatshirt, same hoops, glasses on her head, same black clip-on
+mic. Relaxed, half smile." Door prompt: "Same woman at her front door, about to head out, a light olive utility jacket on
+over the grey sweatshirt, keys in hand, same hoops, glasses on her head, same black clip-on mic on the jacket collar. Soft
+daylight from the door's window. Relaxed, mid-shrug."
+
+| File | Job | Notes |
+|---|---|---|
+| dana_vid1_sofa_1.png | 2798f3e4-866d-4422-9bb8-2b35e4973850 | REJECT: third-person view, the filming phone is in frame (not her phone's POV); not holding a phone. |
+| dana_vid1_sofa_2.png | 2c913d19-6daa-4f78-b6c4-2da6cfffbc74 | REJECT: same problem (phone on tripod in frame, showing her on its screen). |
+| dana_vid1_door_1.png | a111eeb0-1d77-41f2-ab9c-2eac47913d4e | Good: mid-distance, shrug, keys, olive jacket, mic on collar. Same woman. |
+| dana_vid1_door_2.png | 2f448f91-40f5-4c0a-b791-fb43ff7be2e8 | Good: closer, handheld-selfie feel, unimpressed shrug; more UGC. Same woman. |
+Lesson: say the frame IS the phone's view ("seen from her phone propped on the coffee table"), never "phone filming her".
+Contact sheet: dana_vid1_locations_contact.jpg.
