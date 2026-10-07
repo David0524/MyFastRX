@@ -3,6 +3,22 @@
 Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026), adapted to MyFastRx's compliance rules
 (HANDOVER.md section 2, HANDOFF.md casting rules). Read this before planning any UGC ad.
 
+## 0. House rules (client notes, Oct 2026): these override anything below
+- **Relaxed pacing.** Nothing rushed; let lines breathe.
+- **Conversational, fully.** Talk like a person on the phone to a friend: half-sentences, "okay so", "honestly", "yeah".
+- **Slower cuts:** the hook shot holds about **1.5 s**, every shot after it holds **2 s or more**.
+- **The host is present throughout:** frequent touch points back to her face; B-roll never runs long without her.
+- **She films herself on location to give proof:** the real website on her phone or laptop, real places she goes.
+- **She wears a small wireless clip-on mic** (DJI Mic Mini style, no visible logo): the creator tell.
+- **She introduces the product herself** (holds up her phone on MyFastRx, points at it), not a title card.
+- **B-roll feels real:** her hands, her screen, her house. Not TikTok meme style (stickers, zooms, emoji pops), not
+  studio product shots.
+- **Animations share one cohesive art style** (any process or biomedical animation). Biomedical/mechanism visuals only with
+  client-approved wording (the brief bans clinical claims without it).
+- **Show what she's saying, KISS:** every line has one literal visual; no clever metaphors.
+- **Never imply she is a patient:** no unboxing her own order, no "my medication". Delivery shots show a parcel on a
+  doorstep without her claiming it.
+
 ## 1. A-roll is the base, never the ad
 - Don't ship the talking head alone ("yapper" ads can work, but B-roll raises the hit rate).
 - Build the full script as **A-roll from first frame to last** (the host delivering every line), then **stack B-roll on top**.
@@ -13,7 +29,7 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
 ## 2. Cut back to the A-roll often, never linger
 - Stare at any AI face long enough and the tells show. Cover with B-roll, but **return to the host frequently and briefly**:
   the viewer should feel told a story by a person, with B-roll keeping it visually interesting.
-- Each A-roll stretch short (about 2-4 s) once the hook is done.
+- Each A-roll stretch about 2-4 s once the hook is done; shots hold 2 s or more (house rules).
 
 ## 3. B-roll matches who the host is
 - Decide the host's "creator profile" first: age, how tech-savvy, how much effort they put into content.
