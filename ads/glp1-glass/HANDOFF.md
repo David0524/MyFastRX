@@ -1,7 +1,7 @@
 # Handoff: MyFastRx ad work (October 2026)
 
-Read this first. **Then `CLIENT_BRIEF_GLP1_2026-10.md`: the client's GLP-1 video brief, the top authority for all new
-videos (it overrides anything below that conflicts).** Then `HANDOVER.md` **section 2**; for UGC work, `UGC_PLAYBOOK.md`. Section 2 holds the brand and compliance rules, which still apply to
+Read this first. **Then `CLIENT_BRIEF_GLP1_2026-10.md`: the client's GLP-1 video brief.** It was drafted with ChatGPT, so treat it as strong
+guidance, not gospel; the decisions below (Oct 7) override it where they differ. Then `HANDOVER.md` **section 2**; for UGC work, `UGC_PLAYBOOK.md`. Section 2 holds the brand and compliance rules, which still apply to
 everything. The rest of `HANDOVER.md` is history from v3–v5.
 
 - Repo: `david0524/myfastrx`. Branch: `claude/relaxed-archimedes-fiuecm`. Work folder: `ads/glp1-glass/`.
@@ -61,10 +61,10 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
 - **Tirzepatide is now allowed** ($129 intro). The old "no tirzepatide" rule is lifted.
 - **"No subscription or membership fees" is approved** (no longer a counsel question).
 - **CTA is "Check if I qualify"**, landing page https://www.myfastrx.com/weight-loss/special/.
-- **Logo:** the brief describes red "Fast" and pulse; our file `images/logo_myfastrx_official.jpg` has a blue "Fast" and
-  pulse. Ask the client for the current file; until then keep using the supplied file unaltered.
-- **AI-generated medication imagery needs client approval** (includes `images/vial_semaglutide_v2.png` unless it is the
-  client's own asset). Never a logo on a vial; no fixed bottle counts.
+- **Logo:** keep `images/logo_myfastrx_official.jpg` (blue "Fast" and pulse) unaltered. Ignore the brief's red-logo line.
+- **AI-generated medication imagery needs client approval.** `images/vial_semaglutide_v2.png` is approved. There is no
+  Tirzepatide vial yet: get one from the client (or generate one and get it approved) before showing a Tirz vial.
+- **Active promotions confirmed Oct 7, 2026:** Compounded Semaglutide $69 and Compounded Tirzepatide $129 first month. Never a logo on a vial; no fixed bottle counts.
 - **Length 15–20 s** (the car rant is 24.4 s). Deliver MP4 + editable source; 4:5 on request, adapted not cropped.
 - **Preferred lead:** mid-40s, shoulder-length dark brown hair, average or mid-size build (combine with the casting rule
   below).

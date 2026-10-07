@@ -1,7 +1,7 @@
 # MyFastRx GLP-1 Video Designer Handoff (client, received 2026-10-07)
 
-**This is the top authority for every new GLP-1 video. Where it differs from HANDOVER.md section 2, HANDOFF.md or
-UGC_PLAYBOOK.md, this wins.** Verbatim from the client below.
+**Strong guidance for every new GLP-1 video (drafted with ChatGPT; the decisions in HANDOFF.md, Oct 7, override it where
+they differ: keep the blue logo).** Verbatim from the client below.
 
 ---
 
