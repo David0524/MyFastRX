@@ -23,47 +23,13 @@ reading glasses on her head, black clip-on mic. Office manager, two teens, pract
 Phone propped on the fridge, car dash or coffee table. Wardrobe changes per location; hoops, glasses, mic constant.
 Voice: her first approved take, then a locked prompt (only the words change).
 
-## Video 1: "What sixty-nine actually gets you" (Semaglutide; Tirzepatide twin) ~19 s
-| t | Shot | She says |
-|---|---|---|
-| 0-1.5 | Kitchen, phone propped on the fridge, she leans in | "Okay so, sixty-nine dollars." |
-| 1.5-4 | Same, relaxed | "I wanted to know what you actually get for that." |
-| 4-6.5 | She turns her phone to the lens: the MyFastRx offer page | "This is MyFastRx. It's compounded semaglutide, starting at sixty-nine for your first month." |
-| 6.5-9.5 | B-roll: her thumb scrolling the "what's included" part of the real page | "And that covers the provider review..." |
-| 9.5-12 | Back to her, counting on her fingers | "...the medication if they prescribe it, and shipping." |
-| 12-14.5 | B-roll: a plain parcel on a doorstep, no one in shot | "It just comes to your door." |
-| 14.5-17 | Her, shrug, small smile | "No subscription, no membership fee. Honestly, that's it." |
-| 17-19 | Her | "If you're curious, check if you qualify." |
-| 19-21.5 | End card | |
-On screen: captions; "Compounded Semaglutide starting at $69 · Introductory offer" while the price is said (4-9.5 s).
-Twin: "...compounded tirzepatide, starting at one twenty-nine..." + matching on-screen line; nothing else changes.
-
-## Video 2: "I read the fine print" (trust) ~19 s
-| t | Shot | She says |
-|---|---|---|
-| 0-1.5 | Parked car, phone on the dash, glasses going on | "I read the fine print." |
-| 1.5-4 | Same | "Because sixty-nine dollars usually means there's a catch, right?" |
-| 4-7 | B-roll: her laptop on her knees in the car, the real FAQ on screen, her finger on the line | "So, first thing: is there a membership? No. No subscription, no membership fee." |
-| 7-9.5 | Her, nodding slowly | "Okay." |
-| 9.5-12.5 | Animation: a provider reviewing an intake form (house style) | "Then a licensed provider actually reviews everything before anything's prescribed." |
-| 12.5-15 | Her | "And it's filled by U.S. pharmacies." |
-| 15-17.5 | Her, takes the glasses off | "Honestly, I was looking for a catch." |
-| 17.5-19.5 | Her | "Compounded semaglutide, starting at sixty-nine. Check if you qualify." |
-| 19.5-22 | End card | |
-On screen: captions; the price + "Introductory offer" at 17.5 s.
-
-## Video 3: "Three steps, from the couch" ~18 s
-| t | Shot | She says |
-|---|---|---|
-| 0-1.5 | Sofa, mug, phone propped on the coffee table | "So this is the whole process." |
-| 1.5-4 | Same | "It's honestly three steps." |
-| 4-7 | B-roll: over her shoulder, her phone on the real intake start screen (no answers filled in) | "One, you fill out an intake online. Takes a few minutes." |
-| 7-10 | Animation: provider reviewing (same style as video 2) | "Two, a licensed provider reviews it." |
-| 10-12.5 | Her | "And three, if they prescribe it..." |
-| 12.5-14.5 | B-roll: a plain parcel on a doorstep | "...it ships to your door." |
-| 14.5-18 | Her, sips her tea | "Compounded semaglutide starts at sixty-nine. Check if you qualify." |
-| 18-20.5 | End card | |
-"Takes a few minutes": confirm with the client (the NAD+ page says 3 minutes; the GLP-1 intake length is not stated).
+## The three videos
+Scripts and shots live in STORYBOARD_UGC.md (v2, rewritten Oct 7 after the client called v1 "forced and corporate"):
+1. "The group chat" (approved): her friends keep talking about GLP1s, she assumed it was out of reach, looked it up.
+   Tirzepatide twin swaps the price lines.
+2. "Lunch break" (draft): she spends her lunch break in the car hunting for the catch in the FAQ.
+3. "No office visit" (draft): from the sofa, surprised it's three steps and no office visit.
+Script spelling: GLP1 and My Fast Rx in anything spoken or prompted (see STORYBOARD_UGC.md).
 
 ## Every video
 - Captions word for word, native style (white, black outline), in the safe zone; no stickers or emoji pops.
@@ -80,7 +46,7 @@ On screen: captions; the price + "Introductory offer" at 17.5 s.
 2. **Dana avatar:** one Nano Banana Pro edit per candidate (new person per the casting rules, twist-out, gold hoops,
    glasses on head, black clip-on mic, a plant behind), regenerated until right. Then the location variants (car, sofa)
    from the approved Dana image, outfit changed in the same single edit.
-3. **Model A/B:** one line ("Okay so, sixty-nine dollars. I wanted to know what you actually get for that.") on Gemini
+3. **Model A/B:** one line ("My group chat will NOT stop talking about GLP1s. And I just figured it was, like... crazy expensive.") on Gemini
    Omni Flash 1.1 vs Seedance 2.5, same image and same three-part prompt. Pick the winner; lock the prompt.
 4. **The rest of the script:** swap only the dialogue; capitalise stress words; pad lines to the model's lengths.
 

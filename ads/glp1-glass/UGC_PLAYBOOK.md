@@ -19,6 +19,12 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
 - **Storyboard format:** two columns, the line she says | its shots as a checklist (A-roll / B-roll / Screen / Anim),
   ticked as each is generated and approved (see STORYBOARD_UGC.md).
 - **Act the story out:** small narrative beats in B-roll (a research montage, closing the laptop lid) beat a list of facts.
+- **Script spelling for pronunciation (client, Oct 7):** in anything spoken or fed to a video or voice model, write
+  **GLP1** (never "GLP-1", "GLP 1" or "semaglutide" in her mouth) and **My Fast Rx**. Captions and on-screen text keep
+  GLP-1 / MyFastRx; the price line keeps the promo's product name (Compounded Semaglutide / Tirzepatide).
+- **No feature lists in her mouth (client, Oct 7: v1 scripts were "forced and corporate"):** give her a reason to talk
+  (a group chat, a lunch break), one thought per breath, a reaction beat ("Like... sixty-nine."), a throwaway CTA.
+  Compliance wording goes on screen and on the end card.
 - **Never imply she is a patient:** no unboxing her own order, no "my medication". Delivery shots show a parcel on a
   doorstep without her claiming it.
 

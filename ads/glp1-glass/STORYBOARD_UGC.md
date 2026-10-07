@@ -1,56 +1,66 @@
-# Storyboards: three UGC videos (Oct 2026)
+# Storyboards: three UGC videos (Oct 2026, v2: rewritten as real talk)
 
 Format: the line she says | the shots for it (tick when generated / approved). **AI UGC** = Dana on camera talking (A-roll),
 **B-roll** = what she films around the line, **Screen** = real MyFastRx page captured in code, **Anim** = house-style
 animation. Rules: UGC_PLAYBOOK.md section 0 + the client brief. Hook shot ~1.5 s; every shot after holds 2 s or more.
-Dana: 46, Latina, shoulder-length dark brown waves, fit, gold hoops, glasses on her head, black clip-on mic. Never a patient.
+Dana: 46, Latina, shoulder-length dark brown waves, fit, gold hoops, glasses on her head, black clip-on mic
+(`footage/ref/dana_v2_1.png`). Never a patient: she is a friend who looked into it, not someone on it.
 
-## Video 1: "What sixty-nine actually gets you" (Semaglutide; Tirzepatide twin) ~19 s + end card
+**Script spelling (for pronunciation):** spoken lines, video-model prompts and voice prompts always write **GLP1** (no
+space, no hyphen) and **My Fast Rx**. Captions and on-screen text use the written forms GLP-1 and MyFastRx. She says
+"GLP1", never "semaglutide"; the on-screen price line keeps the promo's product name (Compounded Semaglutide $69).
+
+**Voice rules (client, Oct 7):** one thought per breath, a reason she's talking, a reaction beat. Compliance details
+live on screen and on the end card, not in her mouth. No feature lists.
+
+## Video 1: "The group chat" (approved Oct 7) ~18 s + end card
 
 | She says | Shots |
 |---|---|
-| "Okay so, sixty-nine dollars." | ☐ **AI UGC** kitchen, phone propped on the fridge, she leans in (hook, 1.5 s) |
-| "I wanted to know what you actually get for that." | ☐ **AI UGC** same set-up, relaxed, glasses come down |
-| "This is MyFastRx. It's compounded semaglutide, starting at sixty-nine for your first month." | ☐ **AI UGC** she turns her phone to the lens<br>☐ **Screen** the real offer page fills the frame (her thumb on the edge)<br>☐ on-screen: Compounded Semaglutide starting at $69 · Introductory offer |
-| "And that covers the provider review..." | ☐ **B-roll** her thumb scrolling the "what's included" part of the page |
-| "...the medication if they prescribe it, and shipping." | ☐ **AI UGC** counting on her fingers |
-| "It just comes to your door." | ☐ **B-roll** plain parcel on a doorstep, no one in shot (still to the client first) |
-| "No subscription, no membership fee. Honestly, that's it." | ☐ **AI UGC** shrug, small smile |
-| "If you're curious, check if you qualify." | ☐ **AI UGC** she nods at the camera |
+| "My group chat will NOT stop talking about GLP1s." | ☐ **AI UGC** kitchen, mid-task (wiping the counter), glances up at the camera (hook, 1.5 s) |
+| "And I just figured it was, like... crazy expensive." | ☐ **B-roll** her phone in her hand: group chat ("ok has anyone looked into the GLP-1 thing" / "isn't it like a fortune"), coded mock-up<br>☐ **AI UGC** back to her, small eye-roll |
+| "So I looked. This is My Fast Rx..." | ☐ **AI UGC** she picks up her phone and turns it to the camera<br>☐ **Screen** the real offer page |
+| "...compounded GLP1, sixty-nine for the first month." | ☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
+| "Like... sixty-nine." | ☐ **AI UGC** beat of disbelief, small laugh |
+| "And that's the provider, the meds if they prescribe it, and shipping." | ☐ **B-roll** her thumb scrolling "what's included"<br>☐ **AI UGC** back to her, counting on her fingers |
+| "No subscription either, which honestly was the part I liked." | ☐ **AI UGC** shrug, leaning on the counter |
+| "Anyway. Link's there if you wanna see if you qualify." | ☐ **AI UGC** already turning back to what she was doing |
 | — | ☐ **End card** logo, Check if I qualify, MyFastRx.com, small vial, BBB badge, disclaimer + Rx line |
 
-Tirzepatide twin: ☐ **AI UGC** price line re-taken ("...compounded tirzepatide, starting at one twenty-nine...")
-☐ on-screen line swapped ☐ end card without a vial.
+Tirzepatide twin: only the price lines change ("...compounded GLP1, one twenty-nine for the first month." / "Like... one
+twenty-nine.") ☐ on-screen: Compounded Tirzepatide · $129 first month · Introductory offer ☐ end card without a vial.
+To check with the client: the group-chat mock-up (neutral text, no results, no other brands).
 
-## Video 2: "I went looking for the catch" (trust) ~20 s + end card
-
-| She says | Shots |
-|---|---|
-| "So I finally just read the fine print." | ☐ **AI UGC** parked car, phone on the dash, glasses going on (hook, 1.5 s) |
-| "Because sixty-nine dollars usually means there's a catch, right?" | ☐ **AI UGC** same, eyebrow up |
-| "So I looked into it." | ☐ **B-roll** time-lapse-ish montage: laptop on her knees in the car, scrolling, tapping, pen in her mouth (3 quick holds of 2 s) |
-| "First thing: is there a membership? No. No subscription, no membership fee." | ☐ **Screen** the real FAQ line, her finger under it<br>☐ **AI UGC** "No." to camera |
-| "Then a licensed provider actually reviews everything before anything's prescribed." | ☐ **Anim** a provider reviewing an intake form (house style) |
-| "And it's filled by U.S. pharmacies." | ☐ **AI UGC** nodding slowly |
-| "Honestly? I was looking for a catch." | ☐ **B-roll** she closes the laptop lid<br>☐ **AI UGC** glasses off, small laugh |
-| "Compounded semaglutide, starting at sixty-nine. Check if you qualify." | ☐ **AI UGC** to camera<br>☐ on-screen: price + Introductory offer |
-| — | ☐ **End card** |
-
-## Video 3: "It's three steps" (process, care from home) ~18 s + end card
+## Video 2: "Lunch break" (trust; DRAFT, not yet approved) ~19 s + end card
 
 | She says | Shots |
 |---|---|
-| "So this is the whole process." | ☐ **AI UGC** sofa, mug, phone propped on the coffee table (hook, 1.5 s) |
-| "It's honestly three steps." | ☐ **AI UGC** holds up three fingers |
-| "One, you fill out an intake online. Takes a few minutes." | ☐ **B-roll** over her shoulder, her phone on the real intake start screen (nothing filled in)<br>☐ **Screen** the screen itself, full frame |
-| "Two, a licensed provider reviews it." | ☐ **Anim** provider reviewing (same as video 2) |
-| "And three, if they prescribe it..." | ☐ **AI UGC** her, mug down |
-| "...it ships to your door." | ☐ **B-roll** plain parcel on a doorstep (same approved still as video 1) |
-| "Compounded semaglutide starts at sixty-nine. Check if you qualify." | ☐ **AI UGC** sips tea, to camera<br>☐ on-screen: price + Introductory offer |
+| "Okay, I spent my ENTIRE lunch break trying to find the catch." | ☐ **AI UGC** parked car, phone on the dash, sandwich on the seat (hook, 1.5 s) |
+| "'Cause sixty-nine dollars? For a GLP1? Come on." | ☐ **AI UGC** same, eyebrow up |
+| "So I'm reading the FAQ like it's a lease agreement." | ☐ **B-roll** glasses come down; her phone, scrolling the FAQ, squinting (2-3 holds of 2 s) |
+| "No membership. No subscription. No auto-refills." | ☐ **Screen** the real FAQ lines, her finger under each |
+| "A licensed provider actually reviews it first..." | ☐ **Anim** a provider reviewing an intake form (house style) |
+| "...and it's filled by U.S. pharmacies." | ☐ **AI UGC** nodding slowly, unconvinced-to-convinced |
+| "So... yeah. Didn't find one." | ☐ **AI UGC** glasses off, small laugh, takes a bite |
+| "It's sixty-nine for the first month if you qualify. Link's there." | ☐ **AI UGC** to camera<br>☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
 | — | ☐ **End card** |
+
+## Video 3: "No office visit" (process; DRAFT, not yet approved) ~18 s + end card
+
+| She says | Shots |
+|---|---|
+| "Okay, so you don't actually go into an office for this. I did NOT know that." | ☐ **AI UGC** sofa, mug, phone propped on the coffee table (hook, 1.5 s) |
+| "It's three steps. Like, three." | ☐ **AI UGC** holds up three fingers, laughs |
+| "You fill out a form online... takes a few minutes, apparently." | ☐ **B-roll** over her shoulder, her phone on the real intake start screen (nothing filled in)<br>☐ **Screen** the screen itself, full frame |
+| "A licensed provider looks it over." | ☐ **Anim** provider reviewing (same as video 2) |
+| "And if they prescribe it, it just ships to your house." | ☐ **B-roll** plain parcel on a doorstep, no one in shot |
+| "That's it. From the couch." | ☐ **AI UGC** sips her tea, shrugs |
+| "GLP1 for sixty-nine the first month, if you qualify. Link's right there." | ☐ **AI UGC** to camera<br>☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
+| — | ☐ **End card** |
+"Takes a few minutes": confirm with the client (the NAD+ page says 3 minutes; the GLP-1 intake length is not stated).
 
 ## Shared assets (made once)
-☐ Dana casting (4 options, with mic) ☐ kitchen still ☐ car still ☐ sofa still ☐ outfit per location
-☐ doorstep parcel still (client approval) ☐ real page captures: offer page, FAQ, intake start
+☑ Dana casting (`footage/ref/dana_v2_1.png`, kitchen) ☐ car still ☐ sofa still ☐ outfit per location
+☐ group-chat mock-up (coded) ☐ doorstep parcel still (client approval) ☐ real page captures: offer page, FAQ, intake start
 ☐ provider-review animation (house style) ☐ end card ×2 (with / without vial)
 ☐ client confirms "takes a few minutes" for the GLP-1 intake
