@@ -16,6 +16,9 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
 - **Animations share one cohesive art style** (any process or biomedical animation). Biomedical/mechanism visuals only with
   client-approved wording (the brief bans clinical claims without it).
 - **Show what she's saying, KISS:** every line has one literal visual; no clever metaphors.
+- **Storyboard format:** two columns, the line she says | its shots as a checklist (A-roll / B-roll / Screen / Anim),
+  ticked as each is generated and approved (see STORYBOARD_UGC.md).
+- **Act the story out:** small narrative beats in B-roll (a research montage, closing the laptop lid) beat a list of facts.
 - **Never imply she is a patient:** no unboxing her own order, no "my medication". Delivery shots show a parcel on a
   doorstep without her claiming it.
 
