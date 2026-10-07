@@ -14,6 +14,27 @@ space, no hyphen) and **My Fast Rx**. Captions and on-screen text use the writte
 **Voice rules (client, Oct 7):** one thought per breath, a reason she's talking, a reaction beat. Compliance details
 live on screen and on the end card, not in her mouth. No feature lists.
 
+## Locked video prompt (every AI UGC clip, all three videos)
+The camera never moves in any shot: no zoom, no push-in, no pan, no drift, no reframing (car-rant clip A drifted and
+had to be stabilized; we prevent it at the source). Only the scene line and the dialogue change between clips.
+
+```
+Static, locked-off shot. The camera does not move, zoom, pan or reframe at any point.
+UGC iPhone footage, front camera.
+[Scene line, per location:]
+  kitchen: She stands at her kitchen counter, phone propped in front of her.
+  sofa:    Evening, she sits on her sofa holding the phone at arm's length; the frame stays perfectly steady.
+  door:    She stands at her front door in her jacket, keys in hand, holding the phone; the frame stays perfectly steady.
+Body mostly still, mouth moves naturally, eye contact with the camera. Relaxed, warm, conversational, not salesy.
+
+Dialogue: "[exact line, GLP1 / My Fast Rx spelling, stress word in CAPS]"
+
+Rules:
+- The camera stays completely still for the whole clip. No zoom in or out.
+- One continuous take, no jump cuts.
+- [corrections stacked while iterating]
+```
+
 ## Video 1: "The group chat" (approved Oct 7) ~18 s + end card
 Locations: **kitchen** (afternoon) → **sofa** (that evening) → **front door** (heading out). Outfit: grey sweatshirt; a jacket goes on for the door.
 

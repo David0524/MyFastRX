@@ -25,6 +25,9 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
 - **No feature lists in her mouth (client, Oct 7: v1 scripts were "forced and corporate"):** give her a reason to talk
   (a group chat, a lunch break), one thought per breath, a reaction beat ("Like... sixty-nine."), a throwaway CTA.
   Compliance wording goes on screen and on the end card.
+- **Camera stays still in every AI UGC shot (client, Oct 7):** every video prompt opens with "Static, locked-off shot. The
+  camera does not move, zoom, pan or reframe" and repeats it in Rules. Selfie framings say "the frame stays perfectly
+  steady". Locked prompt: STORYBOARD_UGC.md.
 - **Never imply she is a patient:** no unboxing her own order, no "my medication". Delivery shots show a parcel on a
   doorstep without her claiming it.
 
