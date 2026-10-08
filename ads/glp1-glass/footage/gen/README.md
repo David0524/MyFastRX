@@ -193,3 +193,12 @@ Voice reference: vo/ugc/dana_voice_ref_kitchen.mp3 (audio of the A/B winner), Hi
 | vid1_door_draft1.mp4 (5 s) | dana_vid1_door_2 (2f448f91-...) | 35041f3a-d248-4288-918d-390e26ef6d50 | 15 | Words right. Natural, throwaway, keys in hand. |
 | vid1_kitchen_upscale_bd_ugc.mp4 | ByteDance upscale (ugc, 1080p) of 80b671df | d98e30d8-d7af-4735-938c-350cdf67395a | ~0.1 | REJECTED by client ("looks horrible"): over-sharpened, painted eyeliner, plastic skin, brush-stroke hair. Do not use ByteDance upscale on Dana. |
 Rough review: previews/ugc/vid1_drafts_rough.mp4. Seedance native finalize (draft_job_id, 1080p) preflight: 60 cr per 8 s draft.
+
+## UGC Video 1 navy-tee drafts (Oct 8, 2026), 48 credits
+Locked prompt (Shot on iPhone) + voice ref e43ccae4-2ce5-481f-8590-425daaf8dab6.
+
+| File | Start image | Job | Credits | Notes |
+|---|---|---|---|---|
+| vid1_navy_kitchen_draft1.mp4 (8 s) | dana_navy_kitchen_1 (068c5a22-...) | 2077ccb0-1d46-4a5e-8771-029de6f65d02 | 24 | REJECT: drops most of the line. Only "...not stop... like crazy expensive" with 1.5 s and 2.6 s silences. Tee is clean. |
+| vid1_navy_sofa_draft1.mp4 (8 s) | dana_navy_sofa_1 (5e8b9bc8-...) | d565776c-0e4c-4152-b653-793e67f33134 | 24 | GOOD: all words, soft surprised "like... sixty-nine" (no wide eyes), tee smooth. |
+Door: reuse vid1_door_draft1.mp4 (35041f3a-d248-4288-918d-390e26ef6d50, grey sweater still).
