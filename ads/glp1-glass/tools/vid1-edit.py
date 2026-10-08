@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """UGC Video 1 "The group chat": the edit. Builds the overlays (group-chat mock-up, real offer-page screens, captions,
 price line, CTA chip, end card) and composes the 1080x1920 cut with ffmpeg.
-  python3 tools/vid1-edit.py   -> out/ugc/vid1_group_chat/MyFastRx_UGC1_GroupChat_v1.mp4 (+ previews/ugc/ review copy)
+  python3 tools/vid1-edit.py   -> out/ugc/vid1_group_chat/MyFastRx_UGC1_GroupChat_v2.mp4 (+ previews/ugc/ review copy)
 Picture: Seedance 2.5 takes (kitchen + sofa finalized natively at 1080p, door = 480p draft scaled), see footage/gen/README.md.
 Kitchen: the model said "GLP1 S"; the stray "S" is cut (src 3.34 -> 4.05) and the cut sits under the group-chat B-roll.
 Captions are word for word; whenever "$69" is on screen "Introductory offer" sits beneath it; the end card carries the
@@ -40,7 +40,7 @@ CAPS = [
     ['$69 for the first month.', CARD[0], CARD[1]], ['Like... $69.', CARD[1], D0],
     ['No subscription either.', D0, D0 + 2.73], ['Anyway.', D0 + 2.73, D0 + 3.30], ["Link's there.", D0 + 3.30, TOTAL_A],
 ]
-PRICE = (HERO[0], CARD[1])    # the price line while the page is on screen
+PRICE = (S0 + 2.20, CARD[1])  # the price line from "compounded GLP1" to the end of "for the first month"
 CTA = (D0 + 3.30, TOTAL_A)
 
 def caption_png(text, path, qual=False):
@@ -157,13 +157,12 @@ def endcard_png(path):
 ov = []
 chat_png(1, f'{OV}/chat1.png'); chat_png(2, f'{OV}/chat2.png')
 ov += [(f'{OV}/chat1.png', CHAT[0], CHAT[0] + 0.85), (f'{OV}/chat2.png', CHAT[0] + 0.85, CHAT[1])]
-screen_png((0, 0, 1170, 1395), 780, f'{OV}/screen_hero.png', y0=220); screen_png((50, 2070, 580, 2410), 900, f'{OV}/screen_card.png')
-ov += [(f'{OV}/screen_hero.png', *HERO), (f'{OV}/screen_card.png', *CARD)]
+# v2 (client): no website screenshots; she stays on screen on the sofa (screen_png kept for reuse)
 chip_png(['Compounded Semaglutide', '$69 first month · Introductory offer'], f'{OV}/price.png', 1500)
 ov.append((f'{OV}/price.png', *PRICE))
 for i, (tx, a, b) in enumerate(CAPS):
     p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, qual='$69' in tx); ov.append((p, a, b))
-chip_png(['Check if you qualify'], f'{OV}/cta.png', 1330, fill=(32, 99, 235, 240), ink=WHITE); ov.append((f'{OV}/cta.png', *CTA))
+# v2 (client): no CTA button on the door shot; the end card carries the CTA
 endcard_png(f'{OV}/endcard.png')
 
 # ---- compose
@@ -187,13 +186,13 @@ for k, (p, a, b) in enumerate(ov):
     fc.append(f"[{last}][{4 + k}:v]overlay=0:0:shortest=0:enable='between(t,{a:.3f},{b - 0.001:.3f})'[b{k + 1}]"); last = f'b{k + 1}'
 fc.append(''.join(al) + f'[ae]concat=n={len(SEGS) + 1}:v=0:a=1,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.84:level=false[aout]')
-mp4 = f'{OUT}/MyFastRx_UGC1_GroupChat_v1.mp4'
+mp4 = f'{OUT}/MyFastRx_UGC1_GroupChat_v2.mp4'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',
          '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M',
          '-c:a', 'aac', '-ar', '48000', '-b:a', '256k', '-movflags', '+faststart', mp4]
 subprocess.run(args, check=True)
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', mp4, '-vf', 'scale=720:1280:flags=lanczos', '-c:v', 'libx264', '-crf', '24',
                 '-preset', 'medium', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart',
-                'previews/ugc/MyFastRx_UGC1_GroupChat_v1_review.mp4'], check=True)
+                'previews/ugc/MyFastRx_UGC1_GroupChat_v2_review.mp4'], check=True)
 print(json.dumps({'total_s': round(TOTAL, 2), 'segments': [round(s, 2) for s in starts], 'chat': CHAT, 'hero': HERO,
                   'card': CARD, 'captions': len(CAPS), 'out': mp4}))

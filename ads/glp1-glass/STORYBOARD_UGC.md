@@ -45,7 +45,7 @@ Locations: **kitchen** (afternoon) → **sofa** (that evening) → **front door*
 |---|---|
 | "My group chat will NOT stop talking about GLP1s." | ☑ **AI UGC** kitchen (`dana_navy_kitchen_1`; lines 1-2 in one take, `vid1_kitchen_1080p`), mid-task (wiping the counter), glances up at the camera (hook, 1.5 s) |
 | "And I just figured it was, like... crazy expensive." | ☐ **B-roll** her phone in her hand: group chat ("ok has anyone looked into the GLP-1 thing" / "isn't it like a fortune"), coded mock-up<br>☐ **AI UGC** back to her, small eye-roll |
-| "So I looked. This is My Fast Rx..." | ☐ **AI UGC** MOVE → sofa that evening, lamp on, arm's-length selfie (`dana_navy_sofa_1`)<br>☐ **Screen** cut straight to the real offer page |
+| "So I looked. This is My Fast Rx..." | ☐ **AI UGC** MOVE → sofa that evening, lamp on, arm's-length selfie (`dana_navy_sofa_1`)<br>~~Screen: the real offer page~~ (removed by client, v2: she stays on screen) |
 | "...compounded GLP1, SIXTY-NINE DOLLARS for the first month." | ☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
 | "Like... sixty-nine." | ☐ **AI UGC** beat of disbelief, small laugh |
 | (cut from her lines, Oct 8) | ☐ **B-roll** her thumb scrolling "what's included", on-screen: Provider review · Medication if prescribed · Shipping |
