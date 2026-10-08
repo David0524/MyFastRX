@@ -3,7 +3,8 @@
 three Seedance 2.5 720p takes of Dana at the pump, word-for-word captions, the client's pricing qualifiers, the client's
 headline "Same price. Any dose." and the end card shared with Video 1 (helpers reused from tools/vid1-edit.py).
   python3 tools/vid4-edit.py  -> out/ugc/vid4_pump/MyFastRx_UGC4_Pump_v1.mp4 (+ previews/ugc/ review copy)
-Long pauses (> ~0.6 s) are trimmed to short jump cuts, the native UGC rhythm."""
+Long pauses (> ~0.6 s) are trimmed to short jump cuts, the native UGC rhythm; every cut point is checked against the
+audio energy (a word can ring out past its transcript end time, as "dollars" did)."""
 import json, os, subprocess
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import numpy as np
@@ -20,9 +21,9 @@ exec(src[src.index('def chip_png'):src.index('def status_bar')]); exec(src[src.i
 OUT = 'out/ugc/vid4_pump'; OV = f'{OUT}/overlays'; os.makedirs(OV, exist_ok=True)
 C1, C2, C3 = 'footage/gen/vid4_clip1.mp4', 'footage/gen/vid4_clip2.mp4', 'footage/gen/vid4_clip3.mp4'
 CNT = 'footage/broll/pump_counter.mp4'          # coded counter: rolls up, stops at 3.4 s
-PIECES = [(C1, 0.00, 3.62), (C1, 4.10, 5.30), (C1, 6.30, 7.95),
-          (C2, 0.00, 6.75), (C2, 7.05, 9.95),
-          (C3, 0.00, 5.30), (C3, 5.60, 8.00)]
+PIECES = [(C1, 0.00, 3.62), (C1, 3.98, 5.30), (C1, 6.30, 7.95),
+          (C2, 0.00, 9.95),   # no trim here: "dollars" rings out to ~7.05 s
+          (C3, 0.00, 5.30), (C3, 5.52, 8.00)]
 END = 2.5
 starts = []; t = 0.0
 for f, a, b in PIECES: starts.append(t); t += b - a
@@ -42,7 +43,7 @@ Q69, Q79 = 'Introductory offer', 'Month-to-month: $139/mo after first month'
 CAPS = [
     ['Watching this number go up', 0.0, film(C1, 1.82), None],
     ['is my LEAST favorite thing.', film(C1, 1.82), film(C1, 3.62), None],
-    ['Gas, groceries...', film(C1, 4.10), film(C1, 5.30), None],
+    ['Gas, groceries...', film(C1, 3.98), film(C1, 5.30), None],
     ['everything just goes up.', film(C1, 6.30), film(C2, 0.0), None],
     ['So this one actually surprised me.', film(C2, 0.0), film(C2, 2.44), None],
     ['MyFastRx, GLP-1.', film(C2, 2.44), film(C2, 4.82), None],
@@ -52,7 +53,7 @@ CAPS = [
     ['And when the dose goes up...', T3, film(C3, 2.12), None],
     ["the price doesn't.", film(C3, 2.12), film(C3, 3.64), None],
     ['Every dose, same price.', film(C3, 3.64), film(C3, 5.30), None],
-    ['Honestly? Rare.', film(C3, 5.60), film(C3, 7.40), None],
+    ['Honestly? Rare.', film(C3, 5.52), film(C3, 7.40), None],
     ["Link's there.", film(C3, 7.40), TOTAL_A, None],
 ]
 CHIPS = [(['First month $69', 'New customers · Introductory offer'], film(C2, 4.82), film(C2, 7.05)),
