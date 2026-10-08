@@ -225,3 +225,6 @@ composited into both LCD windows with a homography, glass reflection kept on top
 (tools/pump-counter.py). Captions over the counter sit on the keypad, below the display.
 | vid4_nozzle.mp4 (5 s, omni_reference, image ref 887e14be) | a7fb8b9f-e7e4-444f-8595-eb81efb46cfc | 35 | REMOVED by client ("doesn't look good at all"). Was: her rust sleeve, nozzle out and hung back up, clunk at ~3.1 s. Used 1.4-3.5 s over "Every dose, same price." (client pick: "break it up"). |
 Edit: the counter now carries "And when the dose goes up... the price doesn't" (stops on it), then the nozzle, then her for "Honestly? Rare. Link's there."
+Background sound (Oct 8, client): tools/vid4-ambience.py -> audio/ugc/vid4_ambience.wav (about -30 LUFS, ~14 dB under the
+voice): looped station room tone from the unused AI pump clip, traffic rumble + 3 pass-bys, pump motor whir that shuts
+off with a click on "the price doesn't" (same frame the counter stops). Called by tools/vid4-edit.py.

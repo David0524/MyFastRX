@@ -92,10 +92,12 @@ for i, (lines, a, b) in enumerate(CHIPS):
 headline_png(f'{OV}/headline.png'); ov.append((f'{OV}/headline.png', *HEADLINE))
 endcard_png(f'{OV}/endcard.png')
 
+STOP = T3 + (3.4 - 1.40)                      # film time the counter stops (pump-counter --stop 3.4, insert from 1.40)
+subprocess.run(['python3', 'tools/vid4-ambience.py', '--dur', f'{TOTAL_A:.3f}', '--stop', f'{STOP:.3f}'], check=True)
 args = ['ffmpeg', '-v', 'error', '-y']
 clips = [C1, C2, C3]
 for f in clips: args += ['-i', f]
-args += ['-i', CNT, '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png', '-f', 'lavfi', '-i', 'nullsrc=s=16x16:d=0.1']   # input 5 kept as a placeholder
+args += ['-i', CNT, '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png', '-i', 'audio/ugc/vid4_ambience.wav']   # input 5: background sound (tools/vid4-ambience.py)
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
 fc, vl, al = [], [], []
 for k, (f, a, b) in enumerate(PIECES):
@@ -118,7 +120,9 @@ for j, (f_, t0, a, b, _) in enumerate(INSERTS):
     fc.append(f'[{last}][ci{j}]overlay=0:0:eof_action=pass[bi{j}]'); last = f'bi{j}'
 for k, (p, a, b) in enumerate(ov):
     fc.append(f"[{last}][{6 + k}:v]overlay=0:0:shortest=0:enable='between(t,{a:.3f},{b - 0.001:.3f})'[o{k}]"); last = f'o{k}'
-fc.append(''.join(al) + f'[ae]concat=n={len(PIECES) + 1}:v=0:a=1,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11,'
+fc.append(''.join(al) + f'[ae]concat=n={len(PIECES) + 1}:v=0:a=1[voice]')
+fc.append('[5:a]aformat=sample_rates=48000:channel_layouts=stereo[amb]')
+fc.append('[voice][amb]amix=inputs=2:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.84:level=false[aout]')
 mp4 = f'{OUT}/MyFastRx_UGC4_Pump_v1.mp4'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',
