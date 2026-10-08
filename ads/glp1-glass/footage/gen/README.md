@@ -183,3 +183,13 @@ like... crazy expensive." Both submissions needed declined_preset_id f7561a2d-75
 | ab_gemini_flash11_720p.mp4 | gemini_omni_flash_1_1, image-to-video, 720p | 76950c34-8ca8-40a0-a7eb-5e52e33f8060 | 24 | Words right. Starts at 0.68 s. Smiley, smooth, a bit "presenter". Camera sways ~2% sideways. Audio -22.9 LUFS. |
 | ab_seedance25_draft480p.mp4 | seedance_2_5 omni_reference, draft 480p | 80b671df-444c-4052-9a7c-28fb74295a5b | 24 | Words right. Starts at 0.0 s. More natural, expressive brows, real-UGC delivery. Camera steady except one blip at ~6.5 s. Face drifts a little (leaner). Can be finalized to 1080p. |
 Review: previews/ugc/ab_hook_gemini_vs_seedance.mp4 (A then B, loudness-matched).
+
+## UGC Video 1 A-roll drafts (Oct 8, 2026), Seedance 2.5 omni_reference 480p draft + voice ref
+Voice reference: vo/ugc/dana_voice_ref_kitchen.mp3 (audio of the A/B winner), Higgsfield media e43ccae4-2ce5-481f-8590-425daaf8dab6.
+
+| File | Start image | Job | Credits | Notes |
+|---|---|---|---|---|
+| vid1_sofa_draft1.mp4 (8 s) | dana_vid1_sofa_4 (66715e2f-...) | 7b240e8d-7373-42ce-ae49-d9abe91f108c | 24 | Words right. Wide-eyed, big-smile "sixty-nine": a bit over the top for the house rules. |
+| vid1_door_draft1.mp4 (5 s) | dana_vid1_door_2 (2f448f91-...) | 35041f3a-d248-4288-918d-390e26ef6d50 | 15 | Words right. Natural, throwaway, keys in hand. |
+| vid1_kitchen_upscale_bd_ugc.mp4 | ByteDance upscale (ugc, 1080p) of 80b671df | d98e30d8-d7af-4735-938c-350cdf67395a | ~0.1 | REJECTED by client ("looks horrible"): over-sharpened, painted eyeliner, plastic skin, brush-stroke hair. Do not use ByteDance upscale on Dana. |
+Rough review: previews/ugc/vid1_drafts_rough.mp4. Seedance native finalize (draft_job_id, 1080p) preflight: 60 cr per 8 s draft.
