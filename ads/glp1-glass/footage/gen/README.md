@@ -172,3 +172,14 @@ host is an average, healthy build, neither thin nor heavy). Each frame is the ca
 
 Edit: `python3 tools/car-rant-edit.py` -> out/ugc/car_rant/MyFastRx_CarRant_v1.mp4 (24.4 s; -16.0 LUFS / -2.3 dBTP), review copy
 previews/car_rant/MyFastRx_CarRant_v1_review.mp4. Car-rant credits: casting 8 + drafts 66 + upscales ~0.2.
+
+## UGC model A/B on the Video 1 hook (Oct 7-8, 2026), 48 credits
+Start image: footage/ref/dana_v2_1.png (job 9cb12ba2-f8b6-4dd6-9d10-8b368fb55e45). 8 s, 9:16, locked prompt from
+STORYBOARD_UGC.md (static camera), dialogue "My group chat will NOT stop talking about GLP1s. And I just figured it was,
+like... crazy expensive." Both submissions needed declined_preset_id f7561a2d-7556-4aed-b21d-2ff07a28326a ("Earth zoom in").
+
+| File | Model | Job | Credits | Notes |
+|---|---|---|---|---|
+| ab_gemini_flash11_720p.mp4 | gemini_omni_flash_1_1, image-to-video, 720p | 76950c34-8ca8-40a0-a7eb-5e52e33f8060 | 24 | Words right. Starts at 0.68 s. Smiley, smooth, a bit "presenter". Camera sways ~2% sideways. Audio -22.9 LUFS. |
+| ab_seedance25_draft480p.mp4 | seedance_2_5 omni_reference, draft 480p | 80b671df-444c-4052-9a7c-28fb74295a5b | 24 | Words right. Starts at 0.0 s. More natural, expressive brows, real-UGC delivery. Camera steady except one blip at ~6.5 s. Face drifts a little (leaner). Can be finalized to 1080p. |
+Review: previews/ugc/ab_hook_gemini_vs_seedance.mp4 (A then B, loudness-matched).
