@@ -209,3 +209,14 @@ Door: reuse vid1_door_draft1.mp4 (35041f3a-d248-4288-918d-390e26ef6d50, grey swe
 Note: finalize needs the same start_image in medias (omni_reference requires a reference item).
 | vid1_sofa_1080p.mp4 (8 s, 1080x1920) | finalize of 4d384c89 | 7d6b704c-0d43-4f92-afa5-200893ccad85 | 60 | Native 1080p finalize of the sofa retake. |
 **Video 1 cut v1:** tools/vid1-edit.py -> out/ugc/vid1_group_chat/MyFastRx_UGC1_GroupChat_v1.mp4 (22.6 s, -16 LUFS).
+
+## UGC Video 4 "The pump" (Oct 8, 2026), 217 credits
+Seedance 2.5 omni_reference 720p (no drafts), start image footage/ref/dana_vid4_pump_1.png (887e14be), voice ref e43ccae4.
+
+| File | Job | Credits | Notes |
+|---|---|---|---|
+| vid4_clip1.mp4 (8 s) | d62561f1-a0f6-441b-832a-febdc8e6fed0 | 56 | GOOD: "Watching this number go up is my least favorite thing. Gas, groceries... everything just goes up." |
+| vid4_clip2.mp4 (10 s) | c2402f4c-8dc6-4e54-a58a-f4ccdf661c03 | 70 | GOOD: "...My Fast Rx, GLP1. First month's sixty-nine dollars. If you do the year, it's seventy-nine a month." |
+| vid4_clip3.mp4 (8 s) | 8b5454ab-9966-492a-b534-d3fb994d0798 | 56 | GOOD: "And when the dose goes up... the price doesn't. Every dose, same price. Honestly? Rare. Link's there." |
+| vid4_pump_broll.mp4 (5 s, t2v) | 86e5c1f6-3575-459b-99ed-a650d06db062 | 35 | REJECT: the top number counts DOWN and decimal points jump. Replaced by the coded counter (tools/pump-counter.py -> footage/broll/pump_counter.mp4). |
+**Cut v1:** tools/vid4-edit.py -> out/ugc/vid4_pump/MyFastRx_UGC4_Pump_v1.mp4 (26.3 s, -16 LUFS).
