@@ -69,3 +69,20 @@ clip-on mic. Relaxed, half smile, looking at the camera."
 | dana_vid1_sofa_3.png | b995a184-7c2a-4d0b-af9e-e02c0516f384 | REJECT: tripod phone in frame again. |
 | dana_vid1_sofa_4.png | 66715e2f-7f97-4363-b1bc-096759b35e92 | PICK: arm's-length selfie from the sofa, lamp, mug on the table. Same woman. Shot change: she holds the camera phone, so "This is My Fast Rx" cuts straight to the Screen shot instead of her turning a phone round. |
 Picked for Video 1: kitchen dana_v2_1, sofa dana_vid1_sofa_4, door dana_vid1_door_2.
+
+## Navy-tee recast of the Video 1 stills (Oct 8, 2026), 12 credits
+Client flagged the heather-grey sweatshirt as "so textured" (it shimmers in video). Wardrobe rule now in UGC_PLAYBOOK.md.
+Kitchen: edit of dana_v2_1, "Same woman, same kitchen, same pose, same light. Change only her top: a plain solid soft-navy
+cotton crewneck t-shirt, smooth matte fabric with no texture, no heather, no pattern, relaxed fit. Keep the same hoops,
+glasses on her head and the same plain black clip-on mic on the collar." Sofa / door: from dana_navy_kitchen_1.
+
+| File | Job | Notes |
+|---|---|---|
+| dana_navy_kitchen_1.png | 068c5a22-ac9b-47f3-89de-c339c1d161ee | PICK. Clean smooth tee, same woman, same framing. |
+| dana_navy_kitchen_2.png | 94dcc43a-36e5-4b17-a911-4be8a4b05b45 | Also clean; looser fit. |
+| dana_navy_sofa_1.png | 5e8b9bc8-b2c0-4956-9653-acf68d686b3e | PICK. Arm's-length selfie POV, lamp, no phone in frame. |
+| dana_navy_sofa_2.png | 82398c89-ac65-400a-8c21-0b7cd67d5b9f | REJECT: third-person view, phone in frame. |
+| dana_navy_door_1.png | 636a681b-0ea0-47af-ace1-567b2e3a22ed | REJECT: third-person, she holds a phone in frame. |
+| dana_navy_door_2.png | a20cea9f-4011-4bb7-ae1f-7b509da18772 | REJECT: a phone sticks into the top-left corner. |
+Lesson: "holding her phone for a selfie" puts a phone in shot. Say "the image is what her phone's front camera sees".
+Contact sheet: dana_navy_contact.jpg.

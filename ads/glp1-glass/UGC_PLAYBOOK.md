@@ -28,6 +28,10 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
 - **Camera stays still in every AI UGC shot (client, Oct 7):** every video prompt opens with "Static, locked-off shot. The
   camera does not move, zoom, pan or reframe" and repeats it in Rules. Selfie framings say "the frame stays perfectly
   steady". Locked prompt: STORYBOARD_UGC.md.
+- **Wardrobe for AI video (client, Oct 8):** plain, smooth, solid mid-tone fabrics only. No heather, fine knits,
+  stripes, small checks or busy prints: they crawl and shimmer when animated and any upscale makes it worse.
+- **No AI upscaling of faces:** ByteDance upscale painted on make-up and plastic skin. Use the model's own native
+  finalize (Seedance draft -> 1080p) for approved takes only.
 - **Never imply she is a patient:** no unboxing her own order, no "my medication". Delivery shots show a parcel on a
   doorstep without her claiming it.
 

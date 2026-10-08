@@ -16,13 +16,14 @@ live on screen and on the end card, not in her mouth. No feature lists.
 
 ## Locked video prompt (every AI UGC clip, all three videos)
 **Model locked (client, Oct 8): Seedance 2.5 `omni_reference`**, 480p draft, start image = the location still, then
-ByteDance upscale (car-rant recipe). Won the A/B against Gemini Omni Flash 1.1 (footage/gen/README.md).
+Seedance native 1080p finalize (draft_job_id) of approved takes only. NO ByteDance upscale on Dana (client: "looks
+horrible": painted eyeliner, plastic skin). Won the A/B against Gemini Omni Flash 1.1 (footage/gen/README.md).
 The camera never moves in any shot: no zoom, no push-in, no pan, no drift, no reframing (car-rant clip A drifted and
 had to be stabilized; we prevent it at the source). Only the scene line and the dialogue change between clips.
 
 ```
 Static, locked-off shot. The camera does not move, zoom, pan or reframe at any point.
-UGC iPhone footage, front camera.
+Shot on iPhone, front camera, UGC footage.
 [Scene line, per location:]
   kitchen: She stands at her kitchen counter, phone propped in front of her.
   sofa:    Evening, she sits on her sofa holding the phone at arm's length; the frame stays perfectly steady.
@@ -38,7 +39,7 @@ Rules:
 ```
 
 ## Video 1: "The group chat" (approved Oct 7, trimmed Oct 8) ~18-20 s + end card (client: slightly long is OK)
-Locations: **kitchen** (afternoon) → **sofa** (that evening) → **front door** (heading out). Outfit: grey sweatshirt; a jacket goes on for the door.
+Locations: **kitchen** (afternoon) → **sofa** (that evening) → **front door** (heading out). Outfit: plain solid soft-navy tee in all three (same day); olive jacket over it at the door. (Grey heather sweatshirt dropped Oct 8: texture shimmer.)
 
 | She says | Shots |
 |---|---|
