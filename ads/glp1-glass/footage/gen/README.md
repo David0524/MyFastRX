@@ -207,3 +207,5 @@ Door: reuse vid1_door_draft1.mp4 (35041f3a-d248-4288-918d-390e26ef6d50, grey swe
 | vid1_kitchen_1080p.mp4 (8 s, 1080x1920) | finalize of 2de2387c | 14041d0a-1197-489a-b078-2efff03a5427 | 60 | Native 1080p finalize: same performance, natural skin (no upscaler look). Still says "GLP1 S": cut at ~3.34 s, resume ~3.95 s, under the group-chat B-roll. |
 | vid1_navy_sofa_draft2.mp4 (8 s) | dana_navy_sofa_1 + voice ref | 4d384c89-c8e1-4003-9005-6cd81463a703 | 24 | GOOD: "...compounded GLP1, sixty-nine DOLLARS for the first month. Like... sixty-nine." Soft reaction. To finalize. |
 Note: finalize needs the same start_image in medias (omni_reference requires a reference item).
+| vid1_sofa_1080p.mp4 (8 s, 1080x1920) | finalize of 4d384c89 | 7d6b704c-0d43-4f92-afa5-200893ccad85 | 60 | Native 1080p finalize of the sofa retake. |
+**Video 1 cut v1:** tools/vid1-edit.py -> out/ugc/vid1_group_chat/MyFastRx_UGC1_GroupChat_v1.mp4 (22.6 s, -16 LUFS).
