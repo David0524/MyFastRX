@@ -125,6 +125,8 @@ Rules:
 - **Durations:** if a line falls between allowed lengths, pad it with throwaway words, pick the longer length, cut the
   padding in the edit (stops her rushing or dragging).
 - About 1 in 10 references never animate well: after a few tries, rebuild the reference instead of fighting it.
+- **Decided Oct 8, 2026: Seedance 2.5 won the A/B** on the Dana hook (more natural delivery, steadier camera, instant
+  start) over Gemini Omni Flash 1.1 (smoother but "presenter", ~2% camera sway).
 - Video model: the guide's pick is Gemini Omni (full, via Kie). Higgsfield offers Gemini Omni Flash / Flash 1.1 and
   Seedance 2.5 (our car-rant recipe). A/B on one line before committing.
 

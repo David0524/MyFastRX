@@ -15,6 +15,8 @@ space, no hyphen) and **My Fast Rx**. Captions and on-screen text use the writte
 live on screen and on the end card, not in her mouth. No feature lists.
 
 ## Locked video prompt (every AI UGC clip, all three videos)
+**Model locked (client, Oct 8): Seedance 2.5 `omni_reference`**, 480p draft, start image = the location still, then
+ByteDance upscale (car-rant recipe). Won the A/B against Gemini Omni Flash 1.1 (footage/gen/README.md).
 The camera never moves in any shot: no zoom, no push-in, no pan, no drift, no reframing (car-rant clip A drifted and
 had to be stabilized; we prevent it at the source). Only the scene line and the dialogue change between clips.
 
@@ -35,19 +37,19 @@ Rules:
 - [corrections stacked while iterating]
 ```
 
-## Video 1: "The group chat" (approved Oct 7) ~18 s + end card
+## Video 1: "The group chat" (approved Oct 7, trimmed Oct 8) ~18-20 s + end card (client: slightly long is OK)
 Locations: **kitchen** (afternoon) → **sofa** (that evening) → **front door** (heading out). Outfit: grey sweatshirt; a jacket goes on for the door.
 
 | She says | Shots |
 |---|---|
-| "My group chat will NOT stop talking about GLP1s." | ☐ **AI UGC** kitchen, mid-task (wiping the counter), glances up at the camera (hook, 1.5 s) |
+| "My group chat will NOT stop talking about GLP1s." | ☑ **AI UGC** kitchen (A/B Seedance draft covers lines 1-2: `footage/gen/ab_seedance25_draft480p.mp4`), mid-task (wiping the counter), glances up at the camera (hook, 1.5 s) |
 | "And I just figured it was, like... crazy expensive." | ☐ **B-roll** her phone in her hand: group chat ("ok has anyone looked into the GLP-1 thing" / "isn't it like a fortune"), coded mock-up<br>☐ **AI UGC** back to her, small eye-roll |
 | "So I looked. This is My Fast Rx..." | ☐ **AI UGC** MOVE → sofa that evening, lamp on, arm's-length selfie (`dana_vid1_sofa_4`)<br>☐ **Screen** cut straight to the real offer page |
 | "...compounded GLP1, sixty-nine for the first month." | ☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
 | "Like... sixty-nine." | ☐ **AI UGC** beat of disbelief, small laugh |
-| "And that's the provider, the meds if they prescribe it, and shipping." | ☐ **B-roll** her thumb scrolling "what's included"<br>☐ **AI UGC** back to her, counting on her fingers |
-| "No subscription either, which honestly was the part I liked." | ☐ **AI UGC** MOVE → front door, jacket on, keys in hand, shrug |
-| "Anyway. Link's there if you wanna see if you qualify." | ☐ **AI UGC** already reaching for the door handle |
+| (cut from her lines, Oct 8) | ☐ **B-roll** her thumb scrolling "what's included", on-screen: Provider review · Medication if prescribed · Shipping |
+| "No subscription either." | ☐ **AI UGC** MOVE → front door, jacket on, keys in hand, shrug |
+| "Anyway. Link's there." | ☐ **AI UGC** already reaching for the door handle<br>☐ caption: Check if you qualify ↓ |
 | — | ☐ **End card** logo, Check if I qualify, MyFastRx.com, small vial, BBB badge, disclaimer + Rx line |
 
 Tirzepatide twin: only the price lines change ("...compounded GLP1, one twenty-nine for the first month." / "Like... one
