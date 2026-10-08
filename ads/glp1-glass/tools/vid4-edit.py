@@ -41,11 +41,11 @@ T3 = film(C3, 0.0)
 INSERTS = [(0.0, 0.00, 1.82), (T3, 1.40, 3.50)]   # (film start, counter in, counter out): hook; "when the dose goes up" -> stops
 Q69, Q79 = 'Introductory offer', 'Month-to-month: $139/mo after first month'
 CAPS = [
-    ['Watching this number go up', 0.0, film(C1, 1.82), None],
+    ['Watching this', 0.0, film(C1, 1.10), None], ['number go up', film(C1, 1.10), film(C1, 1.82), None],
     ['is my LEAST favorite thing.', film(C1, 1.82), film(C1, 3.62), None],
     ['Gas, groceries...', film(C1, 3.98), film(C1, 5.30), None],
     ['everything just goes up.', film(C1, 6.30), film(C2, 0.0), None],
-    ['So this one actually surprised me.', film(C2, 0.0), film(C2, 2.44), None],
+    ['So this one', film(C2, 0.0), film(C2, 0.80), None], ['actually surprised me.', film(C2, 0.80), film(C2, 2.44), None],
     ['MyFastRx, GLP-1.', film(C2, 2.44), film(C2, 4.82), None],
     ["First month's $69.", film(C2, 4.82), film(C2, 7.05), Q69],
     ['If you do the year,', film(C2, 7.05), film(C2, 8.68), None],
@@ -61,7 +61,8 @@ CHIPS = [(['First month $69', 'New customers · Introductory offer'], film(C2, 4
 HEADLINE = (film(C3, 2.12), film(C3, 7.40))      # the client's own headline, while she says it
 
 def caption_png(text, path, qual=None):
-    im = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im); f = F('Bold', 64)
+    im = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im); px = 64; f = F('Bold', px)
+    while d.textlength(text, font=f) > 840: px -= 2; f = F('Bold', px)   # guard: never past the safe zone
     w = d.textlength(text, font=f)
     d.text((CX - w / 2, CAP_Y - 64), text, font=f, fill=WHITE, stroke_width=7, stroke_fill=(0, 0, 0))
     if qual:
