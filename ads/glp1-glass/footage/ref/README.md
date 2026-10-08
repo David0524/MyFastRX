@@ -95,5 +95,5 @@ the door's window. Relaxed, mid-shrug."
 | File | Job | Notes |
 |---|---|---|
 | dana_navy_door_3.png | 7c49ca0f-b497-46aa-89f3-84e2b7ffb23a | REJECT (client): reads as already outside the house. |
-| dana_navy_door_4.png | b51674d7-8df4-4688-8d33-aae8483d5915 | PICK. Inside the house (light switch, baseboard), selfie POV, keys. |
-**Video 1 stills (navy): kitchen dana_navy_kitchen_1, sofa dana_navy_sofa_1, door dana_navy_door_4.**
+| dana_navy_door_4.png | b51674d7-8df4-4688-8d33-aae8483d5915 | Not used: client went back to the grey-sweater door (dana_vid1_door_2). Blown window behind her, posed keys. |
+**Video 1 stills (navy): kitchen dana_navy_kitchen_1, sofa dana_navy_sofa_1, door dana_vid1_door_2 (grey sweater under the jacket; existing draft footage/gen/vid1_door_draft1.mp4 reused).**

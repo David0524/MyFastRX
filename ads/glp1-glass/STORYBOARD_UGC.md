@@ -89,7 +89,7 @@ Locations: **neighbourhood walk** → **home on the sofa**. Outfit: zip-up athle
 
 ## Shared assets (made once)
 ☑ Dana casting (`footage/ref/dana_v2_1.png`, kitchen)
-Location stills (2 options each, ~2 cr per image): ☑ V1 kitchen (`dana_navy_kitchen_1`) ☑ V1 sofa evening (`dana_navy_sofa_1`) ☑ V1 front door (`dana_navy_door_4`) ☐ V2 car ☐ V2 office walk
+Location stills (2 options each, ~2 cr per image): ☑ V1 kitchen (`dana_navy_kitchen_1`) ☑ V1 sofa evening (`dana_navy_sofa_1`) ☑ V1 front door (`dana_vid1_door_2`, grey sweater under the jacket; client's pick Oct 8) ☐ V2 car ☐ V2 office walk
 ☐ V3 neighbourhood walk ☐ V3 sofa (different outfit from V1). Walking shots: keep to ~2 s holds; if one will not animate
 cleanly, swap for a static shot.
 ☐ group-chat mock-up (coded) ☐ doorstep parcel still (client approval) ☐ real page captures: offer page, FAQ, intake start
