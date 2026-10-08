@@ -26,7 +26,7 @@ PIECES = [(C1, 0.00, 1.82), (C1, 1.82, 3.62), (C1, 3.98, 5.30), (C1, 6.30, 7.95)
           (C3, 0.00, 5.30), (C3, 5.52, 8.00)]
 # hard punch-ins (client: "she is in the same position the whole time"): a cut to a tighter frame on the same take.
 # "is my LEAST favorite thing" (right after the counter), "If you do the year...", "Honestly? Rare. Link's there."
-PUNCH = {1: (1.20, 0.45, 0.30), 5: (1.20, 0.45, 0.30), 7: (1.20, 0.45, 0.30)}   # piece -> (zoom, face cx, face cy) as frame fractions
+PUNCH = {7: (1.20, 0.45, 0.30)}   # client: one punch-in only, on the sign-off   # piece -> (zoom, face cx, face cy) as frame fractions
 END = 2.5
 starts = []; t = 0.0
 for f, a, b in PIECES: starts.append(t); t += b - a
