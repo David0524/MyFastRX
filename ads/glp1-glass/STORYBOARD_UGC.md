@@ -57,6 +57,26 @@ Tirzepatide twin: only the price lines change ("...compounded GLP1, one twenty-n
 twenty-nine.") ☐ on-screen: Compounded Tirzepatide · $129 first month · Introductory offer ☐ end card without a vial.
 To check with the client: the group-chat mock-up (neutral text, no results, no other brands).
 
+## Video 4: "The pump" (client request Oct 8: first month $69, plans from $79/mo, same price any dose) ~20 s + end card
+Concept chosen by the client over reply-to-comment / guess-the-price / price montage. Host: Dana (series continuity).
+Location: gas station, daylight, NO fuel brand anywhere. Outfit: plain smooth rust long-sleeve cotton tee (wardrobe rule),
+same hoops, glasses on head, black clip-on mic. One location; the pump counter is the visual.
+Pricing (client's page, Oct 8): 1 month $69 first month (code MY70, new customers), then $139/mo; 12 months $79/mo
+equivalent, $948 billed upfront. "Same price. Any dose." is the client's own headline.
+Open question for the client: can a new customer take the $69 first month and then the 12-month plan?
+
+| She says | Shots |
+|---|---|
+| "Watching this number go up is my LEAST favorite thing." | ☐ **B-roll** close-up: pump digits rolling up (no brand), her voice over (hook, 1.5 s)<br>☐ **AI UGC** her at the pump, selfie, nozzle in the car |
+| "Gas, groceries... everything just goes up." | ☐ **AI UGC** same, dry shrug |
+| "So this one actually surprised me. My Fast Rx, GLP1. First month's sixty-nine dollars." | ☐ **AI UGC**<br>☐ on-screen: First month $69 · New customers · Introductory offer |
+| "If you do the year, it's seventy-nine a month." | ☐ **AI UGC**<br>☐ on-screen: 12-month plan: $79/mo equivalent · $948 billed upfront / Month-to-month: $139/mo after first month |
+| "And when the dose goes up..." | ☐ **B-roll** the pump clicks off, the number stops |
+| "...the price doesn't. Every dose, same price. Honestly? Rare." | ☐ **AI UGC** hangs up the nozzle<br>☐ on-screen: **Same price. Any dose.** |
+| "Link's there." | ☐ **AI UGC** to camera |
+| — | ☐ **End card** (as Video 1) |
+Spoken-line checks: GLP1 singular; "sixty-nine DOLLARS" once; no competitor claims; no voice ref containing the same line.
+
 ## Video 2: "Lunch break" (trust; approved Oct 7) ~19 s + end card
 Locations: **parked car** (lunch break) → **walking back into the office**. Outfit: work blouse + blazer.
 
