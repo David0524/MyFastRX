@@ -202,3 +202,5 @@ Locked prompt (Shot on iPhone) + voice ref e43ccae4-2ce5-481f-8590-425daaf8dab6.
 | vid1_navy_kitchen_draft1.mp4 (8 s) | dana_navy_kitchen_1 (068c5a22-...) | 2077ccb0-1d46-4a5e-8771-029de6f65d02 | 24 | REJECT: drops most of the line. Only "...not stop... like crazy expensive" with 1.5 s and 2.6 s silences. Tee is clean. |
 | vid1_navy_sofa_draft1.mp4 (8 s) | dana_navy_sofa_1 (5e8b9bc8-...) | d565776c-0e4c-4152-b653-793e67f33134 | 24 | GOOD: all words, soft surprised "like... sixty-nine" (no wide eyes), tee smooth. |
 Door: reuse vid1_door_draft1.mp4 (35041f3a-d248-4288-918d-390e26ef6d50, grey sweater still).
+| vid1_navy_kitchen_draft2.mp4 (8 s) | dana_navy_kitchen_1 | 2de2387c-1a54-4104-a1ff-c20e8537e062 | 24 | GOOD: full line from 0.0 s, natural "like... crazy expensive" beat. NO voice reference (the ref held this exact line and broke draft1). |
+**Video 1 takes to finalize: kitchen 2de2387c, sofa d565776c, door 35041f3a.**

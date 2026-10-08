@@ -30,6 +30,8 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
   steady". Locked prompt: STORYBOARD_UGC.md.
 - **Wardrobe for AI video (client, Oct 8):** plain, smooth, solid mid-tone fabrics only. No heather, fine knits,
   stripes, small checks or busy prints: they crawl and shimmer when animated and any upscale makes it worse.
+- **Voice reference gotcha (Oct 8):** never pass a voice reference that contains the same line the clip must say; the
+  model follows the recording's timing and drops words. Use a reference with different words, or none.
 - **No AI upscaling of faces:** ByteDance upscale painted on make-up and plastic skin. Use the model's own native
   finalize (Seedance draft -> 1080p) for approved takes only.
 - **Never imply she is a patient:** no unboxing her own order, no "my medication". Delivery shots show a parcel on a
