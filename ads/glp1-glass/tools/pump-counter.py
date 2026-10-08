@@ -1,56 +1,78 @@
 #!/usr/bin/env python3
-"""Coded fallback for Video 4's B-roll: an extreme close-up of a plain (unbranded) fuel-pump LCD whose dollar amount
-counts up and then stops. Seven-segment digits drawn in code, with lens blur, grain and a slight handheld drift so it
-reads as phone footage, not a graphic.
-  python3 tools/pump-counter.py [--stop 3.4] [--final 48.73]  -> footage/broll/pump_counter.mp4 (1080x1920, 30 fps, 5 s)"""
+"""Video 4's B-roll: the client's pump close-up (footage/broll/pump_plate.png, made in ChatGPT, blank LCDs) with coded
+seven-segment digits composited INTO its two LCD windows: perspective-matched (homography to each window's corners),
+italic LCD slant, unlit "ghost" segments, the plate's glass reflection kept over the digits (multiply + reflection
+back on top), focus matched, then a slow handheld drift / focus breathe / grain so it reads as phone footage.
+The TOTAL SALE counts up and stops at --stop; GALLONS follows at --ppg dollars per gallon.
+  python3 tools/pump-counter.py [--stop 3.4] [--final 48.73] [--dur 5]  -> footage/broll/pump_counter.mp4 (1080x1920, 30 fps)"""
 import argparse, os, subprocess, math
+import cv2
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 ap = argparse.ArgumentParser(); ap.add_argument('--stop', type=float, default=3.4); ap.add_argument('--final', type=float, default=48.73)
-ap.add_argument('--dur', type=float, default=5.0); a = ap.parse_args()
+ap.add_argument('--ppg', type=float, default=3.89); ap.add_argument('--dur', type=float, default=5.0)
+ap.add_argument('--still', type=float, default=None, help='write one frame at this time to --out-png instead of the video')
+ap.add_argument('--out-png', default=None); a = ap.parse_args()
 W, H, FPS = 1080, 1920, 30
-os.makedirs('footage/broll/pump_frames', exist_ok=True)
+plate = cv2.imread('footage/broll/pump_plate.png').astype(np.float32) / 255.0      # 941 x 1672, BGR
+PH, PW = plate.shape[:2]
+# LCD glass corners in the plate (TL, TR, BR, BL), measured on a pixel grid
+WINDOWS = {'sale': np.float32([[104, 412], [792, 534], [802, 736], [100, 688]]),
+           'gal': np.float32([[99, 874], [811, 885], [815, 1081], [97, 1140]])}
 SEG = {'0': 'abcdef', '1': 'bc', '2': 'abged', '3': 'abgcd', '4': 'fgbc', '5': 'afgcd', '6': 'afgedc', '7': 'abc', '8': 'abcdefg', '9': 'abcdfg'}
+FW, FH = 1400, 560        # flat LCD canvas per window
 
-def digit(d, x, y, w, h, ch, on, off):
-    t = w * 0.16; g = t * 0.25
-    segs = {'a': (x + t, y, x + w - t, y + t), 'g': (x + t, y + h / 2 - t / 2, x + w - t, y + h / 2 + t / 2),
-            'd': (x + t, y + h - t, x + w - t, y + h), 'f': (x, y + t, x + t, y + h / 2 - g), 'b': (x + w - t, y + t, x + w, y + h / 2 - g),
-            'e': (x, y + h / 2 + g, x + t, y + h - t), 'c': (x + w - t, y + h / 2 + g, x + w, y + h - t)}
-    for k, r in segs.items():
-        d.rounded_rectangle(r, radius=t * 0.35, fill=on if k in SEG[ch] else off)
+def lcd_mask(text):
+    """Flat canvas: 1.0 = lit segment, 0.055 = unlit ghost segment, 0 = glass. Italic slant like real pump LCDs."""
+    m = np.zeros((FH, FW), np.float32)
+    n = len([c for c in text if c != '.'])
+    mx, my = 120, 95; dw = (FW - 2 * mx) / n; dh = FH - 2 * my; t = dw * 0.15; x = mx
+    for c in text:
+        if c == '.':
+            cv2.circle(m, (int(x - dw * 0.06), int(my + dh - t * 0.5)), int(t * 0.55), 1.0, -1, cv2.LINE_AA); continue
+        x0, w_ = x + dw * 0.14, dw * 0.66; on = SEG.get(c, '')
+        segs = {'a': ((x0 + t, my), (x0 + w_ - t, my + t)), 'g': ((x0 + t, my + dh / 2 - t / 2), (x0 + w_ - t, my + dh / 2 + t / 2)),
+                'd': ((x0 + t, my + dh - t), (x0 + w_ - t, my + dh)), 'f': ((x0, my + t), (x0 + t, my + dh / 2 - t * 0.3)),
+                'b': ((x0 + w_ - t, my + t), (x0 + w_, my + dh / 2 - t * 0.3)), 'e': ((x0, my + dh / 2 + t * 0.3), (x0 + t, my + dh - t)),
+                'c': ((x0 + w_ - t, my + dh / 2 + t * 0.3), (x0 + w_, my + dh - t))}
+        for s_, (p0, p1) in segs.items():
+            cv2.rectangle(m, (int(p0[0]), int(p0[1])), (int(p1[0]), int(p1[1])), 1.0 if s_ in on else 0.055, -1, cv2.LINE_AA)
+        x += dw
+    shear = np.float32([[1, -0.10, 0.10 * FH * 0.6], [0, 1, 0]])                      # forward italic slant
+    m = cv2.warpAffine(m, shear, (FW, FH), flags=cv2.INTER_LINEAR)
+    return cv2.GaussianBlur(m, (0, 0), 1.2)
+
+HOMS = {k: cv2.getPerspectiveTransform(np.float32([[0, 0], [FW, 0], [FW, FH], [0, FH]]), q) for k, q in WINDOWS.items()}
+REFL = np.clip(cv2.GaussianBlur(plate, (0, 0), 3) - 0.55, 0, 1)                     # the bright reflection in the glass
+
+def composite(sale, gal):
+    out = plate.copy()
+    for key, txt in (('sale', sale), ('gal', gal)):
+        m = cv2.warpPerspective(lcd_mask(txt), HOMS[key], (PW, PH), flags=cv2.INTER_LINEAR)
+        m = cv2.GaussianBlur(m, (0, 0), 0.9)[..., None]                               # focus matched to the plate
+        ink = np.float32([0.10, 0.11, 0.10])                                          # near-black LCD segment (BGR)
+        out = out * (1 - 0.92 * m) + ink * 0.92 * m
+        out = out + REFL * m * 0.45                                                    # reflection stays on top of the digits
+    return np.clip(out, 0, 1)
 
 def frame(t):
     v = a.final * min(1.0, t / a.stop) ** 0.92 if t < a.stop else a.final
-    gal = v / 3.89
-    im = Image.new('RGB', (W + 200, H + 200), (58, 60, 63)); d = ImageDraw.Draw(im)
-    for y in range(0, H + 200, 6): d.line((0, y, W + 200, y), fill=(60 + (y // 6) % 2, 62, 65))   # brushed bezel
-    for (top, val, lab, big) in [(300, f'{v:6.2f}', 'TOTAL SALE $', 1), (900, f'{gal:6.3f}', 'GALLONS', 0)]:   # captions sit below at ~1170-1240
-        x0, x1, y0 = 140, W + 60, top; hh = 470 if big else 380
-        d.rounded_rectangle((x0 - 30, y0 - 30, x1 + 30, y0 + hh + 30), 26, fill=(28, 29, 31))
-        d.rounded_rectangle((x0, y0, x1, y0 + hh), 14, fill=(150, 162, 140))                    # LCD glass
-        chars = val; n = len([c for c in chars if c != '.'])   # leading blanks stay unlit, like a real pump
-        dw = (x1 - x0 - 120) / n; dh = hh - 120; x = x0 + 70
-        for c in chars:
-            if c == '.':
-                d.ellipse((x - dw * 0.16, y0 + 60 + dh - dw * 0.14, x - dw * 0.02, y0 + 60 + dh), fill=(25, 30, 25)); continue
-            digit(d, x + dw * 0.08, y0 + 60, dw * 0.74, dh, '8' if c == ' ' else c, (138, 150, 128) if c == ' ' else (25, 30, 25), (138, 150, 128)); x += dw
-        d.text((x0, y0 - 92), lab, fill=(205, 205, 200), font=ImageFont.truetype('assets/fonts/Geist-SemiBold.ttf', 54))
-    im = im.filter(ImageFilter.GaussianBlur(2.2))
-    dx = 100 + 14 * math.sin(t * 1.3) + 6 * math.sin(t * 3.1); dy = 100 + 10 * math.cos(t * 1.1)
-    im = im.crop((dx, dy, dx + W, dy + H))
-    arr = np.asarray(im).astype(np.float32)
-    yy, xx = np.mgrid[0:H, 0:W]; vig = 1 - 0.28 * (((xx - W / 2) / W) ** 2 + ((yy - H / 2) / H) ** 2) * 2.2
-    arr = arr * vig[..., None] + np.random.normal(0, 5.5, arr.shape)
-    return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
+    img = composite(f'{v:6.2f}', f'{v / a.ppg:6.3f}')
+    s = 1.25 + 0.010 * math.sin(t * 0.9)                                               # slight push and breathe
+    cx = PW / 2 + 9 * math.sin(t * 1.3) + 4 * math.sin(t * 3.1); cy = PH * 0.40 + 7 * math.cos(t * 1.1)
+    k = s * W / PW
+    M = np.float32([[k, 0, W / 2 - k * cx], [0, k, H / 2 - k * cy]])
+    f = cv2.warpAffine(img, M, (W, H), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REFLECT)
+    f = f + np.random.normal(0, 0.018, f.shape).astype(np.float32)                    # sensor grain
+    return (np.clip(f, 0, 1) * 255).astype(np.uint8)
 
+if a.still is not None:
+    cv2.imwrite(a.out_png, frame(a.still)); raise SystemExit
 n = int(a.dur * FPS)
-for i in range(n): frame(i / FPS).save(f'footage/broll/pump_frames/{i:04d}.png')
-subprocess.run(['ffmpeg', '-v', 'error', '-y', '-framerate', str(FPS), '-i', 'footage/broll/pump_frames/%04d.png', '-c:v', 'libx264',
-                '-crf', '18', '-pix_fmt', 'yuv420p', 'footage/broll/pump_counter.mp4'], check=True)
-for f in os.listdir('footage/broll/pump_frames'): os.remove(f'footage/broll/pump_frames/{f}')
-os.rmdir('footage/broll/pump_frames')
+p = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
+                      '-c:v', 'libx264', '-crf', '18', '-pix_fmt', 'yuv420p', 'footage/broll/pump_counter.mp4'], stdin=subprocess.PIPE)
+for i in range(n): p.stdin.write(frame(i / FPS).tobytes())
+p.stdin.close(); p.wait()
 print('footage/broll/pump_counter.mp4')

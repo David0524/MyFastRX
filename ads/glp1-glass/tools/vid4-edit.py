@@ -60,13 +60,13 @@ CHIPS = [(['First month $69', 'New customers · Introductory offer'], film(C2, 4
          (['12-month plan: $79/mo equivalent', '$948 billed upfront'], film(C2, 7.05), T3)]
 HEADLINE = (film(C3, 2.12), film(C3, 7.40))      # the client's own headline, while she says it
 
-def caption_png(text, path, qual=None):
+def caption_png(text, path, qual=None, base=CAP_Y):
     im = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im); px = 64; f = F('Bold', px)
     while d.textlength(text, font=f) > 840: px -= 2; f = F('Bold', px)   # guard: never past the safe zone
     w = d.textlength(text, font=f)
-    d.text((CX - w / 2, CAP_Y - 64), text, font=f, fill=WHITE, stroke_width=7, stroke_fill=(0, 0, 0))
+    d.text((CX - w / 2, base - 64), text, font=f, fill=WHITE, stroke_width=7, stroke_fill=(0, 0, 0))
     if qual:
-        fq = F('Medium', 34); qw = d.textlength(qual, font=fq); y = CAP_Y + 26
+        fq = F('Medium', 34); qw = d.textlength(qual, font=fq); y = base + 26
         d.rounded_rectangle((CX - qw / 2 - 16, y - 8, CX + qw / 2 + 16, y + 46), 12, fill=(0, 0, 0, 170))
         d.text((CX - qw / 2, y), qual, font=fq, fill=WHITE)
     im.save(path)
@@ -79,7 +79,8 @@ def headline_png(path):
 
 ov = []
 for i, (tx, a, b, q) in enumerate(CAPS):
-    p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, q); ov.append((p, a, b))
+    on_pump = any(t0 - 0.01 <= a < t0 + (cb - ca) for t0, ca, cb in INSERTS)   # over the counter: below the display, on the keypad
+    p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, q, base=1780 if on_pump else CAP_Y); ov.append((p, a, b))
 for i, (lines, a, b) in enumerate(CHIPS):
     p = f'{OV}/chip_{i}.png'; chip_png(lines, p, 1500); ov.append((p, a, b))
 headline_png(f'{OV}/headline.png'); ov.append((f'{OV}/headline.png', *HEADLINE))

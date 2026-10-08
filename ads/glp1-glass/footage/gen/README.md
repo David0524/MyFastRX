@@ -220,3 +220,6 @@ Seedance 2.5 omni_reference 720p (no drafts), start image footage/ref/dana_vid4_
 | vid4_clip3.mp4 (8 s) | 8b5454ab-9966-492a-b534-d3fb994d0798 | 56 | GOOD: "And when the dose goes up... the price doesn't. Every dose, same price. Honestly? Rare. Link's there." |
 | vid4_pump_broll.mp4 (5 s, t2v) | 86e5c1f6-3575-459b-99ed-a650d06db062 | 35 | REJECT: the top number counts DOWN and decimal points jump. Replaced by the coded counter (tools/pump-counter.py -> footage/broll/pump_counter.mp4). |
 **Cut v1:** tools/vid4-edit.py -> out/ugc/vid4_pump/MyFastRx_UGC4_Pump_v1.mp4 (26.3 s, -16 LUFS).
+Pump B-roll v2 (Oct 8): footage/broll/pump_plate.png (client-supplied ChatGPT close-up, blank LCDs) + coded digits
+composited into both LCD windows with a homography, glass reflection kept on top, handheld drift + grain
+(tools/pump-counter.py). Captions over the counter sit on the keypad, below the display.
