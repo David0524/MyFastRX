@@ -43,9 +43,9 @@ Locations: **kitchen** (afternoon) → **sofa** (that evening) → **front door*
 
 | She says | Shots |
 |---|---|
-| "My group chat will NOT stop talking about GLP1s." | ☑ **AI UGC** kitchen (A/B Seedance draft covers lines 1-2: `footage/gen/ab_seedance25_draft480p.mp4`), mid-task (wiping the counter), glances up at the camera (hook, 1.5 s) |
+| "My group chat will NOT stop talking about GLP1s." | ☐ **AI UGC** kitchen (`dana_navy_kitchen_1`; lines 1-2 in one take), mid-task (wiping the counter), glances up at the camera (hook, 1.5 s) |
 | "And I just figured it was, like... crazy expensive." | ☐ **B-roll** her phone in her hand: group chat ("ok has anyone looked into the GLP-1 thing" / "isn't it like a fortune"), coded mock-up<br>☐ **AI UGC** back to her, small eye-roll |
-| "So I looked. This is My Fast Rx..." | ☐ **AI UGC** MOVE → sofa that evening, lamp on, arm's-length selfie (`dana_vid1_sofa_4`)<br>☐ **Screen** cut straight to the real offer page |
+| "So I looked. This is My Fast Rx..." | ☐ **AI UGC** MOVE → sofa that evening, lamp on, arm's-length selfie (`dana_navy_sofa_1`)<br>☐ **Screen** cut straight to the real offer page |
 | "...compounded GLP1, sixty-nine for the first month." | ☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
 | "Like... sixty-nine." | ☐ **AI UGC** beat of disbelief, small laugh |
 | (cut from her lines, Oct 8) | ☐ **B-roll** her thumb scrolling "what's included", on-screen: Provider review · Medication if prescribed · Shipping |
@@ -89,7 +89,7 @@ Locations: **neighbourhood walk** → **home on the sofa**. Outfit: zip-up athle
 
 ## Shared assets (made once)
 ☑ Dana casting (`footage/ref/dana_v2_1.png`, kitchen)
-Location stills (2 options each, ~2 cr per image): ☑ V1 sofa evening (`dana_vid1_sofa_4`) ☑ V1 front door (`dana_vid1_door_2`) ☐ V2 car ☐ V2 office walk
+Location stills (2 options each, ~2 cr per image): ☑ V1 kitchen (`dana_navy_kitchen_1`) ☑ V1 sofa evening (`dana_navy_sofa_1`) ☑ V1 front door (`dana_navy_door_3`) ☐ V2 car ☐ V2 office walk
 ☐ V3 neighbourhood walk ☐ V3 sofa (different outfit from V1). Walking shots: keep to ~2 s holds; if one will not animate
 cleanly, swap for a static shot.
 ☐ group-chat mock-up (coded) ☐ doorstep parcel still (client approval) ☐ real page captures: offer page, FAQ, intake start

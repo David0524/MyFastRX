@@ -86,3 +86,14 @@ glasses on her head and the same plain black clip-on mic on the collar." Sofa / 
 | dana_navy_door_2.png | a20cea9f-4011-4bb7-ae1f-7b509da18772 | REJECT: a phone sticks into the top-left corner. |
 Lesson: "holding her phone for a selfie" puts a phone in shot. Say "the image is what her phone's front camera sees".
 Contact sheet: dana_navy_contact.jpg.
+
+Door redo (4 credits), prompt: "Same woman at her front door, about to head out. The image is what her phone's front
+camera sees, at arm's length; no phone visible. A smooth olive utility jacket, open, over the same plain navy t-shirt,
+keys in her other hand, same hoops, glasses on her head, same black clip-on mic on the t-shirt collar. Soft daylight from
+the door's window. Relaxed, mid-shrug."
+
+| File | Job | Notes |
+|---|---|---|
+| dana_navy_door_3.png | 7c49ca0f-b497-46aa-89f3-84e2b7ffb23a | PICK. Selfie POV, keys raised by the door, no phone in shot, mic visible. |
+| dana_navy_door_4.png | b51674d7-8df4-4688-8d33-aae8483d5915 | Also works; wider arm, bright window. |
+**Video 1 stills (navy): kitchen dana_navy_kitchen_1, sofa dana_navy_sofa_1, door dana_navy_door_3.**
