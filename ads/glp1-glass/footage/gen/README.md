@@ -204,3 +204,6 @@ Locked prompt (Shot on iPhone) + voice ref e43ccae4-2ce5-481f-8590-425daaf8dab6.
 Door: reuse vid1_door_draft1.mp4 (35041f3a-d248-4288-918d-390e26ef6d50, grey sweater still).
 | vid1_navy_kitchen_draft2.mp4 (8 s) | dana_navy_kitchen_1 | 2de2387c-1a54-4104-a1ff-c20e8537e062 | 24 | GOOD: full line from 0.0 s, natural "like... crazy expensive" beat. NO voice reference (the ref held this exact line and broke draft1). |
 **Video 1 takes to finalize: kitchen 2de2387c, sofa d565776c, door 35041f3a.**
+| vid1_kitchen_1080p.mp4 (8 s, 1080x1920) | finalize of 2de2387c | 14041d0a-1197-489a-b078-2efff03a5427 | 60 | Native 1080p finalize: same performance, natural skin (no upscaler look). Still says "GLP1 S": cut at ~3.34 s, resume ~3.95 s, under the group-chat B-roll. |
+| vid1_navy_sofa_draft2.mp4 (8 s) | dana_navy_sofa_1 + voice ref | 4d384c89-c8e1-4003-9005-6cd81463a703 | 24 | GOOD: "...compounded GLP1, sixty-nine DOLLARS for the first month. Like... sixty-nine." Soft reaction. To finalize. |
+Note: finalize needs the same start_image in medias (omni_reference requires a reference item).
