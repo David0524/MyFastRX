@@ -97,3 +97,13 @@ the door's window. Relaxed, mid-shrug."
 | dana_navy_door_3.png | 7c49ca0f-b497-46aa-89f3-84e2b7ffb23a | REJECT (client): reads as already outside the house. |
 | dana_navy_door_4.png | b51674d7-8df4-4688-8d33-aae8483d5915 | Not used: client went back to the grey-sweater door (dana_vid1_door_2). Blown window behind her, posed keys. |
 **Video 1 stills (navy): kitchen dana_navy_kitchen_1, sofa dana_navy_sofa_1, door dana_vid1_door_2 (grey sweater under the jacket; existing draft footage/gen/vid1_door_draft1.mp4 reused).**
+
+## Video 4 "The pump" still (Oct 8, 2026), 2 credits
+From dana_navy_kitchen_1 (068c5a22). Prompt: "Same woman, daytime at a gas station, filling up her car, the nozzle in the
+tank, holding her phone at arm's length for a selfie. The image is what her phone's front camera sees; no other phone
+visible. A plain smooth rust long-sleeve cotton t-shirt, same hoops, glasses on her head, same black clip-on mic on the
+collar. No logos or brand names anywhere: plain pump, plain canopy. Soft overcast light. Relaxed, half smile."
+
+| File | Job | Notes |
+|---|---|---|
+| dana_vid4_pump_1.png | 887e14be-0fc9-4ca9-825e-38df78ab2e15 | PICK. Selfie POV, nozzle in the tank, plain pump, no brand (only illegible fuel-door label text). Blown 4% = overcast sky, face clean. Tee smooth. |
