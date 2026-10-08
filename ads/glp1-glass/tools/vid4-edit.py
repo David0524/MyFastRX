@@ -41,7 +41,7 @@ T3 = film(C3, 0.0)
 NOZ = 'footage/gen/vid4_nozzle.mp4'; NOZ_IN = 1.4          # B-roll: her hand hangs up the nozzle (client pick, Oct 8)
 NZ0, NZ1 = film(C3, 3.20), starts[-1]                      # over "Every dose, same price.", back to her for "Honestly? Rare."
 # (file, film start, src in, src out, audio gain): counter hook; counter through "the price doesn't" (stops on it); nozzle
-INSERTS = [(CNT, 0.0, 0.00, 1.82, 0), (CNT, T3, 1.40, 1.40 + NZ0 - T3, 0), (NOZ, NZ0, NOZ_IN, NOZ_IN + NZ1 - NZ0, 0.35)]
+INSERTS = [(CNT, 0.0, 0.00, 1.82, 0), (CNT, T3, 1.40, 3.50, 0)]   # nozzle B-roll (vid4_nozzle.mp4) cut by the client, Oct 8
 Q69, Q79 = 'Introductory offer', 'Month-to-month: $139/mo after first month'
 CAPS = [
     ['Watching this', 0.0, film(C1, 1.10), None], ['number go up', film(C1, 1.10), film(C1, 1.82), None],
@@ -92,7 +92,7 @@ endcard_png(f'{OV}/endcard.png')
 args = ['ffmpeg', '-v', 'error', '-y']
 clips = [C1, C2, C3]
 for f in clips: args += ['-i', f]
-args += ['-i', CNT, '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png', '-i', NOZ]
+args += ['-i', CNT, '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png', '-f', 'lavfi', '-i', 'nullsrc=s=16x16:d=0.1']   # input 5 kept as a placeholder
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
 fc, vl, al = [], [], []
 for k, (f, a, b) in enumerate(PIECES):
@@ -104,18 +104,14 @@ for k, (f, a, b) in enumerate(PIECES):
 fc.append(f'[4:v]scale={W}:{H},fps=30,format=yuv420p,setsar=1[ve]')
 fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{END}[ae]')
 fc.append(''.join(vl) + f'[ve]concat=n={len(PIECES) + 1}:v=1:a=0[b0]')
-fc.append('[3:v]split=2[c0][c1]'); fc.append('[5:v]null[c2]')
+fc.append('[3:v]split=2[c0][c1]')
 last = 'b0'
 for j, (f_, t0, a, b, _) in enumerate(INSERTS):
     fc.append(f'[c{j}]trim={a}:{b},setpts=PTS-STARTPTS+{t0:.3f}/TB,scale={W}:{H}:flags=lanczos,setsar=1,fps=30,format=yuv420p[ci{j}]')
     fc.append(f'[{last}][ci{j}]overlay=0:0:eof_action=pass[bi{j}]'); last = f'bi{j}'
 for k, (p, a, b) in enumerate(ov):
     fc.append(f"[{last}][{6 + k}:v]overlay=0:0:shortest=0:enable='between(t,{a:.3f},{b - 0.001:.3f})'[o{k}]"); last = f'o{k}'
-nf, nt0, na, nb, ng = INSERTS[2]
-fc.append(f'[5:a]atrim={na}:{nb},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,volume={ng},'
-          f'afade=t=in:d=0.05,afade=t=out:st={nb - na - 0.15:.3f}:d=0.15,adelay={int(nt0 * 1000)}|{int(nt0 * 1000)}[nza]')
-fc.append(''.join(al) + f'[ae]concat=n={len(PIECES) + 1}:v=0:a=1[voice]')
-fc.append('[voice][nza]amix=inputs=2:duration=first:normalize=0,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11,'
+fc.append(''.join(al) + f'[ae]concat=n={len(PIECES) + 1}:v=0:a=1,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.84:level=false[aout]')
 mp4 = f'{OUT}/MyFastRx_UGC4_Pump_v1.mp4'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',
