@@ -21,9 +21,12 @@ exec(src[src.index('def chip_png'):src.index('def status_bar')]); exec(src[src.i
 OUT = 'out/ugc/vid4_pump'; OV = f'{OUT}/overlays'; os.makedirs(OV, exist_ok=True)
 C1, C2, C3 = 'footage/gen/vid4_clip1.mp4', 'footage/gen/vid4_clip2.mp4', 'footage/gen/vid4_clip3.mp4'
 CNT = 'footage/broll/pump_counter.mp4'          # coded counter: rolls up, stops at 3.4 s
-PIECES = [(C1, 0.00, 3.62), (C1, 3.98, 5.30), (C1, 6.30, 7.95),
-          (C2, 0.00, 9.95),   # no trim here: "dollars" rings out to ~7.05 s
+PIECES = [(C1, 0.00, 1.82), (C1, 1.82, 3.62), (C1, 3.98, 5.30), (C1, 6.30, 7.95),
+          (C2, 0.00, 7.22), (C2, 7.22, 9.95),   # no trim in C2: "dollars" rings out to ~7.05 s
           (C3, 0.00, 5.30), (C3, 5.52, 8.00)]
+# hard punch-ins (client: "she is in the same position the whole time"): a cut to a tighter frame on the same take.
+# "is my LEAST favorite thing" (right after the counter), "If you do the year...", "Honestly? Rare. Link's there."
+PUNCH = {1: (1.20, 0.45, 0.30), 5: (1.20, 0.45, 0.30), 7: (1.20, 0.45, 0.30)}   # piece -> (zoom, face cx, face cy) as frame fractions
 END = 2.5
 starts = []; t = 0.0
 for f, a, b in PIECES: starts.append(t); t += b - a
@@ -97,7 +100,11 @@ for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
 fc, vl, al = [], [], []
 for k, (f, a, b) in enumerate(PIECES):
     i = clips.index(f)
-    fc.append(f'[{i}:v]trim={a}:{b},setpts=PTS-STARTPTS,scale={W}:{H}:flags=lanczos,fps=30,setsar=1,format=yuv420p[v{k}]')
+    crop = ''
+    if k in PUNCH:
+        z, fx, fy = PUNCH[k]
+        crop = (f'crop=iw/{z}:ih/{z}:min(max(iw*{fx}-iw/{z}/2\,0)\,iw-iw/{z}):min(max(ih*{fy}-ih/{z}/2\,0)\,ih-ih/{z}),')
+    fc.append(f'[{i}:v]trim={a}:{b},setpts=PTS-STARTPTS,{crop}scale={W}:{H}:flags=lanczos,fps=30,setsar=1,format=yuv420p[v{k}]')
     fc.append(f'[{i}:a]atrim={a}:{b},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,'
               f'afade=t=in:d=0.02,afade=t=out:st={b - a - 0.04:.3f}:d=0.04[a{k}]')
     vl.append(f'[v{k}]'); al.append(f'[a{k}]')
