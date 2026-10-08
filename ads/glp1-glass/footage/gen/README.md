@@ -223,3 +223,5 @@ Seedance 2.5 omni_reference 720p (no drafts), start image footage/ref/dana_vid4_
 Pump B-roll v2 (Oct 8): footage/broll/pump_plate.png (client-supplied ChatGPT close-up, blank LCDs) + coded digits
 composited into both LCD windows with a homography, glass reflection kept on top, handheld drift + grain
 (tools/pump-counter.py). Captions over the counter sit on the keypad, below the display.
+| vid4_nozzle.mp4 (5 s, omni_reference, image ref 887e14be) | a7fb8b9f-e7e4-444f-8595-eb81efb46cfc | 35 | GOOD: her rust sleeve, nozzle out and hung back up, clunk at ~3.1 s. Used 1.4-3.5 s over "Every dose, same price." (client pick: "break it up"). |
+Edit: the counter now carries "And when the dose goes up... the price doesn't" (stops on it), then the nozzle, then her for "Honestly? Rare. Link's there."
