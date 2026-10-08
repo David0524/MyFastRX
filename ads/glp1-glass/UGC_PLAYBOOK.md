@@ -30,6 +30,9 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
   steady". Locked prompt: STORYBOARD_UGC.md.
 - **Wardrobe for AI video (client, Oct 8):** plain, smooth, solid mid-tone fabrics only. No heather, fine knits,
   stripes, small checks or busy prints: they crawl and shimmer when animated and any upscale makes it worse.
+- **Never pluralise GLP1 in spoken lines (Oct 8):** "GLP1s" is read as "G-L-P-one-ESS". Say "the GLP1 thing" or
+  "GLP1 meds". (Video 1's hook kept the take and cut the "S" in the edit, hidden by the group-chat B-roll.)
+- **Prices (client, Oct 8):** say "sixty-nine DOLLARS" at least once; the echo can be bare ("Like... sixty-nine").
 - **Voice reference gotcha (Oct 8):** never pass a voice reference that contains the same line the clip must say; the
   model follows the recording's timing and drops words. Use a reference with different words, or none.
 - **No AI upscaling of faces:** ByteDance upscale painted on make-up and plastic skin. Use the model's own native

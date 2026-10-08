@@ -46,14 +46,14 @@ Locations: **kitchen** (afternoon) → **sofa** (that evening) → **front door*
 | "My group chat will NOT stop talking about GLP1s." | ☐ **AI UGC** kitchen (`dana_navy_kitchen_1`; lines 1-2 in one take), mid-task (wiping the counter), glances up at the camera (hook, 1.5 s) |
 | "And I just figured it was, like... crazy expensive." | ☐ **B-roll** her phone in her hand: group chat ("ok has anyone looked into the GLP-1 thing" / "isn't it like a fortune"), coded mock-up<br>☐ **AI UGC** back to her, small eye-roll |
 | "So I looked. This is My Fast Rx..." | ☐ **AI UGC** MOVE → sofa that evening, lamp on, arm's-length selfie (`dana_navy_sofa_1`)<br>☐ **Screen** cut straight to the real offer page |
-| "...compounded GLP1, sixty-nine for the first month." | ☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
+| "...compounded GLP1, SIXTY-NINE DOLLARS for the first month." | ☐ on-screen: Compounded Semaglutide · $69 first month · Introductory offer |
 | "Like... sixty-nine." | ☐ **AI UGC** beat of disbelief, small laugh |
 | (cut from her lines, Oct 8) | ☐ **B-roll** her thumb scrolling "what's included", on-screen: Provider review · Medication if prescribed · Shipping |
 | "No subscription either." | ☐ **AI UGC** MOVE → front door, jacket on, keys in hand, shrug |
 | "Anyway. Link's there." | ☐ **AI UGC** already reaching for the door handle<br>☐ caption: Check if you qualify ↓ |
 | — | ☐ **End card** logo, Check if I qualify, MyFastRx.com, small vial, BBB badge, disclaimer + Rx line |
 
-Tirzepatide twin: only the price lines change ("...compounded GLP1, one twenty-nine for the first month." / "Like... one
+Tirzepatide twin: only the price lines change ("...compounded GLP1, one twenty-nine DOLLARS for the first month." / "Like... one
 twenty-nine.") ☐ on-screen: Compounded Tirzepatide · $129 first month · Introductory offer ☐ end card without a vial.
 To check with the client: the group-chat mock-up (neutral text, no results, no other brands).
 
