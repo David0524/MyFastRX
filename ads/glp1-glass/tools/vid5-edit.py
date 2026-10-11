@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """UGC Video 5 "Don't wait for January" (autumn): the edit. Two Seedance 2.5 720p takes of Dana (porch C1, sidewalk C2),
-the coded autumn -> winter time-lapse (tools/vid5-timelapse.py) as a full cutaway with a camcorder date stamp ticking
-OCT -> JAN 1, word-for-word captions, price chips, the client's headline "Same price. Any dose.", one punch-in on the CTA,
-coded street ambience (tools/vid5-ambience.py) and the end card shared with Videos 1/4.
+the coded autumn -> winter time-lapse (tools/vid5-timelapse.py) as a full cutaway with the month in the caption style
+(October -> January.), word-for-word captions, price chips, the client's headline "Same price. Any dose.", one punch-in on the CTA,
+coded street ambience (tools/vid5-ambience.py), a coded music bed (tools/vid5-music.py) and the end card shared with Videos 1/4.
   python3 tools/vid5-edit.py -> out/ugc/vid5_autumn/MyFastRx_UGC5_Autumn_v1.mp4 (+ previews/ugc/ review copy)
-Client, Oct 11: "...and then it's January. Again." is cut; the time-lapse + date stamp carry that beat with no words.
+Client, Oct 11: "...and then it's January. Again." is cut; the time-lapse + month captions carry that beat with no words.
 C2's audio comes from audio/ugc/vid5_c2_rxfix.wav ("Fast R-P" -> "Fast Rx", tools/vid5-rxfix.py).
 Cut points are checked against the audio energy (50 ms RMS), not only the transcript."""
 import datetime, json, os, subprocess
@@ -28,7 +28,7 @@ C2A = 'audio/ugc/vid5_c2_rxfix.wav'
 PIECES = [(C1, 0.55, 3.45),     # "This is your sign to finally look into a GLP1." (lead-in silence cut)
           (C1, 4.05, 5.45),     # "Don't wait for January."  (0.84 s pause trimmed)
           (C1, 5.82, 7.75),     # "Everyone says 'after the holidays'..."  (cut before "and then it's January. Again.")
-          (TL, 0.00, 3.00),     # time-lapse: the street, autumn -> snow, date stamp to JAN 1
+          (TL, 0.00, 3.00),     # time-lapse: the street, autumn -> snow, month captions October -> January.
           (C2, 0.12, 0.70),     # "Or..."
           (C2, 1.18, 7.95),     # "just start now. My Fast Rx, compounded GLP1, $69 the first month. Same price at every dose."
           (C2, 7.95, 10.05)]    # "Check if you qualify, it takes like a minute."  (punch-in)
@@ -66,20 +66,9 @@ CHIPS = [(['Compounded Semaglutide', '$69 first month · Introductory offer'], f
          (['No subscription', 'Provider review online'], film(C2, 6.40), film(C2, 7.95))]
 HEADLINE = (film(C2, 6.40), film(C2, 9.10))
 
-def stamp_frames():
-    """Camcorder date stamp over the time-lapse: one date per time-lapse step (8/s), Oct 14 -> Jan 1, then holds."""
-    d0 = datetime.date(2026, 10, 14); days = (datetime.date(2027, 1, 1) - d0).days
-    n = int(3.0 * 8); paths = []
-    for s in range(n):
-        p = min(1.0, (s / 8) / (3.0 * 0.85)); d = d0 + datetime.timedelta(days=round(p * days))
-        txt = d.strftime('%b %d %Y').upper().replace(' 0', '  ')
-        im = Image.new('RGBA', (W, H), (0, 0, 0, 0)); dr = ImageDraw.Draw(im); f = F('SemiBold', 66)
-        x, y = 96, 1200
-        glow = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(glow).text((x, y), txt, font=f, fill=(255, 120, 20, 200))
-        im = Image.alpha_composite(im, glow.filter(ImageFilter.GaussianBlur(6)))
-        ImageDraw.Draw(im).text((x, y), txt, font=f, fill=(255, 176, 60, 255), stroke_width=2, stroke_fill=(120, 40, 0, 160))
-        path = f'{OV}/stamp_{s:02d}.png'; im.save(path); paths.append(path)
-    return paths
+# over the time-lapse: the month, in the caption style, changing with the season (client: the date stamp was "a bit gimmicky")
+MONTHS = [('October', 0.0, 0.6), ('November', 0.6, 1.3), ('December', 1.3, 2.0), ('January.', 2.0, 3.0)]
+
 
 ov = []
 for i, (tx, a, b, q) in enumerate(CAPS):
@@ -87,12 +76,16 @@ for i, (tx, a, b, q) in enumerate(CAPS):
 for i, (lines, a, b) in enumerate(CHIPS):
     p = f'{OV}/chip_{i}.png'; chip_png(lines, p, 1500); ov.append((p, a, b))
 headline_png(f'{OV}/headline.png'); ov.append((f'{OV}/headline.png', *HEADLINE))
-endcard_png(f'{OV}/endcard.png'); stamp_frames()
+for i, (m, a, b) in enumerate(MONTHS):
+    p = f'{OV}/month_{i}.png'; caption_png(m, p); ov.append((p, T_TL0 + a, T_TL0 + b))
+endcard_png(f'{OV}/endcard.png')
 
+subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', f'{starts[0] + (T_TL0 - 2 * 3.0):.3f}',
+                '--lift', f'{T_TL0:.3f}', f'{T_TL1:.3f}', f'{TOTAL_A:.3f}', f'{TOTAL + 1:.3f}'], check=True)
 subprocess.run(['python3', 'tools/vid5-ambience.py', '--dur', f'{TOTAL_A:.3f}', '--tl0', f'{T_TL0:.3f}', '--tl1', f'{T_TL1:.3f}'], check=True)
 args = ['ffmpeg', '-v', 'error', '-y', '-i', C1, '-i', C2, '-i', TL, '-i', C2A,
         '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png', '-i', 'audio/ugc/vid5_ambience.wav',
-        '-framerate', '8', '-i', f'{OV}/stamp_%02d.png']
+        '-i', 'audio/ugc/vid5_music.wav']                     # input 6: coded music bed (tools/vid5-music.py)
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
 VIN = {C1: 0, C2: 1, TL: 2}; AIN = {C1: 0, C2: 3}
 fc, vl, al = [], [], []
@@ -111,15 +104,17 @@ for k, (f, a, b) in enumerate(PIECES):
 fc.append(f'[4:v]scale={W}:{H},fps=30,format=yuv420p,setsar=1[ve]')
 fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{END}[ae]')
 fc.append(''.join(vl) + f'[ve]concat=n={len(PIECES) + 1}:v=1:a=0[b0]')
-fc.append(f'[6:v]setpts=PTS-STARTPTS+{T_TL0:.3f}/TB,fps=30,format=rgba[st]')
-fc.append(f"[b0][st]overlay=0:0:eof_action=pass:enable='between(t,{T_TL0:.3f},{T_TL1 - 0.001:.3f})'[s0]")
-last = 's0'
+last = 'b0'
 for k, (p, a, b) in enumerate(ov):
     fc.append(f"[{last}][{7 + k}:v]overlay=0:0:shortest=0:enable='between(t,{a:.3f},{b - 0.001:.3f})'[o{k}]"); last = f'o{k}'
 fc.append(''.join(al) + f'[ae]concat=n={len(PIECES) + 1}:v=0:a=1[voice]')
 fc.append('[5:a]aformat=sample_rates=48000:channel_layouts=stereo[amb]')
-fc.append('[voice][amb]amix=inputs=2:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
-          'alimiter=limit=0.84:level=false[aout]')
+fc.append('[voice]asplit=2[vo][vsc]')
+# music: -9 dB, then ducked ~5 dB more while she talks; carries the time-lapse and the end card on its own
+fc.append('[6:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.35[mu]')
+fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
+fc.append('[vo][amb][mud]amix=inputs=3:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
+          'alimiter=limit=0.80:level=false[aout]')
 mp4 = f'{OUT}/MyFastRx_UGC5_Autumn_v1.mp4'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',
          '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M',

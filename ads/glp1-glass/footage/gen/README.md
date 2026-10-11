@@ -239,3 +239,9 @@ Client cut "...and then it's January. Again." (January was said twice); the time
 with a coded camcorder date stamp ticking OCT 14 -> JAN 1 2027. Cuts snapped to the 30 fps grid (24 fps sources had
 drifted ~2 frames ahead of the audio). Ambience: tools/vid5-ambience.py (wind, leaves, birds, distant traffic; a gust
 over the time-lapse).
+v1 revision (Oct 11, client): date stamp "a bit gimmicky" -> replaced by the month in the caption style over the time-lapse
+(October / November / December / January.). "We need background sounds and/or music throughout": coded music bed
+tools/vid5-music.py (fingerpicked Karplus-Strong guitar, 80 bpm, bars locked to the cuts; strum + pad + riser over the
+time-lapse, soft beat enters on "Or... just start now", resolves on the end card), sidechain-ducked under her voice
+(~14-20 dB under speech), +4 dB where she is silent. Ambience kept underneath. Master -16.8 LUFS, peak -2.1 dBTP.
+Higgsfield has no standalone music model (its audio tool is speech only), so the bed is coded (free, no licence).
