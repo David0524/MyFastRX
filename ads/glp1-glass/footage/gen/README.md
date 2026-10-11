@@ -234,3 +234,8 @@ off with a click on "the price doesn't" (same frame the counter stops). Called b
 |---|---|---|---|
 | vid5_porch_c1.mp4 (10 s, 720p, omni_reference, start_image f1522e4d porch crop, voice e43ccae4) | 9de8b406-f3ba-4623-87db-f1113d8c19db | 70 | Gate C PASS: transcript word-for-word ("GLP1" singular; "Don't wait for January" 4.14-5.16; "Again." 9.44-9.72). Speech starts at 0.60 s (trim the lead-in). Pauses: 3.30-4.14 before "Don't wait", 5.40-5.90, 8.85-9.45 before "Again." Camera drift max 0.26%. Same Dana, smooth mustard tee, no phone in frame, relaxed delivery. |
 | vid5_sidewalk_c2.mp4 (10 s, 720p, omni_reference, start_image b29cd709 sidewalk still, voice e43ccae4) | db63aa3a-1dea-4d63-98d2-cabf8213e5bb | 70 | Gate C: all words present, in order; "dollars" spoken (Whisper writes "$69"); pauses 1.92-2.25, 4.32-4.66, 6.20-6.54, 7.72-8.12; "minute." ends 9.80 (tight but clean). Drift max 0.91%. Same Dana, smooth mustard tee, no phone. FLAW: "My Fast R-P" (no closing "ks"). Fixed free with tools/vid5-rxfix.py (the "Rx" from vid4_clip2 swapped in; Whisper then hears "My FastRX"). |
+Edit (Oct 11, free): tools/vid5-edit.py -> out/ugc/vid5_autumn/MyFastRx_UGC5_Autumn_v1.mp4 (21.2 s incl. 2.5 s end card).
+Client cut "...and then it's January. Again." (January was said twice); the time-lapse now carries that beat silently,
+with a coded camcorder date stamp ticking OCT 14 -> JAN 1 2027. Cuts snapped to the 30 fps grid (24 fps sources had
+drifted ~2 frames ahead of the audio). Ambience: tools/vid5-ambience.py (wind, leaves, birds, distant traffic; a gust
+over the time-lapse).
