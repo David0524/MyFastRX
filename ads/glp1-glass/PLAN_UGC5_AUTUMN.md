@@ -54,7 +54,7 @@ AI start/end-frame version only if the coded one looks fake. "Come with me" hook
 | Clip | Where | Dialogue (prompt spelling) | Words | Clip length |
 |---|---|---|---|---|
 | P | Porch | "This is your sign to finally look into a GLP1. Don't wait for JANUARY. Everyone says 'after the holidays'... and then it's January. Again." | 24 | 10 s |
-| S | Leafy sidewalk | "Or... you could just start now. My Fast Rx, compounded GLP1. SIXTY-NINE DOLLARS the first month, no subscription, same price at every dose. So why wait? Link's there." | 29 | 12 s |
+| S | Leafy sidewalk | "Or... you could just start now. My Fast Rx, compounded GLP1. SIXTY-NINE DOLLARS the first month, no subscription, same price at every dose. Link's there." | 25 | 10 s |
 Checks: GLP1 singular (no "GLP1s"); "dollars" said once; no competitor claims; no results/dates promised; voice ref
 e43ccae4 holds a different line (safe). Provider review + "if prescribed" go on screen, not in her mouth.
 
@@ -67,7 +67,7 @@ e43ccae4 holds a different line (safe). Provider review + "if prescribed" go on 
 | 8-10 | S: Dana on that street, still autumn: "Or... you could just start now." | S |
 | 10-15 | S: product + price (chip: Compounded Semaglutide · $69 first month · Introductory offer · Provider review online) | S |
 | 15-17 | S: USPs (headline: Same price. Any dose.) | S |
-| 17-19 | S: CTA, one punch-in | S |
+| 17-19 | S: "Link's there." CTA, one punch-in | S |
 | 19-21.5 | End card (Video 1/4) | ambience fades |
 Sound: her voice + coded outdoor ambience (leaves, birds, distant traffic). Music: deliver without a bed and add a licensed
 track in TikTok/Meta Ads Manager (Commercial Music Library), or price a Higgsfield music bed first.
@@ -92,11 +92,11 @@ first, then trees bare, then snow builds from the ground up), exposure flicker, 
 Gate B: client judges. Only if it reads fake:
 | B2 | generate_video seedance_2_5 omni_reference, 720p, 5 s, 9:16 | start_image A3, end_image A4 | "Time-lapse from a fixed tripod: autumn to winter on this street, leaves fall, trees go bare, snow builds. Camera does not move. No people." | 35 |
 
-**Phase C: A-roll (154 credits). One clip at a time; Gate C after each.**
+**Phase C: A-roll (140 credits). One clip at a time; Gate C after each.**
 | # | Tool / model | Inputs | Prompt | Cr |
 |---|---|---|---|---|
 | C1 | generate_video seedance_2_5 omni_reference, 720p, 10 s, 9:16, generate_audio | start_image A1, audio_references e43ccae4 | Locked prompt (static camera, "Shot on iPhone, front camera, UGC footage."), scene: "She sits on her front porch steps, phone propped on the step below." Dialogue: clip P. Rules: starts speaking immediately; small pause before "Don't wait for January"; dry, knowing tone on "Again." | 70 |
-| C2 | same, 12 s | start_image A2, audio_references e43ccae4 | scene: "She stands on a leafy sidewalk holding the phone at arm's length; the frame stays perfectly steady." Dialogue: clip S. Rules: relaxed, warm; small shrug on "So why wait?" | 84 |
+| C2 | same, 10 s | start_image A2, audio_references e43ccae4 | scene: "She stands on a leafy sidewalk holding the phone at arm's length; the frame stays perfectly steady." Dialogue: clip S. Rules: relaxed, warm; small shrug on "Link's there." | 70 |
 Gate C (free, per clip): transcript word-for-word; energy check at every cut point; camera drift < 2%; no wide-eyed or
 salesy delivery; voice matches Video 1/4. If a clip fails: one retake of that clip only.
 
@@ -104,12 +104,12 @@ salesy delivery; voice matches Video 1/4. If a clip fails: one retake of that cl
 insert, captions (width guard), price chip + "Same price. Any dose.", one punch-in (CTA), outdoor ambience, end card,
 -16 LUFS, 1080x1920 master + 720p review.
 
-## Budget
-| Path | Credits | Left of 222 |
+## Budget (balance 222)
+Clip S is cut to 10 s by dropping "So why wait?" (CTA stays: "Link's there." + end card) so that ONE retake always fits.
+| Path | Credits | Left |
 |---|---|---|
-| A + C, coded time-lapse, no retakes | 162 | 60 |
-| + one retake (12 s clip, worst case) | 246 → too much; a P retake (70) fits: 232 → no | see below |
-| A + C + one 10 s retake (P) | 232 | over by 10 |
-| A + C + AI time-lapse (B2) | 197 | 25 |
-Reality: we can afford ONE of {a retake, the AI time-lapse}, not both, and a 12 s retake does not fit after C1+C2.
-Mitigation: run C1, gate it, then C2; if C1 needs a retake, C2 drops to 10 s by cutting "So why wait?" (saves 14).
+| A (8) + C1 10 s (70) + C2 10 s (70), coded time-lapse | 148 | 74 |
+| + one retake of either clip (70) | 218 | 4 |
+| or + AI time-lapse B2 (35) instead of a retake | 183 | 39 |
+We can afford one of {a retake, the AI time-lapse}, not both. Order protects that: Phase A, then the free time-lapse (Gate B),
+then C1, Gate C, then C2.
