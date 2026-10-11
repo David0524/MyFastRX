@@ -3,8 +3,8 @@
 the coded autumn -> winter time-lapse (tools/vid5-timelapse.py) as a full cutaway with a voice-over, word-for-word captions, price chips, the client's headline "Same price. Any dose.", one punch-in on the CTA,
 coded street ambience (tools/vid5-ambience.py), a coded music bed (tools/vid5-music.py) and the end card shared with Videos 1/4.
   python3 tools/vid5-edit.py -> out/ugc/vid5_autumn/MyFastRx_UGC5_Autumn_v1.mp4 (+ previews/ugc/ review copy)
-Client, Oct 11: "...and then it's January. Again." is cut (January twice). The time-lapse (4.4 s: ~0.65 s of air after "started.", client: the gap was too abrupt) carries a voice-over in
-Dana's voice instead: "The weeks go by either way. Might as well get started." (client's line); C2 then opens on "My Fast Rx".
+Client, Oct 11: "...and then it's January. Again." is cut (January twice). The time-lapse (4.0 s: ~0.6 s of air after "started.", client: the gap was too abrupt) carries a voice-over in
+Dana's voice instead: "The weeks go by either way, so might as well get started." (client's line + "so"); C2 then opens on "My Fast Rx".
 C2's audio comes from audio/ugc/vid5_c2_rxfix.wav ("Fast R-P" -> "Fast Rx", tools/vid5-rxfix.py).
 Cut points are checked against the audio energy (50 ms RMS), not only the transcript."""
 import datetime, json, os, subprocess
@@ -25,12 +25,13 @@ exec(v4[v4.index('def caption_png'):v4.index('ov = []')])
 OUT = 'out/ugc/vid5_autumn'; OV = f'{OUT}/overlays'; os.makedirs(OV, exist_ok=True); os.makedirs('previews/ugc', exist_ok=True)
 C1, C2, TL = 'footage/gen/vid5_porch_c1.mp4', 'footage/gen/vid5_sidewalk_c2.mp4', 'footage/broll/vid5_timelapse.mp4'
 C2A = 'audio/ugc/vid5_c2_rxfix.wav'
-VO = 'audio/ugc/vid5_vo_weeks.wav'   # voice-over for the time-lapse (Seed Audio, Dana's voice reference, job 131e8fba)
+VO = 'audio/ugc/vid5_vo_weeks.wav'   # voice-over for the time-lapse (Seed Audio, Dana's voice reference, job a750ad1f, 2nd take: the 1st, 131e8fba, was clipped mid-"started" and read "might as well. get started";
+                                  # prompt '...so might as well get started. Okay.', trimmed at 3.30 s before the guard word)
 VO_IN = 0.25                      # VO starts this far into the time-lapse
 PIECES = [(C1, 0.55, 3.45),     # "This is your sign to finally look into a GLP1." (lead-in silence cut)
           (C1, 4.05, 5.45),     # "Don't wait for January."  (0.84 s pause trimmed)
           (C1, 5.82, 7.75),     # "Everyone says 'after the holidays'..."  (cut before "and then it's January. Again.")
-          (TL, 0.00, 4.40),     # time-lapse, VO: "The weeks go by either way. Might as well get started."
+          (TL, 0.00, 4.00),     # time-lapse, VO: "The weeks go by either way, so might as well get started."
           (C2, 2.10, 7.95),     # "My Fast Rx, compounded GLP1, $69 the first month. Same price at every dose." ("Or... just start now" dropped: the VO says it)
           (C2, 7.95, 10.05)]    # "Check if you qualify, it takes like a minute."  (punch-in)
 # snap every cut to the 30 fps output grid so picture and sound stay frame-locked (the 24 fps sources otherwise drift ~2 frames)
@@ -48,15 +49,15 @@ def film(f, s):
         if ff == f and s < a: return st
     raise ValueError((f, s))
 
-T_TL0, T_TL1 = film(TL, 0.0), film(TL, 4.4)
+T_TL0, T_TL1 = film(TL, 0.0), film(TL, 4.0)
 CAPS = [
     ['This is your sign', 0.0, film(C1, 1.52), None],
     ['to finally look into a GLP-1.', film(C1, 1.52), film(C1, 3.45), None],
     ["Don't wait for January.", film(C1, 4.05), film(C1, 5.45), None],
     ['Everyone says', film(C1, 5.82), film(C1, 6.52), None],
     ['"after the holidays"...', film(C1, 6.52), T_TL0, None],
-    ['The weeks go by either way.', T_TL0, T_TL0 + VO_IN + 2.40, None],          # VO word times: "way." ends 2.16, "Might" 2.64
-    ['Might as well get started.', T_TL0 + VO_IN + 2.40, T_TL1, None],
+    ['The weeks go by either way,', T_TL0, T_TL0 + VO_IN + 1.85, None],          # VO word times: "way," ends 1.72, "so" 1.94
+    ['so might as well get started.', T_TL0 + VO_IN + 1.85, T_TL1, None],      # "started." ends 3.18
     ['MyFastRx, compounded GLP-1.', film(C2, 2.10), film(C2, 4.60), None],
     ['$69 the first month.', film(C2, 4.60), film(C2, 6.40), 'Introductory offer'],
     ['Same price at every dose.', film(C2, 6.40), film(C2, 7.95), None],
@@ -77,7 +78,7 @@ for i, (lines, a, b) in enumerate(CHIPS):
 headline_png(f'{OV}/headline.png'); ov.append((f'{OV}/headline.png', *HEADLINE))
 endcard_png(f'{OV}/endcard.png')
 
-subprocess.run(['python3', 'tools/vid5-timelapse.py', '--dur', '4.4'], check=True)
+subprocess.run(['python3', 'tools/vid5-timelapse.py', '--dur', '4.0'], check=True)
 subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', f'{starts[0] + (T_TL0 - 2 * 3.0):.3f}',
                 '--tl', f'{T_TL0:.3f}', f'{T_TL1:.3f}', '--endcard', f'{TOTAL_A:.3f}',
                 '--lift', f'{T_TL0:.3f}', f'{T_TL1:.3f}', f'{TOTAL_A:.3f}', f'{TOTAL + 1:.3f}'], check=True)
