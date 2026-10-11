@@ -111,11 +111,12 @@ inputs, chain = [], []
 for i, (t, a, b) in enumerate(CAPS):
     p = f'{OV}/cap_{i:02d}.png'; caption_png(t, p, qual=t.startswith('$69')); inputs.append((p, a, b))
 hook_png(f'{OV}/hook.png'); inputs.append((f'{OV}/hook.png', HOOK[1], HOOK[2]))
-# client, Oct 11: the animated end card v2, a music bed + parked-car background sound ("needs some music or background noise")
+# client, Oct 11: the animated end card v2 + parked-car background hum; music only on the end card ("car rant music is horrible...
+# no music until maybe the end card")
 subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)], check=True)
 subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', '0.0', '--beat', f'{CUT_A:.3f}', '--endcard', f'{CUT_A + LEN_B:.3f}',
                 '--lift', f'{CUT_A + LEN_B:.3f}', f'{TOTAL + 1:.3f}', '--out', 'audio/ugc/carrant_music.wav'], check=True)   # beat comes in on "Read the whole page."
-subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'car', '--dur', f'{CUT_A + LEN_B:.3f}', '--out', 'audio/ugc/carrant_ambience.wav'], check=True)
+subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'car', '--dur', f'{CUT_A + LEN_B:.3f}', '--out', 'audio/ugc/carrant_ambience.wav', '--gain', '1.4'], check=True)
 
 # ---- compose
 A, B = 'footage/gen/car_clipA_1080p_stab.mp4', 'footage/gen/car_clipB_1080p.mp4'   # clip A: drift from 6.7 s removed (tools/stabilize-clipA.py)
@@ -140,7 +141,7 @@ fc += [f'[2:a]atrim=0:{CUT_A},asetpts=PTS-STARTPTS,afade=t=out:st={CUT_A - 0.03}
        f'anullsrc=r=48000:cl=stereo,atrim=0:{END}[ae]',
        '[aa]aformat=sample_rates=48000:channel_layouts=stereo[aa2];[ab]aformat=sample_rates=48000:channel_layouts=stereo[ab2]',
        '[aa2][ab2][ae]concat=n=3:v=0:a=1,highpass=f=80,asplit=2[vo][vsc]',
-       f'[{IM}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.30[mu]',
+       f'[{IM}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.16,afade=t=in:st={CUT_A + LEN_B - 0.15:.3f}:d=0.4[mu]',   # client: no music under her, only on the end card
        '[mu][vsc]sidechaincompress=threshold=0.01:ratio=8:attack=15:release=400[mud]',
        f'[{IA}:a]aformat=sample_rates=48000:channel_layouts=stereo[amb]',
        '[vo][amb][mud]amix=inputs=3:duration=first:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,volume=-0.8dB,alimiter=limit=0.80:level=false[aout]']

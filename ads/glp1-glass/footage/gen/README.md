@@ -261,3 +261,4 @@ music bed (tools/vid5-music.py, now generic: --beat/--out; beat enters on "So I 
 hard under the voice (ratio 8: at ratio 4 Whisper heard "impounded" for "compounded"), plus coded background sound
 (tools/room-tone.py: --kind home with two message pops on the group-chat bubbles; --kind car: cabin rumble + muffled
 pass-bys). Durations: Group Chat 23.1 s, Pump 27.3 s, Car Rant 24.9 s, Autumn 21.2 s; all -16 +/-0.7 LUFS, peaks <= -1.7 dBTP.
+Car Rant (Oct 11, client: "car rant music is horrible. It just needs a light hum... no music until maybe the end card"): music muted under her (fades in on the end card only, ~7 dB under her voice level), car hum +3 dB (room-tone.py --gain 1.4).

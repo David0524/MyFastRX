@@ -12,7 +12,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 ap = argparse.ArgumentParser()
 ap.add_argument('--kind', choices=['home', 'car'], required=True); ap.add_argument('--dur', type=float, required=True)
-ap.add_argument('--out', required=True); ap.add_argument('--pops', type=float, nargs='*', default=[])
+ap.add_argument('--out', required=True); ap.add_argument('--gain', type=float, default=1.0); ap.add_argument('--pops', type=float, nargs='*', default=[])
 a = ap.parse_args()
 SR = 48000; N = int(a.dur * SR); t = np.arange(N) / SR
 rng = np.random.default_rng(7 if a.kind == 'home' else 9)
@@ -48,7 +48,7 @@ for p in a.pops:                                             # soft two-tone mes
     tt = np.arange(n) / SR; f = np.where(tt < 0.06, 1050, 1580)
     pop = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt / 0.045) * np.minimum(1, tt / 0.003) * 0.05
     L[i0:i0 + n] += pop; R[i0:i0 + n] += pop
-mix = np.stack([L, R], 1) * np.clip(t / 0.2, 0, 1)[:, None] * np.clip((a.dur - t) / 0.6, 0, 1)[:, None]
+mix = a.gain * np.stack([L, R], 1) * np.clip(t / 0.2, 0, 1)[:, None] * np.clip((a.dur - t) / 0.6, 0, 1)[:, None]
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', '-', '-c:a', 'pcm_s16le', a.out],
                input=mix.astype(np.float32).tobytes(), check=True)
 print(a.out)
