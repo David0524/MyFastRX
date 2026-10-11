@@ -228,3 +228,8 @@ Edit: the counter now carries "And when the dose goes up... the price doesn't" (
 Background sound (Oct 8, client): tools/vid4-ambience.py -> audio/ugc/vid4_ambience.wav (about -30 LUFS, ~14 dB under the
 voice): looped station room tone from the unused AI pump clip, traffic rumble + 3 pass-bys, pump motor whir that shuts
 off with a click on "the price doesn't" (same frame the counter stops). Called by tools/vid4-edit.py.
+
+## Video 5 (autumn, "Don't wait for January")
+| File | Job | Cr | Notes |
+|---|---|---|---|
+| vid5_porch_c1.mp4 (10 s, 720p, omni_reference, start_image f1522e4d porch crop, voice e43ccae4) | 9de8b406-f3ba-4623-87db-f1113d8c19db | 70 | Gate C PASS: transcript word-for-word ("GLP1" singular; "Don't wait for January" 4.14-5.16; "Again." 9.44-9.72). Speech starts at 0.60 s (trim the lead-in). Pauses: 3.30-4.14 before "Don't wait", 5.40-5.90, 8.85-9.45 before "Again." Camera drift max 0.26%. Same Dana, smooth mustard tee, no phone in frame, relaxed delivery. |
