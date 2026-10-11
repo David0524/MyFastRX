@@ -39,14 +39,16 @@ def heartbeat_pts():
         dx = x - (CX + 190); y = y0
         if -60 < dx < 100:                                   # the spike sits just right of the vial, like the logo mark
             u = (dx + 60) / 160
-            y = y0 + np.interp(u, [0, .18, .32, .5, .68, .82, 1], [0, 0, -40, 120, -190, 0, 0]) * 0.75
+            y = y0 + np.interp(u, [0, .18, .32, .5, .68, .82, 1], [0, 0, -40, 120, -190, 0, 0]) * 0.38   # client: the pulse was too prominent (was 0.75)
         pts.append((x, y))
     return pts
 HB = heartbeat_pts()
 def heartbeat(p):
     im = layer(); n = max(2, int(len(HB) * p))
-    d = ImageDraw.Draw(im); d.line(HB[:n], fill=(32, 99, 235, 70), width=5, joint='curve')
-    g = im.filter(ImageFilter.GaussianBlur(6)); g.alpha_composite(im); return g
+    d = ImageDraw.Draw(im); d.line(HB[:n], fill=(32, 99, 235, 255), width=3, joint='curve')
+    g = im.filter(ImageFilter.GaussianBlur(4)); g.alpha_composite(im)
+    edge = np.clip(1 - np.abs(np.arange(W) - CX) / 470, 0, 1) ** 1.2 * 0.28        # faint, fades out towards the screen edges
+    ga = np.array(g).astype(np.float32); ga[..., 3] *= edge[None, :]; return Image.fromarray(ga.astype(np.uint8), 'RGBA')
 
 # ---- vial + reflection + shadow
 v = Image.open('images/vial_semaglutide_v2_cutout.png').convert('RGBA')
@@ -147,7 +149,7 @@ for i in range(n):
     for im, t0, t1 in [(logo_l, 0.0, 0.35), (price, 0.25, 0.6), (trust, 0.5, 0.85), (disc, 0.2, 0.5)]:
         o, dy = fade(im, t0, t1, t)
         if o is not None: fr.alpha_composite(o, (0, dy))
-    pulse = 1 + 0.035 * math.sin(math.pi * min(max((t - 1.35) / 0.5, 0), 1))
+    pulse = 1 + 0.02 * math.sin(math.pi * min(max((t - 1.35) / 0.5, 0), 1))
     o, dy = fade(cta(pulse), 0.4, 0.75, t)
     if o is not None: fr.alpha_composite(o, (0, dy))
     if i == n - 1: fr.convert('RGB').save('footage/broll/endcard_v2_still.png')
