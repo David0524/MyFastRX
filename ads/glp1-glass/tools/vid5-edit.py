@@ -28,6 +28,7 @@ C2A = 'audio/ugc/vid5_c2_rxfix.wav'
 VO = 'audio/ugc/vid5_vo_weeks.wav'   # voice-over for the time-lapse (Seed Audio, Dana's voice reference, job a750ad1f, 2nd take: the 1st, 131e8fba, was clipped mid-"started" and read "might as well. get started";
                                   # prompt '...so might as well get started. Okay.', trimmed at 3.30 s before the guard word)
 VO_IN = 0.25                      # VO starts this far into the time-lapse
+REWIND = 0.5                      # last 0.5 s of the time-lapse: fast rewind to autumn (after "started." ends at 3.43 s)
 PIECES = [(C1, 0.55, 3.45),     # "This is your sign to finally look into a GLP1." (lead-in silence cut)
           (C1, 4.05, 5.45),     # "Don't wait for January."  (0.84 s pause trimmed)
           (C1, 5.82, 7.75),     # "Everyone says 'after the holidays'..."  (cut before "and then it's January. Again.")
@@ -82,7 +83,7 @@ subprocess.run(['python3', 'tools/vid5-timelapse.py', '--dur', '4.0'], check=Tru
 subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', f'{starts[0] + (T_TL0 - 2 * 3.0):.3f}',
                 '--tl', f'{T_TL0:.3f}', f'{T_TL1:.3f}', '--endcard', f'{TOTAL_A:.3f}',
                 '--lift', f'{T_TL0:.3f}', f'{T_TL1:.3f}', f'{TOTAL_A:.3f}', f'{TOTAL + 1:.3f}'], check=True)
-subprocess.run(['python3', 'tools/vid5-ambience.py', '--dur', f'{TOTAL_A:.3f}', '--tl0', f'{T_TL0:.3f}', '--tl1', f'{T_TL1:.3f}'], check=True)
+subprocess.run(['python3', 'tools/vid5-ambience.py', '--dur', f'{TOTAL_A:.3f}', '--tl0', f'{T_TL0:.3f}', '--tl1', f'{T_TL1:.3f}', '--rewind', f'{T_TL1 - REWIND:.3f}'], check=True)
 args = ['ffmpeg', '-v', 'error', '-y', '-i', C1, '-i', C2, '-i', TL, '-i', C2A,
         '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png', '-i', 'audio/ugc/vid5_ambience.wav',
         '-i', 'audio/ugc/vid5_music.wav',                     # input 6: coded music bed (tools/vid5-music.py)
@@ -100,7 +101,15 @@ for k, (f, a, b) in enumerate(PIECES):
     if k in PUNCH:
         z, fx, fy = PUNCH[k]
         crop = f'crop=iw/{z}:ih/{z}:min(max(iw*{fx}-iw/{z}/2\\,0)\\,iw-iw/{z}):min(max(ih*{fy}-ih/{z}/2\\,0)\\,ih-ih/{z}),'
-    fc.append(f'[{VIN[f]}:v]fps=30,trim={a:.5f}:{b:.5f},setpts=PTS-STARTPTS,{crop}scale={W}:{H}:flags=lanczos,setsar=1,format=yuv420p[v{k}]')
+    if f == TL:                                            # time-lapse, then a fast rewind snow -> autumn into the cut back to her
+        fwd = b - a - REWIND                               # (client: the cut from snow straight to her in autumn was abrupt)
+        fc.append(f'[{VIN[f]}:v]fps=30,split=2[tla][tlb]')
+        fc.append(f'[tla]trim={a:.5f}:{a + fwd:.5f},setpts=PTS-STARTPTS[tlf]')
+        fc.append(f'[tlb]trim={a:.5f}:{a + fwd:.5f},setpts=PTS-STARTPTS,reverse,setpts=PTS*{REWIND / fwd:.5f},fps=30,'
+                  f'tmix=frames=4,trim=0:{REWIND:.5f}[tlr]')
+        fc.append(f'[tlf][tlr]concat=n=2:v=1:a=0,scale={W}:{H}:flags=lanczos,setsar=1,format=yuv420p[v{k}]')
+    else:
+        fc.append(f'[{VIN[f]}:v]fps=30,trim={a:.5f}:{b:.5f},setpts=PTS-STARTPTS,{crop}scale={W}:{H}:flags=lanczos,setsar=1,format=yuv420p[v{k}]')
     if f in AIN:
         fc.append(f'[{AIN[f]}:a]atrim={a:.5f}:{b:.5f},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,'
                   f'afade=t=in:d=0.02,afade=t=out:st={b - a - 0.04:.3f}:d=0.04[a{k}]')

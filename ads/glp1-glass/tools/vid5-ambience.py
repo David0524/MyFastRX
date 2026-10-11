@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Video 5 background sound (coded, no generations): an autumn street.
   1. wind bed: low brown noise with slow swells; 2. leaf rustle: short bursts of high, soft noise; 3. a few birds
-  (short frequency sweeps); 4. distant traffic rumble; 5. over the time-lapse (--tl0..--tl1): a wind gust that rises and
+  (short frequency sweeps); 4. distant traffic rumble; 5. over the time-lapse (--tl0..--tl1): a wind gust (and, with --rewind, a whoosh on the fast rewind) that rises and
   turns colder/brighter (the season passing), birds drop out, then settles back for the sidewalk.
   python3 tools/vid5-ambience.py --dur 18.6 --tl0 6.2 --tl1 9.2 -> audio/ugc/vid5_ambience.wav (48 kHz stereo)"""
 import argparse, os, subprocess
@@ -11,6 +11,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 ap = argparse.ArgumentParser()
 for k in ('--dur', '--tl0', '--tl1'): ap.add_argument(k, type=float, required=True)
+ap.add_argument('--rewind', type=float, default=None, help='start of the fast rewind at the end of the time-lapse (whoosh)')
 a = ap.parse_args()
 SR = 48000; N = int(a.dur * SR); t = np.arange(N) / SR
 rng = np.random.default_rng(23)
@@ -46,6 +47,15 @@ traffic = norm(band(np.cumsum(rng.normal(0, 1, N)), 20, 250)) * smooth_env(6, 0.
 
 L_ = 0.020 * wind + 0.010 * whoosh + 0.006 * rust + 0.0045 * birds + 0.008 * traffic
 R_ = 0.020 * np.roll(wind, 900) + 0.010 * np.roll(whoosh, 400) + 0.006 * np.roll(rust, 300) + 0.0035 * birds + 0.008 * traffic
+if a.rewind is not None:                                  # rewind whoosh: bright noise sweeping up, swelling into the cut
+    rw = np.clip((t - a.rewind) / (a.tl1 - a.rewind), 0, 1) * (t <= a.tl1 + 0.08)
+    sweep = np.zeros(N); i0 = int(a.rewind * SR); i1 = min(N, int((a.tl1 + 0.08) * SR))
+    seg = rng.normal(0, 1, i1 - i0); n = len(seg)
+    for j, (lo, hi) in enumerate([(400, 1500), (900, 3000), (2000, 6000), (3500, 9000)]):   # four bands opening up
+        w = np.clip(np.linspace(-j, 4 - j, n), 0, 1) * np.clip(np.linspace(4 - j, -j, n) + 1, 0, 1)
+        sweep[i0:i1] += norm(band(seg, lo, hi)) * w
+    sweep *= rw ** 1.5
+    L_ = L_ + 0.016 * sweep; R_ = R_ + 0.016 * np.roll(sweep, 240)
 mix = np.stack([L_, R_], 1)
 mix *= np.clip(t / 0.3, 0, 1)[:, None] * np.clip((a.dur - t) / 0.6, 0, 1)[:, None]
 out = 'audio/ugc/vid5_ambience.wav'
