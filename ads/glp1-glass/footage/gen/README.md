@@ -249,3 +249,4 @@ Higgsfield has no standalone music model (its audio tool is speech only), so the
 Edit (Oct 11, client: the time-lapse "needs something more stimulating... probably voice"): time-lapse now 4 s with the VO
 (level-matched to her on-camera voice), captions follow the VO; month captions removed; C2 opens on "My Fast Rx" ("Or... just
 start now" dropped, the VO covers it); music bars re-timed (tools/vid5-music.py --tl/--endcard). 20.7 s, -16.7 LUFS.
+Gap fix (Oct 11, client: "started" -> "My Fast Rx" too abrupt): time-lapse 4.0 -> 4.4 s; gap now ~0.6 s. 21.1 s total.
