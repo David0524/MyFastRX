@@ -22,7 +22,7 @@ CAP_Y = 1236                  # caption bottom, as on the car rant
 KITCHEN, SOFA, DOOR = 'footage/gen/vid1_kitchen_1080p.mp4', 'footage/gen/vid1_sofa_1080p.mp4', 'footage/gen/vid1_door_draft1.mp4'
 # film segments: (file, src_in, src_out)
 SEGS = [(KITCHEN, 0.00, 3.34), (KITCHEN, 4.05, 8.00), (SOFA, 0.00, 7.90), (DOOR, 0.00, 4.90)]
-END = 2.5
+END = 3.0                     # end card (client, Oct 11: a little longer than 2.5 s)
 starts = []; t = 0.0
 for f, a, b in SEGS: starts.append(t); t += b - a
 TOTAL_A = t; TOTAL = t + END
@@ -163,14 +163,21 @@ ov.append((f'{OV}/price.png', *PRICE))
 for i, (tx, a, b) in enumerate(CAPS):
     p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, qual='$69' in tx); ov.append((p, a, b))
 # v2 (client): no CTA button on the door shot; the end card carries the CTA
-endcard_png(f'{OV}/endcard.png')
+# v3 (client, Oct 11): the animated end card v2 (tools/endcard-v2.py), music bed + room tone ("needs some music or background noise")
+subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)], check=True)
+subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', '0.0', '--beat', f'{S0:.3f}', '--endcard', f'{TOTAL_A:.3f}',
+                '--lift', f'{TOTAL_A:.3f}', f'{TOTAL + 1:.3f}', '--out', 'audio/ugc/vid1_music.wav'], check=True)   # beat comes in on "So I looked."
+subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'home', '--dur', f'{TOTAL_A:.3f}', '--out', 'audio/ugc/vid1_ambience.wav',
+                '--pops', f'{CHAT[0] + 0.05:.3f}', f'{CHAT[0] + 0.90:.3f}'], check=True)   # message pops on the two chat bubbles
 
 # ---- compose
 args = ['ffmpeg', '-v', 'error', '-y']
 files = [KITCHEN, SOFA, DOOR]
 for f in files: args += ['-i', f]
-args += ['-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png']
+args += ['-i', 'footage/broll/endcard_v2.mp4']
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
+IM, IA = 4 + len(ov), 5 + len(ov)
+args += ['-i', 'audio/ugc/vid1_music.wav', '-i', 'audio/ugc/vid1_ambience.wav']
 fc, vl, al = [], [], []
 for k, (f, a, b) in enumerate(SEGS):
     i = files.index(f)
@@ -184,8 +191,12 @@ fc.append(''.join(vl) + f'[ve]concat=n={len(SEGS) + 1}:v=1:a=0[b0]')
 last = 'b0'
 for k, (p, a, b) in enumerate(ov):
     fc.append(f"[{last}][{4 + k}:v]overlay=0:0:shortest=0:enable='between(t,{a:.3f},{b - 0.001:.3f})'[b{k + 1}]"); last = f'b{k + 1}'
-fc.append(''.join(al) + f'[ae]concat=n={len(SEGS) + 1}:v=0:a=1,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11,'
-          'alimiter=limit=0.84:level=false[aout]')
+fc.append(''.join(al) + f'[ae]concat=n={len(SEGS) + 1}:v=0:a=1,asplit=2[vo][vsc]')
+fc.append(f'[{IM}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.30[mu]')
+fc.append('[mu][vsc]sidechaincompress=threshold=0.01:ratio=8:attack=15:release=400[mud]')     # ducked hard under her voice ("compounded" was masked at ratio 4)
+fc.append(f'[{IA}:a]aformat=sample_rates=48000:channel_layouts=stereo[amb]')
+fc.append('[vo][amb][mud]amix=inputs=3:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
+          'alimiter=limit=0.80:level=false[aout]')
 mp4 = f'{OUT}/MyFastRx_UGC1_GroupChat_v2.mp4'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',
          '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M',

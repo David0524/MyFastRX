@@ -255,3 +255,9 @@ Cut fix (Oct 11, client: "the cut after the timelapse is pretty abrupt"): the la
 Cut fix v2 (Oct 11, client: the rewind was "way worse... not smooth"): rewind + whoosh removed; 0.4 s dissolve from the time-lapse into her (her open-eyes frame held under the fade, live for the last 0.16 s; her audio timing unchanged).
 End card v2 (Oct 11, client: "completely redo the end card... same bottle and badge, much more aesthetically pleasing"): tools/endcard-v2.py -> footage/broll/endcard_v2.mp4 (animated 2.5 s: ivory->blue gradient, blue glow + ring behind the same vial, logo heartbeat line drawing across, vial float + short reflection, price block "Compounded Semaglutide / $69 first month / Introductory offer", CTA button with one pulse, MyFastRx.com, same BBB badge (cut-out fixed: the v1 floodfill was a no-op on a read-only array), disclaimer verbatim). Used by Video 5; Videos 1/4 still use v1.
 End card v2 tweak (Oct 11, client: "the pulse is too prominent"): heartbeat spike halved, line thinner and ~28% opacity, fading out towards the screen edges; button pulse 3.5% -> 2%.
+All finals (Oct 11, client): end card v2 on every video (Group Chat, Pump, Car Rant, Autumn), end card 2.5 -> 3.0 s
+("a little longer than 2.5 secs"). Group Chat + Car Rant get sound beds ("needs some music or background noise"): the coded
+music bed (tools/vid5-music.py, now generic: --beat/--out; beat enters on "So I looked." / "Read the whole page.") ducked
+hard under the voice (ratio 8: at ratio 4 Whisper heard "impounded" for "compounded"), plus coded background sound
+(tools/room-tone.py: --kind home with two message pops on the group-chat bubbles; --kind car: cabin rumble + muffled
+pass-bys). Durations: Group Chat 23.1 s, Pump 27.3 s, Car Rant 24.9 s, Autumn 21.2 s; all -16 +/-0.7 LUFS, peaks <= -1.7 dBTP.

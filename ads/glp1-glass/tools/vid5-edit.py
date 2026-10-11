@@ -39,7 +39,7 @@ PIECES = [(C1, 0.55, 3.45),     # "This is your sign to finally look into a GLP1
 # snap every cut to the 30 fps output grid so picture and sound stay frame-locked (the 24 fps sources otherwise drift ~2 frames)
 PIECES = [(f, round(a * 30) / 30, round(b * 30) / 30) for f, a, b in PIECES]
 PUNCH = {5: (1.20, 0.47, 0.32)}  # piece -> (zoom, face cx, face cy) as frame fractions
-END = 2.5
+END = 3.0                     # end card (client, Oct 11: a little longer than 2.5 s)
 starts = []; t = 0.0
 for f, a, b in PIECES: starts.append(t); t += b - a
 TOTAL_A = t; TOTAL = t + END

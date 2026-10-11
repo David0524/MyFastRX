@@ -17,7 +17,7 @@ F = lambda wt, px: ImageFont.truetype(f'assets/fonts/Geist-{wt}.ttf', px)
 NAVY, SAND, WHITE = (0, 29, 69), (239, 230, 216), (255, 255, 255)
 CUT_A = 10.85                 # clip A ends here (after "...the GLP-1 one."), clip B follows
 LEN_B = 11.0
-END = 2.5                     # end card
+END = 3.0                     # end card (client, Oct 11: a little longer than 2.5 s)
 TOTAL = CUT_A + LEN_B + END
 
 # captions: [text, t0, t1] in film time (clip B words + CUT_A); chunks follow the speech, each held until the next
@@ -111,13 +111,19 @@ inputs, chain = [], []
 for i, (t, a, b) in enumerate(CAPS):
     p = f'{OV}/cap_{i:02d}.png'; caption_png(t, p, qual=t.startswith('$69')); inputs.append((p, a, b))
 hook_png(f'{OV}/hook.png'); inputs.append((f'{OV}/hook.png', HOOK[1], HOOK[2]))
-endcard_png(f'{OV}/endcard.png')
+# client, Oct 11: the animated end card v2, a music bed + parked-car background sound ("needs some music or background noise")
+subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)], check=True)
+subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', '0.0', '--beat', f'{CUT_A:.3f}', '--endcard', f'{CUT_A + LEN_B:.3f}',
+                '--lift', f'{CUT_A + LEN_B:.3f}', f'{TOTAL + 1:.3f}', '--out', 'audio/ugc/carrant_music.wav'], check=True)   # beat comes in on "Read the whole page."
+subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'car', '--dur', f'{CUT_A + LEN_B:.3f}', '--out', 'audio/ugc/carrant_ambience.wav'], check=True)
 
 # ---- compose
 A, B = 'footage/gen/car_clipA_1080p_stab.mp4', 'footage/gen/car_clipB_1080p.mp4'   # clip A: drift from 6.7 s removed (tools/stabilize-clipA.py)
 A_aud, B_aud = 'footage/gen/car_clipA_draft1.mp4', 'footage/gen/car_clipB_draft1.mp4'   # the drafts carry the voice
-args = ['ffmpeg', '-v', 'error', '-y', '-i', A, '-i', B, '-i', A_aud, '-i', B_aud, '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png']
-for p, _, _ in inputs: args += ['-i', p]
+args = ['ffmpeg', '-v', 'error', '-y', '-i', A, '-i', B, '-i', A_aud, '-i', B_aud, '-i', 'footage/broll/endcard_v2.mp4']
+for p, _, _ in inputs: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
+IM, IA = 5 + len(inputs), 6 + len(inputs)
+args += ['-i', 'audio/ugc/carrant_music.wav', '-i', 'audio/ugc/carrant_ambience.wav']
 Z = ZOOM; zw, zh = f'iw/{Z["k"]}', f'ih/{Z["k"]}'
 fc = [f'[0:v]split[a0][a1]',
       f'[a0]trim=0:{Z["t"]},setpts=PTS-STARTPTS,scale={W}:{H},fps=30,setsar=1[va0]',
@@ -133,7 +139,11 @@ fc += [f'[2:a]atrim=0:{CUT_A},asetpts=PTS-STARTPTS,afade=t=out:st={CUT_A - 0.03}
        f'[3:a]atrim=0:{LEN_B},asetpts=PTS-STARTPTS,afade=t=in:d=0.02,afade=t=out:st={LEN_B - 0.3}:d=0.3[ab]',
        f'anullsrc=r=48000:cl=stereo,atrim=0:{END}[ae]',
        '[aa]aformat=sample_rates=48000:channel_layouts=stereo[aa2];[ab]aformat=sample_rates=48000:channel_layouts=stereo[ab2]',
-       '[aa2][ab2][ae]concat=n=3:v=0:a=1,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11,volume=-0.8dB,alimiter=limit=0.83:level=false[aout]']
+       '[aa2][ab2][ae]concat=n=3:v=0:a=1,highpass=f=80,asplit=2[vo][vsc]',
+       f'[{IM}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.30[mu]',
+       '[mu][vsc]sidechaincompress=threshold=0.01:ratio=8:attack=15:release=400[mud]',
+       f'[{IA}:a]aformat=sample_rates=48000:channel_layouts=stereo[amb]',
+       '[vo][amb][mud]amix=inputs=3:duration=first:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,volume=-0.8dB,alimiter=limit=0.80:level=false[aout]']
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-r', '30', '-c:v', 'libx264', '-profile:v', 'high',
          '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M', '-c:a', 'aac', '-ar', '48000', '-b:a', '256k',
          '-movflags', '+faststart', f'{OUT}/MyFastRx_CarRant_v1.mp4']

@@ -27,7 +27,7 @@ PIECES = [(C1, 0.00, 1.82), (C1, 1.82, 3.62), (C1, 3.98, 5.30), (C1, 6.30, 7.95)
 # hard punch-ins (client: "she is in the same position the whole time"): a cut to a tighter frame on the same take.
 # "is my LEAST favorite thing" (right after the counter), "If you do the year...", "Honestly? Rare. Link's there."
 PUNCH = {7: (1.20, 0.45, 0.30)}   # client: one punch-in only, on the sign-off   # piece -> (zoom, face cx, face cy) as frame fractions
-END = 2.5
+END = 3.0                     # end card (client, Oct 11: a little longer than 2.5 s)
 starts = []; t = 0.0
 for f, a, b in PIECES: starts.append(t); t += b - a
 TOTAL_A = t; TOTAL = t + END
@@ -97,7 +97,8 @@ subprocess.run(['python3', 'tools/vid4-ambience.py', '--dur', f'{TOTAL_A:.3f}', 
 args = ['ffmpeg', '-v', 'error', '-y']
 clips = [C1, C2, C3]
 for f in clips: args += ['-i', f]
-args += ['-i', CNT, '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png', '-i', 'audio/ugc/vid4_ambience.wav']   # input 5: background sound (tools/vid4-ambience.py)
+subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)], check=True)   # client, Oct 11: the new animated end card on every video
+args += ['-i', CNT, '-i', 'footage/broll/endcard_v2.mp4', '-i', 'audio/ugc/vid4_ambience.wav']   # input 5: background sound (tools/vid4-ambience.py)
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
 fc, vl, al = [], [], []
 for k, (f, a, b) in enumerate(PIECES):

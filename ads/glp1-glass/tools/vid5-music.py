@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Video 5 music bed, coded (Higgsfield has no standalone music model; no licensing needed). Warm fingerpicked acoustic
+"""Music bed (Videos 1, 5 and the car rant), coded (Higgsfield has no standalone music model; no licensing needed). Warm fingerpicked acoustic
 guitar (Karplus-Strong), 80 bpm, one chord per 3 s bar, bars locked to the edit:
   porch: guitar arpeggios + light shaker (C, Am)
   time-lapse (--tl): strummed F, a soft pad swell and a riser into the cut (under the voice-over)
@@ -13,7 +13,9 @@ import numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 ap = argparse.ArgumentParser(); ap.add_argument('--dur', type=float, required=True); ap.add_argument('--bar0', type=float, default=0.233)
-ap.add_argument('--tl', type=float, nargs=2, required=True, help='time-lapse start/end: the swell bar')
+ap.add_argument('--tl', type=float, nargs=2, default=None, help='time-lapse start/end: the swell bar (Video 5)')
+ap.add_argument('--beat', type=float, default=None, help='without --tl: when the beat comes in (a bar starts there)')
+ap.add_argument('--out', default='audio/ugc/vid5_music.wav')
 ap.add_argument('--endcard', type=float, required=True)
 ap.add_argument('--lift', type=float, nargs='*', default=[], help='t0 t1 pairs where she is silent (time-lapse, end card): music +4 dB')
 a = ap.parse_args()
@@ -42,10 +44,14 @@ CH = {'C': [48, 55, 64, 67, 71], 'Am': [45, 52, 60, 64, 67], 'F': [41, 48, 57, 6
 PAT = [0, 2, 3, 4, 2, 3, 1, 3]                          # fingerpicking order over 8 eighths
 # bars as (start time, chord, mode, length): picking until the time-lapse, one swell bar the length of the time-lapse,
 # full bars after it, then G on the beat nearest the end card and a ringing C
+# (other videos: no --tl; picking until --beat, full bars from there)
 bars = []; t_ = a.bar0; cyc = ['C', 'Am']
-while t_ + 0.01 < a.tl[0]: bars.append((t_, cyc[len(bars) % 2], 'pick', BAR)); t_ += BAR
-bars.append((a.tl[0], 'F', 'swell', a.tl[1] - a.tl[0])); t_ = a.tl[1]; cyc = ['C', 'Am', 'F']; k = 0
-t_end = a.tl[1] + round((a.endcard - a.tl[1]) / (BAR / 4)) * (BAR / 4)
+split = a.tl[0] if a.tl else (a.beat if a.beat is not None else a.bar0 + 2 * BAR)
+while t_ + 0.01 < split: bars.append((t_, cyc[len(bars) % 2], 'pick', min(BAR, split - t_))); t_ += BAR
+if a.tl: bars.append((a.tl[0], 'F', 'swell', a.tl[1] - a.tl[0])); t_ = a.tl[1]
+else: t_ = split
+t_full = t_; cyc = ['C', 'Am', 'F'] if a.tl else ['F', 'C', 'Am']; k = 0
+t_end = t_full + round((a.endcard - t_full) / (BAR / 4)) * (BAR / 4)
 while t_ + 0.01 < t_end: bars.append((t_, cyc[k % 3], 'full', min(BAR, t_end - t_))); t_ += BAR; k += 1
 bars += [(t_end, 'G', 'end', BAR / 2), (t_end + BAR / 2, 'C', 'ring', 3.0)]
 
@@ -108,7 +114,7 @@ x = x / np.sqrt((x ** 2).mean()) * 0.1
 g = np.ones(n_out)                                       # +4 dB where there is no voice, 0.2 s ramps
 for t0, t1 in zip(a.lift[::2], a.lift[1::2]): g += 0.58 * np.clip(np.minimum((tt - t0 + 0.1) / 0.2, (t1 + 0.1 - tt) / 0.2), 0, 1)
 x *= g[:, None]
-out = 'audio/ugc/vid5_music.wav'
+out = a.out
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', '-', '-c:a', 'pcm_s16le', out],
                input=x.astype(np.float32).tobytes(), check=True)
 print(out)
