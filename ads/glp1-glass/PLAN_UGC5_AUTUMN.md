@@ -54,7 +54,9 @@ AI start/end-frame version only if the coded one looks fake. "Come with me" hook
 | Clip | Where | Dialogue (prompt spelling) | Words | Clip length |
 |---|---|---|---|---|
 | P | Porch | "This is your sign to finally look into a GLP1. Don't wait for JANUARY. Everyone says 'after the holidays'... and then it's January. Again." | 24 | 10 s |
-| S | Leafy sidewalk | "Or... you could just start now. My Fast Rx, compounded GLP1. SIXTY-NINE DOLLARS the first month, no subscription, same price at every dose. Link's there." | 25 | 10 s |
+| S | Leafy sidewalk | "Or... just start now. My Fast Rx, compounded GLP1, SIXTY-NINE DOLLARS the first month. Same price at every dose. Check if you qualify, it takes like a minute." | 27 | 10 s |
+CTA (client, Oct 11): the brief's "Check if you qualify" + the site's verified "takes less than a minute" (replaces "Link's there").
+"No subscription" moves to the on-screen price chip.
 Checks: GLP1 singular (no "GLP1s"); "dollars" said once; no competitor claims; no results/dates promised; voice ref
 e43ccae4 holds a different line (safe). Provider review + "if prescribed" go on screen, not in her mouth.
 
@@ -67,7 +69,7 @@ e43ccae4 holds a different line (safe). Provider review + "if prescribed" go on 
 | 8-10 | S: Dana on that street, still autumn: "Or... you could just start now." | S |
 | 10-15 | S: product + price (chip: Compounded Semaglutide · $69 first month · Introductory offer · Provider review online) | S |
 | 15-17 | S: USPs (headline: Same price. Any dose.) | S |
-| 17-19 | S: "Link's there." CTA, one punch-in | S |
+| 17-19 | S: "Check if you qualify, it takes like a minute." CTA, one punch-in | S |
 | 19-21.5 | End card (Video 1/4) | ambience fades |
 Sound: her voice + coded outdoor ambience (leaves, birds, distant traffic). Music: deliver without a bed and add a licensed
 track in TikTok/Meta Ads Manager (Commercial Music Library), or price a Higgsfield music bed first.
@@ -96,7 +98,7 @@ Gate B: client judges. Only if it reads fake:
 | # | Tool / model | Inputs | Prompt | Cr |
 |---|---|---|---|---|
 | C1 | generate_video seedance_2_5 omni_reference, 720p, 10 s, 9:16, generate_audio | start_image A1, audio_references e43ccae4 | Locked prompt (static camera, "Shot on iPhone, front camera, UGC footage."), scene: "She sits on her front porch steps, phone propped on the step below." Dialogue: clip P. Rules: starts speaking immediately; small pause before "Don't wait for January"; dry, knowing tone on "Again." | 70 |
-| C2 | same, 10 s | start_image A2, audio_references e43ccae4 | scene: "She stands on a leafy sidewalk holding the phone at arm's length; the frame stays perfectly steady." Dialogue: clip S. Rules: relaxed, warm; small shrug on "Link's there." | 70 |
+| C2 | same, 10 s | start_image A2, audio_references e43ccae4 | scene: "She stands on a leafy sidewalk holding the phone at arm's length; the frame stays perfectly steady." Dialogue: clip S. Rules: relaxed, warm; easy, encouraging tone on "Check if you qualify" | 70 |
 Gate C (free, per clip): transcript word-for-word; energy check at every cut point; camera drift < 2%; no wide-eyed or
 salesy delivery; voice matches Video 1/4. If a clip fails: one retake of that clip only.
 
@@ -105,7 +107,7 @@ insert, captions (width guard), price chip + "Same price. Any dose.", one punch-
 -16 LUFS, 1080x1920 master + 720p review.
 
 ## Budget (balance 222)
-Clip S is cut to 10 s by dropping "So why wait?" (CTA stays: "Link's there." + end card) so that ONE retake always fits.
+Clip S stays at 10 s (27 words) so that ONE retake always fits.
 | Path | Credits | Left |
 |---|---|---|
 | A (8) + C1 10 s (70) + C2 10 s (70), coded time-lapse | 148 | 74 |
