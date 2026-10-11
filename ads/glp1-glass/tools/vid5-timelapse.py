@@ -39,7 +39,11 @@ LEAF = cv2.GaussianBlur(cv2.dilate(LEAF, np.ones((5, 5))), (0, 0), 2) * upper
 snow_bias = 0.35 * (1 - np.clip((yy - HORIZON) / (PH - HORIZON), 0, 1))
 def uniform(x):
     r = np.empty(x.size, np.float32); r[np.argsort(x, axis=None)] = np.linspace(0, 1, x.size, dtype=np.float32); return r.reshape(x.shape)
-SNOW_ORDER = uniform(N_SNOW * 0.6 - snow_bias)                  # order in which ground patches whiten (far + edges first)
+# snow lands everywhere at once as a fine dusting that thickens (client: the creeping patches looked bad).
+# Fine speckle (2-6 px grains), with a slight head start for grass/far ground over the near concrete.
+GRAIN = cv2.GaussianBlur(rng.random((PH, PW)).astype(np.float32), (0, 0), 1.6)   # soft, round flakes (not blocky noise)
+grass = ((hsv[..., 1] > 60) & (hsv[..., 0] > 30) & (hsv[..., 0] < 90)).astype(np.float32)
+SNOW_ORDER = uniform(GRAIN * 0.8 + 0.12 * (1 - snow_bias / 0.35) - 0.10 * cv2.GaussianBlur(grass, (0, 0), 6))
 
 def ease(x): return 0.5 - 0.5 * math.cos(math.pi * min(max(x, 0), 1))
 
@@ -49,14 +53,15 @@ def state(p):
     m_leaf = np.clip((pl * 1.25 - N_LEAF) * 6, 0, 1)            # foliage: leaf-by-leaf
     m_sky = pl                                                  # sky, houses, branches: smooth
     m_up = LEAF * m_leaf + (1 - LEAF) * m_sky
-    m_dn = np.clip((ps * 1.08 - SNOW_ORDER) * 9, 0, 1)          # opaque patches; covered area grows linearly
+    cover = np.clip((ps * 1.1 - SNOW_ORDER) * 14, 0, 1)        # flecks switch on: density grows evenly
+    m_dn = np.clip(cover * 0.85 + ease((p - 0.75) / 0.25) * 0.6, 0, 1)   # then the last of the ground fills in
     m = upper * m_up + (1 - upper) * m_dn
     img = A * (1 - m[..., None]) + B * m[..., None]
     return img
 
 def particles(img, t, p):
     """Falling leaves early, snow later (drawn at plate resolution)."""
-    out = img.copy(); nl = int(40 * (1 - ease(p / 0.6))); ns = int(260 * ease((p - 0.4) / 0.5))
+    out = img.copy(); nl = int(40 * (1 - ease(p / 0.6))); ns = int(520 * ease((p - 0.3) / 0.4))
     r = np.random.default_rng(int(t * STEP_FPS) + 99)
     for _ in range(nl):
         x, y = r.uniform(0, PW), r.uniform(0, PH * 0.8); c = r.choice([(0.12, 0.45, 0.85), (0.10, 0.35, 0.75), (0.15, 0.60, 0.90)])
