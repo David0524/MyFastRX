@@ -107,3 +107,12 @@ collar. No logos or brand names anywhere: plain pump, plain canopy. Soft overcas
 | File | Job | Notes |
 |---|---|---|
 | dana_vid4_pump_1.png | 887e14be-0fc9-4ca9-825e-38df78ab2e15 | PICK. Selfie POV, nozzle in the tank, plain pump, no brand (only illegible fuel-door label text). Blown 4% = overcast sky, face clean. Tee smooth. |
+
+## Video 5 (autumn) stills, Phase A (Oct 11, 2026), 8 credits. Prompts in PLAN_UGC5_AUTUMN.md.
+| File | Job | Notes |
+|---|---|---|
+| dana_vid5_porch_1.png | 77866303-ad44-4857-b6ce-51e85f05c0f0 | Porch, mustard tee, pumpkins, mug, leaves. A phone sat in the bottom of frame -> cropped (free): dana_vid5_porch_1_crop.png (1277x2270, above the phone). Use the crop as the start image (upload). |
+| dana_vid5_sidewalk_1.png | b29cd709-2fc1-49bd-b6e9-51641d03b199 | PICK. Leafy sidewalk selfie POV, same woman, tee smooth, no phone. Bright patches = sky only. |
+| vid5_street_autumn.png | 96adfa6e-e3ff-48e9-ae04-c5794644df32 | Empty autumn street plate (from A2). No people, numbers or brands. |
+| vid5_street_winter.png | d17e2533-5cdd-4f85-b291-ba3f35a8baad | Same plate edited to winter; trunk, cars and houses stay registered (time-lapse ready). |
+Time-lapse (Phase B, free): tools/vid5-timelapse.py -> footage/broll/vid5_timelapse.mp4. Contact sheet: vid5_stills_contact.jpg.
