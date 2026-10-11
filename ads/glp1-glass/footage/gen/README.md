@@ -245,3 +245,7 @@ tools/vid5-music.py (fingerpicked Karplus-Strong guitar, 80 bpm, bars locked to 
 time-lapse, soft beat enters on "Or... just start now", resolves on the end card), sidechain-ducked under her voice
 (~14-20 dB under speech), +4 dB where she is silent. Ambience kept underneath. Master -16.8 LUFS, peak -2.1 dBTP.
 Higgsfield has no standalone music model (its audio tool is speech only), so the bed is coded (free, no licence).
+| audio/ugc/vid5_vo_weeks.wav (Seed Audio 1.0, audio_references e43ccae4 = Dana's voice) | 131e8fba-2515-4dd5-a2c8-33f773a25867 | 0.4 | Time-lapse voice-over, client's line: "The weeks go by either way. Might as well get started." Word-for-word, 3.66 s; F0 median 170 Hz vs Dana's on-camera 180 Hz, same spectral balance. |
+Edit (Oct 11, client: the time-lapse "needs something more stimulating... probably voice"): time-lapse now 4 s with the VO
+(level-matched to her on-camera voice), captions follow the VO; month captions removed; C2 opens on "My Fast Rx" ("Or... just
+start now" dropped, the VO covers it); music bars re-timed (tools/vid5-music.py --tl/--endcard). 20.7 s, -16.7 LUFS.

@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """Video 5 music bed, coded (Higgsfield has no standalone music model; no licensing needed). Warm fingerpicked acoustic
 guitar (Karplus-Strong), 80 bpm, one chord per 3 s bar, bars locked to the edit:
-  0.23-6.23  porch: guitar arpeggios + light shaker (C, Am)
-  6.23-9.23  time-lapse: no voice, so the music carries it: strummed F, a soft pad swell and a riser into the cut
-  9.23-18.2  sidewalk: the beat comes in on "Or... just start now" (soft kick, brushed snare, bass): C, Am, F
-  18.2-end   end card: G -> resolves to C, rings out
+  porch: guitar arpeggios + light shaker (C, Am)
+  time-lapse (--tl): strummed F, a soft pad swell and a riser into the cut (under the voice-over)
+  sidewalk: the beat comes in on the cut back to her (soft kick, brushed snare, bass): C, Am, F
+  end card (--endcard, snapped to the beat): G -> resolves to C, rings out
 Ducking under her voice is done in the edit (sidechain). Warmth: gentle low-pass, light saturation, small room reverb.
-  python3 tools/vid5-music.py --dur 21.2 --bar0 0.233 -> audio/ugc/vid5_music.wav (48 kHz stereo)"""
+  python3 tools/vid5-music.py --dur 20.7 --bar0 0.233 --tl 6.23 10.23 --endcard 18.2 -> audio/ugc/vid5_music.wav (48 kHz stereo)"""
 import argparse, os, subprocess
 import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 ap = argparse.ArgumentParser(); ap.add_argument('--dur', type=float, required=True); ap.add_argument('--bar0', type=float, default=0.233)
+ap.add_argument('--tl', type=float, nargs=2, required=True, help='time-lapse start/end: the swell bar')
+ap.add_argument('--endcard', type=float, required=True)
 ap.add_argument('--lift', type=float, nargs='*', default=[], help='t0 t1 pairs where she is silent (time-lapse, end card): music +4 dB')
 a = ap.parse_args()
 SR = 48000; N = int(a.dur * SR) + SR; BAR = 3.0; E = BAR / 8
@@ -38,9 +40,14 @@ def pluck(m, dur=2.6, bright=0.5):
 
 CH = {'C': [48, 55, 64, 67, 71], 'Am': [45, 52, 60, 64, 67], 'F': [41, 48, 57, 60, 64], 'G': [43, 50, 59, 62, 67]}
 PAT = [0, 2, 3, 4, 2, 3, 1, 3]                          # fingerpicking order over 8 eighths
-bars = [(0, 'C', 'pick'), (1, 'Am', 'pick'), (2, 'F', 'swell'), (3, 'C', 'full'), (4, 'Am', 'full'), (5, 'F', 'full'),
-        (6, 'G', 'end'), (6.5, 'C', 'ring')]
-def bt(b): return a.bar0 + b * BAR
+# bars as (start time, chord, mode, length): picking until the time-lapse, one swell bar the length of the time-lapse,
+# full bars after it, then G on the beat nearest the end card and a ringing C
+bars = []; t_ = a.bar0; cyc = ['C', 'Am']
+while t_ + 0.01 < a.tl[0]: bars.append((t_, cyc[len(bars) % 2], 'pick', BAR)); t_ += BAR
+bars.append((a.tl[0], 'F', 'swell', a.tl[1] - a.tl[0])); t_ = a.tl[1]; cyc = ['C', 'Am', 'F']; k = 0
+t_end = a.tl[1] + round((a.endcard - a.tl[1]) / (BAR / 4)) * (BAR / 4)
+while t_ + 0.01 < t_end: bars.append((t_, cyc[k % 3], 'full', min(BAR, t_end - t_))); t_ += BAR; k += 1
+bars += [(t_end, 'G', 'end', BAR / 2), (t_end + BAR / 2, 'C', 'ring', 3.0)]
 
 def kick():
     n = int(0.35 * SR); tt = np.arange(n) / SR; f = 50 + 70 * np.exp(-tt / 0.03)
@@ -60,23 +67,25 @@ def pad(ms, dur):
         for d in (-0.08, 0.08): x += np.sin(2 * np.pi * hz(m + 12 + d) * tt + rng.uniform(0, 6))
     return x / len(ms) * np.sin(np.pi * np.clip(tt / dur, 0, 1)) ** 1.5
 
-for b, ch, mode in bars:
-    t0 = bt(b); ms = CH[ch]
+for t0, ch, mode, blen in bars:
+    ms = CH[ch]
     if mode in ('pick', 'full'):
         for e, idx in enumerate(PAT):
+            if e * E >= blen - 0.01: break
             add(pluck(ms[idx], bright=0.45), t0 + e * E + rng.normal(0, 0.006), 0.55 if e % 2 else 0.7, pan=[-0.3, 0.2, 0.35, 0.1, -0.1][idx])
-        for e in range(8): add(shaker(), t0 + e * E + 0.004, 0.10 if mode == 'pick' else 0.14, pan=0.5)
+        for e in range(int(round(blen / E))): add(shaker(), t0 + e * E + 0.004, 0.10 if mode == 'pick' else 0.14, pan=0.5)
     if mode == 'full':
-        for q in range(4):
+        for q in range(int(round(blen / (2 * E)))):
             if q in (0, 2): add(kick(), t0 + q * 2 * E, 0.55)
             if q in (1, 3): add(brush(), t0 + q * 2 * E, 0.22, pan=-0.15)
-        add(bass(ms[0], 1.4), t0, 0.35); add(bass(ms[0], 1.4), t0 + 4 * E, 0.3)
+        add(bass(ms[0], 1.4), t0, 0.35)
+        if blen > 4 * E: add(bass(ms[0], 1.4), t0 + 4 * E, 0.3)
     if mode == 'swell':                                 # time-lapse bar: one slow strum + pad + riser into the cut
-        for j, m in enumerate(ms): add(pluck(m, 3.2, 0.4), t0 + j * 0.035, 0.7, pan=(j - 2) * 0.15)
-        add(pad(ms, BAR + 0.3), t0, 0.35)
-        n = int(BAR * SR); x = rng.normal(0, 1, n); X = np.fft.rfft(x); f = np.fft.rfftfreq(n, 1 / SR)
+        for j, m in enumerate(ms): add(pluck(m, blen + 0.2, 0.4), t0 + j * 0.035, 0.7, pan=(j - 2) * 0.15)
+        add(pad(ms, blen + 0.3), t0, 0.35)
+        n = int(blen * SR); x = rng.normal(0, 1, n); X = np.fft.rfft(x); f = np.fft.rfftfreq(n, 1 / SR)
         riser = np.fft.irfft(X * ((f > 600) & (f < 7000)), n) * (np.arange(n) / n) ** 3
-        add(riser / np.abs(riser).max(), t0, 0.12); add(kick(), t0 + BAR, 0.5)   # lands on "Or..."
+        add(riser / np.abs(riser).max(), t0, 0.12); add(kick(), t0 + blen, 0.5)   # lands on "Or..."
     if mode == 'end':
         for j, m in enumerate(ms): add(pluck(m, 1.6, 0.45), t0 + j * 0.03, 0.6, pan=(j - 2) * 0.15)
         add(kick(), t0, 0.45); add(bass(ms[0], 1.4), t0, 0.3)
