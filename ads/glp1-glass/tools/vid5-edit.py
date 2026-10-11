@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """UGC Video 5 "Don't wait for January" (autumn): the edit. Two Seedance 2.5 720p takes of Dana (porch C1, sidewalk C2),
 the coded autumn -> winter time-lapse (tools/vid5-timelapse.py) as a full cutaway with a voice-over, word-for-word captions, price chips, the client's headline "Same price. Any dose.", one punch-in on the CTA,
-coded street ambience (tools/vid5-ambience.py), a coded music bed (tools/vid5-music.py) and the end card shared with Videos 1/4.
+coded street ambience (tools/vid5-ambience.py), a coded music bed (tools/vid5-music.py) and the animated end card v2 (tools/endcard-v2.py).
   python3 tools/vid5-edit.py -> out/ugc/vid5_autumn/MyFastRx_UGC5_Autumn_v1.mp4 (+ previews/ugc/ review copy)
 Client, Oct 11: "...and then it's January. Again." is cut (January twice). The time-lapse (4.0 s: ~0.6 s of air after "started.", client: the gap was too abrupt) carries a voice-over in
 Dana's voice instead: "The weeks go by either way, so might as well get started." (client's line + "so"); C2 then opens on "My Fast Rx".
@@ -80,13 +80,15 @@ for i, (lines, a, b) in enumerate(CHIPS):
 headline_png(f'{OV}/headline.png'); ov.append((f'{OV}/headline.png', *HEADLINE))
 endcard_png(f'{OV}/endcard.png')
 
+subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)], check=True)
 subprocess.run(['python3', 'tools/vid5-timelapse.py', '--dur', '4.0'], check=True)
 subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', f'{starts[0] + (T_TL0 - 2 * 3.0):.3f}',
                 '--tl', f'{T_TL0:.3f}', f'{T_TL1:.3f}', '--endcard', f'{TOTAL_A:.3f}',
                 '--lift', f'{T_TL0:.3f}', f'{T_TL1:.3f}', f'{TOTAL_A:.3f}', f'{TOTAL + 1:.3f}'], check=True)
 subprocess.run(['python3', 'tools/vid5-ambience.py', '--dur', f'{TOTAL_A:.3f}', '--tl0', f'{T_TL0:.3f}', '--tl1', f'{T_TL1:.3f}'], check=True)
 args = ['ffmpeg', '-v', 'error', '-y', '-i', C1, '-i', C2, '-i', TL, '-i', C2A,
-        '-loop', '1', '-t', str(END), '-i', f'{OV}/endcard.png', '-i', 'audio/ugc/vid5_ambience.wav',
+        '-i', 'footage/broll/endcard_v2.mp4',            # input 4: animated end card v2 (tools/endcard-v2.py)
+         '-i', 'audio/ugc/vid5_ambience.wav',
         '-i', 'audio/ugc/vid5_music.wav',                     # input 6: coded music bed (tools/vid5-music.py)
         '-i', VO]                                             # input 7: time-lapse voice-over
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
