@@ -13,6 +13,14 @@ import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
+# FMT=45: the 4:5 (1080x1350) Feed version (Meta: Instagram Feed needs 4:5 to 1.91:1). The 9:16 composition is built as
+# usual, then cropped to the window y 150..1500 (chosen so her head and every caption stay in); price chips move up
+# into the window and the end card is the 4:5 layout (tools/endcard-v2.py --fmt 45), padded into place before the crop.
+FMT45 = os.environ.get('FMT') == '45'; Y0 = 150; SUF = '_4x5' if FMT45 else ''
+CHIP_Y = Y0 + 1190 if FMT45 else 1500
+EC = 'footage/broll/endcard_v2_4x5.mp4' if FMT45 else 'footage/broll/endcard_v2.mp4'
+EC_SCALE = f'scale=1080:1350,pad=1080:1920:0:{Y0}' if FMT45 else 'scale=1080:1920'
+PREV_SCALE = 'scale=720:900:flags=lanczos' if FMT45 else PREV_SCALE
 W, H = 1080, 1920
 F = lambda wt, px: ImageFont.truetype(f'assets/fonts/Geist-{wt}.ttf', px)
 NAVY, WHITE = (0, 29, 69), (255, 255, 255)
@@ -23,6 +31,7 @@ v4 = open('tools/vid4-edit.py').read()           # and Video 4's caption (width 
 exec(v4[v4.index('def caption_png'):v4.index('ov = []')])
 
 OUT = 'out/ugc/vid5_autumn'; OV = f'{OUT}/overlays'; os.makedirs(OV, exist_ok=True); os.makedirs('previews/ugc', exist_ok=True)
+if FMT45: OV = OV + '_4x5'; os.makedirs(OV, exist_ok=True)
 C1, C2, TL = 'footage/gen/vid5_porch_c1.mp4', 'footage/gen/vid5_sidewalk_c2.mp4', 'footage/broll/vid5_timelapse.mp4'
 C2A = 'audio/ugc/vid5_c2_rxfix.wav'
 VO = 'audio/ugc/vid5_vo_weeks.wav'   # voice-over for the time-lapse (Seed Audio, Dana's voice reference, job a750ad1f, 2nd take: the 1st, 131e8fba, was clipped mid-"started" and read "might as well. get started";
@@ -76,18 +85,18 @@ ov = []
 for i, (tx, a, b, q) in enumerate(CAPS):
     p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, q); ov.append((p, a, b))
 for i, (lines, a, b) in enumerate(CHIPS):
-    p = f'{OV}/chip_{i}.png'; chip_png(lines, p, 1500); ov.append((p, a, b))
+    p = f'{OV}/chip_{i}.png'; chip_png(lines, p, CHIP_Y); ov.append((p, a, b))
 headline_png(f'{OV}/headline.png'); ov.append((f'{OV}/headline.png', *HEADLINE))
 endcard_png(f'{OV}/endcard.png')
 
-subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)], check=True)
+subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)] + (['--fmt', '45'] if FMT45 else []), check=True)
 subprocess.run(['python3', 'tools/vid5-timelapse.py', '--dur', '4.0'], check=True)
 subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', f'{starts[0] + (T_TL0 - 2 * 3.0):.3f}',
                 '--tl', f'{T_TL0:.3f}', f'{T_TL1:.3f}', '--endcard', f'{TOTAL_A:.3f}',
                 '--lift', f'{T_TL0:.3f}', f'{T_TL1:.3f}', f'{TOTAL_A:.3f}', f'{TOTAL + 1:.3f}'], check=True)
 subprocess.run(['python3', 'tools/vid5-ambience.py', '--dur', f'{TOTAL_A:.3f}', '--tl0', f'{T_TL0:.3f}', '--tl1', f'{T_TL1:.3f}'], check=True)
 args = ['ffmpeg', '-v', 'error', '-y', '-i', C1, '-i', C2, '-i', TL, '-i', C2A,
-        '-i', 'footage/broll/endcard_v2.mp4',            # input 4: animated end card v2 (tools/endcard-v2.py)
+        '-i', EC,            # input 4: animated end card v2 (tools/endcard-v2.py)
          '-i', 'audio/ugc/vid5_ambience.wav',
         '-i', 'audio/ugc/vid5_music.wav',                     # input 6: coded music bed (tools/vid5-music.py)
         '-i', VO]                                             # input 7: time-lapse voice-over
@@ -116,7 +125,7 @@ for k, (f, a, b) in enumerate(PIECES):
         fc.append(f'[7:a]aformat=sample_rates=48000:channel_layouts=stereo,highpass=f=90,volume={VO_GAIN:.3f},'
                   f'adelay={d}|{d},apad,atrim=0:{b - a:.3f}[a{k}]')
     vl.append(f'[v{k}]'); al.append(f'[a{k}]')
-fc.append(f'[4:v]scale={W}:{H},fps=30,format=yuv420p,setsar=1[ve]')
+fc.append(f'[4:v]{EC_SCALE},fps=30,format=yuv420p,setsar=1[ve]')
 fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{END}[ae]')
 kt = [i for i, (f, _, _) in enumerate(PIECES) if f == TL][0]       # dissolve the time-lapse into the next piece
 fc.append(f'[v{kt}][v{kt + 1}]xfade=transition=fade:duration={XF:.3f}:offset={PIECES[kt][2] - PIECES[kt][1] - XF:.3f}[vx]')
@@ -133,12 +142,13 @@ fc.append('[6:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.35[mu
 fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
 fc.append('[vo][amb][mud]amix=inputs=3:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.80:level=false[aout]')
-mp4 = f'{OUT}/MyFastRx_UGC5_Autumn_v1.mp4'
+mp4 = f'{OUT}/MyFastRx_UGC5_Autumn_v1{SUF}.mp4'
+if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',
          '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M',
          '-c:a', 'aac', '-ar', '48000', '-b:a', '256k', '-movflags', '+faststart', mp4]
 subprocess.run(args, check=True)
-subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', mp4, '-vf', 'scale=720:1280:flags=lanczos', '-c:v', 'libx264', '-crf', '24',
+subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', mp4, '-vf', PREV_SCALE, '-c:v', 'libx264', '-crf', '24',
                 '-preset', 'medium', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart',
-                'previews/ugc/MyFastRx_UGC5_Autumn_v1_review.mp4'], check=True)
+                f'previews/ugc/MyFastRx_UGC5_Autumn_v1{SUF}_review.mp4'], check=True)
 print(json.dumps({'total_s': round(TOTAL, 2), 'pieces': [round(s, 2) for s in starts], 'tl': [round(T_TL0, 2), round(T_TL1, 2)], 'out': mp4}))

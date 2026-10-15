@@ -11,8 +11,17 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
+# FMT=45: the 4:5 (1080x1350) Feed version (Meta: Instagram Feed needs 4:5 to 1.91:1). The 9:16 composition is built as
+# usual, then cropped to the window y 150..1500 (chosen so her head and every caption stay in); price chips move up
+# into the window and the end card is the 4:5 layout (tools/endcard-v2.py --fmt 45), padded into place before the crop.
+FMT45 = os.environ.get('FMT') == '45'; Y0 = 150; SUF = '_4x5' if FMT45 else ''
+CHIP_Y = Y0 + 1190 if FMT45 else 1500
+EC = 'footage/broll/endcard_v2_4x5.mp4' if FMT45 else 'footage/broll/endcard_v2.mp4'
+EC_SCALE = f'scale=1080:1350,pad=1080:1920:0:{Y0}' if FMT45 else 'scale=1080:1920'
+PREV_SCALE = 'scale=720:900:flags=lanczos' if FMT45 else PREV_SCALE
 W, H = 1080, 1920
 OUT = 'out/ugc/car_rant'; OV = f'{OUT}/overlays'; os.makedirs(OV, exist_ok=True)
+if FMT45: OV = OV + '_4x5'; os.makedirs(OV, exist_ok=True)
 F = lambda wt, px: ImageFont.truetype(f'assets/fonts/Geist-{wt}.ttf', px)
 NAVY, SAND, WHITE = (0, 29, 69), (239, 230, 216), (255, 255, 255)
 CUT_A = 10.85                 # clip A ends here (after "...the GLP-1 one."), clip B follows
@@ -113,7 +122,7 @@ for i, (t, a, b) in enumerate(CAPS):
 hook_png(f'{OV}/hook.png'); inputs.append((f'{OV}/hook.png', HOOK[1], HOOK[2]))
 # client, Oct 11: the animated end card v2 + parked-car background hum; music only on the end card ("car rant music is horrible...
 # no music until maybe the end card")
-subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)], check=True)
+subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)] + (['--fmt', '45'] if FMT45 else []), check=True)
 subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', '0.0', '--beat', f'{CUT_A:.3f}', '--endcard', f'{CUT_A + LEN_B:.3f}',
                 '--lift', f'{CUT_A + LEN_B:.3f}', f'{TOTAL + 1:.3f}', '--out', 'audio/ugc/carrant_music.wav'], check=True)   # beat comes in on "Read the whole page."
 subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'car', '--dur', f'{CUT_A + LEN_B:.3f}', '--out', 'audio/ugc/carrant_ambience.wav', '--gain', '1.4'], check=True)
@@ -121,7 +130,7 @@ subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'car', '--dur', f'{CU
 # ---- compose
 A, B = 'footage/gen/car_clipA_1080p_stab.mp4', 'footage/gen/car_clipB_1080p.mp4'   # clip A: drift from 6.7 s removed (tools/stabilize-clipA.py)
 A_aud, B_aud = 'footage/gen/car_clipA_draft1.mp4', 'footage/gen/car_clipB_draft1.mp4'   # the drafts carry the voice
-args = ['ffmpeg', '-v', 'error', '-y', '-i', A, '-i', B, '-i', A_aud, '-i', B_aud, '-i', 'footage/broll/endcard_v2.mp4']
+args = ['ffmpeg', '-v', 'error', '-y', '-i', A, '-i', B, '-i', A_aud, '-i', B_aud, '-i', EC]
 for p, _, _ in inputs: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
 IM, IA = 5 + len(inputs), 6 + len(inputs)
 args += ['-i', 'audio/ugc/carrant_music.wav', '-i', 'audio/ugc/carrant_ambience.wav']
@@ -131,7 +140,7 @@ fc = [f'[0:v]split[a0][a1]',
       f'[a1]trim={Z["t"]}:{CUT_A},setpts=PTS-STARTPTS,crop={zw}:{zh}:(iw-{zw})/2:ih*{Z["cy"]}-{zh}/2,scale={W}:{H}:flags=lanczos,fps=30,setsar=1[va1]',
       '[va0][va1]concat=n=2:v=1:a=0[va]',
       f'[1:v]trim=0:{LEN_B},setpts=PTS-STARTPTS,scale={W}:{H},fps=30,setsar=1[vb]',
-      f'[4:v]scale={W}:{H},fps=30,format=yuv420p,setsar=1[ve]',
+      f'[4:v]{EC_SCALE},fps=30,format=yuv420p,setsar=1[ve]',
       '[va][vb][ve]concat=n=3:v=1:a=0[v0]']
 last = 'v0'
 for k, (p, a, b) in enumerate(inputs):
@@ -145,11 +154,12 @@ fc += [f'[2:a]atrim=0:{CUT_A},asetpts=PTS-STARTPTS,afade=t=out:st={CUT_A - 0.03}
        '[mu][vsc]sidechaincompress=threshold=0.01:ratio=8:attack=15:release=400[mud]',
        f'[{IA}:a]aformat=sample_rates=48000:channel_layouts=stereo[amb]',
        '[vo][amb][mud]amix=inputs=3:duration=first:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,volume=-0.8dB,alimiter=limit=0.80:level=false[aout]']
+if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-r', '30', '-c:v', 'libx264', '-profile:v', 'high',
          '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M', '-c:a', 'aac', '-ar', '48000', '-b:a', '256k',
-         '-movflags', '+faststart', f'{OUT}/MyFastRx_CarRant_v1.mp4']
+         '-movflags', '+faststart', f'{OUT}/MyFastRx_CarRant_v1{SUF}.mp4']
 subprocess.run(args, check=True)
-subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{OUT}/MyFastRx_CarRant_v1.mp4', '-vf', 'scale=720:1280:flags=lanczos', '-c:v', 'libx264',
+subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{OUT}/MyFastRx_CarRant_v1{SUF}.mp4', '-vf', PREV_SCALE, '-c:v', 'libx264',
                 '-crf', '24', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart',
-                'previews/car_rant/MyFastRx_CarRant_v1_review.mp4'], check=True)
-print(json.dumps({'total_s': TOTAL, 'captions': len(CAPS), 'out': f'{OUT}/MyFastRx_CarRant_v1.mp4'}))
+                f'previews/car_rant/MyFastRx_CarRant_v1{SUF}_review.mp4'], check=True)
+print(json.dumps({'total_s': TOTAL, 'captions': len(CAPS), 'out': f'{OUT}/MyFastRx_CarRant_v1{SUF}.mp4'}))

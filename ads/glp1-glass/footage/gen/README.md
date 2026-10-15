@@ -262,3 +262,10 @@ hard under the voice (ratio 8: at ratio 4 Whisper heard "impounded" for "compoun
 (tools/room-tone.py: --kind home with two message pops on the group-chat bubbles; --kind car: cabin rumble + muffled
 pass-bys). Durations: Group Chat 23.1 s, Pump 27.3 s, Car Rant 24.9 s, Autumn 21.2 s; all -16 +/-0.7 LUFS, peaks <= -1.7 dBTP.
 Car Rant (Oct 11, client: "car rant music is horrible. It just needs a light hum... no music until maybe the end card"): music muted under her (fades in on the end card only, ~7 dB under her voice level), car hum +3 dB (room-tone.py --gain 1.4).
+4:5 Feed versions (Oct 15, client: Meta rejected 9:16 for Instagram Feed, "aspect ratio ranging from 4:5 to 1.91:1"):
+FMT=45 python3 tools/{vid1-edit,vid4-edit,car-rant-edit,vid5-edit}.py -> *_4x5.mp4 (1080x1350). Same edit, cropped to a
+window chosen per video (y 150..1500; Pump 330..1680 so the full gallons display stays in), price chips moved up into
+the window, the chat screen shifted down (header visible), Pump counter captions at the top (above "TOTAL SALE"), and
+the end card's own 4:5 layout (tools/endcard-v2.py --fmt 45). Use the 9:16 files for Reels/Stories and the 4:5 files
+for Feeds (Ads Manager: placement asset customization). The "video_id is not a valid video_id" errors were on the Ads
+Manager side (all four files have identical, valid specs): re-select/re-upload the video and wait for processing.

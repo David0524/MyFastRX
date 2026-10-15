@@ -8,15 +8,19 @@ Animated, 2.5 s, 1080x1920 @ 30 fps, coded (no generations):
   - the client's disclaimer verbatim + Rx line + AI-portrayal note (on screen the whole time)
   - elements ease in one after another over the first second; the button gives one soft pulse
 Content is centred on CX = 510 (kept clear of the TikTok/Reels right-hand buttons), important content above y = 1520.
-  python3 tools/endcard-v2.py [--dur 2.5] -> footage/broll/endcard_v2.mp4 (+ footage/broll/endcard_v2_still.png)"""
+  python3 tools/endcard-v2.py [--dur 3] [--fmt 45] -> footage/broll/endcard_v2[_4x5].mp4 (+ _still.png)"""
 import argparse, math, os, subprocess
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
-ap = argparse.ArgumentParser(); ap.add_argument('--dur', type=float, default=2.5); a = ap.parse_args()
-W, H, FPS, CX = 1080, 1920, 30, 510
+ap = argparse.ArgumentParser(); ap.add_argument('--dur', type=float, default=2.5)
+ap.add_argument('--fmt', choices=['916', '45'], default='916', help='45: 1080x1350 layout for Instagram/Facebook Feed (Meta: Feed needs 4:5)')
+a = ap.parse_args(); FMT45 = a.fmt == '45'
+W, H, FPS, CX = (1080, 1350, 30, 540) if FMT45 else (1080, 1920, 30, 510)   # 4:5 has no right-hand button rail: centred
+# vertical shifts for the 4:5 layout (price block, CTA, URL, badge, disclaimer)
+DP, DC, DU, DB, DD = (-300, -316, -327, -338, -350) if FMT45 else (0, 0, 0, 0, 0)
 F = lambda wt, px: ImageFont.truetype(f'assets/fonts/Geist-{wt}.ttf', px)
 NAVY, BLUE, INK2 = (0, 29, 69), (32, 99, 235), (84, 98, 120)
 
@@ -27,10 +31,11 @@ yy = np.linspace(0, 1, H)[:, None, None]
 top, bot = np.array([251, 249, 245]), np.array([228, 238, 252])
 bg = (top + (bot - top) * yy ** 1.3) * np.ones((1, W, 1))
 bg = Image.fromarray(bg.astype(np.uint8), 'RGB').convert('RGBA')
-VIAL_CY = 500
-gm = Image.new('L', (W, H), 0); ImageDraw.Draw(gm).ellipse((CX - 290, VIAL_CY - 290, CX + 290, VIAL_CY + 290), fill=105)
+VIAL_CY = 330 if FMT45 else 500
+GR, RR = (230, 200) if FMT45 else (290, 250)   # glow / ring radius
+gm = Image.new('L', (W, H), 0); ImageDraw.Draw(gm).ellipse((CX - GR, VIAL_CY - GR, CX + GR, VIAL_CY + GR), fill=105)
 glow = Image.new('RGBA', (W, H), (120, 168, 255, 0)); glow.putalpha(gm.filter(ImageFilter.GaussianBlur(95)))   # colour everywhere: no grey fringe
-ring = layer(); ImageDraw.Draw(ring).ellipse((CX - 250, VIAL_CY - 250, CX + 250, VIAL_CY + 250), outline=(32, 99, 235, 34), width=2)
+ring = layer(); ImageDraw.Draw(ring).ellipse((CX - RR, VIAL_CY - RR, CX + RR, VIAL_CY + RR), outline=(32, 99, 235, 34), width=2)
 
 # ---- heartbeat line (drawn progressively)
 def heartbeat_pts():
@@ -52,7 +57,7 @@ def heartbeat(p):
 
 # ---- vial + reflection + shadow
 v = Image.open('images/vial_semaglutide_v2_cutout.png').convert('RGBA')
-VH = 430; VW = round(v.width * VH / v.height); vial = v.resize((VW, VH), Image.LANCZOS)
+VH = 330 if FMT45 else 430; VW = round(v.width * VH / v.height); vial = v.resize((VW, VH), Image.LANCZOS)
 refl = vial.transpose(Image.FLIP_TOP_BOTTOM); ra = np.array(refl).astype(np.float32)
 ra[..., 3] *= np.clip(0.20 * (1 - np.arange(VH)[:, None] / 80), 0, 1)
 refl = Image.fromarray(ra.astype(np.uint8), 'RGBA')   # short, faint reflection (80 px)
@@ -73,8 +78,8 @@ al = np.clip((bgc.mean() - lg.min(2)) / (bgc.mean() - 40), 0, 1)
 col = np.clip((lg - (1 - al[..., None]) * bgc) / np.maximum(al[..., None], 1e-3), 0, 255)
 logo = Image.fromarray(np.dstack([col, al * 255]).astype(np.uint8), 'RGBA')
 logo = logo.crop(Image.fromarray((al > 0.05).astype(np.uint8) * 255).getbbox())
-LW = 470; logo = logo.resize((LW, round(logo.height * LW / logo.width)), Image.LANCZOS)
-logo_l = layer(); logo_l.alpha_composite(logo, (CX - LW // 2, 130))
+LW = 400 if FMT45 else 470; logo = logo.resize((LW, round(logo.height * LW / logo.width)), Image.LANCZOS)
+logo_l = layer(); logo_l.alpha_composite(logo, (CX - LW // 2, 60 if FMT45 else 130))
 
 # ---- badge (same extraction as the v1 card)
 bd = Image.open('images/badge_bbb_a_rating_horizontal.jpg').convert('RGB')
@@ -83,26 +88,26 @@ fill = Image.fromarray(white, 'L').copy()          # .copy(): fromarray images a
 for p in [(0, 0), (bd.width - 1, bd.height - 1), (bd.width - 1, 0), (0, bd.height - 1)]: ImageDraw.floodfill(fill, p, 128)
 alpha = Image.fromarray(np.where(np.array(fill) == 128, 0, 255).astype(np.uint8), 'L').filter(ImageFilter.GaussianBlur(0.8))
 badge = bd.convert('RGBA'); badge.putalpha(alpha); badge = badge.crop(alpha.point(lambda q: 255 if q > 8 else 0).getbbox())
-BW = 300; badge = badge.resize((BW, round(badge.height * BW / badge.width)), Image.LANCZOS)
+BW = 260 if FMT45 else 300; badge = badge.resize((BW, round(badge.height * BW / badge.width)), Image.LANCZOS)
 
 # ---- price block
 def ctext(d, y, s, f, fill):
     w = d.textlength(s, font=f); d.text((CX - w / 2, y), s, font=f, fill=fill); return w
 price = layer(); d = ImageDraw.Draw(price)
-ctext(d, 830, 'COMPOUNDED SEMAGLUTIDE', F('SemiBold', 30), INK2)
+ctext(d, 830 + DP, 'COMPOUNDED SEMAGLUTIDE', F('SemiBold', 30), INK2)
 fp, fs = F('Bold', 150), F('SemiBold', 46)
 wp = d.textlength('$69', font=fp); ws = max(d.textlength('first', font=fs), d.textlength('month', font=fs)); gap = 22
 x0 = CX - (wp + gap + ws) / 2
-d.text((x0, 866), '$69', font=fp, fill=NAVY)
-d.text((x0 + wp + gap, 908), 'first', font=fs, fill=BLUE); d.text((x0 + wp + gap, 958), 'month', font=fs, fill=BLUE)
+d.text((x0, 866 + DP), '$69', font=fp, fill=NAVY)
+d.text((x0 + wp + gap, 908 + DP), 'first', font=fs, fill=BLUE); d.text((x0 + wp + gap, 958 + DP), 'month', font=fs, fill=BLUE)
 fi = F('Medium', 28); wi = d.textlength('Introductory offer', font=fi)
-d.rounded_rectangle((CX - wi / 2 - 18, 1048, CX + wi / 2 + 18, 1092), 22, fill=(32, 99, 235, 26))
-ctext(d, 1054, 'Introductory offer', fi, (32, 80, 190))
+d.rounded_rectangle((CX - wi / 2 - 18, 1048 + DP, CX + wi / 2 + 18, 1092 + DP), 22, fill=(32, 99, 235, 26))
+ctext(d, 1054 + DP, 'Introductory offer', fi, (32, 80, 190))
 
 # ---- CTA
 def cta(scale=1.0):
     im = layer(); f = F('Bold', 54); s = 'Check if I qualify'
-    tw = ImageDraw.Draw(im).textlength(s, font=f); aw = 40; bw = (tw + 26 + aw + 120) * scale; bh = 118 * scale; y = 1146
+    tw = ImageDraw.Draw(im).textlength(s, font=f); aw = 40; bw = (tw + 26 + aw + 120) * scale; bh = 118 * scale; y = 1146 + DC
     sh = layer(); ImageDraw.Draw(sh).rounded_rectangle((CX - bw / 2, y + 14, CX + bw / 2, y + bh + 14), bh / 2, fill=(32, 99, 235, 90))
     im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(18)))
     btn = layer(); bd_ = ImageDraw.Draw(btn); bd_.rounded_rectangle((CX - bw / 2, y, CX + bw / 2, y + bh), bh / 2, fill=BLUE + (255,))
@@ -115,8 +120,8 @@ def cta(scale=1.0):
     return im
 
 trust = layer(); d = ImageDraw.Draw(trust)
-ctext(d, 1292, 'MyFastRx.com', F('SemiBold', 40), NAVY)
-trust.alpha_composite(badge, (CX - BW // 2, 1356))
+ctext(d, 1292 + DU, 'MyFastRx.com', F('SemiBold', 40), NAVY)
+trust.alpha_composite(badge, (CX - BW // 2, 1356 + DB))
 
 disc = layer(); d = ImageDraw.Draw(disc)
 paras = ['Introductory pricing shown. Regular pricing applies to future orders. MyFastRx does not manufacture '
@@ -130,7 +135,7 @@ for para in paras:
         if d.textlength(tt, font=f) <= 800: cur = tt
         else: lines.append(cur); cur = wd
     lines.append(cur)
-for i, s in enumerate(lines): ctext(d, 1500 + i * 29, s, f, (70, 80, 96))
+for i, s in enumerate(lines): ctext(d, 1500 + DD + i * 29, s, f, (70, 80, 96))
 
 # ---- animation
 def ease(x): x = min(max(x, 0), 1); return 1 - (1 - x) ** 3
@@ -138,7 +143,7 @@ def fade(im, t0, t1, t, rise=24):
     p = ease((t - t0) / (t1 - t0))
     if p <= 0: return None, 0
     o = im.copy(); o.putalpha(o.getchannel('A').point(lambda q: int(q * p))); return o, int(rise * (1 - p))
-n = int(a.dur * FPS); out = 'footage/broll/endcard_v2.mp4'
+n = int(a.dur * FPS); out = 'footage/broll/endcard_v2_4x5.mp4' if FMT45 else 'footage/broll/endcard_v2.mp4'
 proc = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
                          '-c:v', 'libx264', '-crf', '14', '-pix_fmt', 'yuv420p', out], stdin=subprocess.PIPE)
 base = bg.copy(); base.alpha_composite(glow); base.alpha_composite(ring)
@@ -152,6 +157,6 @@ for i in range(n):
     pulse = 1 + 0.02 * math.sin(math.pi * min(max((t - 1.35) / 0.5, 0), 1))
     o, dy = fade(cta(pulse), 0.4, 0.75, t)
     if o is not None: fr.alpha_composite(o, (0, dy))
-    if i == n - 1: fr.convert('RGB').save('footage/broll/endcard_v2_still.png')
+    if i == n - 1: fr.convert('RGB').save(out.replace('.mp4', '_still.png'))
     proc.stdin.write(fr.convert('RGB').tobytes())
 proc.stdin.close(); proc.wait(); print(out)

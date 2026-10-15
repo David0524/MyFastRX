@@ -12,8 +12,17 @@ import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
+# FMT=45: the 4:5 (1080x1350) Feed version (Meta: Instagram Feed needs 4:5 to 1.91:1). The 9:16 composition is built as
+# usual, then cropped to the window y 150..1500 (chosen so her head and every caption stay in); price chips move up
+# into the window and the end card is the 4:5 layout (tools/endcard-v2.py --fmt 45), padded into place before the crop.
+FMT45 = os.environ.get('FMT') == '45'; Y0 = 150; SUF = '_4x5' if FMT45 else ''
+CHIP_Y = Y0 + 1190 if FMT45 else 1500
+EC = 'footage/broll/endcard_v2_4x5.mp4' if FMT45 else 'footage/broll/endcard_v2.mp4'
+EC_SCALE = f'scale=1080:1350,pad=1080:1920:0:{Y0}' if FMT45 else 'scale=1080:1920'
+PREV_SCALE = 'scale=720:900:flags=lanczos' if FMT45 else PREV_SCALE
 W, H = 1080, 1920
 OUT = 'out/ugc/vid1_group_chat'; OV = f'{OUT}/overlays'; os.makedirs(OV, exist_ok=True); os.makedirs('previews/ugc', exist_ok=True)
+if FMT45: OV = OV + '_4x5'; os.makedirs(OV, exist_ok=True)
 F = lambda wt, px: ImageFont.truetype(f'assets/fonts/Geist-{wt}.ttf', px)
 NAVY, WHITE = (0, 29, 69), (255, 255, 255)
 CX = 510                      # visual centre (right-hand button rail)
@@ -156,15 +165,18 @@ def endcard_png(path):
 # ---- overlays: (png, t0, t1)
 ov = []
 chat_png(1, f'{OV}/chat1.png'); chat_png(2, f'{OV}/chat2.png')
+if FMT45:   # 4:5: move the whole chat screen down so its status bar + header sit at the top of the crop window
+    for cp in (f'{OV}/chat1.png', f'{OV}/chat2.png'):
+        im_ = Image.open(cp).convert('RGB'); sh_ = Image.new('RGB', (W, H), (255, 255, 255)); sh_.paste(im_, (0, Y0)); sh_.save(cp)
 ov += [(f'{OV}/chat1.png', CHAT[0], CHAT[0] + 0.85), (f'{OV}/chat2.png', CHAT[0] + 0.85, CHAT[1])]
 # v2 (client): no website screenshots; she stays on screen on the sofa (screen_png kept for reuse)
-chip_png(['Compounded Semaglutide', '$69 first month · Introductory offer'], f'{OV}/price.png', 1500)
+chip_png(['Compounded Semaglutide', '$69 first month · Introductory offer'], f'{OV}/price.png', CHIP_Y)
 ov.append((f'{OV}/price.png', *PRICE))
 for i, (tx, a, b) in enumerate(CAPS):
     p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, qual='$69' in tx); ov.append((p, a, b))
 # v2 (client): no CTA button on the door shot; the end card carries the CTA
 # v3 (client, Oct 11): the animated end card v2 (tools/endcard-v2.py), music bed + room tone ("needs some music or background noise")
-subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)], check=True)
+subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END)] + (['--fmt', '45'] if FMT45 else []), check=True)
 subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', '0.0', '--beat', f'{S0:.3f}', '--endcard', f'{TOTAL_A:.3f}',
                 '--lift', f'{TOTAL_A:.3f}', f'{TOTAL + 1:.3f}', '--out', 'audio/ugc/vid1_music.wav'], check=True)   # beat comes in on "So I looked."
 subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'home', '--dur', f'{TOTAL_A:.3f}', '--out', 'audio/ugc/vid1_ambience.wav',
@@ -174,7 +186,7 @@ subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'home', '--dur', f'{T
 args = ['ffmpeg', '-v', 'error', '-y']
 files = [KITCHEN, SOFA, DOOR]
 for f in files: args += ['-i', f]
-args += ['-i', 'footage/broll/endcard_v2.mp4']
+args += ['-i', EC]
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
 IM, IA = 4 + len(ov), 5 + len(ov)
 args += ['-i', 'audio/ugc/vid1_music.wav', '-i', 'audio/ugc/vid1_ambience.wav']
@@ -185,7 +197,7 @@ for k, (f, a, b) in enumerate(SEGS):
     fc.append(f'[{i}:a]atrim={a}:{b},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,'
               f'afade=t=in:d=0.02,afade=t=out:st={b - a - 0.04:.3f}:d=0.04[a{k}]')
     vl.append(f'[v{k}]'); al.append(f'[a{k}]')
-fc.append(f'[3:v]scale={W}:{H},fps=30,format=yuv420p,setsar=1[ve]')
+fc.append(f'[3:v]{EC_SCALE},fps=30,format=yuv420p,setsar=1[ve]')
 fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{END}[ae]')
 fc.append(''.join(vl) + f'[ve]concat=n={len(SEGS) + 1}:v=1:a=0[b0]')
 last = 'b0'
@@ -197,13 +209,14 @@ fc.append('[mu][vsc]sidechaincompress=threshold=0.01:ratio=8:attack=15:release=4
 fc.append(f'[{IA}:a]aformat=sample_rates=48000:channel_layouts=stereo[amb]')
 fc.append('[vo][amb][mud]amix=inputs=3:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.80:level=false[aout]')
-mp4 = f'{OUT}/MyFastRx_UGC1_GroupChat_v2.mp4'
+mp4 = f'{OUT}/MyFastRx_UGC1_GroupChat_v2{SUF}.mp4'
+if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',
          '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M',
          '-c:a', 'aac', '-ar', '48000', '-b:a', '256k', '-movflags', '+faststart', mp4]
 subprocess.run(args, check=True)
-subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', mp4, '-vf', 'scale=720:1280:flags=lanczos', '-c:v', 'libx264', '-crf', '24',
+subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', mp4, '-vf', PREV_SCALE, '-c:v', 'libx264', '-crf', '24',
                 '-preset', 'medium', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart',
-                'previews/ugc/MyFastRx_UGC1_GroupChat_v2_review.mp4'], check=True)
+                f'previews/ugc/MyFastRx_UGC1_GroupChat_v2{SUF}_review.mp4'], check=True)
 print(json.dumps({'total_s': round(TOTAL, 2), 'segments': [round(s, 2) for s in starts], 'chat': CHAT, 'hero': HERO,
                   'card': CARD, 'captions': len(CAPS), 'out': mp4}))
