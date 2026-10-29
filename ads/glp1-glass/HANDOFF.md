@@ -8,6 +8,39 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
 - Everything below is committed and pushed. Commit and push after every change; the session stop hook enforces this.
 - Don't open a PR unless asked.
 
+## Generation: OpenRouter, not Higgsfield (Oct 29, 2026)
+
+- **Higgsfield is retired.** All the videos above are complete (client, Oct 29). New footage and stills go through
+  OpenRouter with `tools/gen.py` (one key, pay per use at ByteDance's / Google's list prices, no plan, no expiring
+  credits). The Higgsfield job ids in `footage/gen/README.md` are history.
+- **Key:** `OPENROUTER_API_KEY`, an environment secret (never in chat or the repo). Put a spend limit on the key.
+- **Spend rule (unchanged):** quote first, tell the client the cost, then spend. `gen.py` only quotes unless given
+  `--yes`, and refuses any single job over `--max-usd` (default $3).
+- **Usage:** `python3 tools/gen.py --help`. `models [filter]` lists live prices; `video` / `image` quote (and with
+  `--yes` submit, poll, download and log to `footage/gen/jobs.jsonl` with the billed cost); `fetch <job> --out` resumes.
+- **Live prices (Oct 29, 2026, 9:16):**
+
+  | Model | 480p | 720p | 1080p | Notes |
+  |---|---|---|---|---|
+  | `bytedance/seedance-2.5` | $0.10/s | $0.23/s | n/a | the UGC A-roll model; 4-30 s; audio free |
+  | `bytedance/seedance-2.0` | $0.07/s | $0.15/s | $0.37/s | v7/v8-style takes |
+  | `bytedance/seedance-2.0-fast` | $0.04/s | $0.09/s | n/a | |
+  | `kwaivgi/kling-v3.0-std` | | $0.13/s with audio | | fallback for hosts if Seedance refuses faces |
+  | `google/veo-3.1-fast` | | $0.10/s with audio | $0.12/s | 4/6/8 s only; fallback |
+  | `google/gemini-3-pro-image` (Nano Banana Pro) | | | $0.134 per 1K/2K still | up to 14 references |
+
+  Higgsfield equivalents for comparison: Seedance 2.5 720p was 7 cr/s (~$0.34/s), the 480p draft 3 cr/s (~$0.15/s).
+- **Untested (do these first, ~$1-2):**
+  1. *Face filter.* ByteDance's API refuses input images with real human faces; whether it flags our photoreal AI hosts
+     (Dana) is unknown. Test: `dana_v2_1.png` as the first frame, Seedance 2.5, 480p, 4 s (quote $0.41). If refused,
+     Kling 3.0 / Veo 3.1 for host shots; Seedance stays for faceless B-roll.
+  2. *Voice reference.* Dana's voice came from an audio reference (Higgsfield `omni_reference`). OpenRouter passes
+     audio `--ref`s to Seedance, but its docs say `frame_images` wins when both are sent. Try the still as `--ref`
+     together with the voice `--ref`. Fallback: Seedance's own voice, converted with ElevenLabs speech-to-speech.
+  3. *Data URLs.* Local files go up as base64 data URLs; if a provider rejects them, `--media github` (public repo only).
+- **No 1080p "finalize" for Seedance 2.5 on OpenRouter.** Videos 4 and 5 shipped from 720p takes, which is the plan.
+  Don't use the ByteDance upscaler on Dana (client rejected it).
+
 ## Where things stand
 
 | Piece | State | Files |
@@ -139,13 +172,13 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
   then the format.
 
 ## Waiting on the client
-- [ ] Higgsfield plan and credits
+- [ ] `OPENROUTER_API_KEY` added as an environment secret (Higgsfield retired Oct 29)
 - [ ] The 10 s ElevenLabs read (`vo/ELEVENLABS_PROMPT_10s.md`; 3 takes, Speed 1.05)
 - [ ] Approval of the UGC formats and Host A; Host B as a woman or a man
 - [ ] Counsel: the claims above, the disclaimer hold on the 10 s spot (~1.8 s), and "Actor portrayal" when no actor is shown
 
-## Starter prompt for the new account
+## Starter prompt for a new session
 > Continue the MyFastRx ad work in `david0524/myfastrx`, branch `claude/relaxed-archimedes-fiuecm`, folder
-> `ads/glp1-glass/`. Read `HANDOFF.md` first, then `HANDOVER.md` section 2 (the brand and compliance rules). The next
-> task is recasting the actress in v7 with casting option B (`footage/gen/cast2_b.png`), using Higgsfield. Preflight
-> every generation's cost and tell me before spending credits. Commit and push after each step.
+> `ads/glp1-glass/`. Read `HANDOFF.md` first (generation is now OpenRouter via `tools/gen.py`, not Higgsfield), then
+> `HANDOVER.md` section 2 (the brand and compliance rules) and `UGC_PLAYBOOK.md`. Quote every generation's cost and
+> tell me before spending. Commit and push after each step.
