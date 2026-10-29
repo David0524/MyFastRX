@@ -107,6 +107,26 @@ Locations: **neighbourhood walk** → **home on the sofa**. Outfit: zip-up athle
 | — | ☐ **End card** |
 "Takes a few minutes": confirm with the client (the NAD+ page says 3 minutes; the GLP-1 intake length is not stated).
 
+## Video 6: "Higher dose. Same price." (Tirzepatide; client concept Oct 29, PLAN_TIRZ_NAD_2026-10.md) ~22 s + end card
+Locations: **kitchen** (morning, holding her phone) → the dose graphic → **front steps** (heading out, jacket). Outfit:
+a new plain solid tee (mid-tone terracotta; not Video 1's navy, so the series doesn't look recycled), a solid olive
+jacket outside; same gold hoops, glasses on her head, clip-on mic. Spoken spelling: **tir-ZEP-a-tide** (test on the
+first draft; fallback "tirz"). No MY70, no regular price, no mg numbers (client, Oct 29).
+
+| She says | Shots |
+|---|---|
+| Hook A: "Okay so... tir-ZEP-a-tide doses usually go UP over time." | ☐ **AI UGC** kitchen, phone in hand, looks up from it (hook, 1.5 s)<br>☐ on-screen from frame 1: HIGHER DOSE. SAME PRICE. |
+| Hook B (A/B): "The tir-ZEP-a-tide price thing nobody really explains." | ☐ **AI UGC** same set-up, separate 5 s clip |
+| "At My Fast Rx? The price doesn't." | ☐ **AI UGC** same take as the hook (C1, 8 s), small shrug |
+| VO: "Same price, whatever dose your provider puts you on. No surprise refill charges either." | ☑ **Anim** dose graphic, 5 s (`tools/dose-graphic.py` → `footage/broll/dose_same_price.mp4`)<br>☐ VO in Dana's voice (Seed Audio, voice ref e43ccae4, ~0.4 cr), level-matched as Video 5 |
+| "I actually double-checked that." | ☐ **AI UGC** MOVE → front steps, jacket on, keys in hand (C2, ~12 s, one take to the end) |
+| "Compounded tir-ZEP-a-tide starts at a hundred and twenty-nine DOLLARS, first month." | ☐ on-screen chip: Compounded Tirzepatide · $129 first month · Introductory offer |
+| "Check if you qualify... takes like a minute." | ☐ caption: Check if I qualify ↓ |
+| — | ☐ **End card** (end card v2, Tirzepatide version, no vial): Compounded Tirzepatide / $129 first month / Introductory offer / Same price at any dose within your plan / Check if I qualify / MyFastRx.com / BBB badge / disclaimer (brief section 9, intro version) + "Prescription required. Subject to provider approval." |
+
+Credits (Higgsfield, preflight each): stills 2 locations x 2 options = 8; C1 8 s at 720p = 56; C2 12 s = 84; hook B
+5 s = 35; VO ~0.4. **~185 total, ~260 with one retake.** Native 1080p finalize only if the client asks (Video 1 did).
+
 ## Shared assets (made once)
 ☑ Dana casting (`footage/ref/dana_v2_1.png`, kitchen)
 Location stills (2 options each, ~2 cr per image): ☑ V1 kitchen (`dana_navy_kitchen_1`) ☑ V1 sofa evening (`dana_navy_sofa_1`) ☑ V1 front door (`dana_vid1_door_2`, grey sweater under the jacket; client's pick Oct 8) ☐ V2 car ☐ V2 office walk

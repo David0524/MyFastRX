@@ -26,10 +26,29 @@ strongest idea in the set.
 ("personal attributes"). "Your tirzepatide dose goes up" tells the viewer she is on tirzepatide; "Considering
 tirzepatide?" is borderline. The rewrites below talk about tirzepatide in general or in the host's voice.
 
+## Client decisions (Oct 29, 2026)
+1. **MY70: dropped.** The $70 is auto-applied; no code anywhere.
+2. **Meta-safe hook rewrite: fine.** Use "Okay so tirzepatide doses usually go up over time..." (not "Your dose...").
+3. **No regular price in the ads** ("we are very conservative compared to most; the landing page has the details").
+   So: no "$199"; the flat line in the dose graphic says "Your plan price" with no figure.
+4. **No auto rebilling: confirmed.** "No automatic refill billing" can go on screen.
+5. **"What step by step video?"** The client didn't recognise Video 2 ("Tirzepatide online, step by step", 25-30 s,
+   creator VO over real website footage: start online → medical intake → delivery). It may have been pasted in by
+   mistake (the paste had a stray "#1 New Tirzepatide Video:" heading inside it). **On hold until confirmed in or out.**
+6. **"Where is this?"** (the unboxing / holding the product). In NAD+ Video 3: 0-3 s "Creator brings the spray toward
+   the camera", 7-12 s "Show the intake on a phone, then an unboxing". The "nobody holds the medication" rule is ours
+   (the UGC plan's guardrails), not the client's brief. **Still to answer:** OK for the host to hold the sealed spray?
+   OK to swap the unboxing for a hands-only kit flat-lay (no syringes in frame)?
+7. **NAD+ CTA matching the landing page ("Free 60-second screening" / "Check My Eligibility"): fine.**
+
+**Still open:** product photos (NAD+ spray, vial, kit, shipping box); the NAD+ host (Dana or a second host); any
+approved NAD+ benefit line and the IV price comparison; a Tirzepatide vial image (Video 1 runs without a vial on the
+end card until one is approved).
+
 ## 2. Changes to the concepts, and why
 
 ### Across all four
-- **Code MY70 vs auto-applied (blocker).** The live page says "$70 SAVINGS AUTO-APPLIED" and the Oct 7 brief says
+- ~~**Code MY70 vs auto-applied (blocker).**~~ *(client, Oct 29: dropped)* The live page says "$70 SAVINGS AUTO-APPLIED" and the Oct 7 brief says
   "Do not show MY70 or tell viewers to enter a code". If checkout now needs the code, fine; if not, drop it. A code is
   friction (one more thing to remember) and leaks to coupon sites.
 - **Host stays a presenter, never a patient** (brief section 7, playbook): no unboxing her own order, no "my dose", no
@@ -48,9 +67,9 @@ tirzepatide?" is borderline. The rewrites below talk about tirzepatide in genera
 - **The graphic must not show $129 as the flat line** (the brief: never imply intro prices continue). Dose steps
   1 → 4 rise (no mg numbers, label "Dose set by your provider"); the flat line reads "Your plan price". No bar graph
   (client feedback on v7's dose proof): a stepped line plus a price chip that stays locked.
-- **Say the catch first:** "$129 first month. Then $199 a month, at any dose." This is accurate (1-month plan regular
+- ~~**Say the catch first:**~~ *(client, Oct 29: no regular price in ads)* "$129 first month. Then $199 a month, at any dose." This is accurate (1-month plan regular
   price), it is the whole point of the concept, and it turns "intro price" suspicion into trust. Needs client OK.
-- **"No automatic refill billing" needs confirming.** The GLP-1 page says "cancel at any time before your next refill"
+- **"No automatic refill billing": confirmed (client, Oct 29).** The GLP-1 page says "cancel at any time before your next refill"
   and the refund page says "cancel your subscription". We can't say it unless it's true for tirzepatide plans.
 - Closing: "Compounded tirzepatide starts at a hundred and twenty-nine DOLLARS, first month. Check if you qualify,
   takes like a minute." End card: Compounded Tirzepatide / $129 first month / Introductory offer / Same price at any
@@ -125,13 +144,13 @@ reference (480p draft 3 cr/s, 720p 7 cr/s, native 1080p finalize 7.5 cr/s) → c
 
 | Video | Generated | Credits (typical / with a retake) |
 |---|---|---|
-| 1 Higher dose | 2 scene stills x 2 options; 2 A-roll clips (~16 s); dose graphic coded | ~130 / ~190 |
+| 1 Higher dose | 2 scene stills x 2 options; 2 A-roll clips (~20 s) + hook B (5 s); VO under the coded dose graphic | ~185 / ~260 |
 | 2 Step by step | 2 stills; hook + close A-roll (~14 s); doorstep parcel B-roll (no face); screens from client | ~140 / ~200 |
 | 3 NAD+ nasal spray | 2 stills (+ product-in-hand still); 2 A-roll clips; label composite coded; kit flat-lay from photos | ~150 / ~220 |
 | 4 Skip the trip | (Host B casting ~10); 2 stills; 2 A-roll clips; product shots from photos | ~150 / ~230 |
-| **Total** | | **~570 / ~840** |
+| **Total** | | **~625 / ~910** (~485 / ~710 without Video 2) |
 
-One month of the Higgsfield plan (1,000-1,200 credits) covers all four with room for the B hooks on two of them.
+One month of the Higgsfield plan (1,000-1,200 credits) covers all four, B hooks included.
 Every job is preflighted with `get_cost: true` and quoted before it runs.
 
 **Free, before any credits:** storyboards (STORYBOARD_UGC.md format); the dose-step graphic; tirzepatide and NAD+ end
