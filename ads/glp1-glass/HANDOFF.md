@@ -183,6 +183,7 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
 
 ## Waiting on the client
 - [ ] Higgsfield monthly plan bought and connected to this account (Oct 29)
+- [ ] Answers to the 9 questions in `PLAN_TIRZ_NAD_2026-10.md` (2 Tirzepatide + 2 NAD+ videos, Oct 29)
 - [ ] The 10 s ElevenLabs read (`vo/ELEVENLABS_PROMPT_10s.md`; 3 takes, Speed 1.05)
 - [ ] Approval of the UGC formats and Host A; Host B as a woman or a man
 - [ ] Counsel: the claims above, the disclaimer hold on the 10 s spot (~1.8 s), and "Actor portrayal" when no actor is shown
