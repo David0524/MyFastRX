@@ -1,8 +1,7 @@
 # Generated footage
 
-Up to Oct 2026 everything here came from Higgsfield (job ids below). From Oct 29, 2026 new generations go through
-OpenRouter with `tools/gen.py`; it logs every job (request, job id, billed cost) to `jobs.jsonl` in this folder. Add a
-row here per kept take as before (gen.py prints it).
+Generated with Higgsfield (job ids below). Anything made through the OpenRouter fallback (`tools/gen.py`) is also
+logged to `jobs.jsonl` in this folder.
 
 Character options for the "Touch" opening (real woman -> Liquid Glass morph). Soul 2.0, 9:16, prompt:
 "Photorealistic candid photo of a woman around 50, warm natural look, shoulder-length softly layered hair with natural

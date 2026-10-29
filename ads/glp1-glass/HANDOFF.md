@@ -8,11 +8,21 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
 - Everything below is committed and pushed. Commit and push after every change; the session stop hook enforces this.
 - Don't open a PR unless asked.
 
-## Generation: OpenRouter, not Higgsfield (Oct 29, 2026)
+## Generation: Higgsfield (decided Oct 29, 2026); OpenRouter as a tested-later alternative
 
-- **Higgsfield is retired.** All the videos above are complete (client, Oct 29). New footage and stills go through
-  OpenRouter with `tools/gen.py` (one key, pay per use at ByteDance's / Google's list prices, no plan, no expiring
-  credits). The Higgsfield job ids in `footage/gen/README.md` are history.
+- **Higgsfield stays the generator.** All the videos above are complete (client, Oct 29). The client is buying the
+  Higgsfield monthly plan (~$50) and connecting it to this account (connectors at https://claude.ai/customize/connectors;
+  a new session picks it up). Reason: at ~5-6 videos a month (~180 credits a video in the logs) OpenRouter would save
+  only ~$15-20 a month, and the things that made the UGC work (Dana's AI face accepted, `omni_reference` voice
+  reference, native 1080p finalize, Seed Audio) are proven on Higgsfield and untested on OpenRouter.
+- **Spend rule (unchanged):** preflight every Higgsfield job with `get_cost: true` and tell the client before spending;
+  never `use_unlim: true` unless the client asks. Monthly credits expire in 30 days.
+- **When to revisit OpenRouter:** volume near the 16-ads-a-month plan (~3,000 credits), slow months wasting credits,
+  or faceless B-roll / Seedance 2.0 takes (about half Higgsfield's price there).
+
+### OpenRouter alternative (`tools/gen.py`, built Oct 29, not yet run)
+
+- `tools/gen.py` generates through OpenRouter at list prices (one key, pay per use, no expiring credits).
 - **Key:** `OPENROUTER_API_KEY`, an environment secret (never in chat or the repo). Put a spend limit on the key.
 - **Spend rule (unchanged):** quote first, tell the client the cost, then spend. `gen.py` only quotes unless given
   `--yes`, and refuses any single job over `--max-usd` (default $3).
@@ -172,13 +182,13 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
   then the format.
 
 ## Waiting on the client
-- [ ] `OPENROUTER_API_KEY` added as an environment secret (Higgsfield retired Oct 29)
+- [ ] Higgsfield monthly plan bought and connected to this account (Oct 29)
 - [ ] The 10 s ElevenLabs read (`vo/ELEVENLABS_PROMPT_10s.md`; 3 takes, Speed 1.05)
 - [ ] Approval of the UGC formats and Host A; Host B as a woman or a man
 - [ ] Counsel: the claims above, the disclaimer hold on the 10 s spot (~1.8 s), and "Actor portrayal" when no actor is shown
 
 ## Starter prompt for a new session
 > Continue the MyFastRx ad work in `david0524/myfastrx`, branch `claude/relaxed-archimedes-fiuecm`, folder
-> `ads/glp1-glass/`. Read `HANDOFF.md` first (generation is now OpenRouter via `tools/gen.py`, not Higgsfield), then
+> `ads/glp1-glass/`. Read `HANDOFF.md` first (generation is Higgsfield; `tools/gen.py` is the OpenRouter fallback), then
 > `HANDOVER.md` section 2 (the brand and compliance rules) and `UGC_PLAYBOOK.md`. Quote every generation's cost and
 > tell me before spending. Commit and push after each step.
