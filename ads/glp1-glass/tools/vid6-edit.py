@@ -18,7 +18,9 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
-ap = argparse.ArgumentParser(); ap.add_argument('--hook', choices=['A', 'B'], default='A'); a = ap.parse_args()
+ap = argparse.ArgumentParser(); ap.add_argument('--hook', choices=['A', 'B', 'C'], default='C'); a = ap.parse_args()
+V3 = a.hook == 'C'   # v3 (Nov 4, client: "you didn't really follow" the brief): the brief's own hook line, LARGE headline,
+                     # "Price within your plan", "no subscription", the closing trimmed to the brief's line, promo terms on the end card
 FMT45 = os.environ.get('FMT') == '45'; Y0 = 150; SUF = '_4x5' if FMT45 else ''
 CHIP_Y = Y0 + 1190 if FMT45 else 1500
 EC = 'footage/broll/endcard_v2_tirz_4x5.mp4' if FMT45 else 'footage/broll/endcard_v2_tirz.mp4'
@@ -36,10 +38,12 @@ exec(v4[v4.index('def caption_png'):v4.index('def headline_png')])
 OUT = 'out/ugc/vid6_higher_dose'; OV = f'{OUT}/overlays_{a.hook}{SUF}'
 for d in (OUT, OV, 'previews/ugc', 'footage/broll'): os.makedirs(d, exist_ok=True)
 HA, HB, ST = 'footage/gen/host2_v6_hookA_720p.mp4', 'footage/gen/host2_v6_hookB_720p.mp4', 'footage/gen/host2_v6_steps_720p.mp4'
+HC = 'footage/gen/host2_v6_hookC_720p.mp4'        # v3: "Your tirzepatide dose goes up. Your price? With My Fast Rx, it stays the same."
 STA = 'audio/ugc/vid6_steps_tirzfix.wav'           # the steps take's audio with "tirzepatide" fixed
 VO = 'vo/ugc/host2_v6_vo_refill_t1.wav'   # v2 (client: v1 "extremely robotic"): Seed Audio cloned from her on-camera voice
                                           # (vo/ugc/host2_voice_ref_oncamera.wav), take 1 of 2: pitch 188 vs her 190 Hz
 VO_T = (0.42, 2.58)                                # "No surprise refill charges either." (guard word "Okay." trimmed)
+if V3: VO, VO_T = 'vo/ugc/host2_v6_vo_nosub_t1.wav', (0.42, 3.80)   # "No subscription, no automatic refill billing." (same on-camera clone)
 VO_GAP = 0.12
 END = 3.0
 # Word times (faster-whisper, checked against the 10 ms energy envelope):
@@ -48,33 +52,45 @@ END = 3.0
 #   Hook B: The tirzepatide price thing 0.3-2.80 | nobody really explains 3.28-4.38 (fades out by 4.72)
 #   Steps:  I actually double-checked that 0.3-2.20 | Compounded tirzepatide 3.00-4.46 | starts at $129 4.46-6.28 |
 #           first month 7.02-8.20 | Check if you qualify 8.86-10.04 | takes like a minute 10.64-11.58
-G0 = 3.00 if a.hook == 'A' else 2.62               # Hook A source time where the graphic takes over
+#   Hook C: Your tirzepatide dose goes up 0.55-2.78 | Your price? 3.60-4.10 | With My Fast Rx, it stays the same 4.86-7.80
+G0 = 2.62 if a.hook == 'B' else 3.00              # hook source time where the graphic takes over
+GSRC, GEND = (HC, 7.85) if V3 else (HA, 7.95)     # the hook take that plays under the graphic, and where its line ends
 if a.hook == 'A': HOOK = [(HA, 0.45, G0)]
-else:             HOOK = [(HB, 0.00, 4.65)]
-G_LEN = (7.95 - G0) + VO_GAP + (VO_T[1] - VO_T[0])
-PIECES = HOOK + [('G', 0.0, G_LEN), (ST, 0.0, 11.80)]
+elif a.hook == 'B': HOOK = [(HB, 0.00, 4.65)]
+else: HOOK = [(HC, 0.45, G0)]   # v3: the brief's hook, first 3 s on her
+G_LEN = (GEND - G0) + VO_GAP + (VO_T[1] - VO_T[0])
+ST_IN, ST_OUT = (2.85, 10.30) if V3 else (0.0, 11.80)   # v3: from "Compounded tirzepatide..." to "...check if you qualify."
+PIECES = HOOK + [('G', 0.0, G_LEN), (ST, ST_IN, ST_OUT)]
 PIECES = [(f, round(x * 30) / 30, round(y * 30) / 30) for f, x, y in PIECES]
 starts = []; t = 0.0
 for f, x, y in PIECES: starts.append(t); t += y - x
 TOTAL_A = t; TOTAL = t + END
 T_G, T_ST = starts[-2], starts[-1]
 ha = lambda s: T_G + (s - G0)                      # Hook A source time -> timeline, inside the graphic piece
-st = lambda s: T_ST + s
-T_VO = ha(7.95) + VO_GAP
+st = lambda s: T_ST + (s - ST_IN)
+T_VO = ha(GEND) + VO_GAP
 
 # ---- the graphic: steps rise under "usually go up over time", chip 1 on "the price doesn't", chip 2 with the voice-over
 DOSE = f'footage/broll/vid6_dose_{a.hook}.mp4'
 subprocess.run(['python3', 'tools/dose-graphic.py', '--dur', f'{G_LEN + 0.05:.3f}', '--out', DOSE,
-                '--chips', f'{7.0 - G0:.2f}', f'{T_VO - T_G + 0.05:.2f}'], check=True)
+                '--chips', f'{(6.6 if V3 else 7.0) - G0:.2f}', f'{T_VO - T_G + 0.05:.2f}'], check=True)   # chip 1 on "it stays the same" / "the price doesn't"
 
-if a.hook == 'A':
+if V3:
+    CAPS = [['Your tirzepatide dose goes up.', starts[0], T_G, None],
+            ['Your price?', ha(3.0), ha(4.8), None],
+            ['With MyFastRx, it stays the same.', ha(4.8), T_VO, None],
+            ['No subscription, no automatic refill billing.', T_VO, T_ST, None],
+            ['Compounded tirzepatide', st(2.85), st(4.46), None],
+            ['starts at $129, first month.', st(4.46), st(8.5), 'Introductory offer'],
+            ['Check if you qualify.', st(8.5), TOTAL_A, None]]
+elif a.hook == 'A':
     CAPS = [['Okay so...', starts[0], starts[0] + 1.5 - 0.45, None],
             ['tirzepatide doses', starts[0] + 1.5 - 0.45, T_G, None]]
 else:
     CAPS = [['The tirzepatide price thing', 0.0, 3.0, None],
             ['nobody really explains.', 3.0, T_G, None],
             ['Doses', T_G, ha(3.0), None]]
-CAPS += [['usually go up over time.', ha(3.0), ha(5.3), None],
+if not V3: CAPS += [['usually go up over time.', ha(3.0), ha(5.3), None],
          ['At MyFastRx?', ha(5.3), ha(6.9), None],
          ["The price doesn't.", ha(6.9), T_VO, None],
          ['No surprise refill charges either.', T_VO, T_ST, None],
@@ -84,6 +100,14 @@ CAPS += [['usually go up over time.', ha(3.0), ha(5.3), None],
          ['Check if you qualify,', st(8.5), st(10.4), None],
          ['takes like a minute.', st(10.4), TOTAL_A, None]]
 CHIPS = [(['Compounded Tirzepatide', '$129 first month · Introductory offer'], st(4.46), st(8.5))]
+
+def headline_png_v3(path):
+    """v3: the brief's LARGE text, at the top in the headroom the v3 hook still leaves above her head (top of her hair ~390)."""
+    im = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im); f = F('Bold', 104)
+    l1, l2 = 'HIGHER DOSE.', 'SAME PRICE.'; w = max(d.textlength(l1, font=f), d.textlength(l2, font=f)); y = 176   # panel 154-414: inside the 4:5 window too
+    d.rounded_rectangle((CX - w / 2 - 40, y - 22, CX + w / 2 + 40, y + 238), 36, fill=(255, 255, 255, 240))
+    d.text((CX - d.textlength(l1, font=f) / 2, y), l1, font=f, fill=NAVY)
+    d.text((CX - d.textlength(l2, font=f) / 2, y + 118), l2, font=f, fill=BLUE); im.save(path)
 
 def headline_png(path):
     """HIGHER DOSE. / SAME PRICE. on a white panel at the top, from frame 1 (the graphic repeats it as its title)."""
@@ -100,7 +124,7 @@ for i, (tx, x, y, q) in enumerate(CAPS):
     p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, q); ov.append((p, x, y))
 for i, (lines, x, y) in enumerate(CHIPS):
     p = f'{OV}/chip_{i}.png'; chip_png(lines, p, CHIP_Y); ov.append((p, x, y))
-headline_png(f'{OV}/headline.png'); ov.append((f'{OV}/headline.png', 0.0, T_G))
+(headline_png_v3 if V3 else headline_png)(f'{OV}/headline.png'); ov.append((f'{OV}/headline.png', 0.0, T_G))
 
 # ---- sound beds
 subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END), '--product', 'tirz'] + (['--fmt', '45'] if FMT45 else []), check=True)
@@ -116,19 +140,19 @@ def _rms(f, x=None, y=None):
     ex = ['-ss', str(x), '-to', str(y)] if x is not None else []
     raw = subprocess.run(['ffmpeg', '-v', 'error'] + ex + ['-i', f, '-f', 'f32le', '-ac', '1', '-ar', '16000', '-'], capture_output=True, check=True).stdout
     v = np.frombuffer(raw, np.float32); v = v[np.abs(v) > 0.01]; return np.sqrt((v ** 2).mean())
-VO_GAIN = _rms(HA, 1.5, 7.9) / _rms(VO, *VO_T)
+VO_GAIN = _rms(GSRC, 1.5, GEND - 0.1) / _rms(VO, *VO_T)
 
 # ---- compose
 args = ['ffmpeg', '-v', 'error', '-y', '-i', HA, '-i', HB, '-i', ST, '-i', STA, '-i', VO, '-i', DOSE, '-i', EC,
-        '-i', MUS, '-i', ROOM, '-i', OUTD]
+        '-i', MUS, '-i', ROOM, '-i', OUTD, '-i', HC]
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
-VIN = {HA: 0, HB: 1, ST: 2}
+VIN = {HA: 0, HB: 1, ST: 2, HC: 10}
 fc, vl, al = [], [], []
 for k, (f, x, y) in enumerate(PIECES):
     if f == 'G':
         fc.append(f'[5:v]fps=30,trim=0:{y:.5f},setpts=PTS-STARTPTS,scale={W}:{H},setsar=1,format=yuv420p[v{k}]')
         vo_d = int((T_VO - T_G) * 1000)
-        fc.append(f'[0:a]atrim={G0:.5f}:7.95,asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,afade=t=out:st={7.95 - G0 - 0.04:.3f}:d=0.04[gh]')
+        fc.append(f'[{VIN[GSRC]}:a]atrim={G0:.5f}:{GEND},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,afade=t=out:st={GEND - G0 - 0.04:.3f}:d=0.04[gh]')
         fc.append(f'[4:a]atrim={VO_T[0]:.3f}:{VO_T[1]:.3f},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,'
                   f'highpass=f=90,volume={VO_GAIN:.3f},afade=t=out:st={VO_T[1] - VO_T[0] - 0.08:.3f}:d=0.08,adelay={vo_d}|{vo_d}[gv]')
         fc.append(f'[gh][gv]amix=inputs=2:duration=longest:normalize=0,apad,atrim=0:{y:.5f}[a{k}]')
@@ -143,7 +167,7 @@ fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{END}[ae]')
 fc.append(''.join(vl) + f'[ve]concat=n={len(vl) + 1}:v=1:a=0[b0]')
 last = 'b0'
 for k, (p, x, y) in enumerate(ov):
-    fc.append(f"[{last}][{10 + k}:v]overlay=0:0:shortest=0:enable='between(t,{x:.3f},{y - 0.001:.3f})'[o{k}]"); last = f'o{k}'
+    fc.append(f"[{last}][{11 + k}:v]overlay=0:0:shortest=0:enable='between(t,{x:.3f},{y - 0.001:.3f})'[o{k}]"); last = f'o{k}'
 fc.append(''.join(al) + f'[ae]concat=n={len(PIECES) + 1}:v=0:a=1[voice]')
 d_st = int(T_ST * 1000)
 fc.append(f'[8:a]aformat=sample_rates=48000:channel_layouts=stereo,afade=t=out:st={T_ST - 0.3:.3f}:d=0.3[room]')
@@ -153,7 +177,7 @@ fc.append('[7:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.35[mu
 fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
 fc.append('[vo][room][outd][mud]amix=inputs=4:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.80:level=false[aout]')
-name = f'MyFastRx_UGC6_HigherDose_{a.hook}_v2{SUF}'   # v2 (Nov 4): headline off her face, VO cloned from her voice
+name = f'MyFastRx_UGC6_HigherDose_v3{SUF}' if V3 else f'MyFastRx_UGC6_HigherDose_{a.hook}_v2{SUF}'   # v2 (Nov 4): headline off her face, VO cloned from her voice
 mp4 = f'{OUT}/{name}.mp4'
 if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',

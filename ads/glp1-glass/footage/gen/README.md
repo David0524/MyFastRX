@@ -328,3 +328,12 @@ Seed Audio, prompt "No surprise refill charges either. Okay." ("Okay." = guard w
 | host2_v6_vo_refill_t1.wav | 45b564f2-702a-423e-825d-dccdffae0207 | USED (0.42-2.58 s). Pitch 188 Hz vs her 190; long-term spectrum 3.5 dB from hers (v1 Naomi-preset VO: 6.8 dB, 180 Hz). |
 | host2_v6_vo_refill_t2.wav | 7da47e4b-ef25-4107-a6e1-4a5cd0138199 | Pitch 195 Hz, 4.0 dB. Backup. |
 **Rule:** stand-alone voice-overs for a host are cloned from her own on-camera audio, never from the preset voice.
+
+### Video 6 v3 (Nov 4): rebuilt to the client's brief (client: "you didn't really follow these")
+| File | Job | Cr | Notes |
+|---|---|---|---|
+| ../ref/host2_loc_kitchen_headroom1.png | 634fca41-6db1-4f39-a9f9-a3ffdb36e87d | 2 | Kitchen reframed with headroom; less space. |
+| ../ref/host2_loc_kitchen_headroom2.png | 16a6fc12-9e1c-4b65-bc7d-56e0f7ff3fdf | 2 | USED: top ~400 px free above her head for the LARGE headline (upload bdd74c56). |
+| host2_v6_hookC_720p.mp4 (8 s) | 58ecca9d-e071-4633-a477-4c0556b2b6ef | 56 | The brief's line: "Your tur-ZEP-uh-TYDE dose goes UP. Your price? With My Fast R-X, it stays the same." Whisper: "Your terzepeti deuce goes up. Your price? With MyFastRX, it stays the same." Drift 0.00%. Speech 0.55-7.80. |
+| ../../vo/ugc/host2_v6_vo_nosub_t1.wav | e17b0984-a6b8-4209-986c-5ed6d232b600 | 0.3 | Cloned from her on-camera voice: "No subscription, no automatic refill billing, okay?" Used 0.42-3.80. Pitch 192 Hz. |
+Edit: tools/vid6-edit.py (default --hook C) -> out/ugc/vid6_higher_dose/MyFastRx_UGC6_HigherDose_v3[_4x5].mp4, 21.3 s, -16.6 LUFS.

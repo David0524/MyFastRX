@@ -2,7 +2,7 @@
 """Tirzepatide "Higher dose. Same price." (PLAN_TIRZ_NAD_2026-10.md, Video 1): the dose-vs-price graphic, coded
 (no generations). 1080x1920 @ 30 fps, end card v2's ivory -> soft blue gradient, Geist, CX = 510.
   - title HIGHER DOSE. / SAME PRICE.
-  - "Prescribed dose" (teal) steps up four times while "Your plan price" (navy) runs flat with a lock that pulses at
+  - "Prescribed dose" (teal) steps up four times while "Price within your plan" (navy) runs flat with a lock that pulses at
     each step. No dollar figure on the flat line (the brief: never imply the $129 intro price continues), no mg numbers,
     no months (no dosing schedule), and "Dose set by your provider" beneath (doses only with provider review).
   - two chips: "Same price at any dose within your plan" (client's end-card line) and "No automatic refill billing"
@@ -45,18 +45,18 @@ def text_layer(lines):
     return im
 title = text_layer([('HIGHER DOSE.', F('Bold', 108), NAVY, 270), ('SAME PRICE.', F('Bold', 108), BLUE, 390)])
 labels = layer(); d = ImageDraw.Draw(labels)
-d.text((X0, Y_PRICE - 62), 'Your plan price', font=F('SemiBold', 40), fill=NAVY)
+d.text((X0, Y_PRICE - 62), 'Price within your plan', font=F('SemiBold', 40), fill=NAVY)   # the client's label (Video 6 v3)
 d.text((X0, Y_DOSE0 + 20), 'Prescribed dose', font=F('SemiBold', 40), fill=TEAL)     # under the line: clear of the first step
 note = text_layer([('Dose set by your provider', F('Medium', 32), INK2, 1104)])
 
-def chip(s, y):
-    f = F('SemiBold', 40); im = layer(); d = ImageDraw.Draw(im); w = d.textlength(s, font=f)
+def chip(s, y, px=40):
+    f = F('SemiBold', px); im = layer(); d = ImageDraw.Draw(im); w = d.textlength(s, font=f)
     box = (CX - w / 2 - 40, y, CX + w / 2 + 40, y + 84)
     sh = layer(); ImageDraw.Draw(sh).rounded_rectangle((box[0], box[1] + 8, box[2], box[3] + 8), 42, fill=(20, 40, 80, 40))
     im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10)))
     d.rounded_rectangle(box, 42, fill=(255, 255, 255, 245), outline=(32, 99, 235, 70), width=2)
-    d.text((CX - w / 2, y + 18), s, font=f, fill=NAVY); return im
-chip1, chip2 = chip('Same price at any dose within your plan', 1300), chip('No automatic refill billing', 1408)
+    d.text((CX - w / 2, y + 42 - px * 0.6), s, font=f, fill=NAVY); return im
+chip1, chip2 = chip('Same price at any dose within your plan', 1300), chip('No subscription · No automatic refill billing', 1408, 36)   # v3: + "no subscription" (brief)
 
 def lock(cx, cy, s):
     """A small padlock in a navy disc, scale s."""

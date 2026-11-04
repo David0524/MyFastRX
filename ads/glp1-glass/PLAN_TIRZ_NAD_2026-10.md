@@ -165,3 +165,10 @@ cards (end card v2 style); step chips; public-page captures at iPhone size.
 **Per video:** storyboard → client OK → stills (quote) → lock the prompt on the hook line at 480p (quote) → remaining
 lines → gates (transcript word-for-word, camera drift, wardrobe) → finalize keepers → edit → review copy → client →
 4:5 version.
+
+## Status (Nov 4, 2026)
+- **Video 1 "Higher dose. Same price."**: v3 follows the brief (client: v1/v2 drifted). New host, Higgsfield.
+- **Video 2 "Tirzepatide online, step by step"**: back ON (it is in the client's concept list). Blocked on a screen recording
+  of the full flow with sample data (or a test login), showing checkout before the intake; and client OK on an AI-made plain
+  shipping box. Estimate ~120-130 credits.
+- **NAD+ Videos 3 and 4**: still need real product photos/footage and the host decision.

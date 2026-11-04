@@ -139,7 +139,12 @@ for para in paras:
         if d.textlength(tt, font=f) <= 800: cur = tt
         else: lines.append(cur); cur = wd
     lines.append(cur)
-for i, s in enumerate(lines): ctext(d, 1500 + DD + i * 29, s, f, (70, 80, 96))
+TERMS_DY = 0
+if TIRZ:   # Video 6 v3 (brief: "clearly show the offer's applicable plan requirements and promotional terms"), site wording
+    TERMS_DY = 78
+    for i, s_ in enumerate(['Introductory pricing applies to the first month only.', '$70 savings auto-applied.']):
+        ctext(d, 1488 + DD + i * 27, s_, F("SemiBold", 23), NAVY)
+for i, s in enumerate(lines): ctext(d, 1500 + DD + TERMS_DY + i * 29, s, f, (70, 80, 96))
 
 # ---- animation
 def ease(x): x = min(max(x, 0), 1); return 1 - (1 - x) ** 3
