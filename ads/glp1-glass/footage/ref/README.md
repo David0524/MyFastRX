@@ -116,3 +116,17 @@ collar. No logos or brand names anywhere: plain pump, plain canopy. Soft overcas
 | vid5_street_autumn.png | 96adfa6e-e3ff-48e9-ae04-c5794644df32 | Empty autumn street plate (from A2). No people, numbers or brands. |
 | vid5_street_winter.png | d17e2533-5cdd-4f85-b291-ba3f35a8baad | Same plate edited to winter; trunk, cars and houses stay registered (time-lapse ready). |
 Time-lapse (Phase B, free): tools/vid5-timelapse.py -> footage/broll/vid5_timelapse.mp4. Contact sheet: vid5_stills_contact.jpg.
+
+## New host (replaces Dana on new ads), round 1 (Nov 4, 2026)
+One-shot Nano Banana Pro edits of three real creator frames (sources kept out of git; see CASTING_NEW_HOST_2026-11.md
+for the frames, the verdicts and the exact prompts). 9:16, 2k, 2 credits each = 12. Run through the Higgsfield CLI.
+
+| File | Source | Job | Notes |
+|---|---|---|---|
+| host2_v1_A1.png | A kitchen | db899bb8-6684-4391-9573-57a0f1ddcf8b | Olive skin, dark waves, dusty-rose tee, gold chain. Real pores and a few freckles; both hands right. Window behind is bright (background only). |
+| host2_v1_A2.png | A kitchen | 27a256da-f8d4-41eb-b0f2-cbabf6e659b8 | Same direction, slightly warmer and more open expression, mouth parted (reads mid-sentence). Herb plant behind. |
+| host2_v1_B1.png | B living room | d939a35a-ac4f-47f4-b514-13976d2bc443 | Golden-brown skin, freckles, hazel eyes, caramel curls; mixed-heritage read. Best skin detail of the six. Mic has a small green LED. |
+| host2_v1_B2.png | B living room | 11b67d04-96c8-4bf6-8233-a0330e0c24b7 | Lighter skin, a little older-looking and flatter than B1. |
+| host2_v1_D1.png | D desk | 3ac4f679-8f22-41a8-8ccf-4023303b57ba | Sleek dark cut, terracotta shirt, abstract print. Plainest; both hands on the mic, looks stiff. |
+| host2_v1_D2.png | D desk | ac4370bb-baae-4746-9a97-60ead693da9d | Same, more neutral; reads older than 40. |
+Contact sheet: host2_v1_contact.jpg.
