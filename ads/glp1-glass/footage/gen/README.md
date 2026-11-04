@@ -296,3 +296,13 @@ photo1/photo2: image reference = her kitchen still (upload 6cb8a599) + descripti
 | host2_voice_Nora.wav | 2dca718b-7967-4191-907d-5bf77180a13d | | |
 | host2_voice_Helena.wav | 010439a3-a37a-4b14-86e6-c933172afea7 | | |
 Approx. median pitch: photo1 208 Hz, photo2 208, Naomi 199, Marisol 225, Nora 158 (lowest), Helena 211. All say the line word for word. All six in one file: vo/ugc/host2_voice_samples_all.mp3 (1.2 s gaps, in the order above).
+
+### Video 6 hook, take 2 (Nov 4): voice = Naomi (client pick), phonetic spellings
+Same settings as take 1 + audio reference vo/ugc/host2_voice_Naomi.wav; dialogue "Okay so... tur-ZEP-uh-tide doses usually go UP
+over time. At My Fast R-X? The price doesn't." + rule 'Use the voice from the audio reference. Say "R-X" as two letters, "are ex".'
+
+| File | Job | Cr | Notes |
+|---|---|---|---|
+| host2_v6_c1_480p_take2.mp4 (8 s, 480p) | 6ae82d6f-52c1-4446-b29d-4a687ce820a3 | 24 | Whisper: "Okay, so terzepatide doses usually go up over time. At myFastRx, the price doesn't." (both fixed). Speech 0.0-7.76 s. Drift 0.00%. Same performance shape as take 1 (looks up from the phone, gesture on "up", smile at the end). Pitch ~198 Hz (Naomi sample ~199, take 1 ~195). |
+
+**Spoken spellings for this host (locked):** "tur-ZEP-uh-tide", "My Fast R-X" + the "are ex" rule. Voice ref: host2_voice_Naomi.wav.
