@@ -167,7 +167,7 @@ lines → gates (transcript word-for-word, camera drift, wardrobe) → finalize 
 4:5 version.
 
 ## Status (Nov 4, 2026)
-- **Video 1 "Higher dose. Same price."**: v3 follows the brief (client: v1/v2 drifted). New host, Higgsfield.
+- **Video 1 "Higher dose. Same price."**: DONE. Client chose v2 (v3's hook mispronounced "tirzepatide dose").
 - **Video 2 "Tirzepatide online, step by step"**: back ON (it is in the client's concept list). Blocked on a screen recording
   of the full flow with sample data (or a test login), showing checkout before the intake; and client OK on an AI-made plain
   shipping box. Estimate ~120-130 credits.

@@ -40,6 +40,8 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
 - **Voice-overs are cloned from the host's own on-camera audio (Nov 4):** Seed Audio with a reference cut from her finished
   takes (different words from the new line), plus a guard word at the end that gets trimmed. A VO from the preset voice the
   clips were seeded with sounded "extremely robotic, nothing like her" (client).
+- **"Tirzepatide" in her mouth (Nov 4):** spell it "tur-ZEP-uh-tide" (right in 2 of 3 takes). "tur-ZEP-uh-TYDE" + a
+  "rhymes with ride" rule made it worse, and "-tide dose" ran together ("deuce"). Avoid putting "dose" straight after it.
 - **Small accessory changes between scenes are good (client, Nov 4):** e.g. the new host wears a gold necklace on the
   front steps but not in the kitchen. Small inconsistencies read as human; don't "fix" them for continuity.
 - **Never imply she is a patient:** no unboxing her own order, no "my medication". Delivery shots show a parcel on a
