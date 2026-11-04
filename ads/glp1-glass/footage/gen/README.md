@@ -282,3 +282,17 @@ No voice reference: this take sets her voice. Prompt = the locked template (STOR
 | File | Job | Cr | Notes |
 |---|---|---|---|
 | host2_v6_c1_480p_take1.mp4 (8 s, 480x854, 24 fps) | e572c9d0-ccd9-4c70-b297-326b064cbeba | 24 | Whisper: "Okay, so tirazepatade doses usually go up over time. At my fast reps, the price doesn't." Speech 0.0-7.8 s; pauses 1.14-1.56, 4.94-5.46, 6.46-7.08. Camera drift 0.00%. Face holds; starts looking down at the phone, looks up by ~1 s; natural hand gesture ~4 s. Audio -17.9 LUFS. To check by ear: "Rx" at 5.8-6.5 s (Whisper hears "reps") and "tirzepatide" (Whisper hears an extra syllable). |
+
+## New host voice casting (Nov 4, 2026): Seed Audio 1.0, 0.7 credits each (6 = 4.2)
+Line (not from any script): "Hi! So I wanted to tell you about something I found this week, and honestly, it surprised me."
+photo1/photo2: image reference = her kitchen still (upload 6cb8a599) + description "warm, natural woman around 40, neutral American accent, slightly low and relaxed, conversational, not a presenter voice". Others: preset voices by name.
+
+| File (vo/ugc/) | Job | Pitch | Notes |
+|---|---|---|---|
+| host2_voice_photo1.wav | b4a4fc1b-252e-4619-be01-fa0fc64a0395 | | |
+| host2_voice_photo2.wav | 41c1ebea-adb3-41b6-a55b-7fc94c699f46 | | |
+| host2_voice_Naomi.wav | e7791708-32cf-4e33-a23f-e2cbbcffcf36 | | |
+| host2_voice_Marisol.wav | 8c570522-72de-4d83-ae87-1c510512e6f3 | | |
+| host2_voice_Nora.wav | 2dca718b-7967-4191-907d-5bf77180a13d | | |
+| host2_voice_Helena.wav | 010439a3-a37a-4b14-86e6-c933172afea7 | | |
+Approx. median pitch: photo1 208 Hz, photo2 208, Naomi 199, Marisol 225, Nora 158 (lowest), Helena 211. All say the line word for word. All six in one file: vo/ugc/host2_voice_samples_all.mp3 (1.2 s gaps, in the order above).
