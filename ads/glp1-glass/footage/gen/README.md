@@ -306,3 +306,13 @@ over time. At My Fast R-X? The price doesn't." + rule 'Use the voice from the au
 | host2_v6_c1_480p_take2.mp4 (8 s, 480p) | 6ae82d6f-52c1-4446-b29d-4a687ce820a3 | 24 | Whisper: "Okay, so terzepatide doses usually go up over time. At myFastRx, the price doesn't." (both fixed). Speech 0.0-7.76 s. Drift 0.00%. Same performance shape as take 1 (looks up from the phone, gesture on "up", smile at the end). Pitch ~198 Hz (Naomi sample ~199, take 1 ~195). |
 
 **Spoken spellings for this host (locked):** "tur-ZEP-uh-tide", "My Fast R-X" + the "are ex" rule. Voice ref: host2_voice_Naomi.wav.
+
+### Video 6 at 720p (Nov 4): client approved Naomi voice; 720p plan (175.6 credits)
+All Seedance 2.5 omni_reference, 720p, audio ref vo/ugc/host2_voice_Naomi.wav, locked prompt + spellings.
+
+| File | Job | Cr | Notes |
+|---|---|---|---|
+| host2_v6_hookA_720p.mp4 (8 s) | 25150802-170d-4d14-beec-d77cf1a6d5e4 | 56 | Start kitchen2. Whisper: "Okay, so terzepatide doses usually go up over time. At MyFastRx, the price doesn't." 0.0-7.84 s. Drift 0.00%. Same shape as the approved 480p take 2. |
+| host2_v6_hookB_720p.mp4 (5 s) | 7d0d8e58-5cd9-4ab2-ba9a-a550a075d6cb | 35 | Start kitchen2. Whisper: "The turzepatide price thing, nobody really explains." 0.0-4.38 s. Drift 0.14%. Ends on a warm smile. |
+| host2_v6_steps_720p.mp4 (12 s) | eb33662e-107b-43d4-9d52-e3866501a806 | 84 | Start host2_loc_steps_r2 (upload 018e0ea3). Still rendering at commit time. |
+| ../../vo/ugc/host2_v6_vo_dose.wav (Seed Audio, preset Naomi) | f8ef12a2-06c4-4bc0-9e9d-143390e71378 | 0.6 | "Same price? Whatever dose your provider puts you on. No surprise refill charges either." 7.1 s. Pitch ~180 Hz vs ~203 Hz on camera: match in the edit, or redo with her on-camera audio as the reference. |
