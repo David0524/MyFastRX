@@ -10,9 +10,28 @@ This replaces the Oct casting rule ("Black or Hispanic woman, about 45-55") for 
 our treatment", and she is a presenter, never a patient. She can look like she got in shape. No ad, line, caption or
 B-roll says or suggests she lost weight or uses the product.
 
-## Round 1: four directions, one image each
+**Decided Nov 4:** she replaces Dana on all new ads (Video 6 onward). Dana's finished ads stay as they are.
 
-- **Model:** Higgsfield `nano_banana_pro`, 9:16, 2k, text only (no reference image).
+## Round 0: real source frames (the method that avoids the waxy AI look)
+Image models can't invent real sensor noise, pores and uneven light, and a video model can only animate what's in
+the still. So each look starts from **a still of a real creator filmed on a real phone**, and Nano Banana Pro turns
+her into a genuinely different woman in one edit (references/kristian_jennings_ai_ugc_workflow.md; how Dana was made).
+- **Where:** Instagram (millennial creators) or Facebook. Pinterest is now full of AI images.
+- **What to look for:** a woman about 35-45 talking to her phone; the framing we want for each direction below;
+  no blown-out highlights (zoom in: detail must survive in the brightest skin); a background with depth and a bit of
+  personality; both hands natural; ideally no captions over her face.
+- **How:** download the video, export one frame (Premiere: Shift + E), save it in `footage/ref/` as
+  `host2_src_A.jpg` and so on. Note where it came from in `footage/ref/README.md`.
+- **Legal and ethical line:** the frame is structure only. The new woman must be someone the source person could
+  not be (different eyes, nose, skin, face shape), and nothing identifying is kept (brands, captions, tattoos, decor).
+  Never a real person's likeness.
+
+## Round 1: four directions, one image each
+The prompts below become one-shot edits of the four source frames ("Turn this woman into a different woman: ..."
+plus every change in one prompt; stacked edits leave seams that show once animated). Text only is the fallback if a
+direction has no good source frame.
+
+- **Model:** Higgsfield `nano_banana_pro` (the original, not Nano Banana 2), 9:16, 2k, the source frame as the image.
 - **Cost:** about 2 credits each, so **about 8 credits**. Preflight with `get_cost: true` first.
 - **Why four separate directions:** one batch of four from a single prompt tends to return four sisters. Four prompts
   give us real range to choose from.
@@ -62,5 +81,3 @@ came back half-dressed when this was loose.
 
 **Budget to a locked host:** about 8 + 8 + 8 + 35-105 = **about 60-130 credits.**
 
-## Open question for the client
-Does she replace Dana on new ads, or join her as a second host? If she replaces Dana, Video 6 is cast with her.

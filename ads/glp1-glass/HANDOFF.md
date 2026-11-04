@@ -116,6 +116,10 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
 
 ## Casting rules (client, Oct 2026)
 
+- **Nov 4, 2026: a new host replaces Dana on all new ads** (Dana's finished ads stay). Race neutral, about 35-45,
+  attractive, fit (neither heavy nor skinny). Plan: `CASTING_NEW_HOST_2026-11.md`. The look only: no ad implies her
+  appearance comes from the product (brief section 7).
+
 - **Every host is a Black or Hispanic woman** (or reads as mixed Black and Hispanic), about 45-55.
 - **Build: average and healthy, neither thin nor heavy.** The client's critique of casting option B (the v7 recast):
   too heavy, so she reads as the "before" rather than the "after". This may also mean v7 needs another recast; ask
