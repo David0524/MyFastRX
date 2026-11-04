@@ -337,3 +337,20 @@ Seed Audio, prompt "No surprise refill charges either. Okay." ("Okay." = guard w
 | host2_v6_hookC_720p.mp4 (8 s) | 58ecca9d-e071-4633-a477-4c0556b2b6ef | 56 | The brief's line: "Your tur-ZEP-uh-TYDE dose goes UP. Your price? With My Fast R-X, it stays the same." Whisper: "Your terzepeti deuce goes up. Your price? With MyFastRX, it stays the same." Drift 0.00%. Speech 0.55-7.80. |
 | ../../vo/ugc/host2_v6_vo_nosub_t1.wav | e17b0984-a6b8-4209-986c-5ed6d232b600 | 0.3 | Cloned from her on-camera voice: "No subscription, no automatic refill billing, okay?" Used 0.42-3.80. Pitch 192 Hz. |
 Edit: tools/vid6-edit.py (default --hook C) -> out/ugc/vid6_higher_dose/MyFastRx_UGC6_HigherDose_v3[_4x5].mp4, 21.3 s, -16.6 LUFS.
+
+## Video 7 "Tirzepatide online, step by step" (Nov 4, 2026)
+Website walkthrough: coded (tools/vid7-screens.py, free), the live checkout's design system (DM Sans, #3C83F6, Step N of 4).
+Packaging (research, Nov 4): GLP-1 orders ship cold in insulated packaging with gel/ice packs, often inside a soft padded mailer,
+unmarked. Client: "it's a small mailer". -> a small plain white padded insulated mailer, puffy from the cold pack, blank label.
+
+| File | Job | Cr | Notes |
+|---|---|---|---|
+| ../ref/host2_v7_desk1.png | e41d86f7-54f1-416d-a32a-0d8e9cc594c1 | 2 | USED (upload 2a7935b5): desk by the window, open laptop (blank), dusty-blue shirt, headroom. |
+| ../ref/host2_v7_desk2.png | ea0b94ef-73a2-4030-8db8-80e088936dd2 | 2 | Closer; book spines with text behind her. |
+| ../ref/host2_v7_door1.png | 32528c6e-0302-41ac-b2dc-e492d24e2b5e | 2 | USED: puffy white insulated mailer on a coir mat, illegible label. |
+| ../ref/host2_v7_door2.png | a6505b94-2600-4fd0-b374-91b8635f71cf | 2 | Smaller mailer; a letter readable on the label. |
+| ../ref/host2_v7_door_empty.png | 525a2087-0bbe-4bdd-b530-20e6af6511d2 | 2 | door1 with the mailer removed (start frame). |
+| host2_v7_hook_720p.mp4 (5 s) | 00bd9f4f-a7d1-47d1-9c2c-12e122e4f665 | 35 | "Considering tur-ZEP-uh-tide? Here's exactly how getting started online works." |
+| host2_v7_close_720p.mp4 (8 s) | 57ad8b8c-7d8a-4f72-bcad-b244aa7955a7 | 56 | "Compounded tur-ZEP-uh-tide, starting at a hundred and twenty-nine DOLLARS. Check if you qualify." |
+| ../../vo/ugc/host2_v7_vo_steps.wav | a842593a-aa43-489a-a4a9-894b29f5ab43 | 0.3 | Cloned from her on-camera voice (ref 0c947d01): the three steps + guard word. |
+| v7_doorstep_720p.mp4 (5 s, Seedance 2.0 std) | bc29844c-5f3b-4309-9d82-2b98164c1749 | 22.5 | Start door_empty, end door1: a gloved hand sets the mailer down. |
