@@ -86,11 +86,13 @@ CHIPS = [(['Compounded Tirzepatide', '$129 first month · Introductory offer'], 
 
 def headline_png(path):
     """HIGHER DOSE. / SAME PRICE. on a white panel at the top, from frame 1 (the graphic repeats it as its title)."""
-    im = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im); f = F('Bold', 84)
-    l1, l2 = 'HIGHER DOSE.', 'SAME PRICE.'; w = max(d.textlength(l1, font=f), d.textlength(l2, font=f)); y = 300
-    d.rounded_rectangle((CX - w / 2 - 40, y - 24, CX + w / 2 + 40, y + 222), 34, fill=(255, 255, 255, 240))
+    # v2 (client, Nov 4: "covering her face"): moved from y 300 (eyes) to below her chin, above the captions (her chin ~820,
+    # captions 1172-1236 in the 1920 frame), and a little smaller
+    im = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im); f = F('Bold', 72)
+    l1, l2 = 'HIGHER DOSE.', 'SAME PRICE.'; w = max(d.textlength(l1, font=f), d.textlength(l2, font=f)); y = 890
+    d.rounded_rectangle((CX - w / 2 - 36, y - 20, CX + w / 2 + 36, y + 186), 30, fill=(255, 255, 255, 240))
     d.text((CX - d.textlength(l1, font=f) / 2, y), l1, font=f, fill=NAVY)
-    d.text((CX - d.textlength(l2, font=f) / 2, y + 100), l2, font=f, fill=BLUE); im.save(path)
+    d.text((CX - d.textlength(l2, font=f) / 2, y + 86), l2, font=f, fill=BLUE); im.save(path)
 
 ov = []
 for i, (tx, x, y, q) in enumerate(CAPS):
