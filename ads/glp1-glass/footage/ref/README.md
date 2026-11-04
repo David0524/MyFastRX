@@ -130,3 +130,14 @@ for the frames, the verdicts and the exact prompts). 9:16, 2k, 2 credits each = 
 | host2_v1_D1.png | D desk | 3ac4f679-8f22-41a8-8ccf-4023303b57ba | Sleek dark cut, terracotta shirt, abstract print. Plainest; both hands on the mic, looks stiff. |
 | host2_v1_D2.png | D desk | ac4370bb-baae-4746-9a97-60ead693da9d | Same, more neutral; reads older than 40. |
 Contact sheet: host2_v1_contact.jpg.
+
+## New host round 2 (Nov 4): B1 picked; client: "5-10 pounds heavier, little more attractive"
+One edit of host2_v1_B1.png, nano_banana_pro 9:16 2k, 4 x 2 = 8 credits. Prompt: "Same woman, same room, same pose, same light, same clothes. Make her look about 5-10 pounds heavier: a slightly softer, fuller face and jawline, slightly fuller arms and shoulders; still fit and healthy, not heavy. Make her a little more attractive: brighter, well-rested eyes, slightly fuller brows and lashes, a touch of natural lip colour, the hint of a smile. Keep her skin texture, freckles and pores exactly as they are, matte, no smoothing. Remove the small green light on the mic. No text, no logos."
+
+| File | Job | Notes |
+|---|---|---|
+| host2_v2_B1_1.png | afad31bb-c416-4dd2-b0a5-896e32c62457 | |
+| host2_v2_B1_2.png | 176a7654-870e-4139-9dd1-25f42ceeae68 | |
+| host2_v2_B1_3.png | 9b77a1d1-7ad7-4d72-8bb4-a2a34f916067 | |
+| host2_v2_B1_4.png | 4e134a9f-bfa0-4fef-993c-5155906f6e7b | |
+All four: green mic light gone, soft closed-mouth smile, brighter eyes and fuller lashes, a touch of lip colour; the added weight is subtle (slightly fuller cheeks/jaw, most in 2 and 4). Contact sheet: host2_v2_contact.jpg.
