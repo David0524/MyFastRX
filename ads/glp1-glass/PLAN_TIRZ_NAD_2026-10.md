@@ -168,7 +168,6 @@ lines → gates (transcript word-for-word, camera drift, wardrobe) → finalize 
 
 ## Status (Nov 4, 2026)
 - **Video 1 "Higher dose. Same price."**: DONE. Client chose v2 (v3's hook mispronounced "tirzepatide dose").
-- **Video 2 "Tirzepatide online, step by step"**: back ON (it is in the client's concept list). Blocked on a screen recording
-  of the full flow with sample data (or a test login), showing checkout before the intake; and client OK on an AI-made plain
-  shipping box. Estimate ~120-130 credits.
+- **Video 2 "Tirzepatide online, step by step"**: v1 built Nov 4 (Video 7 in STORYBOARD_UGC.md). Client: build our own
+  website screens (coded, in the live checkout's design system) and a small insulated mailer for the delivery. ~124 credits.
 - **NAD+ Videos 3 and 4**: still need real product photos/footage and the host decision.

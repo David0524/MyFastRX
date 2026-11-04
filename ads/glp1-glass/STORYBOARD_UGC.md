@@ -124,6 +124,23 @@ rhymes with "ride"), "My Fast R-X" + the rule 'Say "R-X" as two letters, "are ex
 Outputs: out/ugc/vid6_higher_dose/MyFastRx_UGC6_HigherDose_{A,B}_v2[_4x5].mp4 (A 24.6 s, B 27.1 s; v2: headline below her chin, VO cloned from her voice; -16.6/-16.7 LUFS).
 Credits: host casting 12 + 8 + 12 (stills) + 4.2 (voices) + 48 (480p tests) + 175.6 (720p clips + VO) = ~260.
 
+## Video 7: "Tirzepatide online, step by step" (client concept #2) v1 built Nov 4, 2026
+New host at her desk (footage/ref/host2_v7_desk1.png, dusty-blue shirt). Edit: tools/vid7-edit.py (FMT=45 for 4:5).
+Website: coded walkthrough in the live checkout's own design system (tools/vid7-screens.py; client: "create your own website
+screens... be intentional"), sample data only, flow per the brief (checkout before the medical intake).
+Delivery: small plain white padded insulated mailer (client: "a small mailer"; research: cold pack inside, unmarked).
+
+| She says | Shots |
+|---|---|
+| "Considering tirzepatide? Here's exactly how getting started online works." | ☑ **AI UGC** desk (host2_v7_hook_720p) |
+| VO: "With My Fast Rx, check eligibility, / choose your plan, / and check out." | ☑ **Screen** HOW TO GET STARTED, then stage 1 "Start online": about you -> choose treatment ($129 first month, Introductory offer) -> checkout |
+| VO: "Then complete your medical intake / for a licensed provider to review." | ☑ **Screen** stage 2 "Medical intake": sample intake -> "Intake submitted", provider review "In review" |
+| VO: "If prescribed, the pharmacy ships your medication to your door." | ☑ **B-roll** stage 3 "Delivery if prescribed": gloved hand sets the mailer on the doormat (v7_doorstep_720p) |
+| "Compounded tirzepatide, starting at a hundred and twenty-nine DOLLARS. Check if you qualify." | ☑ **AI UGC** desk (host2_v7_close_720p, pause trimmed) + price chip / caption with "Introductory offer" |
+| — | ☑ **End card** Tirzepatide (no vial) with promo terms, 3 s |
+
+Outputs: out/ugc/vid7_step_by_step/MyFastRx_UGC7_StepByStep_v1[_4x5].mp4, 30.25 s, -15.9 LUFS. Credits ~124.
+
 ## Shared assets (made once)
 ☑ Dana casting (`footage/ref/dana_v2_1.png`, kitchen)
 Location stills (2 options each, ~2 cr per image): ☑ V1 kitchen (`dana_navy_kitchen_1`) ☑ V1 sofa evening (`dana_navy_sofa_1`) ☑ V1 front door (`dana_vid1_door_2`, grey sweater under the jacket; client's pick Oct 8) ☐ V2 car ☐ V2 office walk
