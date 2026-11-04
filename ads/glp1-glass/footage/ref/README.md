@@ -154,3 +154,12 @@ Steps prompt: "The same woman from the reference image (same face, freckles, cur
 | host2_loc_steps1.png | c8872a13-c309-431e-83ed-6da87da3d11f | |
 | host2_loc_steps2.png | d67774d9-547a-4de2-876b-fb47073b3583 | |
 kitchen2: PICK (identity holds, warm half smile, fluffy mic, phone in hand, fruit bowl + plant). kitchen1: mic has a green LED + small glyph. steps1/2: she reads older (more lines, wide-angle selfie distortion); steps1 has her arm out holding the camera. Contact sheet: host2_loc_contact.jpg.
+
+### Front-steps redo (Nov 4): refs host2_v2_B1_4 + host2_loc_kitchen2, adds a necklace (client), 2 x 2 = 4 credits
+Prompt: "The same woman as in both reference images, same age and same face (same freckles, eyes, smooth youthful skin, curly hair). She stands on the front steps of her house, heading out: a plain solid olive jacket over a plain terracotta tee, keys in one hand, small gold hoop earrings, a thin gold chain necklace with a small round gold pendant resting just below her collarbone, and a small black fluffy clip-on mic clipped to the jacket collar. Relaxed, warm half smile, looking into the camera. Framed from the waist up; the camera is propped at eye level a few feet away, not a selfie arm, normal lens with no wide-angle distortion. Soft overcast daylight, her front door and a potted plant behind her. Real iPhone photo, natural skin texture, no smoothing. No text, no logos, no house numbers."
+
+| File | Job | Notes |
+|---|---|---|
+| host2_loc_steps_r1.png | 48809e81-9d78-458c-9556-c0df9e5bf668 | Big open smile, face a little rounder than #4. Necklace, keys, no distortion. |
+| host2_loc_steps_r2.png | 8b104d24-0e53-40b4-bee5-90978262a851 | PICK: same face and age as #4, warm half smile, thin gold chain + round pendant, camera at eye level, no wide-angle stretch. |
+Contact sheet: host2_loc_steps_redo_contact.jpg. Kitchen 2 has no necklace yet (continuity).
