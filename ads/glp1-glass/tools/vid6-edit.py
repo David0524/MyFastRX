@@ -20,7 +20,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 ap = argparse.ArgumentParser(); ap.add_argument('--hook', choices=['A', 'B', 'C'], default='C')
 ap.add_argument('--v4', action='store_true', help='v4 (client, Nov 4): Video 7 v3\'s new music (tools/music-pop.py) + end card v3 on the v2 cut')
+ap.add_argument('--v5', action='store_true', help='v5 (client, Nov 4): social captions (tools/captions-social.py), body render -> tools/finish.py (1.15x, upbeat music, end card v3)')
 a = ap.parse_args()
+if a.v5: a.v4 = True
 V3 = a.hook == 'C'   # v3 (Nov 4, client: "you didn't really follow" the brief): the brief's own hook line, LARGE headline,
                      # "Price within your plan", "no subscription", the closing trimmed to the brief's line, promo terms on the end card
 FMT45 = os.environ.get('FMT') == '45'; Y0 = 150; SUF = '_4x5' if FMT45 else ''
@@ -123,8 +125,13 @@ def headline_png(path):
     d.text((CX - d.textlength(l2, font=f) / 2, y + 86), l2, font=f, fill=BLUE); im.save(path)
 
 ov = []
-for i, (tx, x, y, q) in enumerate(CAPS):
-    p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, q); ov.append((p, x, y))
+if not a.v5:
+    for i, (tx, x, y, q) in enumerate(CAPS):
+        p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, q); ov.append((p, x, y))
+else:   # social captions as one alpha track, word timings from out/ugc/captions/vid6_<hook>_words.json
+    CAPMOV = f'{OUT}/captions_{a.hook}.mov'
+    subprocess.run(['python3', 'tools/captions-social.py', '--words', f'out/ugc/captions/vid6_{a.hook}_words.json',
+                    '--dur', f'{TOTAL_A:.3f}', '--zones', '0:1236', '--out', CAPMOV], check=True)
 for i, (lines, x, y) in enumerate(CHIPS):
     p = f'{OV}/chip_{i}.png'; chip_png(lines, p, CHIP_Y); ov.append((p, x, y))
 (headline_png_v3 if V3 else headline_png)(f'{OV}/headline.png'); ov.append((f'{OV}/headline.png', 0.0, T_G))
@@ -153,6 +160,7 @@ VO_GAIN = _rms(GSRC, 1.5, GEND - 0.1) / _rms(VO, *VO_T)
 args = ['ffmpeg', '-v', 'error', '-y', '-i', HA, '-i', HB, '-i', ST, '-i', STA, '-i', VO, '-i', DOSE, '-i', EC,
         '-i', MUS, '-i', ROOM, '-i', OUTD, '-i', HC]
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
+if a.v5: args += ['-i', CAPMOV]
 VIN = {HA: 0, HB: 1, ST: 2, HC: 10}
 fc, vl, al = [], [], []
 for k, (f, x, y) in enumerate(PIECES):
@@ -169,28 +177,45 @@ for k, (f, x, y) in enumerate(PIECES):
         fc.append(f'[{ain}]atrim={x:.5f}:{y:.5f},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,'
                   f'afade=t=in:d=0.02,afade=t=out:st={y - x - 0.04:.3f}:d=0.04[a{k}]')
     vl.append(f'[v{k}]'); al.append(f'[a{k}]')
-fc.append(f'[6:v]{EC_SCALE},fps=30,format=yuv420p,setsar=1[ve]')
-fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{END}[ae]')
-fc.append(''.join(vl) + f'[ve]concat=n={len(vl) + 1}:v=1:a=0[b0]')
+if a.v5:   # body only: no end card, no music, no mastering (tools/finish.py does those after the speed-up)
+    fc.append(''.join(vl) + f'concat=n={len(vl)}:v=1:a=0[b0]')
+else:
+    fc.append(f'[6:v]{EC_SCALE},fps=30,format=yuv420p,setsar=1[ve]')
+    fc.append(f'anullsrc=r=48000:cl=stereo,atrim=0:{END}[ae]')
+    fc.append(''.join(vl) + f'[ve]concat=n={len(vl) + 1}:v=1:a=0[b0]')
 last = 'b0'
 for k, (p, x, y) in enumerate(ov):
     fc.append(f"[{last}][{11 + k}:v]overlay=0:0:shortest=0:enable='between(t,{x:.3f},{y - 0.001:.3f})'[o{k}]"); last = f'o{k}'
-fc.append(''.join(al) + f'[ae]concat=n={len(PIECES) + 1}:v=0:a=1[voice]')
+if a.v5:
+    fc.append(f"[{last}][{11 + len(ov)}:v]overlay=0:0:shortest=0[ocap]"); last = 'ocap'
+    fc.append(''.join(al) + f'concat=n={len(PIECES)}:v=0:a=1[voice]')
+else:
+    fc.append(''.join(al) + f'[ae]concat=n={len(PIECES) + 1}:v=0:a=1[voice]')
 d_st = int(T_ST * 1000)
 fc.append(f'[8:a]aformat=sample_rates=48000:channel_layouts=stereo,afade=t=out:st={T_ST - 0.3:.3f}:d=0.3[room]')
 fc.append(f'[9:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay={d_st}|{d_st}[outd]')
-fc.append('[voice]asplit=2[vo][vsc]')
-fc.append('[7:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.35[mu]')
-fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
-fc.append('[vo][room][outd][mud]amix=inputs=4:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
-          'alimiter=limit=0.80:level=false[aout]')
+if a.v5:
+    fc.append('[voice][room][outd]amix=inputs=3:duration=first:normalize=0,highpass=f=40[aout]')
+else:
+    fc.append('[voice]asplit=2[vo][vsc]')
+    fc.append('[7:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.35[mu]')
+    fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
+    fc.append('[vo][room][outd][mud]amix=inputs=4:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
+              'alimiter=limit=0.80:level=false[aout]')
 name = f'MyFastRx_UGC6_HigherDose_v3{SUF}' if V3 else f'MyFastRx_UGC6_HigherDose_{a.hook}_{"v4" if a.v4 else "v2"}{SUF}'   # v2 (Nov 4): headline off her face, VO cloned from her voice
 mp4 = f'{OUT}/{name}.mp4'
+if a.v5: mp4 = f'{OUT}/body_{a.hook}{SUF}.mp4'
 if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
-args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',
+args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{(TOTAL_A if a.v5 else TOTAL):.3f}', '-r', '30',
          '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M',
          '-c:a', 'aac', '-ar', '48000', '-b:a', '256k', '-movflags', '+faststart', mp4]
 subprocess.run(args, check=True)
+if a.v5:
+    ec = 'footage/broll/endcard_v3_tirz_4x5.mp4' if FMT45 else 'footage/broll/endcard_v3_tirz.mp4'
+    subprocess.run(['python3', 'tools/endcard-v3.py', '--dur', str(END), '--product', 'tirz'] + (['--fmt', '45'] if FMT45 else []), check=True)
+    subprocess.run(['python3', 'tools/finish.py', '--body', mp4, '--endcard', ec, '--speed', '1.15', '--beat', f'{T_G:.3f}',
+                    '--name', f'MyFastRx_UGC6_HigherDose_{a.hook}_v5{SUF}', '--outdir', OUT], check=True)
+    raise SystemExit
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', mp4, '-vf', PREV_SCALE, '-c:v', 'libx264', '-crf', '24', '-preset', 'medium',
                 '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', f'previews/ugc/{name}_review.mp4'], check=True)
 print(json.dumps({'total_s': round(TOTAL, 2), 'pieces': [round(s, 2) for s in starts], 'graphic': [round(T_G, 2), round(T_ST, 2)],

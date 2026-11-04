@@ -10,7 +10,8 @@ her desk (footage/ref/host2_v7_desk1.png), the coded checkout walkthrough (tools
   end card (Tirzepatide, no vial, promo terms), 3 s.
 Every caption, label and chip stays in the safe zone (x 100-920, captions ending at y 1236); the screen panel sits above them.
   python3 tools/vid7-edit.py   (FMT=45 for the 4:5 Feed version) -> out/ugc/vid7_step_by_step/MyFastRx_UGC7_StepByStep_v1[_4x5].mp4"""
-import json, os, subprocess
+import json, os, subprocess, sys
+V6 = '--v6' in sys.argv   # v6 (client, Nov 4): social captions, body render -> tools/finish.py (1.15x, upbeat music, end card v3)
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -62,7 +63,7 @@ cl = lambda s: T_CL + s if s < CLOSE_T[0][1] else T_CL2 + (s - CLOSE_T[1][0])
 # ---- the screen panel: brand backdrop (end card gradient + faint grid), the recording cropped to address bar..buttons,
 # rounded corners and a soft shadow, placed between the title slot and the captions
 CROP_Y0, CROP_Y1 = 120, 1536                           # address pill .. below the buttons (3x of 40..512 pt)
-PH = 860; PW = round(W * PH / (CROP_Y1 - CROP_Y0)); PX, PY = CX - PW // 2, 296
+PH = 820 if V6 else 860; PW = round(W * PH / (CROP_Y1 - CROP_Y0)); PX, PY = CX - PW // 2, 296
 yy = np.linspace(0, 1, H)[:, None, None]
 top, bot = np.array([251, 249, 245]), np.array([228, 238, 252])
 bg = Image.fromarray(((top + (bot - top) * yy ** 1.3) * np.ones((1, W, 1))).astype(np.uint8), 'RGB').convert('RGBA')
@@ -110,13 +111,18 @@ CAPS = [['Considering tirzepatide?', 0.0, 1.75, None],
         ['Compounded tirzepatide,', T_CL, cl(2.85), None],
         ['starting at $129.', cl(2.85), T_CL2, 'Introductory offer'],
         ['Check if you qualify.', T_CL2, TOTAL_A, None]]
-for i, (tx, a_, b_, q) in enumerate(CAPS):
-    p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, q); ov.append((p, a_, b_))
+if not V6:
+    for i, (tx, a_, b_, q) in enumerate(CAPS):
+        p = f'{OV}/cap_{i:02d}.png'; caption_png(tx, p, q); ov.append((p, a_, b_))
+else:   # social captions as one alpha track (word timings: out/ugc/captions/vid7_words.json)
+    CAPMOV = f'{OUT}/captions{SUF}.mov'
+    subprocess.run(['python3', 'tools/captions-social.py', '--words', 'out/ugc/captions/vid7_words.json',
+                    '--dur', f'{TOTAL_A:.3f}', '--zones', '0:1236', '--out', CAPMOV], check=True)
 p = f'{OV}/chip_price.png'; chip_png(['Compounded Tirzepatide', '$129 first month · Introductory offer'], p, CHIP_Y); ov.append((p, cl(2.85), TOTAL_A))
 
 # ---- sound beds
 MUS, ROOM, OUTD = 'audio/ugc/vid7_music_v2.wav', 'audio/ugc/vid7_room.wav', 'audio/ugc/vid7_outdoor.wav'
-subprocess.run(['python3', 'tools/music-pop.py', '--dur', f'{TOTAL:.3f}', '--beat', f'{T_SCR:.3f}', '--break', f'{T_DOOR:.3f}', f'{T_CL:.3f}',
+if not V6: subprocess.run(['python3', 'tools/music-pop.py', '--dur', f'{TOTAL:.3f}', '--beat', f'{T_SCR:.3f}', '--break', f'{T_DOOR:.3f}', f'{T_CL:.3f}',
                 '--endcard', f'{TOTAL_A:.3f}', '--out', MUS], check=True)   # v2 (client, Nov 4: "new and different"): electronic pop, beat in on the website, drums out on the doorstep
 subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'home', '--dur', f'{TOTAL_A:.3f}', '--out', ROOM], check=True)
 LD = DOOR_T[1] - DOOR_T[0]
@@ -133,6 +139,7 @@ ins = [HOOK, CLOSE, DOOR, SCR, f'{OV}/panel_bg.png', f'{OV}/panel_mask.png', EC,
 args = ['ffmpeg', '-v', 'error', '-y']
 for i, f in enumerate(ins): args += (['-loop', '1', '-t', str(TOTAL)] if f.endswith('.png') else []) + ['-i', f]
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
+if V6: args += ['-i', CAPMOV]
 OV0 = len(ins)
 fc = []
 vsc = f'scale={W}:{H}:flags=lanczos,fps={FPS},setsar=1,format=yuv420p'
@@ -143,11 +150,12 @@ fc.append(f'[4:v]trim=0:{sum(DURS):.3f},setpts=PTS-STARTPTS,fps={FPS},format=rgb
 fc.append(f'[pb][scm]overlay={PX}:{PY}:shortest=1,setsar=1,format=yuv420p[vs]')
 fc.append(f'[2:v]trim={DOOR_T[0]}:{DOOR_T[1]},setpts=PTS-STARTPTS,{vsc}[vd]')
 for k, (x, y) in enumerate(CLOSE_T): fc.append(f'[1:v]trim={x}:{y},setpts=PTS-STARTPTS,{vsc}[vc{k}]')
-fc.append(f'[6:v]{EC_SCALE},fps={FPS},format=yuv420p,setsar=1[ve]')
-fc.append('[vh][vs][vd][vc0][vc1][ve]concat=n=6:v=1:a=0[b0]')
+if not V6: fc.append(f'[6:v]{EC_SCALE},fps={FPS},format=yuv420p,setsar=1[ve]')
+fc.append('[vh][vs][vd][vc0][vc1]concat=n=5:v=1:a=0[b0]' if V6 else '[vh][vs][vd][vc0][vc1][ve]concat=n=6:v=1:a=0[b0]')
 last = 'b0'
 for k, (p, x, y) in enumerate(ov):
     fc.append(f"[{last}][{OV0 + k}:v]overlay=0:0:shortest=0:enable='between(t,{x:.3f},{y - 0.001:.3f})'[o{k}]"); last = f'o{k}'
+if V6: fc.append(f"[{last}][{OV0 + len(ov)}:v]overlay=0:0:shortest=0[ocap]"); last = 'ocap'
 # voice: her takes at their places + the voice-over lines on their screens
 st = 'aformat=sample_rates=48000:channel_layouts=stereo'
 def at(label, src, x, y, t, extra=''):
@@ -164,17 +172,25 @@ fc.append('[ah][ac0][ac1][av0][av1][av2][av3][av4]amix=inputs=8:duration=longest
 ms = int(T_DOOR * 1000)
 fc.append(f'[9:a]{st},volume=0.9[room]')
 fc.append(f'[10:a]{st},adelay={ms}|{ms}[outd]')
-fc.append('[voice]asplit=2[vo][vsc]')
-fc.append(f'[8:a]{st},volume=0.35[mu]')
-fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
-fc.append('[vo][ad][room][outd][mud]amix=inputs=5:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
-          'alimiter=limit=0.80:level=false[aout]')
-name = f'MyFastRx_UGC7_StepByStep_v5{SUF}'; mp4 = f'{OUT}/{name}.mp4'   # v2: closing "tirzepatide" fixed; v3: new music + end card v3
+if V6:
+    fc.append(f'[voice][ad][room][outd]amix=inputs=4:duration=first:normalize=0,highpass=f=40,atrim=0:{TOTAL_A:.3f}[aout]')
+else:
+    fc.append('[voice]asplit=2[vo][vsc]')
+    fc.append(f'[8:a]{st},volume=0.35[mu]')
+    fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
+    fc.append('[vo][ad][room][outd][mud]amix=inputs=5:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
+              'alimiter=limit=0.80:level=false[aout]')
+name = f'MyFastRx_UGC7_StepByStep_v5{SUF}'; mp4 = f'{OUT}/{name}.mp4'
+if V6: mp4 = f'{OUT}/body{SUF}.mp4'   # v2: closing "tirzepatide" fixed; v3: new music + end card v3
 if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
-args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', str(FPS),
+args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{(TOTAL_A if V6 else TOTAL):.3f}', '-r', str(FPS),
          '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M',
          '-c:a', 'aac', '-ar', '48000', '-b:a', '256k', '-movflags', '+faststart', mp4]
 subprocess.run(args, check=True)
+if V6:
+    subprocess.run(['python3', 'tools/finish.py', '--body', mp4, '--endcard', EC, '--speed', '1.15', '--beat', f'{T_SCR:.3f}',
+                    '--break', f'{T_DOOR:.3f}', f'{T_CL:.3f}', '--name', f'MyFastRx_UGC7_StepByStep_v6{SUF}', '--outdir', OUT], check=True)
+    raise SystemExit
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', mp4, '-vf', PREV_SCALE, '-c:v', 'libx264', '-crf', '24', '-preset', 'medium',
                 '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', f'previews/ugc/{name}_review.mp4'], check=True)
 print(json.dumps({'total_s': round(TOTAL, 2), 'screens': [round(x, 2) for x in S], 'door': round(T_DOOR, 2), 'close': round(T_CL, 2), 'out': mp4}))

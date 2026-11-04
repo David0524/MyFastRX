@@ -359,3 +359,14 @@ v3 (Nov 4, client: "I do not like the music... new and different"; "the end card
 v4 (Nov 4, client: same changes as Video 7): tools/vid6-edit.py --hook A|B --v4 = the v2 cut + music-pop bed (beat in on the graphic) + end card v3 -> MyFastRx_UGC6_HigherDose_{A,B}_v4[_4x5].mp4 (-16.7 LUFS).
 v4 (Nov 4, client: "$129 dollar" / "here's how it work": she misses the plural s twice): both s's were spoken but quiet and my cuts dropped them (hook cut 4.75 vs s 4.74-4.88; closing cut 5.55 vs s 5.60-5.74). Cuts moved (hook 4.92, closing 5.80), both s's +8 dB, doorstep 0.42 s shorter so the length stays 30.25 s -> MyFastRx_UGC7_StepByStep_v4[_4x5].mp4 (-16.3 LUFS). Lesson: check a word's final consonant (energy + brightness) before cutting after it.
 v5 (Nov 4, client: "you cut out a little soon on My Fast Rx"): not a cut: the VO's final "k-s" of "Rx" (1.54-1.78 in the VO file) is 27 dB under the vowel and the new music's shaker/claps masked it. +10 dB on that span (RX_LIFT): high band at the "x" goes from ~-35 to ~-8 dB, in line with the "ch" of "check". -> MyFastRx_UGC7_StepByStep_v5[_4x5].mp4.
+
+### Nov 4 round (client, on the 3 working videos: Video 6 hooks A/B, Video 7): 1.15x, social captions, upbeat music
+- Speed: tools/finish.py speeds the body 1.15x (setpts / atempo, her pitch kept); the end card stays at 1x (3 s).
+- Captions: tools/captions-social.py (TikTok Sans, 1-3 word chunks following her speech, the spoken word on a brand-blue pill,
+  dark translucent box so it never blends with screen/graphic text; "Introductory offer" beneath any price). Word timings:
+  out/ugc/captions/*_words.json. Layout: dose-graphic note up 24 px; Video 7 screen panel 820 px tall (was 860).
+- Music: tools/music-upbeat.py (original 124 bpm A-major retro-pop: handclaps, tambourine, backbeat, bouncy bass, piano stabs,
+  strummed guitar, whistle hook, "ooh" pad; drums drop out on the Video 7 doorstep; big A-chord ending on the end card).
+  Category reference only (GLP-1 TV spots run bright sing-along pop); copies no song or jingle.
+- Renders: tools/vid6-edit.py --hook A|B --v5 ; tools/vid7-edit.py --v6 (FMT=45 for 4:5).
+  -> MyFastRx_UGC6_HigherDose_A_v5 (21.8 s), _B_v5 (24.0 s), MyFastRx_UGC7_StepByStep_v6 (26.7 s); -16.1 to -16.7 LUFS.

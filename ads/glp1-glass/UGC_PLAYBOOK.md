@@ -44,6 +44,11 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
   "rhymes with ride" rule made it worse, and "-tide dose" ran together ("deuce"). Avoid putting "dose" straight after it.
 - **Don't cut off final consonants (Nov 4):** Seedance takes often end a word on a quiet "s" (10-20 dB under the vowel, 5-8 kHz).
   Cutting on the energy drop removed the plural "s" twice ("dollar", "work"). Check brightness, not just level, before a cut.
+- **Pace (client, Nov 4):** her takes play at 1.15x (tools/finish.py); the end card stays at 1x.
+- **Captions (client, Nov 4):** platform-native, never full sentences with a heavy outline: tools/captions-social.py (TikTok Sans,
+  1-3 word chunks, active word on a brand-blue pill, dark box so they never blend with on-screen text).
+- **Music (client, Nov 4):** upbeat, feel-good, sing-along energy like the category's TV spots (tools/music-upbeat.py); "boring"
+  ambient/fingerpicked beds were rejected. Original tunes only, never a copy of a brand jingle.
 - **Small accessory changes between scenes are good (client, Nov 4):** e.g. the new host wears a gold necklace on the
   front steps but not in the kitchen. Small inconsistencies read as human; don't "fix" them for continuity.
 - **Never imply she is a patient:** no unboxing her own order, no "my medication". Delivery shots show a parcel on a

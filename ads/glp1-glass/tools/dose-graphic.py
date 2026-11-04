@@ -47,7 +47,7 @@ title = text_layer([('HIGHER DOSE.', F('Bold', 108), NAVY, 270), ('SAME PRICE.',
 labels = layer(); d = ImageDraw.Draw(labels)
 d.text((X0, Y_PRICE - 62), 'Price within your plan', font=F('SemiBold', 40), fill=NAVY)   # the client's label (Video 6 v3)
 d.text((X0, Y_DOSE0 + 20), 'Prescribed dose', font=F('SemiBold', 40), fill=TEAL)     # under the line: clear of the first step
-note = text_layer([('Dose set by your provider', F('Medium', 32), INK2, 1104)])
+note = text_layer([('Dose set by your provider', F('Medium', 32), INK2, 1080)])   # Nov 4: up 24 px, clear of the caption box
 
 def chip(s, y, px=40):
     f = F('SemiBold', px); im = layer(); d = ImageDraw.Draw(im); w = d.textlength(s, font=f)
