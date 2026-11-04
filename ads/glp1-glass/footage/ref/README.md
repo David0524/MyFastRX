@@ -141,3 +141,16 @@ One edit of host2_v1_B1.png, nano_banana_pro 9:16 2k, 4 x 2 = 8 credits. Prompt:
 | host2_v2_B1_3.png | 9b77a1d1-7ad7-4d72-8bb4-a2a34f916067 | |
 | host2_v2_B1_4.png | 4e134a9f-bfa0-4fef-993c-5155906f6e7b | |
 All four: green mic light gone, soft closed-mouth smile, brighter eyes and fuller lashes, a touch of lip colour; the added weight is subtle (slightly fuller cheeks/jaw, most in 2 and 4). Contact sheet: host2_v2_contact.jpg.
+
+## New host: B1 v2 #4 locked (Nov 4). Video 6 location stills (nano_banana_pro 9:16 2k, ref host2_v2_B1_4, 4 x 2 = 8 credits)
+Kitchen prompt: "The same woman from the reference image (same face, freckles, curly hair and skin), now standing at her bright kitchen counter in the morning, holding her phone loosely in one hand at chest height and looking up from it into the camera with a relaxed, warm half smile. She wears a plain fitted crewneck tee in solid terracotta, small gold hoop earrings, and a small black fluffy clip-on mic clipped to the neckline. Framed from the waist up, camera propped on the counter at eye level, soft window light, a plant and a fruit bowl softly blurred behind her. Real iPhone photo, natural skin texture, no smoothing. No text, no logos."
+
+Steps prompt: "The same woman from the reference image (same face, freckles, curly hair and skin), now standing on the front steps of her house, heading out: a plain solid olive jacket over a plain terracotta tee, keys in one hand, small gold hoop earrings, and a small black fluffy clip-on mic clipped to the jacket collar. Relaxed, warm half smile, looking into the camera. Framed from the waist up, camera at eye level, soft overcast daylight, her front door and a potted plant behind her. Real iPhone photo, natural skin texture, no smoothing. No text, no logos, no house numbers."
+
+| File | Job | Notes |
+|---|---|---|
+| host2_loc_kitchen1.png | aa3e0458-fc7e-4395-978a-c621973de7f1 | |
+| host2_loc_kitchen2.png | d83098ce-84ae-43d3-9d4e-0cfc22e488bd | |
+| host2_loc_steps1.png | c8872a13-c309-431e-83ed-6da87da3d11f | |
+| host2_loc_steps2.png | d67774d9-547a-4de2-876b-fb47073b3583 | |
+kitchen2: PICK (identity holds, warm half smile, fluffy mic, phone in hand, fruit bowl + plant). kitchen1: mic has a green LED + small glyph. steps1/2: she reads older (more lines, wide-angle selfie distortion); steps1 has her arm out holding the camera. Contact sheet: host2_loc_contact.jpg.
