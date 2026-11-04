@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
 """Video 6 "Higher dose. Same price.": free fix for the front-steps take's "tir-zep-a-TEEDE" (client, Nov 4).
-The word is swapped for Hook A's correct "tirzepatide" (same voice reference, same session), cut in the silences around
-it (50 ms RMS), level-matched to the word it replaces, with 15 ms crossfades; the rest of the take keeps its own timing,
-so her lips stay in sync before and after. A 2 s price card covers her mouth while the patched word plays.
-  python3 tools/vid6-tirzfix.py -> audio/ugc/vid6_steps_tirzfix.wav + footage/broll/vid6_price_card.png
-                                   + previews/ugc/vid6_steps_patch_preview.mp4 (the take at 1080x1920 with the card)"""
-import os, subprocess
+v1 (whole word from Hook A + a 2 s price card) was rejected: "clunky on both ends, particularly the end", and the card
+"looks clunky". v2 swaps only the last syllable, "-teede" -> Hook A's "-tide", over her untouched video:
+  - cut at the "t" burst on both sides (the closure before it stays the steps take's own silence), so no noise-floor jump;
+  - Hook A's syllable is EQ-matched to the steps take (long-term speech spectrum ratio), level-matched, and gently
+    time-stretched (rubberband, formants kept) to fill the original syllable's length, so "starts" stays on time;
+  - 6 ms fade-in at the burst, 20 ms fade-out into the steps take's own room tone.
+  python3 tools/vid6-tirzfix.py [--stretch 1.25] -> audio/ugc/vid6_steps_tirzfix.wav
+                                   + previews/ugc/vid6_steps_patch_preview.mp4 (the original take with the patched audio)"""
+import argparse, os, subprocess
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
+ap = argparse.ArgumentParser(); ap.add_argument('--stretch', type=float, default=None,
+                                                help='time-stretch of the syllable (default: fill the original length)')
+ap.add_argument('--out', default='previews/ugc/vid6_steps_patch_preview.mp4'); a = ap.parse_args()
 SR = 48000
 STEPS, HOOK = 'footage/gen/host2_v6_steps_720p.mp4', 'footage/gen/host2_v6_hookA_720p.mp4'
-OUT_WAV, CARD, PREVIEW = 'audio/ugc/vid6_steps_tirzfix.wav', 'footage/broll/vid6_price_card.png', 'previews/ugc/vid6_steps_patch_preview.mp4'
-# boundaries read off the 50 ms RMS envelope (both sides sit in silence, below -37 dB)
-DST0, DST1 = 3.62, 4.62          # steps: the closure before the word .. the pause before "starts"
-SRC0, SRC1 = 1.82, 2.64          # hook A: the closure before the word .. just before "doses"
-CARD0, CARD1 = 3.45, 5.45        # the card holds 2 s (house rule), word fully covered
-W, H, CX = 1080, 1920, 510
-F = lambda wt, px: ImageFont.truetype(f'assets/fonts/Geist-{wt}.ttf', px)
-NAVY, BLUE, INK2 = (0, 29, 69), (32, 99, 235), (84, 98, 120)
+OUT_WAV = 'audio/ugc/vid6_steps_tirzfix.wav'
+# from the 10 ms RMS envelope: steps "-teede" = burst 4.29 .. end 4.59; hook A "-tide" = burst 2.425 .. 2.635 (before "doses")
+DST0, DST1 = 4.29, 4.59
+SRC0, SRC1 = 2.425, 2.635
 
 def load(f):
     raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', f, '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'], capture_output=True).stdout
@@ -28,41 +29,40 @@ def load(f):
 
 def rms(x): return np.sqrt((x ** 2).mean() + 1e-12)
 
-# ---- audio
+def speech_spectrum(x, n=2048):
+    fr = [x[i:i + n] for i in range(0, len(x) - n, n // 2) if rms(x[i:i + n]) > 0.02]
+    return np.mean([np.abs(np.fft.rfft(f * np.hanning(n))) for f in fr], 0)
+
 steps, hook = load(STEPS), load(HOOK)
-d0, d1, s0, s1 = (round(t * SR) for t in (DST0, DST1, SRC0, SRC1))
-word = hook[s0:s1].copy()
-old = steps[d0:d1]
-loud = lambda x: x[np.abs(x) > 0.01]                       # speech samples only, for the level match
-word *= rms(loud(old)) / rms(loud(word))
-fill = np.zeros(d1 - d0, np.float32); fill[:len(word)] = word[:d1 - d0]
-fade = round(0.015 * SR); ramp = np.linspace(0, 1, fade, dtype=np.float32)
+# EQ: the steps take's long-term speech spectrum over Hook A's, smoothed, applied to the syllable
+n = 2048
+ratio = speech_spectrum(steps, n) / (speech_spectrum(hook, n) + 1e-9)
+ratio = np.convolve(ratio, np.ones(15) / 15, 'same'); ratio = np.clip(ratio, 0.4, 2.5)
+syl = hook[round(SRC0 * SR):round(SRC1 * SR)].copy()
+L = 1 << int(np.ceil(np.log2(len(syl) + n)))
+spec = np.fft.rfft(syl, L); f_src = np.linspace(0, 1, len(ratio)); f_dst = np.linspace(0, 1, len(spec))
+syl = np.fft.irfft(spec * np.interp(f_dst, f_src, ratio), L)[:len(syl)].astype(np.float32)
+# stretch to fill the original syllable (rubberband keeps formants)
+st = a.stretch or (DST1 - DST0) / (SRC1 - SRC0)
+syl = np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-f', 'f32le', '-ar', str(SR), '-ac', '1', '-i', '-', '-af',
+                                    f'rubberband=tempo={1 / st:.4f}:formant=preserved:pitchq=quality', '-f', 'f32le', '-'],
+                                   input=syl.tobytes(), capture_output=True, check=True).stdout, np.float32).copy()
+# level: match the steps take's own voiced level just before the cut ("tir-zep-a")
+syl *= rms(steps[round(3.73 * SR):round(4.18 * SR)][np.abs(steps[round(3.73 * SR):round(4.18 * SR)]) > 0.01]) / rms(syl[np.abs(syl) > 0.01])
+d0, d1 = round(DST0 * SR), round(DST1 * SR)
+fi, fo = round(0.006 * SR), round(0.020 * SR)
+syl[:fi] *= np.linspace(0, 1, fi); syl[-fo:] *= np.linspace(1, 0, fo)
 out = steps.copy()
-seg = out[d0:d1].copy()
-seg[:fade] = seg[:fade] * (1 - ramp) + fill[:fade] * ramp
-seg[fade:-fade] = fill[fade:-fade]
-seg[-fade:] = fill[-fade:] * (1 - ramp) + seg[-fade:] * ramp
+room = steps[round(4.62 * SR):round(4.74 * SR)]                     # her own room tone, after the word
+gap = np.resize(room, d1 - d0)                                       # what sits under / after the new syllable
+seg = gap.copy(); k = min(len(syl), len(seg)); seg[:k] = syl[:k] + gap[:k] * np.linspace(0, 1, k) ** 4
 out[d0:d1] = seg
-os.makedirs(os.path.dirname(OUT_WAV), exist_ok=True)
+xf = round(0.004 * SR); out[d0 - xf:d0] *= np.linspace(1, 0.3, xf)  # soften the original closure into the new burst
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '1', '-i', '-', OUT_WAV], input=out.tobytes(), check=True)
 
-# ---- price card (end card v2's gradient, centred on CX; $129 with its qualifier directly beneath)
-yy = np.linspace(0, 1, H)[:, None, None]
-top, bot = np.array([251, 249, 245]), np.array([228, 238, 252])
-card = Image.fromarray(((top + (bot - top) * yy ** 1.3) * np.ones((1, W, 1))).astype(np.uint8), 'RGB')
-d = ImageDraw.Draw(card)
-def ctext(s, f, col, y): d.text((CX - d.textlength(s, font=f) / 2, y), s, font=f, fill=col)
-ctext('Compounded Tirzepatide', F('Bold', 70), NAVY, 640)
-ctext('$129', F('Bold', 230), BLUE, 740)
-ctext('first month', F('SemiBold', 56), NAVY, 1000)
-ctext('Introductory offer', F('Medium', 36), INK2, 1080)
-os.makedirs(os.path.dirname(CARD), exist_ok=True); card.save(CARD)
-
-# ---- preview: the take at 1080x1920 with the card over CARD0..CARD1 and the patched audio
-os.makedirs(os.path.dirname(PREVIEW), exist_ok=True)
-subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', STEPS, '-loop', '1', '-i', CARD, '-i', OUT_WAV, '-filter_complex',
-                f'[0:v]scale={W}:{H}:flags=lanczos,fps=30[v];[1:v]fps=30,format=yuv420p[c];'
-                f"[v][c]overlay=enable='between(t,{CARD0},{CARD1})':shortest=1[o]",
-                '-map', '[o]', '-map', '2:a', '-c:v', 'libx264', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k',
-                '-shortest', '-movflags', '+faststart', PREVIEW], check=True)
-print(OUT_WAV, CARD, PREVIEW, f'word {SRC1 - SRC0:.2f} s into a {DST1 - DST0:.2f} s gap; level x{rms(loud(old)) / rms(loud(hook[s0:s1])):.2f}')
+# preview: her original take (untouched picture), 1080x1920, with the patched audio
+os.makedirs(os.path.dirname(a.out), exist_ok=True)
+subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', STEPS, '-i', OUT_WAV, '-map', '0:v', '-map', '1:a',
+                '-vf', 'scale=1080:1920:flags=lanczos', '-c:v', 'libx264', '-crf', '18', '-pix_fmt', 'yuv420p',
+                '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', a.out], check=True)
+print(OUT_WAV, a.out, f'syllable {SRC1 - SRC0:.3f} s x{st:.2f} -> {len(syl) / SR:.3f} s into {DST1 - DST0:.2f} s')
