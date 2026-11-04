@@ -18,12 +18,15 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
-ap = argparse.ArgumentParser(); ap.add_argument('--hook', choices=['A', 'B', 'C'], default='C'); a = ap.parse_args()
+ap = argparse.ArgumentParser(); ap.add_argument('--hook', choices=['A', 'B', 'C'], default='C')
+ap.add_argument('--v4', action='store_true', help='v4 (client, Nov 4): Video 7 v3\'s new music (tools/music-pop.py) + end card v3 on the v2 cut')
+a = ap.parse_args()
 V3 = a.hook == 'C'   # v3 (Nov 4, client: "you didn't really follow" the brief): the brief's own hook line, LARGE headline,
                      # "Price within your plan", "no subscription", the closing trimmed to the brief's line, promo terms on the end card
 FMT45 = os.environ.get('FMT') == '45'; Y0 = 150; SUF = '_4x5' if FMT45 else ''
 CHIP_Y = Y0 + 1190 if FMT45 else 1500
 EC = 'footage/broll/endcard_v2_tirz_4x5.mp4' if FMT45 else 'footage/broll/endcard_v2_tirz.mp4'
+if a.v4: EC = EC.replace('endcard_v2_', 'endcard_v3_')
 EC_SCALE = f'scale=1080:1350,pad=1080:1920:0:{Y0}' if FMT45 else 'scale=1080:1920'
 PREV_SCALE = 'scale=720:900:flags=lanczos' if FMT45 else 'scale=720:1280:flags=lanczos'
 W, H = 1080, 1920
@@ -127,10 +130,14 @@ for i, (lines, x, y) in enumerate(CHIPS):
 (headline_png_v3 if V3 else headline_png)(f'{OV}/headline.png'); ov.append((f'{OV}/headline.png', 0.0, T_G))
 
 # ---- sound beds
-subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END), '--product', 'tirz'] + (['--fmt', '45'] if FMT45 else []), check=True)
+subprocess.run(['python3', 'tools/endcard-v3.py' if a.v4 else 'tools/endcard-v2.py', '--dur', str(END), '--product', 'tirz'] + (['--fmt', '45'] if FMT45 else []), check=True)
 MUS, ROOM, OUTD = f'audio/ugc/vid6_music_{a.hook}.wav', f'audio/ugc/vid6_room_{a.hook}.wav', 'audio/ugc/vid6_outdoor.wav'
-subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', '0.0', '--beat', f'{T_ST:.3f}',
-                '--endcard', f'{TOTAL_A:.3f}', '--lift', f'{TOTAL_A:.3f}', f'{TOTAL + 1:.3f}', '--out', MUS], check=True)  # beat on the move outside
+if a.v4:   # the new electronic-pop bed: keys under the hook, beat in when the graphic takes over
+    MUS = f'audio/ugc/vid6_music_v4_{a.hook}.wav'
+    subprocess.run(['python3', 'tools/music-pop.py', '--dur', f'{TOTAL:.3f}', '--beat', f'{T_G:.3f}', '--endcard', f'{TOTAL_A:.3f}', '--out', MUS], check=True)
+else:
+    subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', '0.0', '--beat', f'{T_ST:.3f}',
+                    '--endcard', f'{TOTAL_A:.3f}', '--lift', f'{TOTAL_A:.3f}', f'{TOTAL + 1:.3f}', '--out', MUS], check=True)  # beat on the move outside
 subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'home', '--dur', f'{T_ST:.3f}', '--out', ROOM], check=True)
 LEN_ST = PIECES[-1][2] - PIECES[-1][1]
 subprocess.run(['python3', 'tools/vid5-ambience.py', '--dur', f'{LEN_ST:.3f}', '--tl0', f'{LEN_ST + 1:.3f}',
@@ -177,7 +184,7 @@ fc.append('[7:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.35[mu
 fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
 fc.append('[vo][room][outd][mud]amix=inputs=4:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.80:level=false[aout]')
-name = f'MyFastRx_UGC6_HigherDose_v3{SUF}' if V3 else f'MyFastRx_UGC6_HigherDose_{a.hook}_v2{SUF}'   # v2 (Nov 4): headline off her face, VO cloned from her voice
+name = f'MyFastRx_UGC6_HigherDose_v3{SUF}' if V3 else f'MyFastRx_UGC6_HigherDose_{a.hook}_{"v4" if a.v4 else "v2"}{SUF}'   # v2 (Nov 4): headline off her face, VO cloned from her voice
 mp4 = f'{OUT}/{name}.mp4'
 if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',
