@@ -117,11 +117,11 @@ rhymes with "ride"), "My Fast R-X" + the rule 'Say "R-X" as two letters, "are ex
 | Hook A: "Okay so... tirzepatide doses usually go UP over time. At My Fast Rx? The price doesn't." | ☑ **AI UGC** kitchen (host2_v6_hookA_720p), headline HIGHER DOSE. SAME PRICE. from frame 1 |
 | Hook B: "The tirzepatide price thing nobody really explains." then Hook A from "doses" | ☑ **AI UGC** kitchen (host2_v6_hookB_720p) |
 | (from "usually go up over time") | ☑ **Anim** dose graphic: steps rise with her words, "Same price at any dose within your plan" on "the price doesn't" |
-| VO: "No surprise refill charges either." | ☑ Seed Audio, Naomi (host2_v6_vo_dose, tail only) on the "No automatic refill billing" chip |
+| VO: "No surprise refill charges either." | ☑ Seed Audio cloned from her on-camera voice (host2_v6_vo_refill_t1) on the "No automatic refill billing" chip |
 | "I actually double-checked that. Compounded tirzepatide starts at a hundred and twenty-nine DOLLARS, first month. Check if you qualify... takes like a minute." | ☑ **AI UGC** front steps (host2_v6_steps_720p; "tirzepatide" last syllable patched, tools/vid6-tirzfix.py), price chip + caption with "Introductory offer" |
 | — | ☑ **End card** v2, Tirzepatide version (no vial), 3 s |
 
-Outputs: out/ugc/vid6_higher_dose/MyFastRx_UGC6_HigherDose_{A,B}_v1[_4x5].mp4 (A 24.7 s, B 27.2 s; -16.6/-16.7 LUFS).
+Outputs: out/ugc/vid6_higher_dose/MyFastRx_UGC6_HigherDose_{A,B}_v2[_4x5].mp4 (A 24.6 s, B 27.1 s; v2: headline below her chin, VO cloned from her voice; -16.6/-16.7 LUFS).
 Credits: host casting 12 + 8 + 12 (stills) + 4.2 (voices) + 48 (480p tests) + 175.6 (720p clips + VO) = ~260.
 
 ## Shared assets (made once)

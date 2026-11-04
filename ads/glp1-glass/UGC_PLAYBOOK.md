@@ -37,6 +37,9 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
   model follows the recording's timing and drops words. Use a reference with different words, or none.
 - **No AI upscaling of faces:** ByteDance upscale painted on make-up and plastic skin. Use the model's own native
   finalize (Seedance draft -> 1080p) for approved takes only.
+- **Voice-overs are cloned from the host's own on-camera audio (Nov 4):** Seed Audio with a reference cut from her finished
+  takes (different words from the new line), plus a guard word at the end that gets trimmed. A VO from the preset voice the
+  clips were seeded with sounded "extremely robotic, nothing like her" (client).
 - **Small accessory changes between scenes are good (client, Nov 4):** e.g. the new host wears a gold necklace on the
   front steps but not in the kitchen. Small inconsistencies read as human; don't "fix" them for continuity.
 - **Never imply she is a patient:** no unboxing her own order, no "my medication". Delivery shots show a parcel on a

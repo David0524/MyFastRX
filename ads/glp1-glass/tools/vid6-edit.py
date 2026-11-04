@@ -4,7 +4,7 @@
   kitchen hook (A: "Okay so... tirzepatide doses usually go up over time. At My Fast Rx? The price doesn't."
                 B: "The tirzepatide price thing nobody really explains." then Hook A from "doses...")
   -> the dose-vs-price graphic (tools/dose-graphic.py) takes over from "usually go up over time" (lines step up in sync),
-     then her voice-over "No surprise refill charges either." (Seed Audio, Naomi) on the "No automatic refill billing" chip
+     then her voice-over "No surprise refill charges either." (Seed Audio cloned from her on-camera voice) on the "No automatic refill billing" chip
   -> front steps: "I actually double-checked that. Compounded tirzepatide starts at a hundred and twenty-nine dollars, first
      month. Check if you qualify... takes like a minute." (audio: tools/vid6-tirzfix.py, the last syllable of "tirzepatide" fixed)
   -> end card v2, Tirzepatide version, no vial (tools/endcard-v2.py --product tirz), 3 s.
@@ -37,8 +37,9 @@ OUT = 'out/ugc/vid6_higher_dose'; OV = f'{OUT}/overlays_{a.hook}{SUF}'
 for d in (OUT, OV, 'previews/ugc', 'footage/broll'): os.makedirs(d, exist_ok=True)
 HA, HB, ST = 'footage/gen/host2_v6_hookA_720p.mp4', 'footage/gen/host2_v6_hookB_720p.mp4', 'footage/gen/host2_v6_steps_720p.mp4'
 STA = 'audio/ugc/vid6_steps_tirzfix.wav'           # the steps take's audio with "tirzepatide" fixed
-VO = 'vo/ugc/host2_v6_vo_dose.wav'
-VO_T = (5.02, 7.30)                                # "No surprise refill charges either." (the file ends inside "either": faded)
+VO = 'vo/ugc/host2_v6_vo_refill_t1.wav'   # v2 (client: v1 "extremely robotic"): Seed Audio cloned from her on-camera voice
+                                          # (vo/ugc/host2_voice_ref_oncamera.wav), take 1 of 2: pitch 188 vs her 190 Hz
+VO_T = (0.42, 2.58)                                # "No surprise refill charges either." (guard word "Okay." trimmed)
 VO_GAP = 0.12
 END = 3.0
 # Word times (faster-whisper, checked against the 10 ms energy envelope):
@@ -152,7 +153,7 @@ fc.append('[7:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.35[mu
 fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
 fc.append('[vo][room][outd][mud]amix=inputs=4:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.80:level=false[aout]')
-name = f'MyFastRx_UGC6_HigherDose_{a.hook}_v1{SUF}'
+name = f'MyFastRx_UGC6_HigherDose_{a.hook}_v2{SUF}'   # v2 (Nov 4): headline off her face, VO cloned from her voice
 mp4 = f'{OUT}/{name}.mp4'
 if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', '30',

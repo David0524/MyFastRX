@@ -57,7 +57,7 @@ everything. The rest of `HANDOVER.md` is history from v3–v5.
 |---|---|---|
 | **v7 "Without the strings"** (28.8 s, the main film) | **Recast done (casting option B), waiting on client review** | `out/MyFastRx_WithoutStrings_v7.mp4`, review copy `previews/v7_review_copy.mp4`, source `src/v7/`, `./render-v7.sh && ./mix_v7.sh`, `node verify_v7.mjs` (39 pass, 0 fail, 6 notes after the recast; the notes are OCR misreads, encoder noise, and no transcriber in this container) |
 | **v8 "No strings"** (10 s product-hero spot) | Done on a scratch VO; waiting for the client's dedicated read | `out/MyFastRx_NoStrings_10s_v8.mp4`, `previews/v8_review_copy.mp4`, `src/v8/`, `./render-v8.sh && ./mix_v8.sh`, brief `V8_10S_BRIEF.md`, VO script `vo/ELEVENLABS_PROMPT_10s.md` |
-| **UGC Video 6 "Higher dose. Same price."** (Tirzepatide, new host) | v1 built Nov 4, waiting on client review | `out/ugc/vid6_higher_dose/` (hooks A and B, 9:16 + 4:5), `previews/ugc/MyFastRx_UGC6_*`, `tools/vid6-edit.py`, STORYBOARD_UGC.md Video 6 |
+| **UGC Video 6 "Higher dose. Same price."** (Tirzepatide, new host) | v2 built Nov 4 (headline off her face, VO redone), waiting on client review | `out/ugc/vid6_higher_dose/` (hooks A and B, 9:16 + 4:5), `previews/ugc/MyFastRx_UGC6_*`, `tools/vid6-edit.py`, STORYBOARD_UGC.md Video 6 |
 | **UGC plan** (about 16 ads a month) | Drafted; the client is reviewing it | Summarised below. The full doc is a Claude Doc in the old account and may not be visible to the new one |
 
 ## Done: recast v7's actress (Oct 3, 2026; see `RECAST_V7.md` and `footage/gen/README.md`)

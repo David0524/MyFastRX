@@ -318,3 +318,13 @@ All Seedance 2.5 omni_reference, 720p, audio ref vo/ugc/host2_voice_Naomi.wav, l
 | ../../vo/ugc/host2_v6_vo_dose.wav (Seed Audio, preset Naomi) | f8ef12a2-06c4-4bc0-9e9d-143390e71378 | 0.6 | "Same price? Whatever dose your provider puts you on. No surprise refill charges either." 7.1 s. Pitch ~180 Hz vs ~203 Hz on camera: match in the edit, or redo with her on-camera audio as the reference. |
 Patch (Nov 4, free): tools/vid6-tirzfix.py swaps the steps take's "tir-zep-a-TEEDE" (3.62-4.62 s) for Hook A's "tirzepatide" (1.82-2.64 s), level x0.92, 15 ms crossfades; a 2 s price card (footage/broll/vid6_price_card.png) covers 3.45-5.45 s. -> audio/ugc/vid6_steps_tirzfix.wav, previews/ugc/vid6_steps_patch_preview.mp4. Whisper on the patched audio: "...Compounded terzepatide starts at $129 first month..." (same as Hook A's correct reading).
 Patch v2 (Nov 4): client rejected v1 ("clunky on both ends, particularly the end"; the card "looks clunky"). Price card removed. tools/vid6-tirzfix.py now swaps only the last syllable (steps 4.29-4.59 s <- Hook A 2.425-2.635 s), EQ-matched, level-matched, rubberband-stretched to fit, into her own room tone, over the untouched video. A = stretch to fill (x1.43; Whisper "terzepatide", same as Hook A) -> previews/ugc/vid6_steps_patch_preview.mp4 + audio/ugc/vid6_steps_tirzfix.wav. B = x1.20 (Whisper "terzepitide") -> previews/ugc/vid6_steps_patch_preview_B.mp4.
+
+### Video 6 v2 fixes (Nov 4): headline off her face; voice-over redone (client: v1 "extremely robotic, sounds nothing like her")
+Reference: vo/ugc/host2_voice_ref_oncamera.wav (9.7 s of her on-camera audio: Hook A 0.5-7.9 + steps 0-2.3; upload 0c947d01-8dee-43cc-af17-61d429ed1e98).
+Seed Audio, prompt "No surprise refill charges either. Okay." ("Okay." = guard word, trimmed), 0.3 credits each.
+
+| File (vo/ugc/) | Job | Notes |
+|---|---|---|
+| host2_v6_vo_refill_t1.wav | 45b564f2-702a-423e-825d-dccdffae0207 | USED (0.42-2.58 s). Pitch 188 Hz vs her 190; long-term spectrum 3.5 dB from hers (v1 Naomi-preset VO: 6.8 dB, 180 Hz). |
+| host2_v6_vo_refill_t2.wav | 7da47e4b-ef25-4107-a6e1-4a5cd0138199 | Pitch 195 Hz, 4.0 dB. Backup. |
+**Rule:** stand-alone voice-overs for a host are cloned from her own on-camera audio, never from the preset voice.
