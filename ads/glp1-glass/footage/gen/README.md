@@ -272,3 +272,13 @@ the window, the chat screen shifted down (header visible), Pump counter captions
 the end card's own 4:5 layout (tools/endcard-v2.py --fmt 45). Use the 9:16 files for Reels/Stories and the 4:5 files
 for Feeds (Ads Manager: placement asset customization). The "video_id is not a valid video_id" errors were on the Ads
 Manager side (all four files have identical, valid specs): re-select/re-upload the video and wait for processing.
+
+## Video 6 "Higher dose. Same price.": new host (Nov 4, 2026, Higgsfield CLI)
+Seedance 2.5 draft mode returns "Not found" through the CLI (any params), so no native 1080p finalize from here.
+Plain 480p instead (client OK). Start image: footage/ref/host2_loc_kitchen2.png (upload 6cb8a599-2fcd-4ee6-b1a0-19c735bc4522).
+No voice reference: this take sets her voice. Prompt = the locked template (STORYBOARD_UGC.md) with the kitchen line and
+"Okay so... tir-ZEP-a-tide doses usually go UP over time. At My Fast Rx? The price doesn't."
+
+| File | Job | Cr | Notes |
+|---|---|---|---|
+| host2_v6_c1_480p_take1.mp4 (8 s, 480x854, 24 fps) | e572c9d0-ccd9-4c70-b297-326b064cbeba | 24 | Whisper: "Okay, so tirazepatade doses usually go up over time. At my fast reps, the price doesn't." Speech 0.0-7.8 s; pauses 1.14-1.56, 4.94-5.46, 6.46-7.08. Camera drift 0.00%. Face holds; starts looking down at the phone, looks up by ~1 s; natural hand gesture ~4 s. Audio -17.9 LUFS. To check by ear: "Rx" at 5.8-6.5 s (Whisper hears "reps") and "tirzepatide" (Whisper hears an extra syllable). |
