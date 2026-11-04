@@ -26,6 +26,47 @@ her into a genuinely different woman in one edit (references/kristian_jennings_a
   not be (different eyes, nose, skin, face shape), and nothing identifying is kept (brands, captions, tattoos, decor).
   Never a real person's likeness.
 
+## Source frames picked (Nov 4, from 5 the client sent)
+The frames are third-party creators' content: **kept out of git** (the repo is public). App overlays were cropped
+off; copies are in the session scratchpad and must be re-supplied in a new session.
+
+| Frame | Verdict | Why |
+|---|---|---|
+| Kitchen, bangs, cream sweater, mic in hand | **Pick 1 (direction A)** | The best structure: waist-up, leaning on a counter at a natural distance, a real kitchen with window depth, mic in hand (audio logic), skin highlights intact. Fixes in the edit: the motion-blurred raised hand, the chunky knit (shimmers), the glasses, the "They" caption. |
+| Living room, staircase behind, gold glasses, mic | **Pick 2 (direction B)** | The best background (depth, stairs, a lived-in room) and even light. Too close to the lens: the edit pulls her back to show the shoulders. Lose the glasses (green screen reflections animate badly). |
+| Desk, wood wall, framed landscape, mic | **Pick 3 (direction D)** | Good medium framing and a background with personality. The framed photo is someone's artwork: replace it with a neutral abstract print. Lose the striped tee, patterned nails and the blurred gesture. |
+| Home office, ponytail, big smile | Backup | Lovely expression and even light, but a flat grey wall, a caption across her chest and tight framing. |
+| Red hair, burgundy tank | Reject | Looks off camera, no mic, low-cut top, a paid-partnership caption. |
+
+### One-shot edit prompts (Nano Banana Pro, the frame as the image, 9:16, 2k; ~2 credits each)
+**A, kitchen:** "Turn this woman into a different woman: around 40, race neutral with warm olive skin (she could be
+Latina, Mediterranean or mixed), dark brown eyes, a straighter nose and fuller lips, shoulder-length dark brown hair
+with soft loose waves and no bangs, no glasses. Naturally attractive in an everyday way, not a model: light everyday
+makeup, matte skin with real texture. Fit, healthy, toned build, slim but not skinny. Same pose leaning on the
+counter, but both hands relaxed: one holds the small fluffy grey clip-on mic near her chin, the other rests on the
+counter. She wears a plain fitted crewneck tee in solid dusty rose, small gold hoop earrings and a thin gold chain.
+Keep the kitchen, the window and the light. Remove the caption. Add a small potted herb plant on the counter behind
+her. No text, no logos."
+
+**B, living room:** "Turn this woman into a different woman: around 40, light golden-brown skin with a few faint
+freckles across her nose, hazel-brown eyes, a softer jaw and a different nose, shoulder-length loose dark curls with
+subtle caramel tones; a mixed-heritage look. No glasses. Naturally attractive in an everyday way, not a model: light
+makeup, matte skin with real texture. Fit, healthy, toned build, slim but not skinny. Show her a little further from
+the camera, so her shoulders and upper arms are in frame. She holds the small fluffy grey clip-on mic at chest height.
+She wears a plain fitted long-sleeve top in solid sage green and small gold huggie earrings. Keep the staircase and
+the living room behind her and the soft daylight. No text, no logos."
+
+**D, desk:** "Turn this woman into a different woman: around 40, tan skin, dark brown eyes, a rounder face shape and
+a different nose, sleek collarbone-length dark brown hair tucked behind one ear, no glasses. Naturally attractive in
+an everyday way, not a model: light makeup, matte skin with real texture. Fit, healthy, toned build, slim but not
+skinny. Both hands relaxed: one holds the small fluffy grey clip-on mic at chest height, plain short natural nails.
+She wears a smooth, solid terracotta button-up shirt with the sleeves rolled and small gold hoop earrings. Keep the
+wood wall; replace the framed landscape photo with a framed neutral abstract print. Keep the light. No text, no
+logos."
+
+Run each 2x (about 12 credits) and screen as below. The Higgsfield connector on this account is read-only (balance,
+models, past generations), so these run in the Higgsfield web app unless a generating connector is added.
+
 ## Round 1: four directions, one image each
 The prompts below become one-shot edits of the four source frames ("Turn this woman into a different woman: ..."
 plus every change in one prompt; stacked edits leave seams that show once animated). Text only is the fallback if a
