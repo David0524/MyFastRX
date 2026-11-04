@@ -8,7 +8,9 @@ Animated, 2.5 s, 1080x1920 @ 30 fps, coded (no generations):
   - the client's disclaimer verbatim + Rx line + AI-portrayal note (on screen the whole time)
   - elements ease in one after another over the first second; the button gives one soft pulse
 Content is centred on CX = 510 (kept clear of the TikTok/Reels right-hand buttons), important content above y = 1520.
-  python3 tools/endcard-v2.py [--dur 3] [--fmt 45] -> footage/broll/endcard_v2[_4x5].mp4 (+ _still.png)"""
+  python3 tools/endcard-v2.py [--dur 3] [--fmt 45] -> footage/broll/endcard_v2[_4x5].mp4 (+ _still.png)
+--product tirz (Video 6, Nov 2026): Compounded Tirzepatide / $129, and no vial (no approved Tirzepatide vial yet): the vial's
+place carries the client's end-card line "Same price at any dose / within your plan" -> endcard_v2_tirz[_4x5].mp4"""
 import argparse, math, os, subprocess
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -17,7 +19,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 ap = argparse.ArgumentParser(); ap.add_argument('--dur', type=float, default=2.5)
 ap.add_argument('--fmt', choices=['916', '45'], default='916', help='45: 1080x1350 layout for Instagram/Facebook Feed (Meta: Feed needs 4:5)')
-a = ap.parse_args(); FMT45 = a.fmt == '45'
+ap.add_argument('--product', choices=['sema', 'tirz'], default='sema')
+a = ap.parse_args(); FMT45 = a.fmt == '45'; TIRZ = a.product == 'tirz'
+NAME, PRICE = ('COMPOUNDED TIRZEPATIDE', '$129') if TIRZ else ('COMPOUNDED SEMAGLUTIDE', '$69')
 W, H, FPS, CX = (1080, 1350, 30, 540) if FMT45 else (1080, 1920, 30, 510)   # 4:5 has no right-hand button rail: centred
 # vertical shifts for the 4:5 layout (price block, CTA, URL, badge, disclaimer)
 DP, DC, DU, DB, DD = (-300, -316, -327, -338, -350) if FMT45 else (0, 0, 0, 0, 0)
@@ -94,11 +98,11 @@ BW = 260 if FMT45 else 300; badge = badge.resize((BW, round(badge.height * BW / 
 def ctext(d, y, s, f, fill):
     w = d.textlength(s, font=f); d.text((CX - w / 2, y), s, font=f, fill=fill); return w
 price = layer(); d = ImageDraw.Draw(price)
-ctext(d, 830 + DP, 'COMPOUNDED SEMAGLUTIDE', F('SemiBold', 30), INK2)
+ctext(d, 830 + DP, NAME, F('SemiBold', 30), INK2)
 fp, fs = F('Bold', 150), F('SemiBold', 46)
-wp = d.textlength('$69', font=fp); ws = max(d.textlength('first', font=fs), d.textlength('month', font=fs)); gap = 22
+wp = d.textlength(PRICE, font=fp); ws = max(d.textlength('first', font=fs), d.textlength('month', font=fs)); gap = 22
 x0 = CX - (wp + gap + ws) / 2
-d.text((x0, 866 + DP), '$69', font=fp, fill=NAVY)
+d.text((x0, 866 + DP), PRICE, font=fp, fill=NAVY)
 d.text((x0 + wp + gap, 908 + DP), 'first', font=fs, fill=BLUE); d.text((x0 + wp + gap, 958 + DP), 'month', font=fs, fill=BLUE)
 fi = F('Medium', 28); wi = d.textlength('Introductory offer', font=fi)
 d.rounded_rectangle((CX - wi / 2 - 18, 1048 + DP, CX + wi / 2 + 18, 1092 + DP), 22, fill=(32, 99, 235, 26))
@@ -143,14 +147,21 @@ def fade(im, t0, t1, t, rise=24):
     p = ease((t - t0) / (t1 - t0))
     if p <= 0: return None, 0
     o = im.copy(); o.putalpha(o.getchannel('A').point(lambda q: int(q * p))); return o, int(rise * (1 - p))
-n = int(a.dur * FPS); out = 'footage/broll/endcard_v2_4x5.mp4' if FMT45 else 'footage/broll/endcard_v2.mp4'
+n = int(a.dur * FPS); out = 'footage/broll/endcard_v2' + ('_tirz' if TIRZ else '') + ('_4x5' if FMT45 else '') + '.mp4'
+same = layer(); d = ImageDraw.Draw(same)                                  # tirz: the client's end-card line where the vial sits
+ctext(d, VIAL_CY - 150, 'Same price at any dose', F('Bold', 64), NAVY); ctext(d, VIAL_CY - 66, 'within your plan', F('SemiBold', 50), BLUE)   # above the heartbeat line (VIAL_CY + 40)
 proc = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
                          '-c:v', 'libx264', '-crf', '14', '-pix_fmt', 'yuv420p', out], stdin=subprocess.PIPE)
-base = bg.copy(); base.alpha_composite(glow); base.alpha_composite(ring)
+base = bg.copy(); base.alpha_composite(glow)
+if not TIRZ: base.alpha_composite(ring)
 for i in range(n):
     t = i / FPS; fr = base.copy()
     fr.alpha_composite(heartbeat(ease((t - 0.15) / 0.9)))
-    pv = ease((t - 0.05) / 0.5); fr.alpha_composite(vial_layer(30 * (1 - pv) + 5 * math.sin(2 * math.pi * t / 2.4), pv))
+    pv = ease((t - 0.05) / 0.5)
+    if TIRZ:
+        o, dy = fade(same, 0.05, 0.45, t)
+        if o is not None: fr.alpha_composite(o, (0, dy))
+    else: fr.alpha_composite(vial_layer(30 * (1 - pv) + 5 * math.sin(2 * math.pi * t / 2.4), pv))
     for im, t0, t1 in [(logo_l, 0.0, 0.35), (price, 0.25, 0.6), (trust, 0.5, 0.85), (disc, 0.2, 0.5)]:
         o, dy = fade(im, t0, t1, t)
         if o is not None: fr.alpha_composite(o, (0, dy))

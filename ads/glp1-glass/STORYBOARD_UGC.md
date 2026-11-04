@@ -107,25 +107,22 @@ Locations: **neighbourhood walk** → **home on the sofa**. Outfit: zip-up athle
 | — | ☐ **End card** |
 "Takes a few minutes": confirm with the client (the NAD+ page says 3 minutes; the GLP-1 intake length is not stated).
 
-## Video 6: "Higher dose. Same price." (Tirzepatide; client concept Oct 29, PLAN_TIRZ_NAD_2026-10.md) ~22 s + end card
-Locations: **kitchen** (morning, holding her phone) → the dose graphic → **front steps** (heading out, jacket). Outfit:
-a new plain solid tee (mid-tone terracotta; not Video 1's navy, so the series doesn't look recycled), a solid olive
-jacket outside; same gold hoops, glasses on her head, clip-on mic. Spoken spelling: **tir-ZEP-a-tide** (test on the
-first draft; fallback "tirz"). No MY70, no regular price, no mg numbers (client, Oct 29).
+## Video 6: "Higher dose. Same price." (Tirzepatide; client concept Oct 29) v1 built Nov 4, 2026
+**New host** (replaces Dana on new ads): footage/ref/host2_v2_B1_4.png; voice = Naomi (vo/ugc/host2_voice_Naomi.wav as the
+audio reference). Spoken spellings: "tur-ZEP-uh-tide" (it still came out "-teede" once: next time "tur-ZEP-uh-TYDE",
+rhymes with "ride"), "My Fast R-X" + the rule 'Say "R-X" as two letters, "are ex"'. Edit: tools/vid6-edit.py [--hook A|B], FMT=45.
 
 | She says | Shots |
 |---|---|
-| Hook A: "Okay so... tir-ZEP-a-tide doses usually go UP over time." | ☐ **AI UGC** kitchen, phone in hand, looks up from it (hook, 1.5 s)<br>☐ on-screen from frame 1: HIGHER DOSE. SAME PRICE. |
-| Hook B (A/B): "The tir-ZEP-a-tide price thing nobody really explains." | ☐ **AI UGC** same set-up, separate 5 s clip |
-| "At My Fast Rx? The price doesn't." | ☐ **AI UGC** same take as the hook (C1, 8 s), small shrug |
-| VO: "Same price, whatever dose your provider puts you on. No surprise refill charges either." | ☑ **Anim** dose graphic, 5 s (`tools/dose-graphic.py` → `footage/broll/dose_same_price.mp4`)<br>☐ VO in Dana's voice (Seed Audio, voice ref e43ccae4, ~0.4 cr), level-matched as Video 5 |
-| "I actually double-checked that." | ☐ **AI UGC** MOVE → front steps, jacket on, keys in hand (C2, ~12 s, one take to the end) |
-| "Compounded tir-ZEP-a-tide starts at a hundred and twenty-nine DOLLARS, first month." | ☐ on-screen chip: Compounded Tirzepatide · $129 first month · Introductory offer |
-| "Check if you qualify... takes like a minute." | ☐ caption: Check if I qualify ↓ |
-| — | ☐ **End card** (end card v2, Tirzepatide version, no vial): Compounded Tirzepatide / $129 first month / Introductory offer / Same price at any dose within your plan / Check if I qualify / MyFastRx.com / BBB badge / disclaimer (brief section 9, intro version) + "Prescription required. Subject to provider approval." |
+| Hook A: "Okay so... tirzepatide doses usually go UP over time. At My Fast Rx? The price doesn't." | ☑ **AI UGC** kitchen (host2_v6_hookA_720p), headline HIGHER DOSE. SAME PRICE. from frame 1 |
+| Hook B: "The tirzepatide price thing nobody really explains." then Hook A from "doses" | ☑ **AI UGC** kitchen (host2_v6_hookB_720p) |
+| (from "usually go up over time") | ☑ **Anim** dose graphic: steps rise with her words, "Same price at any dose within your plan" on "the price doesn't" |
+| VO: "No surprise refill charges either." | ☑ Seed Audio, Naomi (host2_v6_vo_dose, tail only) on the "No automatic refill billing" chip |
+| "I actually double-checked that. Compounded tirzepatide starts at a hundred and twenty-nine DOLLARS, first month. Check if you qualify... takes like a minute." | ☑ **AI UGC** front steps (host2_v6_steps_720p; "tirzepatide" last syllable patched, tools/vid6-tirzfix.py), price chip + caption with "Introductory offer" |
+| — | ☑ **End card** v2, Tirzepatide version (no vial), 3 s |
 
-Credits (Higgsfield, preflight each): stills 2 locations x 2 options = 8; C1 8 s at 720p = 56; C2 12 s = 84; hook B
-5 s = 35; VO ~0.4. **~185 total, ~260 with one retake.** Native 1080p finalize only if the client asks (Video 1 did).
+Outputs: out/ugc/vid6_higher_dose/MyFastRx_UGC6_HigherDose_{A,B}_v1[_4x5].mp4 (A 24.7 s, B 27.2 s; -16.6/-16.7 LUFS).
+Credits: host casting 12 + 8 + 12 (stills) + 4.2 (voices) + 48 (480p tests) + 175.6 (720p clips + VO) = ~260.
 
 ## Shared assets (made once)
 ☑ Dana casting (`footage/ref/dana_v2_1.png`, kitchen)

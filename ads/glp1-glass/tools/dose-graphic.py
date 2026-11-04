@@ -8,18 +8,20 @@
   - two chips: "Same price at any dose within your plan" (client's end-card line) and "No automatic refill billing"
     (client confirmed Oct 29: no auto rebilling)
   - y 1150-1260 stays clear for the edit's captions (caption bottom 1236)
-  python3 tools/dose-graphic.py [--dur 5] -> footage/broll/dose_same_price.mp4 (+ _still.png)"""
+  python3 tools/dose-graphic.py [--dur 5] [--chips 3.3 3.8] [--out ...] -> footage/broll/dose_same_price.mp4 (+ _still.png)"""
 import argparse, os, subprocess
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
-ap = argparse.ArgumentParser(); ap.add_argument('--dur', type=float, default=5.0); a = ap.parse_args()
+ap = argparse.ArgumentParser(); ap.add_argument('--dur', type=float, default=5.0)
+ap.add_argument('--chips', type=float, nargs=2, default=[3.3, 3.8], help='when the two chips come in (s)')
+ap.add_argument('--out', default='footage/broll/dose_same_price.mp4'); a = ap.parse_args()
 W, H, FPS, CX = 1080, 1920, 30, 510
 F = lambda wt, px: ImageFont.truetype(f'assets/fonts/Geist-{wt}.ttf', px)
 NAVY, BLUE, TEAL, INK2 = (0, 29, 69), (32, 99, 235), (20, 163, 184), (84, 98, 120)
-OUT = 'footage/broll/dose_same_price.mp4'
+OUT = a.out
 
 def layer(): return Image.new('RGBA', (W, H), (0, 0, 0, 0))
 def ease(x): x = min(max(x, 0), 1); return 1 - (1 - x) ** 3
@@ -103,7 +105,7 @@ for i in range(n):
     fr.alpha_composite(fade(labels, ease((t - 0.4) / 0.5)))
     fr.alpha_composite(lines_layer(t))
     fr.alpha_composite(fade(note, ease((t - 1.2) / 0.5)))
-    for c, t0 in ((chip1, 3.3), (chip2, 3.8)):
+    for c, t0 in ((chip1, a.chips[0]), (chip2, a.chips[1])):
         pc = ease((t - t0) / 0.45); cl = layer(); cl.alpha_composite(fade(c, pc), (0, int(24 * (1 - pc)))); fr.alpha_composite(cl)
     proc.stdin.write(fr.convert('RGB').tobytes())
     if i == n - 1: fr.convert('RGB').save(OUT.replace('.mp4', '_still.png'))

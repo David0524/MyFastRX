@@ -11,6 +11,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 ap = argparse.ArgumentParser()
 for k in ('--dur', '--tl0', '--tl1'): ap.add_argument(k, type=float, required=True)
+ap.add_argument('--out', default='audio/ugc/vid5_ambience.wav')
 ap.add_argument('--rewind', type=float, default=None, help='start of the fast rewind at the end of the time-lapse (whoosh)')
 a = ap.parse_args()
 SR = 48000; N = int(a.dur * SR); t = np.arange(N) / SR
@@ -58,7 +59,7 @@ if a.rewind is not None:                                  # rewind whoosh: brigh
     L_ = L_ + 0.016 * sweep; R_ = R_ + 0.016 * np.roll(sweep, 240)
 mix = np.stack([L_, R_], 1)
 mix *= np.clip(t / 0.3, 0, 1)[:, None] * np.clip((a.dur - t) / 0.6, 0, 1)[:, None]
-out = 'audio/ugc/vid5_ambience.wav'
+out = a.out
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', '-', '-c:a', 'pcm_s16le', out],
                input=mix.astype(np.float32).tobytes(), check=True)
 print(out)
