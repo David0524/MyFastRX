@@ -18,7 +18,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 FMT45 = os.environ.get('FMT') == '45'; Y0 = 150; SUF = '_4x5' if FMT45 else ''
 CHIP_Y = Y0 + 1190 if FMT45 else 1500
-EC = 'footage/broll/endcard_v2_tirz_4x5.mp4' if FMT45 else 'footage/broll/endcard_v2_tirz.mp4'
+EC = 'footage/broll/endcard_v3_tirz_4x5.mp4' if FMT45 else 'footage/broll/endcard_v3_tirz.mp4'   # v3 (client, Nov 4: "clean up" the end card)
 EC_SCALE = f'scale=1080:1350,pad=1080:1920:0:{Y0}' if FMT45 else 'scale=1080:1920'
 PREV_SCALE = 'scale=720:900:flags=lanczos' if FMT45 else 'scale=720:1280:flags=lanczos'
 W, H, FPS = 1080, 1920, 30
@@ -43,7 +43,7 @@ DURS = [3.0, 1.9, 2.2, 2.05, 2.6]                      # screens: about you, pla
 END = 3.0
 
 subprocess.run(['python3', 'tools/vid7-screens.py', '--durs'] + [str(d) for d in DURS], check=True)
-subprocess.run(['python3', 'tools/endcard-v2.py', '--dur', str(END), '--product', 'tirz'] + (['--fmt', '45'] if FMT45 else []), check=True)
+subprocess.run(['python3', 'tools/endcard-v3.py', '--dur', str(END), '--product', 'tirz'] + (['--fmt', '45'] if FMT45 else []), check=True)
 
 # ---- timeline
 T_SCR = HOOK_T[1] - HOOK_T[0]
@@ -112,9 +112,9 @@ for i, (tx, a_, b_, q) in enumerate(CAPS):
 p = f'{OV}/chip_price.png'; chip_png(['Compounded Tirzepatide', '$129 first month · Introductory offer'], p, CHIP_Y); ov.append((p, cl(2.85), TOTAL_A))
 
 # ---- sound beds
-MUS, ROOM, OUTD = 'audio/ugc/vid7_music.wav', 'audio/ugc/vid7_room.wav', 'audio/ugc/vid7_outdoor.wav'
-subprocess.run(['python3', 'tools/vid5-music.py', '--dur', f'{TOTAL:.3f}', '--bar0', '0.0', '--beat', f'{T_SCR:.3f}', '--endcard', f'{TOTAL_A:.3f}',
-                '--lift', f'{TOTAL_A:.3f}', f'{TOTAL + 1:.3f}', '--out', MUS], check=True)        # beat comes in on the cut to the website
+MUS, ROOM, OUTD = 'audio/ugc/vid7_music_v2.wav', 'audio/ugc/vid7_room.wav', 'audio/ugc/vid7_outdoor.wav'
+subprocess.run(['python3', 'tools/music-pop.py', '--dur', f'{TOTAL:.3f}', '--beat', f'{T_SCR:.3f}', '--break', f'{T_DOOR:.3f}', f'{T_CL:.3f}',
+                '--endcard', f'{TOTAL_A:.3f}', '--out', MUS], check=True)   # v2 (client, Nov 4: "new and different"): electronic pop, beat in on the website, drums out on the doorstep
 subprocess.run(['python3', 'tools/room-tone.py', '--kind', 'home', '--dur', f'{TOTAL_A:.3f}', '--out', ROOM], check=True)
 LD = DOOR_T[1] - DOOR_T[0]
 subprocess.run(['python3', 'tools/vid5-ambience.py', '--dur', f'{LD:.3f}', '--tl0', f'{LD + 1:.3f}', '--tl1', f'{LD + 2:.3f}', '--out', OUTD], check=True)
@@ -165,7 +165,7 @@ fc.append(f'[8:a]{st},volume=0.35[mu]')
 fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
 fc.append('[vo][ad][room][outd][mud]amix=inputs=5:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.80:level=false[aout]')
-name = f'MyFastRx_UGC7_StepByStep_v2{SUF}'   # v2 (Nov 4): closing "tirzepatide" fixed; mp4 = f'{OUT}/{name}.mp4'
+name = f'MyFastRx_UGC7_StepByStep_v3{SUF}'; mp4 = f'{OUT}/{name}.mp4'   # v2: closing "tirzepatide" fixed; v3: new music + end card v3
 if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', str(FPS),
          '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M',
