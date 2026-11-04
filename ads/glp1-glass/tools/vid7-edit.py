@@ -32,6 +32,7 @@ OUT = 'out/ugc/vid7_step_by_step'; OV = f'{OUT}/overlays{SUF}'
 for d in (OUT, OV, 'previews/ugc'): os.makedirs(d, exist_ok=True)
 HOOK, CLOSE, DOOR = 'footage/gen/host2_v7_hook_720p.mp4', 'footage/gen/host2_v7_close_720p.mp4', 'footage/gen/v7_doorstep_720p.mp4'
 VO, SCR = 'vo/ugc/host2_v7_vo_steps.wav', 'footage/broll/vid7_screens.mp4'
+CLOSE_A = 'audio/ugc/vid7_close_tirzfix.wav'     # client, Nov 4: "tir-zep-a-TADE" -> last syllable from the hook's "-tide" (tools/vid6-tirzfix.py)
 # cut points from the 10 ms energy envelope
 HOOK_T = (0.0, 4.75)                                   # speech 0.05-4.65
 CLOSE_T = [(0.0, 5.55), (6.15, 7.75)]                  # "...starting at $129." | (pause trimmed) "Check if you qualify."
@@ -125,7 +126,7 @@ def _rms(f, x=None, y=None):
 VO_GAIN = _rms(HOOK, 0.1, 4.6) / _rms(VO, 0.45, 12.6)
 
 # ---- compose
-ins = [HOOK, CLOSE, DOOR, SCR, f'{OV}/panel_bg.png', f'{OV}/panel_mask.png', EC, VO, MUS, ROOM, OUTD]
+ins = [HOOK, CLOSE, DOOR, SCR, f'{OV}/panel_bg.png', f'{OV}/panel_mask.png', EC, VO, MUS, ROOM, OUTD, CLOSE_A]
 args = ['ffmpeg', '-v', 'error', '-y']
 for i, f in enumerate(ins): args += (['-loop', '1', '-t', str(TOTAL)] if f.endswith('.png') else []) + ['-i', f]
 for p, _, _ in ov: args += ['-loop', '1', '-t', str(TOTAL), '-i', p]
@@ -149,7 +150,7 @@ st = 'aformat=sample_rates=48000:channel_layouts=stereo'
 def at(label, src, x, y, t, extra=''):
     ms = int(t * 1000)
     fc.append(f'[{src}]atrim={x:.3f}:{y:.3f},asetpts=PTS-STARTPTS,{st}{extra},afade=t=in:d=0.02,afade=t=out:st={y - x - 0.05:.3f}:d=0.05,adelay={ms}|{ms}[{label}]')
-fc.append(f'[0:a]asplit=1[h0]'); fc.append(f'[1:a]asplit=2[c0][c1]'); fc.append(f'[7:a]asplit=5[w0][w1][w2][w3][w4]')
+fc.append(f'[0:a]asplit=1[h0]'); fc.append(f'[11:a]asplit=2[c0][c1]'); fc.append(f'[7:a]asplit=5[w0][w1][w2][w3][w4]')
 at('ah', 'h0', *HOOK_T, 0.0)
 at('ac0', 'c0', *CLOSE_T[0], T_CL); at('ac1', 'c1', *CLOSE_T[1], T_CL2)
 for k, key in enumerate(['v1', 'v2', 'v3', 'L2', 'L3']):
@@ -164,7 +165,7 @@ fc.append(f'[8:a]{st},volume=0.35[mu]')
 fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
 fc.append('[vo][ad][room][outd][mud]amix=inputs=5:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.80:level=false[aout]')
-name = f'MyFastRx_UGC7_StepByStep_v1{SUF}'; mp4 = f'{OUT}/{name}.mp4'
+name = f'MyFastRx_UGC7_StepByStep_v2{SUF}'   # v2 (Nov 4): closing "tirzepatide" fixed; mp4 = f'{OUT}/{name}.mp4'
 if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', str(FPS),
          '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M',

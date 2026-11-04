@@ -354,3 +354,4 @@ unmarked. Client: "it's a small mailer". -> a small plain white padded insulated
 | host2_v7_close_720p.mp4 (8 s) | 57ad8b8c-7d8a-4f72-bcad-b244aa7955a7 | 56 | "Compounded tur-ZEP-uh-tide, starting at a hundred and twenty-nine DOLLARS. Check if you qualify." |
 | ../../vo/ugc/host2_v7_vo_steps.wav | a842593a-aa43-489a-a4a9-894b29f5ab43 | 0.3 | Cloned from her on-camera voice (ref 0c947d01): the three steps + guard word. |
 | v7_doorstep_720p.mp4 (5 s, Seedance 2.0 std) | bc29844c-5f3b-4309-9d82-2b98164c1749 | 22.5 | Start door_empty, end door1: a gloved hand sets the mailer down. |
+Patch (Nov 4, client: closing says "tir-zep-a-TADE"): tools/vid6-tirzfix.py (now reusable) --take host2_v7_close_720p --source host2_v7_hook_720p --dst 2.21 2.53 --src 1.255 1.50 --room-under -> audio/ugc/vid7_close_tirzfix.wav (Whisper: "terzepatite", vs the hook's "terzepatide"). Edit -> MyFastRx_UGC7_StepByStep_v2[_4x5].mp4 (-16.4 LUFS).

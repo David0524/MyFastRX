@@ -15,13 +15,20 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 ap = argparse.ArgumentParser(); ap.add_argument('--stretch', type=float, default=None,
                                                 help='time-stretch of the syllable (default: fill the original length)')
-ap.add_argument('--out', default='previews/ugc/vid6_steps_patch_preview.mp4'); a = ap.parse_args()
+ap.add_argument('--out', default='previews/ugc/vid6_steps_patch_preview.mp4')
+# reusable for any take (Video 7, Nov 4: the closing's "tir-zep-a-TADE" <- Video 7 hook's "-tide"); defaults = Video 6
+ap.add_argument('--take', default='footage/gen/host2_v6_steps_720p.mp4'); ap.add_argument('--source', default='footage/gen/host2_v6_hookA_720p.mp4')
+ap.add_argument('--dst', type=float, nargs=2, default=[4.29, 4.59]); ap.add_argument('--src', type=float, nargs=2, default=[2.425, 2.635])
+ap.add_argument('--level', type=float, nargs=2, default=[3.73, 4.18], help='the take\'s own voiced span just before the cut')
+ap.add_argument('--room', type=float, nargs=2, default=[4.62, 4.74], help='the take\'s room tone (silence after the word)')
+ap.add_argument('--room-under', action='store_true', help='keep the take\'s room tone at full level under the new syllable (noisy takes)')
+ap.add_argument('--wav', default='audio/ugc/vid6_steps_tirzfix.wav'); a = ap.parse_args()
 SR = 48000
-STEPS, HOOK = 'footage/gen/host2_v6_steps_720p.mp4', 'footage/gen/host2_v6_hookA_720p.mp4'
-OUT_WAV = 'audio/ugc/vid6_steps_tirzfix.wav'
+STEPS, HOOK = a.take, a.source
+OUT_WAV = a.wav
 # from the 10 ms RMS envelope: steps "-teede" = burst 4.29 .. end 4.59; hook A "-tide" = burst 2.425 .. 2.635 (before "doses")
-DST0, DST1 = 4.29, 4.59
-SRC0, SRC1 = 2.425, 2.635
+DST0, DST1 = a.dst
+SRC0, SRC1 = a.src
 
 def load(f):
     raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', f, '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'], capture_output=True).stdout
@@ -48,14 +55,15 @@ syl = np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-f', 'f32le', '-ar
                                     f'rubberband=tempo={1 / st:.4f}:formant=preserved:pitchq=quality', '-f', 'f32le', '-'],
                                    input=syl.tobytes(), capture_output=True, check=True).stdout, np.float32).copy()
 # level: match the steps take's own voiced level just before the cut ("tir-zep-a")
-syl *= rms(steps[round(3.73 * SR):round(4.18 * SR)][np.abs(steps[round(3.73 * SR):round(4.18 * SR)]) > 0.01]) / rms(syl[np.abs(syl) > 0.01])
+lv = steps[round(a.level[0] * SR):round(a.level[1] * SR)]
+syl *= rms(lv[np.abs(lv) > 0.01]) / rms(syl[np.abs(syl) > 0.01])
 d0, d1 = round(DST0 * SR), round(DST1 * SR)
 fi, fo = round(0.006 * SR), round(0.020 * SR)
 syl[:fi] *= np.linspace(0, 1, fi); syl[-fo:] *= np.linspace(1, 0, fo)
 out = steps.copy()
-room = steps[round(4.62 * SR):round(4.74 * SR)]                     # her own room tone, after the word
+room = steps[round(a.room[0] * SR):round(a.room[1] * SR)]                     # her own room tone, after the word
 gap = np.resize(room, d1 - d0)                                       # what sits under / after the new syllable
-seg = gap.copy(); k = min(len(syl), len(seg)); seg[:k] = syl[:k] + gap[:k] * np.linspace(0, 1, k) ** 4
+seg = gap.copy(); k = min(len(syl), len(seg)); seg[:k] = syl[:k] + gap[:k] * (1.0 if a.room_under else np.linspace(0, 1, k) ** 4)
 out[d0:d1] = seg
 xf = round(0.004 * SR); out[d0 - xf:d0] *= np.linspace(1, 0.3, xf)  # soften the original closure into the new burst
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '1', '-i', '-', OUT_WAV], input=out.tobytes(), check=True)
