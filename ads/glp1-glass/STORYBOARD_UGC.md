@@ -139,7 +139,7 @@ Delivery: small plain white padded insulated mailer (client: "a small mailer"; r
 | "Compounded tirzepatide, starting at a hundred and twenty-nine DOLLARS. Check if you qualify." | ☑ **AI UGC** desk (host2_v7_close_720p, pause trimmed) + price chip / caption with "Introductory offer" |
 | — | ☑ **End card** Tirzepatide (no vial) with promo terms, 3 s |
 
-Outputs: out/ugc/vid7_step_by_step/MyFastRx_UGC7_StepByStep_v3[_4x5].mp4, 30.25 s, -16.4 LUFS (v2: closing "tirzepatide" patched; v3: new music bed tools/music-pop.py, end card v3 tools/endcard-v3.py). Credits ~124.
+Outputs: out/ugc/vid7_step_by_step/MyFastRx_UGC7_StepByStep_v4[_4x5].mp4, 30.25 s, -16.3 LUFS (v2: "tirzepatide" patched; v3: new music + end card v3; v4: the plural "s" of "works" and "dollars" restored). Credits ~124.
 
 ## Shared assets (made once)
 ☑ Dana casting (`footage/ref/dana_v2_1.png`, kitchen)

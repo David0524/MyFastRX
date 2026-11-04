@@ -34,9 +34,11 @@ HOOK, CLOSE, DOOR = 'footage/gen/host2_v7_hook_720p.mp4', 'footage/gen/host2_v7_
 VO, SCR = 'vo/ugc/host2_v7_vo_steps.wav', 'footage/broll/vid7_screens.mp4'
 CLOSE_A = 'audio/ugc/vid7_close_tirzfix.wav'     # client, Nov 4: "tir-zep-a-TADE" -> last syllable from the hook's "-tide" (tools/vid6-tirzfix.py)
 # cut points from the 10 ms energy envelope
-HOOK_T = (0.0, 4.75)                                   # speech 0.05-4.65
-CLOSE_T = [(0.0, 5.55), (6.15, 7.75)]                  # "...starting at $129." | (pause trimmed) "Check if you qualify."
-DOOR_T = (1.40, 5.00)                                  # the hand comes in ~1 s into the shot, the mailer settles by the end
+HOOK_T = (0.0, 4.92)                                   # speech 0.05-4.88: v4 keeps the quiet final "s" of "works" (4.74-4.88; v1-v3 cut it at 4.75)
+CLOSE_T = [(0.0, 5.80), (6.15, 7.75)]                  # "...starting at $129." | (pause trimmed) "Check if you qualify."
+                                                       # v4: keeps the final "s" of "dollars" (5.60-5.74; v1-v3 cut it at 5.55)
+S_LIFT = {'hook': (4.72, 4.90), 'close': (5.58, 5.78)}  # client, Nov 4: "she misses the plural s twice": the two s's, +8 dB
+DOOR_T = (1.82, 5.00)                                  # v4: 0.42 s shorter, pays for the two s's (total stays 30.25 s)                                  # the hand comes in ~1 s into the shot, the mailer settles by the end
 VOSEG = {'v1': (0.45, 2.97), 'v2': (3.20, 4.07), 'v3': (4.17, 4.78), 'L2': (5.40, 8.93), 'L3': (9.32, 12.58)}
 L2_SPLIT = 6.84 - 5.40                                 # "for a licensed provider to review" starts this far into L2
 DURS = [3.0, 1.9, 2.2, 2.05, 2.6]                      # screens: about you, plan, checkout, intake, submitted
@@ -151,8 +153,8 @@ def at(label, src, x, y, t, extra=''):
     ms = int(t * 1000)
     fc.append(f'[{src}]atrim={x:.3f}:{y:.3f},asetpts=PTS-STARTPTS,{st}{extra},afade=t=in:d=0.02,afade=t=out:st={y - x - 0.05:.3f}:d=0.05,adelay={ms}|{ms}[{label}]')
 fc.append(f'[0:a]asplit=1[h0]'); fc.append(f'[11:a]asplit=2[c0][c1]'); fc.append(f'[7:a]asplit=5[w0][w1][w2][w3][w4]')
-at('ah', 'h0', *HOOK_T, 0.0)
-at('ac0', 'c0', *CLOSE_T[0], T_CL); at('ac1', 'c1', *CLOSE_T[1], T_CL2)
+at('ah', 'h0', *HOOK_T, 0.0, f",volume=enable='between(t,{S_LIFT['hook'][0]},{S_LIFT['hook'][1]})':volume=2.5")
+at('ac0', 'c0', *CLOSE_T[0], T_CL, f",volume=enable='between(t,{S_LIFT['close'][0]},{S_LIFT['close'][1]})':volume=2.5"); at('ac1', 'c1', *CLOSE_T[1], T_CL2)
 for k, key in enumerate(['v1', 'v2', 'v3', 'L2', 'L3']):
     at(f'av{k}', f'w{k}', *VOSEG[key], VOAT[key], f',highpass=f=90,volume={VO_GAIN:.3f}')
 at('ad', '2:a', *DOOR_T, T_DOOR, ',volume=0.45')                                      # the mailer landing on the mat
@@ -165,7 +167,7 @@ fc.append(f'[8:a]{st},volume=0.35[mu]')
 fc.append('[mu][vsc]sidechaincompress=threshold=0.015:ratio=4:attack=30:release=350[mud]')
 fc.append('[vo][ad][room][outd][mud]amix=inputs=5:duration=first:normalize=0,highpass=f=40,loudnorm=I=-16:TP=-1.5:LRA=11,'
           'alimiter=limit=0.80:level=false[aout]')
-name = f'MyFastRx_UGC7_StepByStep_v3{SUF}'; mp4 = f'{OUT}/{name}.mp4'   # v2: closing "tirzepatide" fixed; v3: new music + end card v3
+name = f'MyFastRx_UGC7_StepByStep_v4{SUF}'; mp4 = f'{OUT}/{name}.mp4'   # v2: closing "tirzepatide" fixed; v3: new music + end card v3
 if FMT45: fc.append(f'[{last}]crop=1080:1350:0:{Y0}[fmt45]'); last = 'fmt45'
 args += ['-filter_complex', ';'.join(fc), '-map', f'[{last}]', '-map', '[aout]', '-t', f'{TOTAL:.3f}', '-r', str(FPS),
          '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-b:v', '12M', '-maxrate', '12.5M', '-bufsize', '25M',

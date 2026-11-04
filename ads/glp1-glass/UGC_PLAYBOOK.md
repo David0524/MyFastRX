@@ -42,6 +42,8 @@ Distilled from a creator's two-part AI UGC workflow (client-supplied, Oct 2026),
   clips were seeded with sounded "extremely robotic, nothing like her" (client).
 - **"Tirzepatide" in her mouth (Nov 4):** spell it "tur-ZEP-uh-tide" (right in 2 of 3 takes). "tur-ZEP-uh-TYDE" + a
   "rhymes with ride" rule made it worse, and "-tide dose" ran together ("deuce"). Avoid putting "dose" straight after it.
+- **Don't cut off final consonants (Nov 4):** Seedance takes often end a word on a quiet "s" (10-20 dB under the vowel, 5-8 kHz).
+  Cutting on the energy drop removed the plural "s" twice ("dollar", "work"). Check brightness, not just level, before a cut.
 - **Small accessory changes between scenes are good (client, Nov 4):** e.g. the new host wears a gold necklace on the
   front steps but not in the kitchen. Small inconsistencies read as human; don't "fix" them for continuity.
 - **Never imply she is a patient:** no unboxing her own order, no "my medication". Delivery shots show a parcel on a
